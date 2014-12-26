@@ -1,0 +1,17 @@
+.forumControl {padding-bottom:10px;}
+.topic {margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid #eee;}
+.topic .title {display:block;float:left;width:60%;}
+.topic .info {float:right;width:40%;}
+.topic .date {display:block;float:right;width:40%;margin:0;}
+.topic .login {display:block;float:right;width:40%;}
+.topic .postCount {display:block;float:right;text-align:right;}
+
+.post {margin-bottom:15px;}
+.postStart {background:#eee;}
+.post .userInfo {float:left;margin-bottom:7px;margin-right:5px;padding-bottom:3px;text-align:center;border-bottom:1px dotted #639CBF;}
+.post .avatar,.block .avatar {max-width:90px;border:1px solid #999}
+.post .date {padding-right:6px;text-align:right;font-style:italic;}
+.post .login {display:block;float:left;width:92px;text-align:center;}
+
+.message {padding-left:16px;padding-bottom:10px;}
+.message img {max-width:567px;}

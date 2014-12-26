@@ -1,0 +1,21 @@
+#content {position:relative;}
+#faqContainer {display:none;}
+#newQuestion {position:absolute;z-index:3;left:150px;top:30px;}
+#newQuestion > div > div {width:249px;padding:17px 20px;background:white;}
+#newQuestion dl.form {width:100%;}
+#newQuestion dt {display:none;}
+#newQuestion dd {width:100%;height:auto;margin-bottom:5px;}
+#newQuestion input,#newQuestion textarea {width:243px;height:28px;border:1px solid #d7d7d7;font-style:italic;font-size:16px;background:#f9f9f9;}
+#newQuestion textarea {height:78px;font-family:Arial;}
+#newQuestion dd.textarea {margin:0;}
+#newQuestion .button {width:113px;margin-top:25px;color:#81a918;text-decoration:underline;font-style:normal;}
+#newQuestion dt.captcha {display:block;width:100%;font-size:12px;color:#767676;}
+#newQuestion dt img {float:left;margin-top:5px;}
+#newQuestion dd.captcha input {width:113px;float:right;margin-top:-10px;}
+
+#background {position:fixed;left:0;top:0;width:100%;height:100%;opacity:0.6;background:black;}
+.faq a.question {margin-bottom:15px;}
+.faq .item {margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #eee;}
+.faq p.question {font-weight:bold;font-size:1.1em;}
+.faq .status {margin-top:-20px;padding-bottom:20px;text-align:right;font-size:0.8em;font-weight:bold;}
+.faq p.answer {margin-top:-8px;padding-left:10px;font-style:italic;}

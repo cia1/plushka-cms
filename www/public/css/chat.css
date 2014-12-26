@@ -1,0 +1,15 @@
+#chatPage #console {float:left;padding:10px;border:1px solid #eee;}
+#chatPage #console p {padding-bottom:7px;}
+#chatPage #console span.time {padding-right:10px;color:#aaa;font-size:10px;}
+#chatPage #console span.name {font-weight:bold;}
+#chatPage dl.form {width:100%;}
+#chatPage dt {width:140px;clear:left;}
+#chatPage dd {float:right;width:450px;}
+#chatPage .button {float:right;margin-top:10px;}
+#chatPage .online {float:right;width:150px;border:1px solid #eee;}
+#chatPage .online ul {list-style-type:none;cursor:default;}
+
+.widgetchat .container p {padding-bottom:5px;}
+.widgetchat span.time {padding-right:7px;color:#aaa;font-size:10px;}
+.widgetchat span.name {font-weight:bold;}
+.widgetchat a {display:block;text-align:center;}

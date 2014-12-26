@@ -1,0 +1,16 @@
+* {padding:0;margin:0;}
+body {font:normal 16px Terminal;}
+#head {padding:15px 0;font:18px Verdana;text-align:center;border:1px solid green;}
+#content {float:left;width:100%;margin:20px 0;}
+#footer {padding:10px 25px;font:15px Verdana;text-align:right;border:1px solid green;clear:both;}
+input,select,textarea {border:1px solid red;}
+dl.form {width:600px;margin:0 auto;}
+dl.form dt {float:left;width:35%;}
+dl.form dd {float:right;width:65%;}
+dl.form input,dl.form select,dl.form textarea {width:100%;}
+dl.form textarea {height:200px;}
+dl.form .text,dl.form .select,dl.form  .password {height:23px;}
+
+table.adminList {width:98%;margin:0 auto;border-collapse:collapse;}
+table.adminList th {text-align:left;border:1px solid #ddd;}
+table.adminList td {border:1px solid #eee;}

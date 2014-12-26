@@ -1,0 +1,10 @@
+#layoutView .item {height:16px;margin:2px 0;padding:4px 10px;}
+#layoutView .title {float:left;width:40%;}
+#layoutView .checkbox1 {float:left;width:80px;text-align:center;}
+#layoutView .checkbox2 {float:left;width:150px;text-align:center;}
+#layoutView .enabled {color:black;border:1px solid #aaa;}
+#layoutView .disabled {color:#aaa;border:1px solid #eee;}
+#layoutView .disabled a {color:#aaa;}
+
+dl.form dd.gallery {width:100%;height:auto;}
+dl.form dd.gallery img {max-height:40px;max-width:40px;}

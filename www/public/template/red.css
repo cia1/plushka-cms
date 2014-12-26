@@ -1,0 +1,8 @@
+body {background:#412727;}
+#page {background:#eeb6b6;}
+#header {height:47px;}
+#header .widgetmenu {background:#ba1a1a;}
+#header .widgetmenu li,#header .widgetmenu li:first-child {border-right:1px solid black;}
+#header .widgetmenu li span {color:white;}
+#header .widgetmenu li:hover {background:#d82222;}
+.widgetsearch {margin-right:30px;}

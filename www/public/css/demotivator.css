@@ -1,0 +1,9 @@
+#background {float:left;}
+#background input {width:100%;padding:0;border:0;background:transparent;text-align:center;}
+#demText {padding-top:16px;}
+.demFormRight {float:right;width:60%;}
+.demFormRight dl.form {float:left;width:90%;}
+
+#demList .item {float:left;width:50%;margin-bottom:10px;background:#eee;}
+#demList .item img {float:left;height:200px;margin-right:15px;}
+
