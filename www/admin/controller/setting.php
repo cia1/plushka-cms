@@ -25,6 +25,7 @@ class sController extends controller {
 			$cfg['smtpUser']=null;
 			$cfg['smtpPassword']=null;
 			$cfg['smtpEmail']=null;
+			$smtpSSL=false;
 		}
 		$f=core::form();
 		$f->checkbox('debug','Режим отладки',$cfg['debug']);

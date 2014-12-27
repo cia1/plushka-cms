@@ -135,6 +135,7 @@ div.fld8 {float:left;margin-right:10px;}
 #catalog .item a.readmore {position:absolute;bottom:5px;right:10px;text-decoration:none;}
 #catalogView .item {padding-bottom:5px;}
 #catalogView .item label {color:#639CBF;}
+#catalogView img {margin:0 7px 7px 0;max-width:100px;}
 .widgetcatalogSearch .range1,.widgetcatalogSearch .range2 {width:150px;}
 
 #chatPage #console {width:410px;}

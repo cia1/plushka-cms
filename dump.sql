@@ -91,22 +91,22 @@ CREATE TABLE IF NOT EXISTS `catalog_1` (
   `metaTitle` varchar(300) NOT NULL,
   `metaKeyword` varchar(300) NOT NULL,
   `metaDescription` varchar(300) NOT NULL,
-  `fld1` varchar(300) NOT NULL DEFAULT '',
-  `fld2` mediumint(8) unsigned DEFAULT NULL,
-  `fld3` varchar(300) NOT NULL DEFAULT '',
-  `fld4` varchar(300) NOT NULL DEFAULT '',
-  `fld5` varchar(300) NOT NULL DEFAULT '',
-  `fld6` char(18) DEFAULT NULL,
-  `fld7` mediumtext,
-  `fld8` char(18) DEFAULT NULL,
-  `fld9` char(50) DEFAULT NULL,
-  `fld10` varchar(300) NOT NULL DEFAULT '',
+  `genry` varchar(300) NOT NULL DEFAULT '',
+  `year` mediumint(8) unsigned DEFAULT NULL,
+  `director` varchar(300) NOT NULL DEFAULT '',
+  `country` varchar(300) NOT NULL DEFAULT '',
+  `actor` varchar(300) NOT NULL DEFAULT '',
+  `description1` mediumtext,
+  `description2` mediumtext,
+  `mainPicture` char(50) DEFAULT NULL,
+  `translate` char(50) DEFAULT NULL,
+  `picture` varchar(300) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms0.catalog_1: ~3 rows (приблизительно)
 /*!40000 ALTER TABLE `catalog_1` DISABLE KEYS */;
-INSERT INTO `catalog_1` (`id`, `alias`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `fld1`, `fld2`, `fld3`, `fld4`, `fld5`, `fld6`, `fld7`, `fld8`, `fld9`, `fld10`) VALUES
+INSERT INTO `catalog_1` (`id`, `alias`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `genry`, `year`, `director`, `country`, `actor`, `description1`, `description2`, `mainPicture`, `translate`, `picture`) VALUES
 	(4, 'colleague', 'Коллеги', '', '', '', 'драмма', 1962, 'Алексей Сахаров', 'СССР', 'Олег Анофриев, Эдуард Бредун, Владимир Кашпур, Василий Лановой, Василий Ливанов, Иван Любезнов, Владимир Марута, Евгения Мельникова, Ростислав Плятт, Лев Поляков', '<p>\r\n	Советская др', '<p>\r\n	Саша, Владька и Алеша — друзья со времен учебы в Ленинградском медицинском институте. После окончания учебного заведения все трое получают распределения на работу. Саша решает отправится в сельскую больницу, где два года не было врачей. Алексей трудится в карантинной службе международного врача. Несмотря на то, что судьба разбросала друзей по разным городам, нить их дружбы не прервется, а станет только крепче. Драма «Коллеги» основана на одноименной повести Василия Аксенова. Из-за обвинения писателя в диссидентстве, фильм долгое время пролежал на полке, запрещенный цензурой.</p>\r\n', '1.4-fld8.jpg', 'одноголосый любительский', '1.4-fld10-1.jpg|1.4-fld10-2.gif|1.4-fld10-3.jpg|1.4-fld10-4.gif|1.4-fld10-5.jpg|1.4-fld10-6.jpg|1.4-fld10-7.jpg|1.4-fld10-8.jpg|1.4-fld10-9.jpg|1.4-fld10-10.jpg'),
 	(5, 'vaselisa-prekrasnaya', 'Василиса Прекрасная', '', '', '', 'для детей, сказка', 1939, 'Александр Роу', 'СССР', 'Ирина Зарубина, Сергей Столяров, Георгий Милляр', '<p>\r\n	Шедевр Алекс', '<p>\r\n	Один отец задумал женить своих сыновей. Три брата вышли в чисто поле, натянули тетиву луков и пустили стрелы по разные стороны. Стрела старшего сына упала на двор к боярину, и стала боярская дочь его женой. Средний сын запустил стрелу на купеческий двор, где он тоже нашел себе невесту. А стрела младшего сына Ивана упала на болото, прямо в лапы к лягушке-квакушке. Не знал Иван, что лягушка оказалась непростой, а заколдованной красавицей Василисой Прекрасной. Стали они жить одной семьей. Но невесты брата позавидовали красоте Василисы и сожгли лягушачью шкурку. Змей Горыныч унес девушку к себе, и безутешный Иван отправился на поиски суженой.</p>\r\n', '1.5-fld8.jpg', NULL, ''),
 	(7, 'podkidiysh', 'Подкидыш', '', '', '', 'комедия, драмма', 1939, 'Татьяна Лукашевич', 'СССР', 'Вероника Лебедева, Фаина Раневская, Петр Репнин, Ростислав Плятт, Рина Зеленая, Ольга Жизнева, Татьяна Барышева, Дмитрий Глухов, Федор Одиноков, Николай ', '<p>\r\n	Классическая', '<p>\r\n	Классическая комедия советского кинематографа. Маленькая Наташа вышла из дома и потерялась в большом городе. В ее судьбе приняли участие все, кого она встретила в своем увлекательном, полном веселых приключений путешествии. Все, конечно, закончилось хорошо. А пока Наташа блуждала по городу, она приобрела много друзей и среди взрослых, и среди детей. «Подкидыш» — одна из самых известных комедий отечественного кино советского периода, а фраза «Муля, не нервируй меня» превратилась в визитную карточку Фаины Раневской.</p>\r\n', '1.7-fld8.jpg', NULL, '');
@@ -439,7 +439,7 @@ CREATE TABLE IF NOT EXISTS `modified` (
   PRIMARY KEY (`link`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms0.modified: 33 rows
+-- Дамп данных таблицы cms0.modified: 34 rows
 /*!40000 ALTER TABLE `modified` DISABLE KEYS */;
 INSERT INTO `modified` (`link`, `time`) VALUES
 	('article/view/index', 1391786559),
@@ -474,7 +474,8 @@ INSERT INTO `modified` (`link`, `time`) VALUES
 	('shop/category/39/germaflex-500l-w20-8', 1411595923),
 	('shop/category/39/genesis-11-08-500', 1411594897),
 	('shop/category/39/genesis-i-22-4-10', 1411595258),
-	('article/view/example', 1418384536);
+	('article/view/example', 1418384536),
+	('catalog/1/iuygiuyg', 1419694739);
 /*!40000 ALTER TABLE `modified` ENABLE KEYS */;
 
 
@@ -520,7 +521,6 @@ INSERT INTO `section` (`name`, `url`, `widgetId`, `sort`) VALUES
 	('bottom', 'article/view/index.', 53, 5),
 	('right', 'faq/', 54, 10),
 	('right', 'form/1000.', 54, 10),
-	('top', 'catalog/1/', 55, 1),
 	('footer', 'shop/category/', 51, 1),
 	('footer', 'faq/', 51, 1),
 	('footer', '#/', 51, 1),
@@ -532,9 +532,10 @@ INSERT INTO `section` (`name`, `url`, `widgetId`, `sort`) VALUES
 	('footer', 'article/view/about/', 51, 1),
 	('right', 'article/view/about.', 58, 11),
 	('right', 'article/view/index.', 58, 11),
-	('top', 'user/register.', 63, 2),
-	('top', 'user/login.', 63, 2),
-	('right', 'article/list/article/', 66, 12);
+	('top', 'user/register.', 63, 1),
+	('top', 'user/login.', 63, 1),
+	('right', 'article/list/article/', 66, 12),
+	('top', 'catalog/1/', 68, 2);
 /*!40000 ALTER TABLE `section` ENABLE KEYS */;
 
 
@@ -853,7 +854,7 @@ CREATE TABLE IF NOT EXISTS `widget` (
   `section` char(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `section` (`section`)
-) ENGINE=MyISAM AUTO_INCREMENT=67 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=69 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms0.widget: 16 rows
 /*!40000 ALTER TABLE `widget` DISABLE KEYS */;
@@ -871,7 +872,7 @@ INSERT INTO `widget` (`id`, `name`, `data`, `cache`, `title`, `publicTitle`, `se
 	(58, 'blog', 'a:4:{s:10:"categoryId";s:1:"1";s:8:"linkType";s:4:"blog";s:12:"countPreview";i:3;s:9:"countLink";i:0;}', 0, 'Новости', 1, 'right'),
 	(53, 'html', 'bottom.1', 0, 'С праздником!', 1, 'bottom'),
 	(54, 'vote', '3', 10, 'Голосование', 1, 'right'),
-	(55, 'catalogSearch', 'a:2:{s:2:"id";s:1:"1";s:3:"fld";a:4:{s:5:"title";a:1:{s:3:"set";s:2:"on";}i:1;a:1:{s:3:"set";s:2:"on";}i:2;a:5:{s:3:"set";s:2:"on";s:3:"min";s:4:"1900";s:3:"max";s:4:"2013";s:4:"step";s:1:"2";s:5:"range";s:2:"on";}i:9;a:1:{s:3:"set";s:2:"on";}}}', 0, 'Поиск', 1, 'top'),
+	(68, 'catalogSearch', 'a:2:{s:2:"id";s:1:"1";s:3:"fld";a:2:{s:5:"title";a:1:{s:3:"set";s:2:"on";}s:4:"year";a:5:{s:3:"set";s:2:"on";s:3:"min";s:4:"1900";s:3:"max";s:4:"2015";s:4:"step";s:1:"1";s:5:"range";s:2:"on";}}}', 0, 'Поиск', 1, 'top'),
 	(63, 'oauth', 'a:2:{s:8:"register";b:0;s:2:"vk";a:2:{i:0;s:3:"111";i:1;s:3:"222";}}', 0, 'Войти через...', 0, 'top'),
 	(66, 'html', 'right.3', 0, 'Произвольный текст', 0, 'right');
 /*!40000 ALTER TABLE `widget` ENABLE KEYS */;

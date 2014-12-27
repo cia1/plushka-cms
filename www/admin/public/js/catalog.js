@@ -21,7 +21,14 @@ $(document).ready(function() {
 	$('dl.form dd.gallery a').click(function() {
 		if(!confirm('Подтвердите удаление изображения')) return false;
 		var link=this.href;
+
+		var index=parseInt(this.href.substr(this.href.indexOf('index=')+6,2));
+		var tagA=$(this).parent();
 		$(this).remove();
+		tagA=$('a',tagA);
+		for(var i=index;i<tagA.length;i++) {
+			tagA[i].href=tagA[i].href.substr(0,tagA[i].href.indexOf('index=')+6)+i;
+		}
 		$.get(link);
 		return false;
 	});

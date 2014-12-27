@@ -284,6 +284,7 @@ class sController extends controller {
 		$f->text('title','Заголовок/название',$data['title']);
 		$f->text('alias','Псевдоним',$data['alias']);
 		foreach($cfg['data'] as $id=>$item) { //тип поля
+			if(!isset($data[$id])) $data[$id]=null;
 			switch($item[1]) {
 			case 'integer': case 'float': case 'string':
 				$f->text($id,$item[0],(isset($data[$id]) ? $data[$id] : ''));
@@ -645,7 +646,7 @@ class sController extends controller {
 		case 'date':
 			return 'INT UNSIGNED';
 		case 'image':
-			return 'CHAR(18)';
+			return 'CHAR(50)';
 		case 'list':
 			return 'CHAR(50)';
 		}
