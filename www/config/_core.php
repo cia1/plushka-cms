@@ -6,7 +6,7 @@
 'mysqlHost'=>'localhost',
 'mysqlUser'=>'root',
 'mysqlPassword'=>'',
-'mysqlDatabase'=>'cms0',
+'mysqlDatabase'=>'cms',
 'mainPath'=>'article/view/index',
 'link'=>array(
 'article/view/about'=>'about',

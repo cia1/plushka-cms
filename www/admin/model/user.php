@@ -2,26 +2,23 @@
 /* Объект "пользователь". */
 core::import('core/model');
 class modelUser extends model {
-	protected $validate=array(
-		'id'=>array('primary'),
-		'login'=>array('latin','Логин',true),
-		'groupId'=>array('integer','Группа',true,'min'=>1,'max'=>255),
-		'status'=>array('boolean','Статус'),
-		'email'=>array('email','E-mail',true),
-	);
 	protected $fields='*';
 
-	
 	public function __construct() {
 		parent::__construct('user');
 	}
 
-	/* Добавить валидацию пароля */
-	public function set($data) {
-		parent::set($data);
-		if($this->password) {
-			$this->validate['password']=array('string','Пароль',true);
-		}
+	//Возвращает массив с правилами валидации
+	protected function validateRule() {
+		$data=array(
+			'id'=>array('primary'),
+			'login'=>array('latin','Логин',true),
+			'groupId'=>array('integer','Группа',true,'min'=>1,'max'=>255),
+			'status'=>array('boolean','Статус'),
+			'email'=>array('email','E-mail',true),
+		);
+		if($this->password) $data['password']=array('string','Пароль',true);
+		return $data;
 	}
 
 	public function validate($fields=null) {

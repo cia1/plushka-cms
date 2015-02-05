@@ -7,6 +7,7 @@
 
 		<div id="sidebar">
 			<?=core::widget('user')?>
+			<?=core::widget('oauth',null,null,'Войти через...')?>
 			<?=core::section('right')?>
 		</div>
 

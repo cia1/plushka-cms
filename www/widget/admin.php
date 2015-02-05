@@ -7,13 +7,21 @@ class widgetAdmin extends widget {
 
 	public function adminLink() {
 		$u=core::userCore();
+		$modelUser=$u->model();
 		$link=array();
-		//перебрать права пользователя - среди них есть те, которые являют собой кнопки админки
-		foreach($u->right as $module=>$isMain) {
-			if(!$isMain) continue;
-			$data=$u->rightData($module);
-			$item=explode('.',$module);
-			$link[]=array($module,'?controller='.$item[0].($item[1] && $item[1]!='*' ? '&action='.$item[1] : ''),$data['picture'],$data['description']);
+		//Загрузить общие кнопки админки для текущего пользователя
+		$q='';
+		$db=core::db();
+		array_walk($u->right,function($isMain,$module) use(&$q,$db) {
+			if($isMain) {
+				if ($q) $q.=','.$db->escape($module); else $q=$db->escape($module);
+			}
+		});
+		$db->query('SELECT module,description,picture FROM userRight WHERE module IN ('.$q.')');
+		//Сформировать массив кнопок
+		while($item=$db->fetch()) {
+			$module=explode('.',$item[0]);
+			$link[]=array($item[0],'?controller='.$module[0].($module[1] && $module[1]!='*' ? '&action='.$module[1] : ''),$item[2],$item[1]);
 		}
 		if(isset($_SESSION['userCore'])) $link[]=array('user.user','?controller=user&action=return','logout','Выйти из режима подмены пользователя');
 		return $link;

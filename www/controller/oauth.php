@@ -48,23 +48,26 @@ class sController extends controller {
 				controller::$error='Вы не зарегистрированы на этом сайте';
 				return 'Answer';
 			}
-			$data=array(
-				'id'=>null,
-				'groupId'=>$userGroup,
-				'login'=>$this->id.($db->fetchValue('SELECT MAX(id) FROM user')+1),
-				'email'=>$answer['email']
-			);
-			$db->query('INSERT INTO user SET groupId='.$data['groupId'].',login='.$db->escape($data['login']).',password='.$db->escape($data['login'].time()).',email='.$db->escape($data['email']).',status=1');
-			$data['id']=$db->insertId();
-			$db->query('INSERT INTO oauth SET social='.$db->escape($this->id).',id='.$db->escape($answer['id']).',userId='.$data['id']);
-			core::hook('userCreate',$data['id'],$data['login'],$data['email']);
+			$user=core::user()->model();
+			if(!$user->create($this->id.($db->fetchValue('SELECT MAX(id) FROM user')+1),null,$answer['email'],1,$userGroup)) return false;
+//			$data=array(
+//				'id'=>null,
+//				'groupId'=>$userGroup,
+//				'login'=>$this->id.($db->fetchValue('SELECT MAX(id) FROM user')+1),
+//				'email'=>$answer['email']
+//			);
+//			$db->query('INSERT INTO user SET groupId='.$data['groupId'].',login='.$db->escape($data['login']).',password='.$db->escape($data['login'].time()).',email='.$db->escape($data['email']).',status=1');
+//			$data['id']=$db->insertId();
+//			$db->query('INSERT INTO oauth SET social='.$db->escape($this->id).',id='.$db->escape($answer['id']).',userId='.$data['id']);
+//			core::hook('userCreate',$data['id'],$data['login'],$data['email']);
+
 		}
-		$u=&core::user();
-		$u->id=$data['id'];
-		$u->group=$data['groupId'];
-		$u->login=$data['login'];
-		$u->email=$data['email'];
-		core::redirect('','Вы вошли как '.$u->login);
+//		$u=core::user();
+//		$u->id=$data['id'];
+//		$u->group=$data['groupId'];
+//		$u->login=$data['login'];
+//		$u->email=$data['email'];
+		core::redirect('','Вы вошли как '.$user->login);
 	}
 
 	/* Возвращает URL страницы соц.сети, открывающей сессию авторизации (первый запрос) */

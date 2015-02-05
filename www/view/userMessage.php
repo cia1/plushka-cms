@@ -14,7 +14,7 @@ echo '</i></center></p>';
 		echo '<div class="answer" id="answer'.$index.'" style="display:none;">';
 		$f=core::form();
 		$f->hidden('replyTo',$item['id']);
-		$f->textarea('message');
+		$f->textarea('message','');
 		$f->submit('Отправить');
 		$f->render();
 		echo '</div>';
@@ -28,6 +28,7 @@ function showAnswerForm(index) {
 		o.style.display='';
 		o.getElementsByTagName('textarea')[0].focus();
 	}
+	return false;
 }
 </script>
 

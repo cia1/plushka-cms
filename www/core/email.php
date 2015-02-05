@@ -101,7 +101,11 @@ class email {
 		if($this->_replyTo) $mime.=$this->_replyTo;
 		if($this->_returnPath) $mime.='Return-path: '.$this->_returnPath."\n";
 		$mime.="MIME-Version: 1.0\n".$this->_buildMultipart();
-		return mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=','',$mime);
+		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=','',$mime)) {
+			controller::$error='Не удалось отправить электронное письмо';
+			return false;
+		}
+		return true;
 	}
 
 	/* Выполняет отправку письма средствами SMTP */

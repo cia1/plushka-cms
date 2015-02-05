@@ -112,15 +112,15 @@ class sController extends controller {
 
 	/* Создание или изменение пользователя */
 	public function actionUserItem() {
-		core::import('admin/model/user');
+		core::import('model/user');
 		$model=new modelUser();
-		if(isset($_GET['id'])) $data=$model->loadById($_GET['id']); //Если редактирование, то загрузить данные пользователя
+		if(isset($_GET['id'])) $data=$model->loadById($_GET['id'],'*'); //Если редактирование, то загрузить данные пользователя
 		else $data=array('id'=>null,'login'=>'','password'=>'','groupId'=>1,'status'=>true,'email'=>'');
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->text('login','Логин',$data['login']);
-		$f->text('password','Пароль','');
-		$f->text('password2','Пароль ещё раз','');
+		$f->password('password','Пароль');
+		$f->password('password2','Пароль ещё раз');
 		$f->text('email','E-mail',$data['email']);
 		$f->select('groupId','Группа','SELECT id,name FROM userGroup ORDER BY id',$data['groupId']);
 		$f->checkbox('status','Активен',$data['status']);
@@ -128,50 +128,41 @@ class sController extends controller {
 		$f->checkbox('sendMessage','Отправить уведомление');
 
 		if($data['id']) $this->cite='Для смены пароля заполните поля &laquo;Пароль&raquo; и &laquo;Пароль ещё раз&raquo;. Если пароль менять не нужно, то оставьте эти поля пустыми.<br />';
-		$this->cite.=' Если признак &laquo;Отправить уведомление&raquo; отмечен, то на указанный e-mail будет отправлено сообщение, содержащее регистрационные данные.';
+		$this->cite.=' Если признак &laquo;Отправить уведомление&raquo; отмечен, то на указанный e-mail будет отправлено сообщение, содержащее регистрационные данные (включая пароль).';
 		return $f;
 	}
 
 	public function actionUserItemSubmit($data) {
 		if($data['id']) $isNew=false; else $isNew=true;
-		core::import('admin/model/user');
+		core::import('model/user');
 		$model=new modelUser();
 		$model->set($data);
 		if(!$model->save()) return false;
 		$s='Изменения сохранены';
-		//Если отмечен чекбокс "отправить регистрационные данные", то выслать пользователю его регистрационные данные
+			//Если отмечен чекбокс "отправить регистрационные данные", то выслать пользователю его регистрационные данные
 		if(isset($data['sendMessage'])) {
-			core::import('core/email');
-			$email=new email();
-			$email->from($cfg['adminFromEmail'],$cfg['adminFromName']);
-			$email->subject('Регистрационная информация');
-			$email->returnPath($cfg['adminFromEmail']);
-			$email->replyTo($cfg['adminFromEmail']);
-			if($data['status']) $data['status']='учётная запись активна'; else $data['status']='учётная запись заблокирована';
-			if(!$data['password']) $data['password']=$model->passwordByLogin();
-			$email->messageTemplate('userInfo',array('login'=>$data['login'],'password'=>$data['password'],'email'=>$data['email'],'statusMessage'=>$data['status']));
-			$email->send($data['email']);
+			$model->sendMail('info');
 			$s.='<br />Регистрационные данные отправлены на адрес '.$data['email'];
 		}
-		if($isNew) core::hook('userCreate',$model->id,$model->login,$model->email); else core::hook('userModify',$model->id,$model->login,$model->email);
 		core::redirect('?controller=user&action=user',$s);
 	}
 
 	/* Смена статуса пользователя (активен/заблокирован) */
 	public function actionStatus() {
-		core::import('admin/model/user');
-		$model=new modelUser();
-		$model->status($_GET['id']);
+		core::import('model/user');
+		$modelUser=new modelUser();
+		$modelUser->loadById($_GET['id'],'id,status');
+		$modelUser->status=!$modelUser->status;
+		$modelUser->save(false,'id,status');
 		core::redirect('?controller=user&action=user');
 	}
 
 	/* Удаление пользователя.
 	Обработку события удаления пользователя добавлю при первой необходимости */
 	public function actionUserDelete() {
-		core::import('admin/model/user');
+		core::import('model/user');
 		$model=new modelUser();
 		$model->delete($_GET['id']);
-		core::hook('userDelete',$_GET['id']);
 		core::redirect('?controller=user&action=user');
 	}
 

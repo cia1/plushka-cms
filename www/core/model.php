@@ -52,7 +52,7 @@ class model {
 	/* Выполняет валидацию всех данных
 	$validate - правила валидации */
 	public function validate($validate=null) {
-		if(!$validate) $validate=$this->validate;
+		if(!$validate && method_exist($this,'validateRule')) $validate=$this->validateRule();
 		foreach($validate as $name=>$options) {
 			if(!$this->_validateField($this->_data[$name],$name,$options)) return false;
 		}
@@ -60,21 +60,26 @@ class model {
 	}
 
 	/* Выполняет запрос INSERT или UPDATE (если есть значение первичного ключа)
-	$validate - отвечает за предварительную валидацию, $fields - список полей для обновления (если нет валидации), $id - значение первичного ключа (если нет валидации) */
+	$validate - отвечает за предварительную валидацию, $fields - список полей для обновления (если нет валидации), $id - значение первичного ключа (если нет валидации)
+	ВНИМАНИЕ! Если передан список полей в первом параметре, то среди этого списка должен быть первичный ключ */
 	public function save($validate=true,$fields=null,$id=null) {
-		if($validate===true) $validate=$this->validate;
+		if($validate===true) $validate=$this->validateRule();
 		elseif(is_string($validate)) { //если строка, значит содержит список полей
-			$fields=$validate;
-			$validate=$this->validate;
+			$fields=explode(',',$validate);
+			//в правила валидации взять только указанные поля
+			$tmpRule=$this->validateRule();
+			$validate=array();
+			foreach($fields as $item) $validate[$item]=$tmpRule[$item];
+			unset($tmpRule);
 		}
 		if($validate!==false) { //может содержать false, true или массив с правилами валидации
-			if(!$this->validate($validate)) return false;
-		} else $this->searchPrimary($this->validate); //поиск первичного ключа и установка его имени в $this->_primary
+			if(!$this->validate($validate,$fields)) return false;
+		} else $this->searchPrimary($this->validateRule()); //поиск первичного ключа и установка его имени в $this->_primary
 		if(!$fields) { //Если список полей не задан явно, то извлечь его из правил валидации
 			if(is_array($validate)) $fields=array_keys($validate);
-			elseif($validate===false) $fields=array_keys($this->validate);
+			elseif($validate===false) $fields=array_keys($this->validateRule());
 			else $fields=$validate;
-		}
+		} elseif(is_string($fields)) $fields=explode(',',$fields);
 		$primary=$this->_primary; //название первичного ключа (просто синоним для удобства).
 		//Если ID задан явно (не NULL), то восспринимать его как ключ возможно существующей записи, однако, в INSERT и UPDATE использовать ключ, заданный коссвенно (в списке полей).
 		if($id===null) $id=$this->_data[$primary];
@@ -87,7 +92,6 @@ class model {
 				if($options[0]=='boolean') if(!$this->_data[$name]) $this->_data[$name]='0'; else $this->_data[$name]='1';
 				if($s) $s.=',`'.$name.'`='.($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name])) ; else $s='`'.$name.'`='.($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
 			}
-//var_dump('UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$db->escape($id));
 			if(!$this->db->query('UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$db->escape($id))) return false;
 			return $this->afterUpdate($this->$primary); //триггер "после UPDATE"
 		} else { //Среди полей нет первичного ключа или он не задан явно или коссвено, значит выполнить INSERT
