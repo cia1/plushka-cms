@@ -2,13 +2,17 @@
 /* Объект "группа пользователей */
 core::import('core/model');
 class modelUserGroup extends model {
-	protected $validate=array(
-		'id'=>array('integer','Группа',true,'min'=>1,'max'=>255),
-		'name'=>array('string','Описание',true)
-	);
 
 	public function __construct() {
 		parent::__construct('userGroup');
+	}
+
+	//Возвращает правила валидации
+	protected function validateRule() {
+		return array(
+			'id'=>array('integer','Группа',true,'min'=>1,'max'=>255),
+			'name'=>array('string','Описание',true)
+		);
 	}
 
 	/* Подставить идентификатор пользователя */
@@ -21,7 +25,7 @@ class modelUserGroup extends model {
 	public function afterInsert($id=null) { return $this->afterUpdate($id); }
 
 	public function afterUpdate($id=null) {
-		/* Если пользователь является администратором, то обновить его права (они находятся в _POST) */
+		//Если пользователь является администратором, то обновить его права (они находятся в _POST)
 		if($this->id<200 || $this->id==255) return true;
 		$right=$_POST['user']['right'];
 		$db=$this->db;

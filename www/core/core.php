@@ -467,6 +467,34 @@ class widget {
 }
 /* --- --- */
 
+
+
+/* --- USER --- */
+//Класс "пользователь" всегда находится в сессии, получить экземляр можно при помощи core::user() и core::usercore()
+class user {
+	public $id;
+	public $login;
+	public $email;
+	public $group=0;
+
+	public function __construct($id=null) {
+		if($id) $this->model($id);
+	}
+
+	//Возвращает модель, позволяющую управлять пользователями. Если $id задан, то модель будут загружены данные по указанному идентификатору
+	public function model($id=null) {
+		static $model;
+		if(!isset($model)) {
+			core::import('model/user');
+			$model=new modelUser($id,$this);
+		}
+		return $model;
+	}
+}
+/* --- --- */
+
+
+
 /* С этой функции начинается вся основная работа */
 function runApplication($renderTemplate=true) {
 	session_start();
@@ -497,7 +525,6 @@ function runApplication($renderTemplate=true) {
 
 /* --- INITIALIZE --- */
 if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
-require(core::path().'core/user.db.php');
 
 //Обработать запрошенный URL и положить его в $_GET['corePath']
 $cfg=core::config();

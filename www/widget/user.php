@@ -23,7 +23,7 @@ class widgetUser extends widget {
 				$f->submit('Войти');
 				$f->render('user/login');
 			}
-			if($this->options['link']) echo '<span class="link"><a href="'.core::link('user/register').'">Регистрация</a> / <a href="'.core::link('user/restore1').'">Забыли пароль?</a></span>';
+			if($this->options['link']) echo '<span class="link"><a href="'.core::link('user/register').'">Регистрация</a> / <a href="'.core::link('user/restore').'">Забыли пароль?</a></span>';
 		}
 	}
 
