@@ -1034,4 +1034,8 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+<<<<<<< HEAD
 -- Dump completed on 2015-02-05 22:37:02
+=======
+-- Dump completed on 2015-02-20 23:45:08
+>>>>>>> ver-2-dev
