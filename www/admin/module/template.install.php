@@ -1,5 +1,5 @@
 <?php
-function installAfter() {
+function installAfter($version) {
 	core::import('admin/core/config');
 	$cfg=new config('_core');
 	$cfg->template=array();

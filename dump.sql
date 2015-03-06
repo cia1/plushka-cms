@@ -529,7 +529,7 @@ CREATE TABLE `menuType` (
   `controller` char(20) NOT NULL,
   `action` char(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=471 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -538,7 +538,7 @@ CREATE TABLE `menuType` (
 
 LOCK TABLES `menuType` WRITE;
 /*!40000 ALTER TABLE `menuType` DISABLE KEYS */;
-INSERT INTO `menuType` VALUES (1,'Простая статья','article','menuArticle'),(2,'Блог статей в категории','article','menuBlog'),(3,'Произвольная ссылка','link','menuLink'),(4,'Список статей в категории','article','menuList'),(5,'Магазин: категории','shop','menuCategory'),(6,'Часто задаваемые вопросы','faq','menuList'),(7,'Контактная форма','form','menuForm'),(8,'Демотиватор: конструктор','demotivator','menuConstructor'),(9,'Демотиватор: галерея','demotivator','menuGallery'),(11,'Универсальный каталог','catalog','menuCatalog'),(12,'Форум: личный кабинет','forum','menuProfile'),(13,'Форум: разделы форума','forum','menuCategory');
+INSERT INTO `menuType` VALUES (1,'Простая статья','article','menuArticle'),(2,'Блог статей в категории','article','menuBlog'),(3,'Произвольная ссылка','link','menuLink'),(4,'Список статей в категории','article','menuList'),(5,'Магазин: категории','shop','menuCategory'),(6,'Часто задаваемые вопросы','faq','menuList'),(7,'Контактная форма','form','menuForm'),(8,'Демотиватор: конструктор','demotivator','menuConstructor'),(9,'Демотиватор: галерея','demotivator','menuGallery'),(470,'Универсальный каталог','catalog','menuCatalog'),(12,'Форум: личный кабинет','forum','menuProfile'),(13,'Форум: разделы форума','forum','menuCategory');
 /*!40000 ALTER TABLE `menuType` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -938,7 +938,7 @@ CREATE TABLE `userRight` (
 
 LOCK TABLES `userRight` WRITE;
 /*!40000 ALTER TABLE `userRight` DISABLE KEYS */;
-INSERT INTO `userRight` VALUES ('menu.*','250','Управление меню',NULL),('article.category','250','Управление категориями статей',NULL),('article.article','250','Редактирование статей',NULL),('user.group','','Управление группами пользователей','userGroup'),('user.user','250','Управление пользователями','user'),('section.*','250','Управление секциями',NULL),('html.*','250,200','Редактирование текстовых блоков',NULL),('comment.moderate','250,200','Комментарии: модерирование','comment'),('setting.core','250','Общие настройки','setting'),('setting.url','250','Преобразование ссылок (ЧПУ)','url'),('menu.hidden','250','Скрытое меню','menu'),('shop.setting','250','Магазин: настройки','shopSetting'),('shop.category','250','Магазин: категории',NULL),('shop.product','250','Магазин: товары',NULL),('faq.*','250','Часто задаваемые вопросы',NULL),('form.*','250','Управление формами',NULL),('module.*','','Установка и удаление модулей','module'),('vote.*','250','Управление опросами (голосование)',NULL),('chat.moderate','250,200','Чат: модерирование',NULL),('demotivator.setting','250','Демотиваторы: управление',NULL),('demotivator.moderate','250,200','Демотиваторы: модерация',NULL),('catalog.layout','','Каталог: управление макетами',NULL),('catalog.item','250','Каталог: управление записями',NULL),('note.*','250','Заметки, информация для администрации','info'),('slider.*','250','Слайдер',NULL),('shop.feature','250','Магазин: характеристики товаров',NULL),('shop.variant','','Магазин: варианты (модификации) товаров',NULL),('template.*','250','Управление шаблонами','template'),('shop.import','250','Магазин: импорт товаров',NULL),('devTool.*',NULL,'Инструменты разработчика','tool'),('forum.moderate','200','Форум: модерирация',NULL),('forum.category',NULL,'Форум: управление разделами',NULL);
+INSERT INTO `userRight` VALUES ('menu.*','250','Управление меню',NULL),('article.category','250','Управление категориями статей',NULL),('article.article','250','Редактирование статей',NULL),('user.group','','Управление группами пользователей','userGroup'),('user.user','250','Управление пользователями','user'),('section.*','250','Управление секциями',NULL),('html.*','250,200','Редактирование текстовых блоков',NULL),('comment.moderate','250,200','Комментарии: модерирование','comment'),('setting.core','250','Общие настройки','setting'),('setting.url','250','Преобразование ссылок (ЧПУ)','url'),('menu.hidden','250','Скрытое меню','menu'),('shop.setting','250','Магазин: настройки','shopSetting'),('shop.category','250','Магазин: категории',NULL),('shop.product','250','Магазин: товары',NULL),('faq.*','250','Часто задаваемые вопросы',NULL),('form.*','250','Управление формами',NULL),('module.*','','Установка и удаление модулей','module'),('vote.*','250','Управление опросами (голосование)',NULL),('chat.moderate','250,200','Чат: модерирование',NULL),('demotivator.setting','250','Демотиваторы: управление',NULL),('demotivator.moderate','250,200','Демотиваторы: модерация',NULL),('catalog.layout',NULL,'Каталог: управление макетами',NULL),('catalog.item','250','Каталог: управление записями',NULL),('note.*','250','Заметки, информация для администрации','info'),('slider.*','250','Слайдер',NULL),('shop.feature','250','Магазин: характеристики товаров',NULL),('shop.variant','','Магазин: варианты (модификации) товаров',NULL),('template.*','250','Управление шаблонами','template'),('shop.import','250','Магазин: импорт товаров',NULL),('devTool.*',NULL,'Инструменты разработчика','tool'),('forum.moderate','200','Форум: модерирация',NULL),('forum.category',NULL,'Форум: управление разделами',NULL);
 /*!40000 ALTER TABLE `userRight` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1034,8 +1034,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-<<<<<<< HEAD
--- Dump completed on 2015-02-05 22:37:02
-=======
--- Dump completed on 2015-02-20 23:45:08
->>>>>>> ver-2-dev
+-- Dump completed on 2015-03-06 17:00:08

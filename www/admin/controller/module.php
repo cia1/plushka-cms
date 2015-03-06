@@ -9,7 +9,8 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Список установленных модулей */
 	public function actionIndex() {
-		$this->button('?controller=module&action=install','install','Установить модуль');
+		$this->button('?controller=module&action=installTmp','install','Установить модуль из директория');
+		$this->button('?controller=module&action=installZip','install','Установить модуль из архива');
 		core::import('admin/model/module');
 		$items=module::getList();
 		$status=array(0=>'не установлен',1=>'установка, шаг 2',2=>'установка, шаг 3',3=>'установка, шаг 4',4=>'установка, шаг 5',5=>'установка, шаг 6',6=>'установка, шаг 7',7=>'установка, шаг 8',8=>'установка, шаг 9',100=>'работает');
@@ -25,26 +26,59 @@ class sController extends controller {
 			//Ссылка "удалить" или "отменить", "продолжить установку" в зависимости от состояния модуля
 			if($i=='core') $s='';
 			else {
-				$s='<a href="'.core::link('?controller=module&action=uninstall&id='.$i).'" onclick="return confirm(\'Подтвердите удаление модуля\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
-				if($item['status']<99) $s.=' | <a href="'.core::link('?controller=module&action=install&id='.$i).'">Продолжить</a>';
+				if($item['status']==100) $s='<a href="'.core::link('?controller=module&action=uninstall&id='.$i).'" onclick="return confirm(\'Подтвердите удаление модуля\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
+				else $s='<a href="'.core::link('?controller=module&action=uninstall&id='.$i).'" onclick="return confirm(\'Подтвердите отмену установки\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
+				if($item['status']<99) $s.=' | <a href="'.core::link('?controller=module&action=installTmp&id='.$i).'">Продолжить</a>';
 			}
 			$t->text($s,null,'style="text-align:center;"');
 		}
-		$this->cite='<u>Внимание</u>! Удаление или некорректная установка многих модулей может привести к нарушению работоспособности сайта. Некоторые модули в представленном списке являются необходимыми для корректной работы системы.';
+	$this->cite='<u>Внимание</u>! Удаление или некорректная установка многих модулей может привести к нарушению работоспособности сайта. Некоторые модули в представленном списке являются необходимыми для корректной работы системы.';
 		return $t;
 	}
 
-	/* Начало установки: выводит информацию о модуле. Он должен быть помещён в директорий /tmp */
-	public function actionInstall() {
+	//Начало установки модуля: загрузка архива модуля
+	public function actionInstallZip() {
+		$f=core::form();
+		$f->file('archive','.zip-архив');
+		$f->submit('Продолжить','submit');
+		return $f;
+	}
+
+	public function actionInstallZipSubmit($data) {
+		if(!class_exists('ZipArchive')) {
+			controller::$error='Расширение ZipArchive не установлено на вашем сервере. Самостоятельно распакуйте архив в директорий '.$_SERVER['DOCUMENT_ROOT'].'/tmp и установите модуль.';
+			return false;
+		}
+		if(!$data['archive']['size']) {
+			controller::$error='Архив не загружен.';
+			return false;
+		}
+		//Очистить директорий /tmp
+		core::import('admin/model/module');
+		module::clearDirectory(core::path().'tmp',false);
+		//Извлечь содержимое архива в /tmp
+		$zip=new ZipArchive();
+		if($zip->open($data['archive']['tmpName'])!==true) {
+			controller::$error='Ошибка при попытке открыть архив';
+			return false;
+		}
+		if(!$zip->extractTo(core::path().'tmp')) {
+			controller::$error='Ошибка при попытке распаковать архив';
+			return false;
+		}
+		$this->url[1]='InstallTmp';
+		return $this->actionInstallTmp();
+	}
+
+	/* Начало установки модуля: выводит информацию о модуле. Он должен быть помещён в директорий /tmp */
+	public function actionInstallTmp() {
 		core::import('admin/model/module');
 		$module=module::info(); //Информация о найденном в директории /tmp модуле
 		if(!$module) {
 			controller::$error='В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?';
 			return 'Message';
-		} elseif($module['status']==100) { //Такой модуль уже установлен
-			controller::$error='Модуль &laquo;'.$module['name'].' версия '.$module['version'].'&raquo; уже установлен.';
-			return 'Message';
-		}
+		} elseif($module['status']==100) $this->moduleExists=true; //такой модуль уже установлен
+		else $this->moduleExists=false;
 		$this->pageTitle='Установка модуля';
 		$this->module=$module;
 		return 'Info';
@@ -54,14 +88,22 @@ class sController extends controller {
 	public function actionInstallStart() {
 		core::import('admin/model/module');
 		$module=module::info(); //Информация о модуле
+		if($module['status']==100) $module['status']=0; //сброс статуса в случае обновления
 		$s='_install'.$module['status']; //Этап установки (если была прервана)
 		//Обновить права текущего пользователя, чтобы не нужно было делать "выйти-войти"
 		$u=core::user();
 		foreach($module['right'] as $item) {
-			$group=explode(',',$item[2]);
+			if(isset($item[2])) $group=explode(',',$item[2]); else $group=array();
 			if(in_array($u->group,$group)) $u->right[$item[0]]=($item[3] ? true : false);
 		}
-		if($this->$s($module)) core::redirect('?controller=module','Модуль установлен');
+		if($this->$s($module)) {
+			//Удалить атрибут currentVersion
+			core::import('admin/core/config');
+			$cfg=new config('../admin/module/'.$module['id']);
+			$cfg->delete('currentVersion');
+			$cfg->save('../admin/module/'.$module['id']);
+			core::redirect('?controller=module','Модуль установлен');
+		}
 		return 'Info';
 	}
 
@@ -73,11 +115,15 @@ class sController extends controller {
 		$module['id']=$_GET['id']; //Идентификатор модуля (строка)
 		$db=core::db();
 		//Сразу же убрать права текущего пользователя, чтоб не пришлось делать "выйти-войти"
-		$u=core::user();
-		foreach($module['right'] as $item) {
-			if(isset($u->right[$item])) unset($u->right[$item]);
+		if(!$module['currentVersion']) {
+			$u=core::user();
+			foreach($module['right'] as $item) {
+				if(isset($u->right[$item])) unset($u->right[$item]);
+			}
+			if(self::_uninstall1($module)) core::redirect('?controller=module','Модуль удалён'); //Нужный этап удаления
+		} else {
+			if(self::_uninstall2($module)) core::redirect('?controller=module','Модуль удалён'); //Нужный этап удаления
 		}
-		if(self::_uninstall1($module)) core::redirect('?controller=module','Модуль удалён'); //Нужный этап удаления
 		return $this->actionIndex();
 	}
 /* ----------------------------------------------------------------------------------- */
@@ -87,19 +133,21 @@ class sController extends controller {
 	/* Проверяет зависимости модуля от других (ему может потребоваться для работы какой-то модуль) */
 	private static function _install0(&$module) {
 		//$depend - список зависимостей в виде строки "module1 ver 1.0, module2 ver 1.4..."
-		$depend=explode(',',$module['depend']);
-		foreach($depend as $item) {
-			$i=strrpos($item,'ver');
-			$m=trim(substr($item,0,$i));
-			$version1=(int)str_replace('.','',trim(substr($item,$i+3)));
-			$version2=module::version($m);
-			if(!$version2) {
-				controller::$error='Устанавливаемый модуль требует наличия зависимого модуля &laquo;'.$m.'&raquo; (версия  '.trim(substr($item,$i+3)).').';
-				return false;
-			}
-			if($version1>(int)str_replace('.','',$version2)) {
-				controller::$error='Зависимый модуль &laquo;'.$m.'&raquo; имеет версию '.$version2.', но устанавливаемый модуль требует версию '.trim(substr($item,$i+3)).'.';
-				return false;
+		if($module['depend']) {
+			$depend=explode(',',$module['depend']);
+			foreach($depend as $item) {
+				$i=strrpos($item,'ver');
+				$m=trim(substr($item,0,$i));
+				$version1=(int)str_replace('.','',trim(substr($item,$i+3)));
+				$version2=module::version($m);
+				if(!$version2) {
+					controller::$error='Устанавливаемый модуль требует наличия зависимого модуля &laquo;'.$m.'&raquo; (версия  '.trim(substr($item,$i+3)).').';
+					return false;
+				}
+				if($version1>(int)str_replace('.','',$version2)) {
+					controller::$error='Зависимый модуль &laquo;'.$m.'&raquo; имеет версию '.$version2.', но устанавливаемый модуль требует версию '.trim(substr($item,$i+3)).'.';
+					return false;
+				}
 			}
 		}
 		return self::_install1($module); //Следующий этап установки
@@ -107,7 +155,7 @@ class sController extends controller {
 
 	/* Создаёт и обновляет конфигурацию модуля (/admin/module/ИД.php) */
 	private static function _install1(&$module) {
-		module::create($module['id'],$module['name'],$module['version'],$module['url']); //Создать конфигурацию и заполнить основные данные
+		module::create($module['id'],$module['name'],$module['version'],$module['url'],$module['currentVersion']); //Создать конфигурацию и заполнить основные данные
 		module::depend($module['id'],$module['depend']); //Устанавливает у зависимых модулей пометку об устанавливаемом модуле
 		module::status($module['id'],1); //Сохранить этап установки
 		return self::_install2($module);
@@ -119,7 +167,7 @@ class sController extends controller {
 		if(file_exists($s)) {
 			include($s);
 			if(function_exists('installBefore')) { //"перед установкой"
-				if(!installBefore()) {
+				if(!installBefore($module['currentVersion'])) {
 					if(!controller::$error) controller::$error='По неизвестной причине установка модуля невозможна';
 					return false;
 				}
@@ -136,8 +184,8 @@ class sController extends controller {
 		return self::_install4($module);
 	}
 
-	/* ДОбавление типов виджетов */
-	private function _install4(&$module) {
+	/* Добавление типов виджетов */
+	private static function _install4(&$module) {
 		module::widget($module['id'],$module['widget']);
 		module::status($module['id'],4);
 		return self::_install5($module);
@@ -159,15 +207,17 @@ class sController extends controller {
 
 	/* Выполнение специальных SQL-запросов, предусмотренных модулем */
 	private static function _install7(&$module) {
-		module::sql($module['id']);
-		module::status($module['id'],7);
+		if(!$module['currentVersion']) {
+			module::sql($module['id']);
+			module::status($module['id'],7);
+		}
 		return self::_install8($module);
 	}
 
 	/* Проверяет наличие на сайте файлов модуля. Установка невозможна, если хотя бы один файл уже существует. */
 	private static function _install8(&$module) {
-		$exists=&module::fileList($module['id']);
-		if($exists!==true) {
+		$exists=module::fileList($module['id'],(bool)$module['currentVersion']);
+		if(!$module['currentVersion']) {
 			controller::$error='Установка невозможна, так как некоторые файлы уже существуют. Список конфликтов:<ul><li>'.implode('</li><li>',$exists).'</li></ul>';
 			return false;
 		}
@@ -190,7 +240,7 @@ class sController extends controller {
 			copy($f1,$f2);
 			include_once($f1);
 			if(function_exists('installAfter')) { //"после установки"
-				if(!installAfter()) return false;
+				if(!installAfter($module['currentVersion'])) return false;
 			}
 		}
 		module::status($module['id'],100);
@@ -243,10 +293,17 @@ class sController extends controller {
 				if(!uninstallBefore()) return false;
 			}
 		}
-		module::dropHook($module,true); //Удалить обработчики событий общедоступной части
-		module::dropHook($module,false); //Удалить обработчики событий админки
-		module::dropDb($module); //Удалить все таблицы модуля
-		if(function_exists('uninstallAfter')) uninstallAfter(); //Скрипт "после удаления"
+		if(isset($module['currentVersion'])) $currentVersion=$module['currentVersion']; else $currentVersion=null;
+		if(!$currentVersion) { //удалять только если модуль не был ранее установлен
+			module::dropHook($module,true); //Удалить обработчики событий общедоступной части
+			module::dropHook($module,false); //Удалить обработчики событий админки
+			module::dropDb($module); //Удалить все таблицы модуля
+		}
+		if(function_exists('uninstallAfter')) uninstallAfter($currentVersion); //Скрипт "после удаления"
+		if($currentVersion) {
+			module::status($module['id'],100);
+			return true;
+		}
 		if(file_exists($f)) unlink($f); //Удалить сам скрипт удаления
 		if(!module::unlink($module['file'])) return false; //Удалить все файлы модуля
 		return module::delete($module['id']); //Удалить конфигурацию модуля

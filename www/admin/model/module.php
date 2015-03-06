@@ -57,14 +57,23 @@ class module {
 		}
 		if(!isset($data['version'])) $data['verstion']='';
 		if(!isset($data['url'])) $data['url']='';
+		if(!isset($data['author'])) $data['author']=null;
+		if(!isset($data['description'])) $data['description']=null;
+		if(!isset($data['depend'])) $data['depend']=null;
 		$cfg=core::configAdmin('_module');
-		if(isset($cfg[$data['id']])) $data['status']=$cfg[$data['id']]['status']; else $data['status']=0;
+		if(isset($cfg[$data['id']])) {
+			$data['status']=$cfg[$data['id']]['status'];
+			$data['currentVersion']=$cfg[$data['id']]['version'];
+		} else {
+			$data['status']=0;
+			$data['currentVersion']=null;
+		}
 		return $data;
 	}
 
 	/* Создаёт конфигурацию нового модуля
 	string $id - системное имя модуля; string $name - название модуля; string $version - версия модуля; string $url - веб-старица модуля */
-	public static function create($id,$name,$version,$url='') {
+	public static function create($id,$name,$version,$url='',$currentVersion=null) {
 		core::import('admin/core/config');
 		$cfg=new config();
 		$cfg->right='';
@@ -74,6 +83,7 @@ class module {
 		$cfg->hook2='';
 		$cfg->table='';
 		$cfg->file=array();
+		$cfg->currentVersion=$currentVersion;
 		$cfg->save('../admin/module/'.$id);
 		$cfg=new config('../admin/config/_module');
 		$cfg->$id=array('name'=>$name,'version'=>$version,'status'=>1,'url'=>$url);
@@ -106,16 +116,18 @@ class module {
 	public static function right($id,$right) {
 		core::import('admin/core/config');
 		$db=core::db();
-		//Построить SQL-азпросы
+		//Построить SQL-запросы
 		$s1=$s2='';
 		foreach($right as $i=>$item) {
+			if(!isset($item[2])) $item[2]=null;
+			if(!isset($item[3])) $item[3]=null;
 			if($s1) {
 				$s1.=','.$db->escape($item[0]);
-				$s2.=',('.$db->escape($item[0]).','.$db->escape($item[1]).','.$db->escape($item[2]).','.$db->escape($item[3]).')';
+				$s2.=',('.$db->escape($item[0]).','.$db->escape($item[1]).','.($item[2] ? $db->escape($item[2]) : 'null').','.($item[3] ? $db->escape($item[3]) : 'null').')';
 			} else {
 				$s1=$db->escape($item[0]);
 				if(!isset($item[3])) $item[3]='';
-				$s2='('.$db->escape($item[0]).','.$db->escape($item[1]).','.$db->escape($item[2]).','.$db->escape($item[3]).')';
+				$s2='('.$db->escape($item[0]).','.$db->escape($item[1]).','.($item[2] ? $db->escape($item[2]) : 'null').','.($item[3] ? $db->escape($item[3]) : 'null').')';
 			}
 			$right[$i]=$item[0];
 		}
@@ -193,42 +205,48 @@ class module {
 	public static function hook($id) {
 		core::import('admin/core/config');
 		//Общедоступная часть сайта
-		$d=opendir(core::path().'tmp/hook/');
-		$cfg=null;
-		while($f=readdir($d)) {
-			if($f=='.' || $f=='..') continue;
-			$f=explode('.',$f);
-			if($f[2]!='php') continue;
-			//Обновить информацию о собитиях в файле _hook.php
-			if(!$cfg) $cfg=new config('_hook');
-			$name=$f[0]; //имя события
-			$h=$cfg->get($name); //Получить массив
-			if(!$h) $h=array();
-			if(in_array($f[1],$h)) continue; //если по каким-то причинам обработчик уже назначен
-			$h[]=$f[1];
-			$cfg->set($name,$h); //Установить массив
+		$d=core::path().'tmp/hook/';
+		if(file_exists($d)) {
+			$d=opendir($d);
+			$cfg=null;
+			while($f=readdir($d)) {
+				if($f=='.' || $f=='..') continue;
+				$f=explode('.',$f);
+				if($f[2]!='php') continue;
+				//Обновить информацию о собитиях в файле _hook.php
+				if(!$cfg) $cfg=new config('_hook');
+				$name=$f[0]; //имя события
+				$h=$cfg->get($name); //Получить массив
+				if(!$h) $h=array();
+				if(in_array($f[1],$h)) continue; //если по каким-то причинам обработчик уже назначен
+				$h[]=$f[1];
+				$cfg->set($name,$h); //Установить массив
+			}
+			if($cfg) $cfg->save('_hook');
+			closedir($d);
 		}
-		if($cfg) $cfg->save('_hook');
-		closedir($d);
 
 		//Админка
-		$d=opendir(core::path().'tmp/admin/hook/');
-		$cfg=null;
-		while($f=readdir($d)) {
-			if($f=='.' || $f=='..') continue;
-			$f=explode('.',$f);
-			if($f[2]!='php') continue;
-			//Обновить информацию о собитиях в файле _hook.php
-			if(!$cfg) $cfg=new config('../admin/config/_hook');
-			$name=$f[0]; //имя события
-			$h=$cfg->get($name); //Получить массив
-			if(!$h) $h=array();
-			if(in_array($f[1],$h)) continue; //если по каким-то причинам обработчик уже назначен
-			$h[]=$f[1];
-			$cfg->set($name,$h); //Установить массив
+		$d=core::path().'tmp/admin/hook/';
+		if(file_exists($d)) {
+			$d=opendir($d);
+			$cfg=null;
+			while($f=readdir($d)) {
+				if($f=='.' || $f=='..') continue;
+				$f=explode('.',$f);
+				if($f[2]!='php') continue;
+				//Обновить информацию о собитиях в файле _hook.php
+				if(!$cfg) $cfg=new config('../admin/config/_hook');
+				$name=$f[0]; //имя события
+				$h=$cfg->get($name); //Получить массив
+				if(!$h) $h=array();
+				if(in_array($f[1],$h)) continue; //если по каким-то причинам обработчик уже назначен
+				$h[]=$f[1];
+				$cfg->set($name,$h); //Установить массив
+			}
+			if($cfg) $cfg->save('../admin/config/_hook');
+			closedir($d);
 		}
-		if($cfg) $cfg->save('../admin/config/_hook');
-		closedir($d);
 		return true;
 	}
 
@@ -239,7 +257,7 @@ class module {
 		if(!file_exists($f)) return true;
 		core::import('admin/core/config');
 		$sql=file_get_contents($f);
-		//"Вычленить" имена создаваемых таблиц и записать в файл
+		//Извлечь имена создаваемых таблиц и записать в файл
 		preg_match_all('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))([^\s]+)\s/is',$sql,$f);
 		$cfg=new config('../admin/module/'.$id);
 		$cfg->table=implode(',',$f[1]);
@@ -261,7 +279,8 @@ class module {
 			if($sql[$i]=='"' || $sql[$i]=='\'') {
 				if(!$quote) $quote=$sql[$i]; else $quote=null;
 			} elseif($sql[$i]==';' && !$quote) {
-				$db->query(trim(substr($sql,$i0,($i-$i0))));
+				$query=trim(substr($sql,$i0,($i-$i0)));
+				$db->query($query);
 				$i0=$i+1;
 			}
 		}
@@ -269,10 +288,10 @@ class module {
 	}
 
 	/* Составляет список файлов в директории /tmp и заносит его в конфигурацию модуля с именем $id */
-	public static function fileList($id) {
+	public static function fileList($id,$continueIfExists=false) {
 		$exists=array();
 		$data=self::_scanDirectory('',$exists);
-		if($exists) return $exists; //Если какие-то файлы уже существуют, то прервать установку модуля
+		if($exists && !$continueIfExists) return $exists; //Если какие-то файлы уже существуют, то прервать установку модуля
 		core::import('admin/core/config');
 		$cfg=new config('../admin/module/'.$id);
 		$cfg->file=$data;
@@ -290,10 +309,9 @@ class module {
 		foreach($file as $i=>$item) {
 			$f1=$path1.$item;
 			$f2=$path2.$item;
-			if(!file_exists($f2)) {
-				if(is_dir($f1)) mkdir($f2);
-				else copy($f1,$f2);
-			} else unset($file[$i]);
+//			if(!file_exists($f2)) {
+			if(is_dir($f1)) @mkdir($f2); else copy($f1,$f2);
+//			} else unset($file[$i]);
 		}
 		$cfg->file=array_values($file);
 		$cfg->save('../admin/module/'.$id);
@@ -360,7 +378,7 @@ class module {
 		for($i=$cnt;$i>=0;$i--) {
 			$s=$path.$file[$i];
 			if(is_dir($s)) {
-				if(!self::_unlink($s)) return false;
+				if(!self::clearDirectory($s)) return false;
 			} elseif(file_exists($s)) {
 				if(!unlink($s)) {
 					controller:$error='Не удаётся удалить файл &laquo;'.$s.'&raquo;';
@@ -406,7 +424,7 @@ class module {
 	}
 
 	/* Возвращает список файлов и директориев в /tmp/$path, в $exists сохраняет список уже существующих файлов */
-	private function _scanDirectory($path,&$exists) {
+	private static function _scanDirectory($path,&$exists) {
 		$path1=core::Path();
 		$path0=$path1.'tmp/'.$path;
 		$d=opendir($path0);
@@ -427,14 +445,14 @@ class module {
 	}
 
 	/* Рекурсивно удаляет файлы из директория $path */
-	private static function _unlink($path) {
+	public static function clearDirectory($path,$self=true) {
 		if($path[strlen($path)-1]!='/') $path.='/';
 		$d=opendir($path);
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..') continue;
 			$f=$path.$f;
 			if(is_dir($f)) {
-				if(!self::_unlink($f)) return false;
+				if(!self::clearDirectory($f)) return false;
 			} else {
 				if(!unlink($f)) {
 					controller::$error='Не удаётся удалить файл &laquo;'.$f.'&raquo;';
@@ -443,9 +461,11 @@ class module {
 			}
 		}
 		closedir($d);
-		if(!rmdir($path)) {
-			controller::$error='Не удаётся удалить директорий &laquo;'.$path.'&raquo;';
-			return false;
+		if($self) {
+			if(!rmdir($path)) {
+				controller::$error='Не удаётся удалить директорий &laquo;'.$path.'&raquo;';
+				return false;
+			}
 		}
 		return true;
 	}

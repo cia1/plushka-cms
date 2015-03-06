@@ -1,5 +1,6 @@
 <?php
-function installAfter() {
+function installAfter($version) {
+	if($version) return true;
 	core::import('admin/model/form');
 	core::import('admin/core/config');
 	$f=new mForm();
