@@ -2,6 +2,8 @@
 /* Библиотека для установки и удаления модулей */
 class module {
 
+	private static $_config;
+
 	/* Преобразовывает в удобный для работы вид массив $data, содержащий информацию о модуле (/admin/module/XXX.php) */
 	public static function explodeData(&$data) {
 		if(isset($data['right']) && $data['right']) { //права доступа
@@ -63,7 +65,8 @@ class module {
 		$cfg=core::configAdmin('_module');
 		if(isset($cfg[$data['id']])) {
 			$data['status']=$cfg[$data['id']]['status'];
-			$data['currentVersion']=$cfg[$data['id']]['version'];
+			if(isset($cfg[$data['id']]['verstion'])) $data['currentVersion']=$cfg[$data['id']]['version'];
+			else $data['currentVersion']=null;
 		} else {
 			$data['status']=0;
 			$data['currentVersion']=null;
@@ -88,17 +91,20 @@ class module {
 		$cfg=new config('../admin/config/_module');
 		$cfg->$id=array('name'=>$name,'version'=>$version,'status'=>1,'url'=>$url);
 		$cfg->save('../admin/config/_module');
+		self::$_config=$cfg;
 		return true;
 	}
 
 	/* Устанавливает статус $status для модуля с именем $id */
 	public static function status($id,$status) {
-		core::import('admin/core/config');
-		$cfg=new config('../admin/config/_module');
-		$s=$cfg->get($id);
+		if(!self::$_config) {
+			core::import('admin/core/config');
+			self::$_config=new config('../admin/config/_module');
+		}
+		$s=self::$_config->get($id);
 		$s['status']=$status;
-		$cfg->set($id,$s);
-		$cfg->save('../admin/config/_module');
+		self::$_config->set($id,$s);
+		self::$_config->save('../admin/config/_module');
 		return true;
 	}
 
@@ -202,11 +208,12 @@ class module {
 
 	/* Добавляет в конфигугацию модуля информацию об обработчиках событий.
 	Информацию берёт из найденных в директориях /hook и /admin/hook файлов */
-	public static function hook($id) {
+	public static function hook(&$module) {
 		core::import('admin/core/config');
 		//Общедоступная часть сайта
 		$d=core::path().'tmp/hook/';
-		if(file_exists($d)) {
+		$hook1=$hook2='';
+		if(is_dir($d)) {
 			$d=opendir($d);
 			$cfg=null;
 			while($f=readdir($d)) {
@@ -218,17 +225,22 @@ class module {
 				$name=$f[0]; //имя события
 				$h=$cfg->get($name); //Получить массив
 				if(!$h) $h=array();
-				if(in_array($f[1],$h)) continue; //если по каким-то причинам обработчик уже назначен
-				$h[]=$f[1];
-				$cfg->set($name,$h); //Установить массив
+				if(!in_array($f[1],$h)) { //если по каким-то причинам обработчик уже назначен
+					$h[]=$f[1];
+					$cfg->set($name,$h); //Установить массив
+				}
+				if($hook1) $hook1.=','.$name; else $hook1=$name;
 			}
-			if($cfg) $cfg->save('_hook');
+			if($cfg) {
+				$cfg->save('_hook');
+				$module['hook1']=$hook1;
+			}
 			closedir($d);
 		}
 
 		//Админка
 		$d=core::path().'tmp/admin/hook/';
-		if(file_exists($d)) {
+		if(is_dir($d)) {
 			$d=opendir($d);
 			$cfg=null;
 			while($f=readdir($d)) {
@@ -240,12 +252,23 @@ class module {
 				$name=$f[0]; //имя события
 				$h=$cfg->get($name); //Получить массив
 				if(!$h) $h=array();
-				if(in_array($f[1],$h)) continue; //если по каким-то причинам обработчик уже назначен
-				$h[]=$f[1];
-				$cfg->set($name,$h); //Установить массив
+				if(in_array($f[1],$h)) { //если по каким-то причинам обработчик уже назначен
+					$h[]=$f[1];
+					$cfg->set($name,$h); //Установить массив
+				}
+				if($hook2) $hook2.=','.$name; else $hook2=$name;
 			}
-			if($cfg) $cfg->save('../admin/config/_hook');
+			if($cfg) {
+				$cfg->save('../admin/config/_hook');
+				$module['hook2']=$hook2;
+			}
 			closedir($d);
+		}
+		if($hook1 || $hook2) {
+			$cfg=new config('../admin/module/'.$module['id']);
+			$cfg->hook1=$hook1;
+			$cfg->hook2=$hook2;
+			$cfg->save('../admin/module/'.$module['id']);
 		}
 		return true;
 	}
@@ -291,7 +314,7 @@ class module {
 	public static function fileList($id,$continueIfExists=false) {
 		$exists=array();
 		$data=self::_scanDirectory('',$exists);
-		if($exists && !$continueIfExists) return $exists; //Если какие-то файлы уже существуют, то прервать установку модуля
+		if($exists && !$continueIfExists) return $exists; //Если какие-то файлы уже существуют, то прервать установку
 		core::import('admin/core/config');
 		$cfg=new config('../admin/module/'.$id);
 		$cfg->file=$data;
@@ -301,20 +324,15 @@ class module {
 
 	/* Копирует файлы из /tmp в директории движка */
 	public static function copy($id) {
-		core::import('admin/core/config');
-		$cfg=new config('../admin/module/'.$id);
-		$file=$cfg->file; //Подготовленный ранее список файлов
+		$file=core::configAdmin('../module/'.$id);
+		$file=$file['file'];
 		$path2=str_replace('\\','/',core::path());
 		$path1=$path2.'tmp/';
 		foreach($file as $i=>$item) {
 			$f1=$path1.$item;
 			$f2=$path2.$item;
-//			if(!file_exists($f2)) {
 			if(is_dir($f1)) @mkdir($f2); else copy($f1,$f2);
-//			} else unset($file[$i]);
 		}
-		$cfg->file=array_values($file);
-		$cfg->save('../admin/module/'.$id);
 		return true;
 	}
 
@@ -432,8 +450,9 @@ class module {
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..' || $f=='module.ini' || $f=='install.mysql.sql' || $f=='install.sqlite.sql' || $f=='install.php' || $f=='uninstall.php') continue;
 			if(is_dir($path0.$f)) {
-				$data[]=$path.$f.'/';
-				$data=array_merge($data,self::_scanDirectory($path.$f.'/',$exists));
+				$f=$path.$f;
+				if(!is_dir($path1.$f)) $data[]=$f.'/';
+				$data=array_merge($data,self::_scanDirectory($f.'/',$exists));
 			} else {
 			if($path=='config/' || $path=='admin/config/') if($f=='_hook.php') continue;
 				if(file_exists($path1.$path.$f)) $exists[]=$path.$f;

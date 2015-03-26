@@ -88,14 +88,14 @@ class sController extends controller {
 	public function actionInstallStart() {
 		core::import('admin/model/module');
 		$module=module::info(); //Информация о модуле
-		if($module['status']==100) $module['status']=0; //сброс статуса в случае обновления
-		$s='_install'.$module['status']; //Этап установки (если была прервана)
 		//Обновить права текущего пользователя, чтобы не нужно было делать "выйти-войти"
 		$u=core::user();
 		foreach($module['right'] as $item) {
 			if(isset($item[2])) $group=explode(',',$item[2]); else $group=array();
 			if(in_array($u->group,$group)) $u->right[$item[0]]=($item[3] ? true : false);
 		}
+		if($module['status']==100) $module['status']=0; else $module['status']++; //сброс статуса в случае обновления
+		$s='_install'.$module['status']; //Этап установки (если была прервана)
 		if($this->$s($module)) {
 			//Удалить атрибут currentVersion
 			core::import('admin/core/config');
@@ -200,7 +200,7 @@ class sController extends controller {
 
 	/* Добавление обработчиков событий (админка и общедоступная часть) */
 	private static function _install6(&$module) {
-		module::hook($module['id']);
+		module::hook($module);
 		module::status($module['id'],6);
 		return self::_install7($module);
 	}
@@ -217,7 +217,7 @@ class sController extends controller {
 	/* Проверяет наличие на сайте файлов модуля. Установка невозможна, если хотя бы один файл уже существует. */
 	private static function _install8(&$module) {
 		$exists=module::fileList($module['id'],(bool)$module['currentVersion']);
-		if(!$module['currentVersion']) {
+		if(is_array($exists) && !$module['currentVersion']) {
 			controller::$error='Установка невозможна, так как некоторые файлы уже существуют. Список конфликтов:<ul><li>'.implode('</li><li>',$exists).'</li></ul>';
 			return false;
 		}
@@ -235,8 +235,8 @@ class sController extends controller {
 	/* Выполняет специальный скрипт, выполняющий какие-либо действия после завершения установки модуля */
 	private static function _install10(&$module) {
 		$f1=core::path().'tmp/install.php';
-		$f2=core::path().'admin/module/'.$module['id'].'.install.php';
 		if(file_exists($f1)) {
+			$f2=core::path().'admin/module/'.$module['id'].'.install.php';
 			copy($f1,$f2);
 			include_once($f1);
 			if(function_exists('installAfter')) { //"после установки"

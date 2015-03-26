@@ -419,7 +419,7 @@ CREATE TABLE `frmField` (
   `required` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `sort` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=80 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -428,7 +428,7 @@ CREATE TABLE `frmField` (
 
 LOCK TABLES `frmField` WRITE;
 /*!40000 ALTER TABLE `frmField` DISABLE KEYS */;
-INSERT INTO `frmField` VALUES (1,999,'Ваше имя','text','','',1,1),(2,999,'Контактный телефон','text','','',0,2),(3,999,'E-mail','email','','',0,3),(4,999,'Примечание к заказу','textarea','','',0,5),(5,999,'Доставка','select','самовывоз|почта','самовывоз',1,4),(6,1000,'Ваше имя','text','','',1,1),(7,1000,'E-mail или телефон','text','','',0,2),(8,1000,'Сообщение','textarea','','',1,3),(9,1001,'Ваше имя','text','','',1,1),(10,1001,'Телефон','text','','',1,2),(11,1001,'Желаемое время звонка','text','','',1,3),(12,1002,'Ваше имя','text','','',1,1),(13,1002,'Телефон','text','','',1,2),(14,1002,'Удобное время звонка','text','','',0,3),(24,1000,'Откуда вы узнали о нас?','select','поисковик|от друзей|сайт example.com|другое','',1,4),(25,1000,'Введите текст с картинки','captcha','','',1,5);
+INSERT INTO `frmField` VALUES (6,1000,'Ваше имя','text','','',1,1),(7,1000,'E-mail или телефон','text','','',0,2),(8,1000,'Сообщение','textarea','','',1,3),(9,1001,'Ваше имя','text','','',1,1),(10,1001,'Телефон','text','','',1,2),(11,1001,'Желаемое время звонка','text','','',1,3),(12,1002,'Ваше имя','text','','',1,1),(13,1002,'Телефон','text','','',1,2),(14,1002,'Удобное время звонка','text','','',0,3),(24,1000,'Откуда вы узнали о нас?','select','поисковик|от друзей|сайт example.com|другое','',1,4),(25,1000,'Введите текст с картинки','captcha','','',1,5),(30,1004,'Телефон','text','','',0,2),(29,1004,'Ваше имя','text','','',1,1),(31,1004,'E-mail','email','','cfg',0,3),(32,1005,'Ваше имя','text','','',1,1),(33,1005,'Телефон','text','','',0,2),(34,1005,'E-mail','email','','cfg',0,3),(35,1006,'Ваше имя','text','','',1,1),(36,1006,'Телефон','text','','',0,2),(37,1006,'E-mail','email','','cfg',0,3),(38,1007,'Ваше имя','text','','',1,1),(39,1007,'Телефон','text','','',0,2),(40,1007,'E-mail','email','','cfg',0,3),(41,1008,'Ваше имя','text','','',1,1),(42,1008,'Телефон','text','','',0,2),(43,1008,'E-mail','email','','cfg',0,3),(44,1009,'Ваше имя','text','','',1,1),(45,1009,'Телефон','text','','',0,2),(46,1009,'E-mail','email','','cfg',0,3),(47,1010,'Ваше имя','text','','',1,1),(48,1010,'Телефон','text','','',0,2),(49,1010,'E-mail','email','','cfg',0,3),(50,1011,'Ваше имя','text','','',1,1),(51,1011,'Телефон','text','','',0,2),(52,1011,'E-mail','email','','cfg',0,3),(53,1012,'Ваше имя','text','','',1,1),(54,1012,'Телефон','text','','',0,2),(55,1012,'E-mail','email','','cfg',0,3),(56,1013,'Ваше имя','text','','',1,1),(57,1013,'Телефон','text','','',0,2),(58,1013,'E-mail','email','','cfg',0,3),(59,1014,'Ваше имя','text','','',1,1),(60,1014,'Телефон','text','','',0,2),(61,1014,'E-mail','email','','cfg',0,3),(62,1015,'Ваше имя','text','','',1,1),(63,1015,'Телефон','text','','',0,2),(64,1015,'E-mail','email','','cfg',0,3),(65,1016,'Ваше имя','text','','',1,1),(66,1016,'Телефон','text','','',0,2),(67,1016,'E-mail','email','','cfg',0,3),(68,1017,'Ваше имя','text','','',1,1),(69,1017,'Телефон','text','','',0,2),(70,1017,'E-mail','email','','cfg',0,3),(71,1018,'Ваше имя','text','','',1,1),(72,1018,'Телефон','text','','',0,2),(73,1018,'E-mail','email','','cfg',0,3),(74,1019,'Ваше имя','text','','',1,1),(75,1019,'Телефон','text','','',0,2),(76,1019,'E-mail','email','','cfg',0,3),(77,1020,'Ваше имя','text','','',1,1),(78,1020,'Телефон','text','','',0,2),(79,1020,'E-mail','email','','cfg',0,3);
 /*!40000 ALTER TABLE `frmField` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -449,7 +449,7 @@ CREATE TABLE `frmForm` (
   `formView` varchar(15) DEFAULT NULL,
   `script` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1021 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -458,7 +458,7 @@ CREATE TABLE `frmForm` (
 
 LOCK TABLES `frmForm` WRITE;
 /*!40000 ALTER TABLE `frmForm` DISABLE KEYS */;
-INSERT INTO `frmForm` VALUES (999,'Оформление заказа','cfg','cms0: заказ с сайта','','','',''),(1000,'Контакты','cfg','cms0: сообщение с сайта','<p>\r\n	Сообщение получено, большое спасибо.</p>\r\n','','',''),(1001,'Обратная связь','cfg','cms0: обратный звонок','<p>\r\n	Спасибо, мы обязательно позвоним вам!</p>\r\n','','',''),(1002,'Обратный звонок','cfg','Обратный звонок на сайте CMS','<p>\r\n	Заявка на обратный звонок принята. Мы обязательно свяжемся с вами.</p>\r\n','','','');
+INSERT INTO `frmForm` VALUES (1000,'Контакты','cfg','cms0: сообщение с сайта','<p>\r\n	Сообщение получено, большое спасибо.</p>\r\n','','',''),(1001,'Обратная связь','cfg','cms0: обратный звонок','<p>\r\n	Спасибо, мы обязательно позвоним вам!</p>\r\n','','',''),(1002,'Обратный звонок','cfg','Обратный звонок на сайте CMS','<p>\r\n	Заявка на обратный звонок принята. Мы обязательно свяжемся с вами.</p>\r\n','','',''),(1004,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1005,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1006,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1007,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1008,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1009,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1010,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1011,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1012,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1013,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1014,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1015,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1016,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1017,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1018,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1019,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop'),(1020,'Оформление заказа','cfg','Заказ с сайта','',NULL,NULL,'shop');
 /*!40000 ALTER TABLE `frmForm` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -512,7 +512,7 @@ CREATE TABLE `menuItem` (
 
 LOCK TABLES `menuItem` WRITE;
 /*!40000 ALTER TABLE `menuItem` DISABLE KEYS */;
-INSERT INTO `menuItem` VALUES (1,0,1,'article/view/index','Главная',1,1),(2,0,1,'article/view/about','О нас',2,1),(3,0,1,'article/blog/news','Новости',4,2),(4,0,1,'article/list/article','Статьи',3,4),(6,0,1,'catalog/1','Каталог',5,11),(7,0,1,'faq','ЧаВо',7,6),(8,0,1,'shop/category','Магазин',6,5),(9,29,1,'demotivator','Галерея',2,9),(10,0,1,'form/1000','Контакты',10,7),(29,0,1,'#','Демотиваторы',8,3),(30,29,1,'demotivator/construct','Конструктор',1,8),(33,0,1,'forum','Форум',9,13),(34,33,1,'forum/profile','Профайл',1,12);
+INSERT INTO `menuItem` VALUES (1,0,1,'article/view/index','Главная',1,1),(2,0,1,'article/view/about','О нас',2,1),(3,0,1,'article/blog/news','Новости',4,2),(4,0,1,'article/list/article','Статьи',3,4),(6,0,1,'catalog/1','Каталог',5,11),(7,0,1,'faq','ЧаВо',6,6),(9,29,1,'demotivator','Галерея',2,9),(10,0,1,'form/1000','Контакты',9,7),(29,0,1,'#','Демотиваторы',7,3),(30,29,1,'demotivator/construct','Конструктор',1,8),(33,0,1,'forum','Форум',8,13),(34,33,1,'forum/profile','Профайл',1,12);
 /*!40000 ALTER TABLE `menuItem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -529,7 +529,7 @@ CREATE TABLE `menuType` (
   `controller` char(20) NOT NULL,
   `action` char(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=471 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=520 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -538,7 +538,7 @@ CREATE TABLE `menuType` (
 
 LOCK TABLES `menuType` WRITE;
 /*!40000 ALTER TABLE `menuType` DISABLE KEYS */;
-INSERT INTO `menuType` VALUES (1,'Простая статья','article','menuArticle'),(2,'Блог статей в категории','article','menuBlog'),(3,'Произвольная ссылка','link','menuLink'),(4,'Список статей в категории','article','menuList'),(5,'Магазин: категории','shop','menuCategory'),(6,'Часто задаваемые вопросы','faq','menuList'),(7,'Контактная форма','form','menuForm'),(8,'Демотиватор: конструктор','demotivator','menuConstructor'),(9,'Демотиватор: галерея','demotivator','menuGallery'),(470,'Универсальный каталог','catalog','menuCatalog'),(12,'Форум: личный кабинет','forum','menuProfile'),(13,'Форум: разделы форума','forum','menuCategory');
+INSERT INTO `menuType` VALUES (1,'Простая статья','article','menuArticle'),(2,'Блог статей в категории','article','menuBlog'),(3,'Произвольная ссылка','link','menuLink'),(4,'Список статей в категории','article','menuList'),(519,'Магазин: категории','shop','menuCategory'),(6,'Часто задаваемые вопросы','faq','menuList'),(7,'Контактная форма','form','menuForm'),(8,'Демотиватор: конструктор','demotivator','menuConstructor'),(9,'Демотиватор: галерея','demotivator','menuGallery'),(470,'Универсальный каталог','catalog','menuCatalog'),(12,'Форум: личный кабинет','forum','menuProfile'),(13,'Форум: разделы форума','forum','menuCategory');
 /*!40000 ALTER TABLE `menuType` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -611,7 +611,7 @@ CREATE TABLE `section` (
 
 LOCK TABLES `section` WRITE;
 /*!40000 ALTER TABLE `section` DISABLE KEYS */;
-INSERT INTO `section` VALUES ('bottom','article/view/index.',6,1),('bottom','article/blog/news*',9,3),('bottom','article/list/article*',9,3),('right','article/view/index.',10,1),('right','article/view/index.',11,2),('footer','catalog/1/',51,1),('right','article/view/about.',13,4),('right','article/list/article/',13,4),('right','shop/category/',14,6),('right','shop/category/',15,5),('right','article/view/about.',16,7),('right','faq.',16,7),('right','form/1000/',16,7),('right','article/view/about.',17,8),('right','form/1000/',17,8),('bottom','article/view/index.',53,5),('right','faq/',54,10),('right','form/1000.',54,10),('footer','shop/category/',51,1),('footer','faq/',51,1),('footer','#/',51,1),('footer','article/view/index/',51,1),('footer','form/1000/',51,1),('bottom','article/view/about.',9,3),('footer','article/blog/news/',51,1),('footer','article/list/article/',51,1),('footer','article/view/about/',51,1),('right','article/view/about.',58,11),('right','article/view/index.',58,11),('top','user/register.',63,1),('top','user/login.',63,1),('right','article/list/article/',66,12),('top','catalog/1/',68,2);
+INSERT INTO `section` VALUES ('bottom','article/blog/news*',9,3),('bottom','article/list/article*',9,3),('right','article/view/index.',10,1),('right','article/view/index.',11,2),('footer','catalog/1/',51,1),('right','article/view/about.',13,4),('right','article/list/article/',13,4),('right','article/view/about.',16,7),('right','faq.',16,7),('right','form/1000/',16,7),('right','article/view/about.',17,8),('right','form/1000/',17,8),('bottom','article/view/index.',53,5),('right','faq/',54,10),('right','form/1000.',54,10),('footer','faq/',51,1),('footer','#/',51,1),('footer','article/view/index/',51,1),('footer','form/1000/',51,1),('bottom','article/view/about.',9,3),('footer','article/blog/news/',51,1),('footer','article/list/article/',51,1),('footer','article/view/about/',51,1),('right','article/view/about.',58,11),('right','article/view/index.',58,11),('top','user/register.',63,1),('top','user/login.',63,1),('right','article/list/article/',66,12),('top','catalog/1/',68,2);
 /*!40000 ALTER TABLE `section` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -634,7 +634,7 @@ CREATE TABLE `shpCategory` (
   `metaKeyword` varchar(500) NOT NULL DEFAULT '',
   `metaDescription` varchar(500) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -643,7 +643,6 @@ CREATE TABLE `shpCategory` (
 
 LOCK TABLES `shpCategory` WRITE;
 /*!40000 ALTER TABLE `shpCategory` DISABLE KEYS */;
-INSERT INTO `shpCategory` VALUES (35,0,'Инстументы','',0,'35.jpg','','','',''),(36,0,'Оборудование','',0,'36.png','','','',''),(37,35,'Бензопилы','',0,'37.jpg','13,11,14,12','','',''),(38,35,'Шуруповёрты','',0,'38.jpg','15,16,20','','',''),(39,36,'Компрессоры','',0,'39.jpg','17,18,19','','','');
 /*!40000 ALTER TABLE `shpCategory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -663,7 +662,7 @@ CREATE TABLE `shpFeature` (
   `variant` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `data` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -672,7 +671,6 @@ CREATE TABLE `shpFeature` (
 
 LOCK TABLES `shpFeature` WRITE;
 /*!40000 ALTER TABLE `shpFeature` DISABLE KEYS */;
-INSERT INTO `shpFeature` VALUES (11,'text',4,'Мощность','кВт',0,''),(12,'text',4,'Длина шины','мм',1,''),(13,'text',4,'Шаг цепи','мм',0,''),(14,'text',4,'Толщина ведущего звена','мм',0,''),(15,'text',5,'Мощность','Вт',0,''),(16,'text',5,'Скорость','об/мин',0,''),(17,'text',6,'Объём бака','л',0,''),(18,'text',6,'Максимальное давление','бар',0,''),(19,'text',6,'Мощность','',0,''),(20,'text',7,'Вес','кг',0,'');
 /*!40000 ALTER TABLE `shpFeature` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -687,7 +685,7 @@ CREATE TABLE `shpFeatureGroup` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -696,7 +694,6 @@ CREATE TABLE `shpFeatureGroup` (
 
 LOCK TABLES `shpFeatureGroup` WRITE;
 /*!40000 ALTER TABLE `shpFeatureGroup` DISABLE KEYS */;
-INSERT INTO `shpFeatureGroup` VALUES (4,'Бензопилы'),(5,'Электроинструмент'),(6,'Компрессоры'),(7,'Общие');
 /*!40000 ALTER TABLE `shpFeatureGroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -723,7 +720,7 @@ CREATE TABLE `shpProduct` (
   `variant` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `quantity` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -732,7 +729,6 @@ CREATE TABLE `shpProduct` (
 
 LOCK TABLES `shpProduct` WRITE;
 /*!40000 ALTER TABLE `shpProduct` DISABLE KEYS */;
-INSERT INTO `shpProduct` VALUES (58,37,'germaflex-yd-kw02-45','Бензопила GERMAFLEX YD-KW02-45','<p>\r\n	Пила цепная бензиновая (бензопила) GermaFlex</p>\r\n','<p>\r\n	Пила цепная бензиновая (бензопила) GermaFlex - это мощный и высокотехнологичный бензоинструмент, снабженный карбюратором производства фирмы Walbro, который отличается низким уровнем токсичности выхлопных газов. Данная модель работает на специальной смеси, состоящей из масла для двухтактных двигателей и бензина марки АИ 92. Хромированный цилиндр мотора и кованый коленвал обеспечивают значительный моторесурс. Цепная бензопила GermaFlex оснащена декомпрессионным клапаном, рукояткой эргономичной формы для надежного удержания инструмента и системой автоматической смазки цепи, которая заправляется специальным адгезионным маслом. Благодаря антивибрационной системе, значительно уменьшена нагрузка на оператора. Мотопила укомплектована шиной и цепью GermaFlex.</p>\r\n',3298,'58.1.jpeg','58.1.jpeg','','','',0,0),(59,37,'huter-bs-45','Бензопила HUTER BS-45','','<p>\r\n	Бензопила Huter BS-45 оснащена двигателем мощностью 2.3 л.с. Это инструмент для бытового использования - распилки дров для камина, ухода за садом, небольшого строительства. Бензопила оборудована тормозом цепи для обеспечения безопасной работы. В комплект поставки входит 45 сантиметровая шина. Есть антивибрационная система.</p>\r\n',4318,'59.1.jpg','59.1.jpg,59.2.jpg,59.3.jpg,59.4.jpg','','','',1,0),(60,37,'flo-500','Бензопила FLO 500','<p>\r\n	Бензин АИ92, ручной пуск.</p>\r\n','<p>\r\n	Безопила предназначена для работы в домохозяйствах. Бензопила предназначена исключительно для пиления по дереву. Поскольку в качестве привода пилы используется двигатель внутреннего сгорания, допускается пиление исключительно в условиях открытого пространства или подготовленного надлежащим образом помещения.</p>\r\n<p>\r\n	В комплекте с бензопилой поставляется:<br />\r\n	- напрявляющая цепи;<br />\r\n	- режущая цепь;<br />\r\n	- колпак от напрвляющей</p>\r\n',4590,'60.1.jpg','60.1.jpg,60.2.jpg,60.3.jpg','','','',0,0),(61,38,'bass-bp-5310','BASS BP-5310','','<p>\r\n	Шуруповерт подходит для работы профессионалов в любых условиях, подходит для повышенных нагрузок. Изготовлен из высококачественного пластика, что обеспечивает большую прочность оборудования. Удобный и надежный дизайн. Шуруповерт имеет 20 режимов, что делает его идеальным для заворачивания шурупов. Можно также использовать для сверления.</p>\r\n',4114,'61.1.jpg','61.1.jpg,61.2.jpg,61.3.jpg','','','',0,0),(62,39,'fubag-auto-master-kit','Компрессор Fubag Auto Master Kit','<p>\r\n	Набор компрессорного оборудования полностью готов к работе и состоит из масляного компрессора, набора пневмоинструмента и аксессуаров к нему.</p>\r\n','<p>\r\n	Набор компрессорного оборудования полностью готов к работе и состоит из масляного компрессора, набора пневмоинструмента и аксессуаров к нему. Набор предназначен в первую очередь для того, кто ценит своё рабочее время и предпочитает удобство во всём. Сочетание \"два в одном\" позволяет проводить большой спектр работ с применением сжатого воздуха без покупки дополнительных комплектующих.</p>\r\n<p>\r\n	Набор предназначен для автолюбителей и небольших автомастерских.</p>\r\n<p>\r\n	Набор компрессорного оборудования AUTO MASTER KIT В набор входит компактный передвижной масляный компрессор с ресивером на 50 л, обеспечивающий давление до 9 бар, ударный пневмогайковёрт с насадками, пистолета с манометром для накачки шин, краскораспылитель с верхним бачком на 0,5 л, пневмопистолет для вязких жидкостей, комплект из трёх наконечников, пневмопистолет для продувки или мойки, насадка для продувки, домкрат и гибкий спиральный резиновый шланг длиной 5 м с быстроразъёмными соединениями.</p>\r\n',18645,'62.1.jpeg','62.1.jpeg','','','',0,0),(63,39,'germaflex-500l-w20-8','Компрессор Germaflex 500L W-2.0/8 500L','','<p>\r\n	Компрессор \"GERMAFLEX\" применяется для покрасочных работ, накачки шин, продувки фильтров и выполнения других подобных операций с использованием пневмоинструмента. Аппарат оснащен пятисотлитровым ресивером, что существенно сокращает интенсивность рабочих циклов. Технические характеристики: мощность, кВт: 12 Производительность, л/мин: 2000 Объём ресивера, л.: 500 Рабочее давление, бар: 10 Вес, кг: 450</p>\r\n',45999,'63.1.jpeg','63.1.jpeg,63.2.jpeg','','','',0,0),(64,39,'genesis-11-08-500','Компрессор GENESIS 11 08/500','<p>\r\n	Компрессор GENESIS представляет собой полностью готовую к эксплуатации компрессорную станцию, что достигается за счет наличия: осушителя, который позволяет получить сухой воздух; системы фильтрации, которая удаляет твердые частицы и примеси масла</p>\r\n','<p>\r\n	Компрессор GENESIS представляет собой полностью готовую к эксплуатации компрессорную станцию, что достигается за счет наличия:</p>\r\n<ul>\r\n	<li>\r\n		осушителя, который позволяет получить сухой воздух;</li>\r\n	<li>\r\n		системы фильтрации, которая удаляет твердые частицы и примеси масла;</li>\r\n	<li>\r\n		ресивера, накапливающего сжатый воздух;</li>\r\n	<li>\r\n		микропроцессорного блока управления MC2 обеспечивающего управление и контроль всех компонентов компрессорной станции в автоматическом режиме реального времени и обеспечи. вающего режим энергосбережения;</li>\r\n	<li>\r\n		электрощита управления, дающего возможность безопасно осуществлять все электроподключения и эксплуатацию;</li>\r\n	<li>\r\n		виброизоляционного, звукопоглощающего корпуса, обеспечивающего самый быстрый и легкий доступ, в своем классе компрессоров, ко всем внутренним частях компрессора для подключения и технического обслуживания.</li>\r\n</ul>\r\n<p>\r\n	Все модели оснащены микропроцессорным блоком управления МС2 на русском языке, обеспечивающим управление и контроль всех компонентов компрессорной станции в автоматическом режиме реального времени с выводом на дисплей параметров его работы и позволяющим соединять в единую систему до 4 (10) компрессоров, что позволяет снизить энергозатраты и упростить эксплуатацию компрессорной станции.</p>\r\n',317612,'64.1.jpg','64.1.jpg','','','',0,0),(65,39,'genesis-i-22-4-10','Винтовой компрессор ABAC GENESIS.I 22 4','<p>\r\n	10 Бар с блоком частотного регулирования</p>\r\n','<p>\r\n	Винтовой компрессор ABAC GENESIS.I 22 4-10 Бар &nbsp;– это полноценная компрессорная станция, спроектированная по принципу Plug&amp;Play (Включи и работай). Винтовые пары компрессора разработаны специально для оборудования ABAC и идеально подогнаны. Самостоятельный электрощит для безопасного подключения и эксплуатации всех компонентов компрессорной станции</p>\r\n<p>\r\n	Блок частотного регулирования производительности и давления. Шумо- и вибропоглощающий корпус. Ременная передача с автоматическим регулятором натяжения ремня. Тройная фильтрация и осушитель воздуха позволяют подавать максимально очищенный сжатый воздух.</p>\r\n<p>\r\n	Компьютерный блок автоматического управления MC2 обеспечивает полный контроль работы всех компонентов станции. Все данные выводятся на русском языке. Возможность соединить в одну систему от 4 до 10 компрессоров. Режим энергосбережения.</p>\r\n',850000,'65.1.jpg','65.1.jpg','','','',0,0);
 /*!40000 ALTER TABLE `shpProduct` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -756,7 +752,6 @@ CREATE TABLE `shpProductFeature` (
 
 LOCK TABLES `shpProductFeature` WRITE;
 /*!40000 ALTER TABLE `shpProductFeature` DISABLE KEYS */;
-INSERT INTO `shpProductFeature` VALUES (59,11,'1.7 кВт'),(59,12,'450 мм'),(59,13,'0.83 мм'),(60,11,'2.2 кВт'),(60,12,'500 мм'),(58,11,'1.8 кВт'),(58,12,'470 мм'),(58,13,'3.25 мм'),(58,14,'1.5 мм'),(62,17,'50 л'),(62,18,'9 бар'),(64,17,'500 л'),(64,18,'12 бар'),(64,19,'11'),(65,17,'500 л'),(65,18,'15 бар'),(65,19,'22'),(63,17,'500 л'),(63,18,'18 бар'),(63,19,'12 кВт'),(61,16,'0-900 об/мин'),(61,20,'1.7 кг');
 /*!40000 ALTER TABLE `shpProductFeature` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -771,7 +766,7 @@ CREATE TABLE `shpProductGroup` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(30) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -780,7 +775,6 @@ CREATE TABLE `shpProductGroup` (
 
 LOCK TABLES `shpProductGroup` WRITE;
 /*!40000 ALTER TABLE `shpProductGroup` DISABLE KEYS */;
-INSERT INTO `shpProductGroup` VALUES (1,'Избранные товары');
 /*!40000 ALTER TABLE `shpProductGroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -794,7 +788,7 @@ DROP TABLE IF EXISTS `shpProductGroupItem`;
 CREATE TABLE `shpProductGroupItem` (
   `groupId` smallint(5) unsigned NOT NULL,
   `productId` int(10) unsigned NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -803,7 +797,6 @@ CREATE TABLE `shpProductGroupItem` (
 
 LOCK TABLES `shpProductGroupItem` WRITE;
 /*!40000 ALTER TABLE `shpProductGroupItem` DISABLE KEYS */;
-INSERT INTO `shpProductGroupItem` VALUES (1,59),(1,61);
 /*!40000 ALTER TABLE `shpProductGroupItem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -820,7 +813,7 @@ CREATE TABLE `shpVariant` (
   `title` char(60) NOT NULL,
   `feature` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -829,7 +822,6 @@ CREATE TABLE `shpVariant` (
 
 LOCK TABLES `shpVariant` WRITE;
 /*!40000 ALTER TABLE `shpVariant` DISABLE KEYS */;
-INSERT INTO `shpVariant` VALUES (1,59,'HUTER BS-45M','a:1:{i:12;s:8:\"400 мм\";}');
 /*!40000 ALTER TABLE `shpVariant` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -938,7 +930,7 @@ CREATE TABLE `userRight` (
 
 LOCK TABLES `userRight` WRITE;
 /*!40000 ALTER TABLE `userRight` DISABLE KEYS */;
-INSERT INTO `userRight` VALUES ('menu.*','250','Управление меню',NULL),('article.category','250','Управление категориями статей',NULL),('article.article','250','Редактирование статей',NULL),('user.group','','Управление группами пользователей','userGroup'),('user.user','250','Управление пользователями','user'),('section.*','250','Управление секциями',NULL),('html.*','250,200','Редактирование текстовых блоков',NULL),('comment.moderate','250,200','Комментарии: модерирование','comment'),('setting.core','250','Общие настройки','setting'),('setting.url','250','Преобразование ссылок (ЧПУ)','url'),('menu.hidden','250','Скрытое меню','menu'),('shop.setting','250','Магазин: настройки','shopSetting'),('shop.category','250','Магазин: категории',NULL),('shop.product','250','Магазин: товары',NULL),('faq.*','250','Часто задаваемые вопросы',NULL),('form.*','250','Управление формами',NULL),('module.*','','Установка и удаление модулей','module'),('vote.*','250','Управление опросами (голосование)',NULL),('chat.moderate','250,200','Чат: модерирование',NULL),('demotivator.setting','250','Демотиваторы: управление',NULL),('demotivator.moderate','250,200','Демотиваторы: модерация',NULL),('catalog.layout',NULL,'Каталог: управление макетами',NULL),('catalog.item','250','Каталог: управление записями',NULL),('note.*','250','Заметки, информация для администрации','info'),('slider.*','250','Слайдер',NULL),('shop.feature','250','Магазин: характеристики товаров',NULL),('shop.variant','','Магазин: варианты (модификации) товаров',NULL),('template.*','250','Управление шаблонами','template'),('shop.import','250','Магазин: импорт товаров',NULL),('devTool.*',NULL,'Инструменты разработчика','tool'),('forum.moderate','200','Форум: модерирация',NULL),('forum.category',NULL,'Форум: управление разделами',NULL);
+INSERT INTO `userRight` VALUES ('menu.*','250','Управление меню',NULL),('article.category','250','Управление категориями статей',NULL),('article.article','250','Редактирование статей',NULL),('user.group','','Управление группами пользователей','userGroup'),('user.user','250','Управление пользователями','user'),('section.*','250','Управление секциями',NULL),('html.*','250,200','Редактирование текстовых блоков',NULL),('comment.moderate','250,200','Комментарии: модерирование','comment'),('setting.core','250','Общие настройки','setting'),('setting.url','250','Преобразование ссылок (ЧПУ)','url'),('menu.hidden','250','Скрытое меню','menu'),('shop.import','250','Магазин: импорт товаров',NULL),('shop.variant',NULL,'Магазин: варианты (модификации) товаров',NULL),('faq.*','250','Часто задаваемые вопросы',NULL),('form.*','250','Управление формами',NULL),('module.*','','Установка и удаление модулей','module'),('vote.*','250','Управление опросами (голосование)',NULL),('chat.moderate','250,200','Чат: модерирование',NULL),('demotivator.setting','250','Демотиваторы: управление',NULL),('demotivator.moderate','250,200','Демотиваторы: модерация',NULL),('catalog.layout',NULL,'Каталог: управление макетами',NULL),('catalog.item','250','Каталог: управление записями',NULL),('note.*','250','Заметки, информация для администрации','info'),('slider.*','250','Слайдер',NULL),('shop.product','250','Магазин: товары',NULL),('template.*','250','Управление шаблонами','template'),('devTool.*',NULL,'Инструменты разработчика','tool'),('forum.moderate','200','Форум: модерирация',NULL),('forum.category',NULL,'Форум: управление разделами',NULL),('shop.feature','250','Магазин: характеристики товаров',NULL),('shop.setting','250','Магазин: настройки','shopSetting'),('shop.category','250','Магазин: категории',NULL);
 /*!40000 ALTER TABLE `userRight` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -986,7 +978,7 @@ CREATE TABLE `widget` (
   `section` char(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `section` (`section`)
-) ENGINE=MyISAM AUTO_INCREMENT=69 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=72 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -995,7 +987,7 @@ CREATE TABLE `widget` (
 
 LOCK TABLES `widget` WRITE;
 /*!40000 ALTER TABLE `widget` DISABLE KEYS */;
-INSERT INTO `widget` VALUES (6,'shopProductGroup','1',30,'Избранные товары',1,'bottom'),(9,'comment','',0,'Комментарии',1,'bottom'),(10,'demotivatorLast','',10,'Последний демотиватор',1,'right'),(11,'html','right.2',0,'Демотиватор (текст)',0,'right'),(51,'html','footer.1',0,'Копирайты',0,'footer'),(13,'blog','a:4:{s:10:\"categoryId\";s:1:\"2\";s:8:\"linkType\";s:4:\"list\";s:12:\"countPreview\";i:0;s:9:\"countLink\";i:100;}',0,'Статьи',1,'right'),(14,'shopCart','a:3:{s:7:\"product\";b:1;s:5:\"total\";b:1;s:8:\"checkout\";b:1;}',0,'Корзина',1,'right'),(15,'shopCategory','',0,'Категории',1,'right'),(16,'chat','a:2:{s:2:\"id\";i:1;s:5:\"count\";i:5;}',0,'Тем временем в чате...',1,'right'),(17,'form','1002',30,'Обратный звонок',1,'right'),(58,'blog','a:4:{s:10:\"categoryId\";s:1:\"1\";s:8:\"linkType\";s:4:\"blog\";s:12:\"countPreview\";i:3;s:9:\"countLink\";i:0;}',0,'Новости',1,'right'),(53,'html','bottom.1',0,'С праздником!',1,'bottom'),(54,'vote','3',10,'Голосование',1,'right'),(68,'catalogSearch','a:2:{s:2:\"id\";s:1:\"1\";s:3:\"fld\";a:2:{s:5:\"title\";a:1:{s:3:\"set\";s:2:\"on\";}s:4:\"year\";a:5:{s:3:\"set\";s:2:\"on\";s:3:\"min\";s:4:\"1900\";s:3:\"max\";s:4:\"2015\";s:4:\"step\";s:1:\"1\";s:5:\"range\";s:2:\"on\";}}}',0,'Поиск',1,'top'),(63,'oauth','a:2:{s:8:\"register\";b:0;s:2:\"vk\";a:2:{i:0;s:3:\"111\";i:1;s:3:\"222\";}}',0,'Войти через...',0,'top'),(66,'html','right.3',0,'Произвольный текст',0,'right');
+INSERT INTO `widget` VALUES (9,'comment','',0,'Комментарии',1,'bottom'),(10,'demotivatorLast','',10,'Последний демотиватор',1,'right'),(11,'html','right.2',0,'Демотиватор (текст)',0,'right'),(51,'html','footer.1',0,'Копирайты',0,'footer'),(13,'blog','a:4:{s:10:\"categoryId\";s:1:\"2\";s:8:\"linkType\";s:4:\"list\";s:12:\"countPreview\";i:0;s:9:\"countLink\";i:100;}',0,'Статьи',1,'right'),(16,'chat','a:2:{s:2:\"id\";i:1;s:5:\"count\";i:5;}',0,'Тем временем в чате...',1,'right'),(17,'form','1002',30,'Обратный звонок',1,'right'),(58,'blog','a:4:{s:10:\"categoryId\";s:1:\"1\";s:8:\"linkType\";s:4:\"blog\";s:12:\"countPreview\";i:3;s:9:\"countLink\";i:0;}',0,'Новости',1,'right'),(53,'html','bottom.1',0,'С праздником!',1,'bottom'),(54,'vote','3',10,'Голосование',1,'right'),(68,'catalogSearch','a:2:{s:2:\"id\";s:1:\"1\";s:3:\"fld\";a:2:{s:5:\"title\";a:1:{s:3:\"set\";s:2:\"on\";}s:4:\"year\";a:5:{s:3:\"set\";s:2:\"on\";s:3:\"min\";s:4:\"1900\";s:3:\"max\";s:4:\"2015\";s:4:\"step\";s:1:\"1\";s:5:\"range\";s:2:\"on\";}}}',0,'Поиск',1,'top'),(63,'oauth','a:2:{s:8:\"register\";b:0;s:2:\"vk\";a:2:{i:0;s:3:\"111\";i:1;s:3:\"222\";}}',0,'Войти через...',0,'top'),(66,'html','right.3',0,'Произвольный текст',0,'right');
 /*!40000 ALTER TABLE `widget` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1021,7 +1013,7 @@ CREATE TABLE `widgetType` (
 
 LOCK TABLES `widgetType` WRITE;
 /*!40000 ALTER TABLE `widgetType` DISABLE KEYS */;
-INSERT INTO `widgetType` VALUES ('html','Произвольный текст','html','widgetHtml'),('blog','Блог (анонс статей в категории)','article','widgetBlog'),('menu','Меню','menu','widgetList'),('shopProductGroup','Магазин: группа товаров','shop','widgetProductGroup'),('shopCategory','Магазин: категории','shop','widgetCategory'),('shopCart','Магазин: корзина','shop','widgetCart'),('form','Контактная форма','form','widgetForm'),('shadowbox','Всплывающие изображения (shadowbox)','shadowbox','widgetShadowBox'),('vote','Голосование','vote','widgetVote'),('comment','Комментарии','comment','widgetComment'),('chat','Чат','chat','widgetChat'),('demotivatorLast','Демотиваторы: последний добавленный','demotivator','widgetLast'),('slider','Слайдер','slider','widget'),('catalogSearch','Каталог: поиск','catalog','widgetSearch'),('oauth','Регистрация и авторизация OAuth 2.0','oauth','widget');
+INSERT INTO `widgetType` VALUES ('html','Произвольный текст','html','widgetHtml'),('blog','Блог (анонс статей в категории)','article','widgetBlog'),('menu','Меню','menu','widgetList'),('shopFeatureSearch','Магазин: поиск по характеристикам','shop','widgetFeatureSearch'),('shopCategory','Магазин: категории','shop','widgetCategory'),('shopCart','Магазин: корзина','shop','widgetCart'),('form','Контактная форма','form','widgetForm'),('shadowbox','Всплывающие изображения (shadowbox)','shadowbox','widgetShadowBox'),('vote','Голосование','vote','widgetVote'),('comment','Комментарии','comment','widgetComment'),('chat','Чат','chat','widgetChat'),('demotivatorLast','Демотиваторы: последний добавленный','demotivator','widgetLast'),('slider','Слайдер','slider','widget'),('catalogSearch','Каталог: поиск','catalog','widgetSearch'),('oauth','Регистрация и авторизация OAuth 2.0','oauth','widget'),('shopProductGroup','Магазин: группа товаров','shop','widgetProductGroup');
 /*!40000 ALTER TABLE `widgetType` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -1034,4 +1026,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-03-06 17:00:08
+-- Dump completed on 2015-03-27  1:59:20

@@ -1,4 +1,5 @@
 <?php return array(
+'hook2'=>'widgetDelete',
 'right'=>'vote.*',
 'widget'=>'vote',
 'table'=>'vote',

@@ -1,14 +1,5 @@
 <?php return array(
-'beforeRender'=>array(
-'template'
-),
-'search'=>array(
-'article',
-'shop',
-'catalog',
-'forum'
-),
-'userCreate'=>array(
-'forum'
-)
+	'beforeRender'=>array('template'),
+	'search'=>array('article','shop','catalog','forum'),
+	'userCreate'=>array('forum')
 ); ?>

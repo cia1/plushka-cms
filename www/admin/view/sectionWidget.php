@@ -23,7 +23,7 @@ $f->checkbox('publicTitle','Публиковать название виджет
 //Сформировать список чекбоксов
 $f->html('<dt>Страницы</dt><dd id="_admPageCheck" style="height:auto;">'.getHTMLMenu($this->pageMenu).'</dd>');
 $f->text('url2','другие URL (через запятую)',implode($this->pageOther,', '),'id="url2"');
-$f->render();
+$f->render('section/widget&section='.$_GET['section']);
 ?>
 <div id="_type"><h3>Выберите тип виджета:</h3>
 <?php

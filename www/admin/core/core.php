@@ -166,7 +166,9 @@ class core {
 				echo '<div id="content">';
 				self::success($message);
 				echo '</div>';
-				echo '<link href="'.core::url().'admin/public/template/front.css" rel="stylesheet" type="text/css" media="screen" /><script type="text/javascript" src="'.core::url().'public/js/jquery.min.js"></script><script type="text/javascript" src="'.core::url().'admin/public/js/front.js"></script><script type="text/javascript">setTimeout(function() { top.window.location.reload(); },2000);</script>';
+				echo '<link href="'.core::url().'admin/public/template/front.css" rel="stylesheet" type="text/css" media="screen" /><script type="text/javascript" src="'.core::url().'public/js/jquery.min.js"></script>
+				<script type="text/javascript" src="'.core::url().'admin/public/js/front.js"></script>
+				<script type="text/javascript">setTimeout(function() { top.window.location=top.window.location.href; },2000);</script>';
 				exit;
 			} else $_SESSION['successMessage']=$message;
 		}

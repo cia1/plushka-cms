@@ -22,4 +22,5 @@ long_line_behaviour=1
 long_line_column=100
 
 [files]
-current_page=-1
+current_page=0
+FILE_NAME_0=31;HTML;0;EUTF-8;1;1;0;%2Fvar%2Fwww%2Fcms%2Fwww%2Fdata%2FwidgetHtml%2Ffooter.1.html;0;2
