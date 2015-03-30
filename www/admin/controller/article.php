@@ -17,6 +17,7 @@ class sController extends controller {
 
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
+
 	/* Создание или редактирование категории статей */
 	public function actionCategory() {
 		$db=core::db();
@@ -44,6 +45,20 @@ class sController extends controller {
 	public function actionCategorySubmit($data) {
 	if(!$this->_saveCategory($data)) return false; //Этот же механизм используется в меню, поэтому вынесен в отдельную функцию
 		core::redirect('?controller=article&action=category&id='.$data['id'],'Изменения сохранены');
+	}
+
+	//Список не опубликованных статей
+	public function actionFeature() {
+		$db=core::db();
+		$db->query('SELECT id,date,title FROM article WHERE categoryId='.(int)$_GET['categoryId'].' AND date>'.time());
+		$table=core::table();
+		$table->rowTh(array('Дата','Заголовок',''));
+		while($item=$db->fetch()) {
+			$table->text(date('d.m.Y',$item[1]));
+			$table->link($item[2],'article/article&id='.$item[0]);
+			$table->delete('?controller=article&action=articleDelete&id='.$item[0]);
+		}
+		return $table;
 	}
 
 	/* Создание или редактирование статьи (отдельной или в составе блога) */

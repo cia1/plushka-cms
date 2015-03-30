@@ -59,7 +59,8 @@ class sController extends controller {
 	protected function adminBlogLink() {
 		return array(
 			array('article.category','?controller=article&action=category&id='.$this->category['id'],'edit','Править заголовок, мета-теги блога'),
-			array('article.article','?controller=article&action=article&categoryId='.$this->category['id'].'&blog','new','Добавить новую статью в блог')
+			array('article.article','?controller=article&action=article&categoryId='.$this->category['id'].'&blog','new','Добавить новую статью в блог'),
+			array('article.article','?controller=article&action=feature&categoryId='.$this->category['id'].'&blog','status0','Не опубликованные статьи')
 		);
 	}
 
@@ -92,7 +93,8 @@ class sController extends controller {
 	protected function adminListLink() {
 		return array(
 			array('article.category','?controller=article&action=category&id='.$this->category['id'],'edit','Править заголовок, мета-теги, описание'),
-			array('article.article','?controller=article&action=article&categoryId='.$this->category['id'].'&list','new','Добавить новую статью в категорию')
+			array('article.article','?controller=article&action=article&categoryId='.$this->category['id'].'&list','new','Добавить новую статью в категорию'),
+			array('article.article','?controller=article&action=feature&categoryId='.$this->category['id'].'&list','status0','Не опубликованные статьи')
 		);
 	}
 
