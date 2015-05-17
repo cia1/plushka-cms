@@ -14,11 +14,13 @@
 	}
 	echo '</div>';
 } ?>
-<a href="<?=core::url().'public/productImage/'.$this->product['mainImage']?>" rel="shadowbox[gallery]"><img src="<?=core::url().'public/productImage/'.$this->product['mainImage']?>" alt="<?=$this->product['title']?>" class="mainImage" /></a>
+<a href="<?=core::url().'public/shop-product/'.$this->product['mainImage']?>" rel="shadowbox[gallery]"><img src="<?=core::url().'public/shop-product/'.$this->product['mainImage']?>" alt="<?=$this->product['title']?>" class="mainImage" /></a>
 <div class="otherImage">
-<?php foreach($this->product['image'] as $item) echo '<a href="'.core::url().'public/productImage/'.$item.'" rel="shadowbox[gallery]"><img src="'.core::url().'public/productImage/_'.$item.'" alt="'.$this->product['title'].'" /></a>'; ?>
+<?php foreach($this->product['image'] as $item) echo '<a href="'.core::url().'public/shop-product/'.$item.'" rel="shadowbox[gallery]"><img src="'.core::url().'public/shop-product/_'.$item.'" alt="'.$this->product['title'].'" /></a>'; ?>
 </div>
 <div style="clear:both;"></div>
+
+<p>Производитель: <?=$this->product['brand']?></p>
 <?php if($this->product['feature']) {
 	echo '<h2>Характеристики</h2>';
 	foreach($this->product['feature'] as $item) {

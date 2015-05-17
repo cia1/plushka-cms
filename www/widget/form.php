@@ -5,7 +5,7 @@ class widgetForm extends widget {
 
 	public function action() { return true; }
 
-	public function render() {
+	public function render($view=null) {
 		$db=core::db();
 		$form=$db->fetchArrayOnceAssoc('SELECT title,formView FROM frmForm WHERE id='.$this->options);
 		if(!$form) return;

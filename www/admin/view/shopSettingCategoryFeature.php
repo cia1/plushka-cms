@@ -30,8 +30,8 @@ echo '<option value="#'.$id.'" class="head">'.$data['title'].'</option>';
 option.head {background:#eee;}
 </style>
 
-<form action="<?=core::link('?controller=shop&action=categoryFeature')?>" method="post" onSubmit="featureCategorySubmit();">
-<input type="hidden" name="shop[categoryId]" value="<?=$this->id?>" />
-<input type="hidden" name="shop[feature]" value="" id="featureField" />
+<form action="<?=core::link('?controller=shopSetting&action=categoryFeature')?>" method="post" onSubmit="featureCategorySubmit();">
+<input type="hidden" name="shopSetting[categoryId]" value="<?=$this->id?>" />
+<input type="hidden" name="shopSetting[feature]" value="" id="featureField" />
 <input type="submit" class="button" value="Продолжить" style="margin-top:20px;" />
 </form>

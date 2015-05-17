@@ -4,7 +4,7 @@ a {color:#e55;}
 h2 {width:100%;}
 .container {padding:15px 15px 0 15px;}
 #_adminDialogBoxLoading {margin:30px auto 0 auto;}
-#content iframe#_resizer {position:absolute;top:0;left:0;width:100%;height:100%;border:0;margin:0;padding:0;z-index:-1;}
+iframe#_resizer {position:absolute;top:0;left:0;width:100%;height:100%;border:0;margin:0;padding:0;z-index:-1;}
 
 
 ._operation {margin-bottom:10px;padding:5px 5px 1px 5px;border:1px solid #bbb;background:#eef;
@@ -25,8 +25,8 @@ dl.form .button {float:right;margin-right:10px;}
 dl.form dt.textarea {margin-bottom:0;}
 dl.form dd.textarea {height:auto;}
 dl.form dd.label {color:#999;}
-dl.form label input,dl.form dd.checkbox input {width:auto;height:auto;}
-dl.form .radio input {margin-right:5px;}
+dl.form input.checkbox,dl.form dd.checkbox input {width:auto;height:auto;}
+dl.form .radio input {width:auto;height:auto;margin-right:5px;}
 dl.form .radio label {padding-right:15px;}
 
 .button,dl.form input.button {width:auto;height:auto;padding:6px 13px;text-decoration:none;text-align:center;border:solid 1px #004F72;color:#E5FFFF;background-color:#3ba4c7;
@@ -54,7 +54,7 @@ div.successMessage {margin-top:15px;padding:10px;background:#0a0;border:1px soli
 
 #_type {width:100%;float:left;}
 #_type p {padding:0;margin:0;cursor:pointer;text-decoration:underline;}
-iframe {width:100%;height:100%;border:#eee;}
+/*iframe {width:100%;height:100%;border:#eee;}*/
 
 cite {width:100%;float:left;margin-top:20px;padding-top:4px;font-size:13px;text-align:left;background:url(citeLine.gif) no-repeat left top;}
 
@@ -68,3 +68,5 @@ div.image img {height:80px;}
 }
 .tab legend:hover,.tab legend.active:hover {background:#eee;border-top:1px solid black;border-right:1px solid black;border-left:1px solid black;}
 .tab legend.active {border-bottom:0;background:white;padding-bottom:3px;}
+.widgetpagination {margin:20px 0;text-align:center;}
+.widgetpagination span,.widgetpagination a {padding:10px;}

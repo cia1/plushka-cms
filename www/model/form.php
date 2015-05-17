@@ -36,13 +36,18 @@ class mForm extends form {
 				if($type=='select' && !$this->field[$i]['required']) {
 					array_unshift($data,array('','(выбрать)'));
 				}
-				$this->field($type,'fld'.$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$data);
-			} else $this->field($type,'fld'.$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
+				$this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$data);
+			} else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
 		}
 		$this->field('submit','submit','Отправить');
 		return true;
 	}
 
+	public function render($action=null) {
+		if($action) $this->action=$action;
+		if($this->formView) include(core::path().'view/form'.ucfirst($this->formView).'.php');
+		else return parent::render();
+	}
 	/* Выполняет настроенное действие по обработке формы
 	$id - идентификатор формы, $data - данные (из $_POST) */
 	public function execute($id,$data) {
@@ -61,7 +66,7 @@ class mForm extends form {
 		$db->query('SELECT id,title,htmlType,data,required FROM frmField WHERE formId='.$id.' ORDER BY sort');
 		$this->field=$validate=array();
 		while($item=$db->fetch()) {
-			$fldName='fld'.$item[0];
+			$fldName=$item[0];
 			$value=$data[$fldName];
 			if($item[2]=='file') {
 				if($item[4] && !$data['fld'.$item[0]]['size']) {

@@ -4,13 +4,13 @@ class widgetShopCategory extends widget {
 
 	public function action() { return true; }
 
-	public function render() {
+	public function render($view=null) {
 		//Определить ИД текущей категории
 		if(isset($_GET['corePath'][2]) && $_GET['corePath'][0]=='shop' && ($_GET['corePath'][1]=='category' || $_GET['corePath'][1]=='product')) $id=(int)$_GET['corePath'][2]; else $id=null;
 		core::import('model/shop');
 		$items=shop::cacheCategoryTree(); //дерево категорий
-		if($id) $pid=$items[$id]['parent']['id']; else $pid=null;
-		$this->_renderList($items[0]['child'],$id,$pid);
+		if($id) $pid=$items[$id]['parent']['id']; else $pid=null; //справедливо только для одного уровня
+		$this->_renderList($items['ROOT'],$id,$pid);
 	}
 
 	/* Рекурсивно выводит категории интернет-магазина */

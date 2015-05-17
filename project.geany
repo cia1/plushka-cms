@@ -1,6 +1,6 @@
 [file_prefs]
 final_new_line=false
-ensure_convert_new_lines=false
+ensure_convert_new_lines=true
 strip_trailing_spaces=true
 replace_tabs=false
 
@@ -16,13 +16,15 @@ indent_mode=2
 name=cms
 base_path=/home/cia/www/cms/www
 description=
+file_patterns=
 
 [long line marker]
 long_line_behaviour=1
 long_line_column=100
 
 [files]
-current_page=1
-FILE_NAME_0=4059;HTML;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fproteh_new%2Fwww%2Ftemplate%2Fpc.default.html;0;2
-FILE_NAME_1=2074;CSS;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fproteh_new%2Fwww%2Fpublic%2Ftemplate%2Fmain.css;0;2
-FILE_NAME_2=811;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fproteh_new%2Fwww%2Fpublic%2Fjs%2Fmain.js;0;2
+current_page=3
+FILE_NAME_0=0;HTML;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fdata%2Femail%2FshopOrderAdmin.html;0;2
+FILE_NAME_1=0;PHP;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fmodule%2Fmap.php;0;2
+FILE_NAME_2=0;CSS;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fpublic%2Fcss%2Fshop.css;0;2
+FILE_NAME_3=0;PHP;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fview%2FmapMap.php;0;2

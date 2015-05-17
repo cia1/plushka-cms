@@ -1,0 +1,9 @@
+#_type p.group {margin-top:5px;padding-left:20px;text-decoration:none;font-weight:bold;background-repeat:no-repeat;background:position: center left;}
+div.group {display:none;margin:5px 0 30px 10px;}
+div.group label {display:block;}
+div.group label input {margin-top:10px;}
+#_type p.plus {background-image:url(../shop-plus.png);}
+#_type p.minus {background-image:url(../shop-minus.png);}
+div.group select {float:left;margin-right:10px;}
+.featureData {clear:both;}
+.featureData input {width:70px;}

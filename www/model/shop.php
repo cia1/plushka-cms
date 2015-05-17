@@ -2,16 +2,21 @@
 /* Библиотека часто используемых функций модуля "shop" (интернет-магазин) */
 class shop {
 
+	private static $_foundRows;
 	/* Возвращает древовидный массив, содержащий структуру категорий (лучше использовать cacheCategoryTree) */
 	public static function categoryTree() {
 		$db=core::db();
 		$db->query('SELECT id,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
-		$data=array(0=>array('title'=>null,'parent'=>null,'child'=>array()));
+		$data=array(0=>array('child'=>array()));
 		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'title'=>$item[2],'parent'=>$item[1],'image'=>$item[3],'child'=>array());
-		foreach($data as $id=>$item) {
-			$data[$item['parent']]['child'][$id]=$data[$id];
-			if(!$data[$id]['parent']) $data[$id]['parent']=null; else $data[$id]['parent']=$data[$item['parent']];
+		foreach($data as $id=>&$item) {
+			if($id==0) continue;
+			$parentId=$item['parent'];
+			unset($item['parent']);
+			$data[$parentId]['child'][]=&$item;
 		}
+		$data['ROOT']=$data[0]['child'];
+		unset($data[0]['child']);
 		return $data;
 	}
 
@@ -27,19 +32,70 @@ class shop {
 		$data=$db->fetchArrayAssoc('SELECT id,title,image FROM shpCategory WHERE parentId='.$id.' ORDER BY sort,id');
 		for($i=0;$i<count($data);$i++) {
 			$data[$i]['link']=core::link('shop/category/'.$data[$i]['id']);
-			if($data[$i]['image']) $data[$i]['image']=core::url().'public/categoryImage/'.$data[$i]['image'];
+			if($data[$i]['image']) $data[$i]['image']=core::url().'public/shop-category/'.$data[$i]['image'];
 		}
 		return $data;
 	}
 
 	/* Возвращает подготовленный список товаров, находящихся в заданной категории
-	$id - ИД категории; $feature - список характеристик, которые также нужно извлечь из БД */
-	public static function productCategory($id=null,$feature=false) {
-		$q=self::_buildQuery($id,$feature); //построить SQL-запрос
+	$categoryId - ИД категории; $feature - список характеристик, которые также нужно извлечь из БД */
+	public static function productCategory($categoryId=null,$feature=false) {
+		//Построить SQL-запрос с учётом параметров поиска:
+		//$qSelect - выборка, $qCount - отдельный запрос для подсчёта количества товаров (для пагинации)
+		$qSelect='SELECT p.id id,p.alias alias,p.categoryId categoryId,p.title title,p.price price,p.mainImage mainImage,p.text1 text1';
+		$qCount='SELECT COUNT(id) FROM shpProduct p';
+		if($feature) { //если характеристики заданы, то присоединить их к запросу
+			$s=' FROM shpProduct p';
+			foreach($feature as $item) {
+				$qSelect.=',pf'.$item.'.value feature'.$item;
+				$s.=' LEFT JOIN shpProductFeature pf'.$item.' ON pf'.$item.'.productId=p.id AND pf'.$item.'.featureId='.$item;
+			}
+			$q.=$s;
+		} else $qSelect.=' FROM shpProduct p';
+//		$qSelect.=' LEFT JOIN shpBrand b ON b.id=p.brandId';
+		$db=core::db();
+		//Задан отбор по характеристикам
+		if(isset($_GET['feature'])) {
+			foreach($_GET['feature'] as $id=>$item) {
+				if(!$item) continue;
+				$id=(int)$id;
+				if(!$id) continue;
+				if(is_array($item)) {
+					$value='';
+					foreach($item as $s) {
+						if($value) $value.=',';
+						$value.=$db->escape($s);
+					}
+					$value=' IN('.$value.')';
+				} else $value='='.$db->escape($item);
+				$qSelect.=' INNER JOIN shpProductFeature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
+				$qCount.=' INNER JOIN shpProductFeature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
+			}
+		}
+		$qSelect.=' WHERE';
+		$qCount.=' WHERE';
+		if($categoryId) {
+			$qSelect.=' p.categoryId='.$categoryId;
+			$qCount.=' p.categoryId='.$categoryId;
+		}
+		if(isset($_GET['sort'])) { //задана какая-то сортировка
+			if($_GET['sort']=='dateASC') $sort='id ASC'; elseif($_GET['sort']=='dateDESC') $sort='id DESC';
+			else $sort=str_replace(array('ASC','DESC'),array(' ASC', ' DESC'),$_GET['sort']);
+		} else $sort='id DESC';
+		//фильтр по цене
+		if(isset($_GET['price1']) && $_GET['price1']) $q.=' AND p.price>='.(float)$_GET['price1'];
+		if(isset($_GET['price2']) && $_GET['price2']) $q.=' AND p.price<='.(float)$_GET['price2'];
+		$qSelect.=' ORDER BY '.$db->getEscape($sort);
 		$cfg=core::config('shop');
-		return self::_loadList($q,$cfg['productOnPage']);
+		if(isset($_GET['page']) && $_GET['page']>1) $page=$_GET['page']-1; else $page=0;
+		$qSelect.=' LIMIT '.($page*$cfg['productOnPage']).','.$cfg['productOnPage'];
+		self::$_foundRows=$db->fetchValue($qCount);
+		return self::_loadList($qSelect);
 	}
 
+	public static function foundRows() {
+		return self::$_foundRows;
+	}
 	/* Возвращает список товаров, принадлежащих к группе с идентификатором $id */
 	public static function productGroup($id) {
 		$q='SELECT p.id id,p.alias alias,p.categoryId categoryId,p.title title,p.price price,p.mainImage mainImage,p.text1 text1 FROM shpProductGroupItem gi INNER JOIN shpProduct p ON p.id=gi.productId WHERE gi.groupId='.$id.' ORDER BY p.id DESC';
@@ -51,7 +107,7 @@ class shop {
 		$db=core::db();
 		$id=(int)$id;
 		if(!$id) return null;
-		$data=$db->fetchArrayOnceAssoc('SELECT * FROM shpProduct WHERE id='.$id);
+		$data=$db->fetchArrayOnceAssoc('SELECT p.*,b.title brand FROM shpProduct p LEFT JOIN shpBrand b ON b.id=p.brandId WHERE id='.$id);
 		if(!$data['image']) $data['image']=array(); else {
 			$data['image']=explode(',',$data['image']);
 			unset($data['image'][0]);
@@ -63,7 +119,7 @@ class shop {
 	string $alias - псевдоним товара; bool $variant - также извлечь вариатны товаров*/
 	public static function productByAlias($alias,$variant=false) {
 		$db=core::db();
-		$data=$db->fetchArrayOnceAssoc('SELECT p.id,p.categoryId,p.title,p.text1,p.text2,p.price,p.mainImage,p.image,p.metaTitle,p.metaKeyword,p.metaDescription'.($variant ? ',p.variant variantCount' : '').',c.title categoryTitle,c.feature FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId WHERE alias='.$db->escape($alias));
+		$data=$db->fetchArrayOnceAssoc('SELECT p.id,p.categoryId,p.title,p.text1,p.text2,p.price,p.mainImage,p.image,p.metaTitle,p.metaKeyword,p.metaDescription'.($variant ? ',p.variant variantCount' : '').',c.title categoryTitle,c.feature,b.title brand FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId LEFT JOIN shpBrand b ON b.id=p.brandId WHERE p.alias='.$db->escape($alias));
 		if(!$data) return false;
 		if(!$data['image']) $data['image']=array(); else {
 			$data['image']=explode(',',$data['image']);
@@ -92,52 +148,11 @@ class shop {
 		return $data;
 	}
 
-	/* Возвращает SQL-запрос на выборку списка товаров. Отлавливает параметры в $_GET для фильтрации и сортировки
-	$categoryId - ИД категории; $feature - список дополнительных характеристик, которые также нужно извлечь из БД */
-	private static function _buildQuery($categoryId=null,$feature=false) {
-		$q='SELECT p.id id,p.alias alias,p.categoryId categoryId,p.title title,p.price price,p.mainImage mainImage,p.text1 text1';
-		if($feature) { //если характеристики заданы, то присоединить их к запросу
-			$s=' FROM shpProduct p';
-			foreach($feature as $item) {
-				$q.=',pf'.$item.'.value feature'.$item;
-				$s.=' LEFT JOIN shpProductFeature pf'.$item.' ON pf'.$item.'.productId=p.id AND pf'.$item.'.featureId='.$item;
-			}
-			$q.=$s;
-		} else $q.=' FROM shpProduct p';
+	/* Возвращает обработанный список товаров, выбранных по SQL-запросу $query */
+	private static function _loadList($query) {
 		$db=core::db();
-		//Задан отбор по характеристикам
-		if(isset($_GET['feature'])) {
-			foreach($_GET['feature'] as $id=>$item) {
-				$id=(int)$id;
-				if(!$id) continue;
-				if(is_array($item)) {
-					$value='';
-					foreach($item as $s) {
-						if($value) $value.=',';
-						$value.=$db->escape($s);
-					}
-					$value=' IN('.$value.')';
-				} else $value='='.$db->escape($item);
-				$q.=' INNER JOIN shpProductFeature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
-			}
-		}
-		$q.=' WHERE';
-		if($categoryId) $q.=' p.categoryId='.$categoryId;
-		if(isset($_GET['sort'])) { //задана какая-то сортировка
-			if($_GET['sort']=='dateASC') $sort='id ASC'; elseif($_GET['sort']=='dateDESC') $sort='id DESC';
-			else $sort=str_replace(array('ASC','DESC'),array(' ASC', ' DESC'),$_GET['sort']);
-		} else $sort='id DESC';
-		//фильтр по цене
-		if(isset($_GET['price1']) && $_GET['price1']) $q.=' AND p.price>='.(float)$_GET['price1'];
-		if(isset($_GET['price2']) && $_GET['price2']) $q.=' AND p.price<='.(float)$_GET['price2'];
-		$q.=' ORDER BY '.$db->getEscape($sort);
-		return $q;
-	}
-
-	/* Возвращает обработанный список товаров, выбранных по SQL-запросу $query. $count - количество товаров на странице (для пагинации) */
-	private static function _loadList($query,$count=null) {
-		$db=core::db();
-		$data=$db->fetchArrayAssoc($query,$count);
+		$data=$db->fetchArrayAssoc($query);
+		$uri=core::url().'public/shop-brand/';
 		for($i=0,$cnt=count($data);$i<$cnt;$i++) {
 			$data[$i]['link']=core::link('shop/category/'.$data[$i]['categoryId'].'/'.$data[$i]['alias']);
 			$data[$i]['price']=self::_price($data[$i]['price']);

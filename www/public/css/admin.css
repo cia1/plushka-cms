@@ -14,6 +14,6 @@ a._adminItem img {position:absolute;width:16px;padding:0;border:1px solid red;z-
 #_adminDialogBox div.head a:hover {background:#f66;}
 #_adminDialogBox div.head span {color:black;font-size:14px;}
 #_adminDialogBoxLoading {margin:30px auto 0 auto;}
-#_adminDialogBox iframe {display:block;width:99%;margin:5px auto 0 auto;border:0;}
+#_adminDialogBox > iframe {display:block;width:99%;margin:5px auto 0 auto;border:0;}
 
 #_adminButton19 {margin-left:8px;}

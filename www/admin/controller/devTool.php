@@ -294,6 +294,8 @@ class sController extends controller {
 		fwrite($f,$right);
 		fwrite($f,$menu);
 		fwrite($f,$widget);
+		if($m['hook1']) fwrite($f,'hook1: '.implode(',',$m['hook1'])."\n");
+		if($m['hook2']) fwrite($f,'hook2: '.implode(',',$m['hook2'])."\n");
 		fclose($f);
 		echo '<p>Модуль экспортирован в директорий /tmp.</p>';
 	}

@@ -1,6 +1,6 @@
 function _showError(message) {
 	jQuery('.errorMessage').remove();
-	if(message) jQuery('body').prepend('<div class="errorMessage">'+message+'</div>');
+	if(message) jQuery('#content').prepend('<div class="errorMessage">'+message+'</div>');
 }
 
 /* ---------------------------------------------- */
@@ -40,6 +40,7 @@ jQuery(document).ready(function() {
 	if(!top.$.adminDialog) return;
 	top.$.adminDialog.afterLoad($('#content').outerHeight());
 	resizer.onresize=function() {
+//		if(this.timeOut) return;
 		if(this.timeOut) clearTimeout(this.timeOut);
 		this.timeOut=setTimeout(function() {
 			top.$.adminDialog.afterLoad($('#content').outerHeight());

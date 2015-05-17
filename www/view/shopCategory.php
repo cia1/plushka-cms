@@ -16,7 +16,7 @@ foreach($this->categoryList as $item) { ?>
 	foreach($this->productList as $item) { ?>
 		<div class="item" itemscope itemtype="http://schema.org/Offer">
 		<div class="title" itemprop="name"><?='<a href="'.$item['link'].'" itemprop="url">'.$item['title'].'</a>'?></div>
-		<a href="<?=$item['link']?>"><img src="<?=core::url()?>public/productImage/_<?=$item['mainImage']?>" alt="<?=$item['title']?>" itemprop="image" /></a>
+		<a href="<?=$item['link']?>"><img src="<?=core::url()?>public/shop-product/_<?=$item['mainImage']?>" alt="<?=$item['title']?>" itemprop="image" /></a>
 		Цена: <span itemprop="price"><?=$item['price']?></span>
 	</div>
 	<?php }

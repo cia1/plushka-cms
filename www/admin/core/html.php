@@ -15,6 +15,10 @@ class table {
 
 	/* Добавляет заголовок к таблице (<tr><th>) */
 	public function th($title,$html='') {
+		if(substr($title,0,9)=='checkbox[') {
+			$title=substr($title,9,strlen($title)-10);
+			$title='<input type="checkbox" onclick="$(\'.check'.$title.'\').attr(\'checked\',this.checked);" />';
+		}
 		$this->_data.='<th'.($html ? ' '.$html : '').'>'.$title.'</th>';
 		$this->_count++;
 	}
@@ -23,16 +27,11 @@ class table {
 	public function rowTh($a) {
 		if(is_array($a)) {
 			for($i=0,$cnt=count($a);$i<$cnt;$i++) {
-				if(is_array($a[$i])) $this->_data.='<th'.($a[$i][1] ? ' '.$a[$i][1] : '').'>'.$a[$i][0].'</th>';
-				else $this->_data.='<th>'.$a[$i].'</th>';
+				if(is_array($a[$i])) $this->th($a[$i][0],$a[$i][1]); else $this->th($a[$i]);
 			}
-			$this->_count+=count($a);
 		} else {
 			$a=explode('|',$a);
-			for($i=0,$cnt=count($a);$i<$cnt;$i++) {
-				$this->_data.='<th>'.$a[$i].'</th>';
-			}
-			$this->_count+=count($a);
+			for($i=0,$cnt=count($a);$i<$cnt;$i++) $this->th($a[$i]);
 		}
 	}
 
@@ -46,6 +45,16 @@ class table {
 		$this->_data.='<tr><td colspan="'.$this->_count.'">'.$text.'</td></tr>';
 	}
 
+	//добавляет ячейку, содержащую флажок
+	public function checkbox($controller=null,$name,$value,$colspan=0,$html=null) {
+		$this->_tr();
+		$this->_data.='<td style="width:30px;text-align:center;" '.$html;
+		if($colspan) {
+			$this->_data.='colspan="'.$colspan.'"';
+			$this->_index+=$colspan;
+		} else $this->_index++;
+		$this->_data.='><input type="checkbox" name="'.($controller ? $controller.'['.$name.']' : $name).'[]" value="'.$value.'" class="check'.$name.'" /></td>';
+	}
 	/* Добавляет ячейку с произвольным текстом */
 	public function text($text,$colspan=0,$html=null) {
 		$this->_tr();

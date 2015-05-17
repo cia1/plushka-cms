@@ -5,7 +5,7 @@
 class sController extends controller {
 
 	public function actionIndex() {
-		if(isset($_GET['search']['keyword'])) $this->keyword=$_GET['search']['keyword'];
+		if(isset($_GET['keyword'])) $this->keyword=$_GET['keyword'];
 		else $this->keyword=null;
 		$this->form=core::form();
 		$this->form->method='get';

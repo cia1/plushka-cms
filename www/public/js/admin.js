@@ -53,11 +53,11 @@ $.adminDialog=function(o) {
 }
 $.adminDialog.load=function(url) {
 	$.adminDialog.self.byScreenWidth(95).fadeIn().center();
-	$('#_adminDialogBox iframe.container')[0].src=url;
+	$('#_adminDialogBox > iframe.container')[0].src=url;
 }
 $.adminDialog.afterLoad=function(h) {
 	$('#_adminDialogBoxLoading').hide();
-	$('#_adminDialogBox iframe').height(h+26);
+	$('#_adminDialogBox > iframe.container').height(h+26);
 	$('#_adminDialogBox').center();
 }
 

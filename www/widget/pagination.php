@@ -8,13 +8,25 @@ class widgetPagination extends widget {
 		return true;
 	}
 
-	public function render() {
+	public function render($view=null) {
 		if(isset($_GET['page'])) $page=(int)$_GET['page']; else $page=1;
 		if(!isset($this->options['link'])) {
-			$link='?page=';
-			$this->options['link']=substr($_SERVER['REQUEST_URI'],0,strpos($_SERVER['REQUEST_URI'],'?page='));
+			$uri=array();
+			foreach($_GET as $key=>$value) {
+				if($key=='corePath' || $key=='page') continue;
+				$uri[$key]=$value;
+			}
+			if(count($uri)) {
+				$link='?'.http_build_query($uri);
+				$separator='&';
+			} else {
+				$link='';
+				$separator='?';
 		}
-		elseif(strrpos($this->options['link'],'?')) $link=$this->options['link'].'&page=';
+			$link=core::url().implode('/',$_GET['corePath']).$link;
+			$this->options['link']=$link;
+			$link.=$separator.'page=';
+		} elseif(strrpos($this->options['link'],'?')!==false) $link=$this->options['link'].'&page=';
 		else $link=$this->options['link'].'?page=';
 		$lastPage=ceil($this->options['count']/$this->options['limit']);
 		if($page!=1) echo '<a href="'.$this->options['link'].'">1</a>';

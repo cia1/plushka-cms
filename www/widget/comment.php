@@ -17,7 +17,7 @@ class widgetComment extends widget {
 	public function adminLink2($data) {
 		return array(
 			array('comment.moderate','?controller=comment&action=edit&id='.$data[3],'edit','Править комментарий'),
-			array('comment.moderate','?controller=comment&action=delete&id='.$data[3],'delete','Удалить комментарий')
+			array('comment.moderate','?controller=comment&action=delete&id='.$data[3],'delete','Удалить комментарий','Удалить',,'Удалить',"if(!confirm('Подтвердите удаление.')) return false;")
 		);
 	}
 

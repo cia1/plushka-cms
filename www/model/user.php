@@ -95,7 +95,7 @@ class modelUser extends model {
 		if($user2Id) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE id='.$user2Id);
 		elseif($user2Login) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE login='.$db->escape($user2Login));
 		if(!$user2) {
-			controller::$error='Ошибка отправки сообщеня: некорренктные данные получателя';
+			controller::$error='Ошибка отправки сообщеня: некорректные данные получателя';
 			return false;
 		}
 		if(!$this->_self->id) core::redirect('user/login');
@@ -203,7 +203,7 @@ class modelUser extends model {
 		//Обработать событие изменения или создания пользователя
 		if($result) {
 			if($isNew) core::hook('userCreate',$this->_data['id'],$this->_data['login'],$this->_data['email']);
-			else core::hook('userModify',$model->id,$model->login,$model->email);
+			else core::hook('userModify',$this->_data['id'],$this->_data['login'],$this->_data['email']);
 		}
 		return $result;
 	}

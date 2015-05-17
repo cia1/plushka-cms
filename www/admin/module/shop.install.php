@@ -20,6 +20,14 @@ function installAfter($version) {
 function uninstallBefore() {
 	$cfg=core::config('shop');
 	core::import('admin/model/form');
-	return mForm::drop($cfg['formId']);
+	if(!mForm::drop($cfg['formId'])) return false;
+	//Удалить файлы кеша
+	$path=core::path().'cache/custom/';
+	$d=opendir($path);
+	while($f=readdir($d)) {
+		if(substr($f,0,14)=='featureSearch-') unlink($path.$f);
+	}
+	close $d;
+	return true;
 }
 ?>

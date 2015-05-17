@@ -4,9 +4,9 @@ function getHTMLMenu($data,$level=0) {
 	$html='';
 	foreach($data as $item) {
 		if(isset($item['menuTitle'])) $html.='<b>'.$item['menuTitle'].'</b><br />';
-		$html.=str_repeat('&nbsp;',$level*11).'<label><input type="checkbox" class="checkbox" name="section[url]['.$item['link'].'][1]" title="на этй странице"'.($item['checked1'] ? ' checked="checked"' : '').' />'
+		$html.=str_repeat('&nbsp;',$level*11).'<input type="checkbox" class="checkbox" name="section[url]['.$item['link'].'][1]" title="на этй странице"'.($item['checked1'] ? ' checked="checked"' : '').' />'
 		.'<input type="checkbox" class="checkbox" name="section[url]['.$item['link'].'][2]" title="на вложенных страницах"'.($item['checked2'] ? ' checked="checked"' : '').' /> '
-		.$item['title'].'</label><br />';
+		.$item['title'].'<br />';
 		$html.=getHTMLMenu($item['child'],$level+1);
 	}
 	return $html;

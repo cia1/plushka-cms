@@ -32,6 +32,9 @@ class sController extends controller {
 				else $sort=str_replace(array('ASC','DESC'),array(' ASC', ' DESC'),$_GET['sort']);
 			} else $sort='id DESC';
 			$this->productList=shop::productCategory($this->category['id']); //$this->productList содержит список товаров
+			$this->paginationCount=shop::foundRows();
+			$cfg=core::config('shop');
+			$this->productOnPage=$cfg['productOnPage'];
 			if($sort!='title ASC') $this->sort=' <a href="?sort=titleASC&'.$link.'" class="sortA">имя &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort=' <span class="sortC">имя &darr;</span>&nbsp;&nbsp;&nbsp;';
 			if($sort!='title DESC') $this->sort.=' <a href="?sort=titleDESC&'.$link.'" class="sortB">имя &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortD">имя &uarr;</span>&nbsp;&nbsp;&nbsp;';
 			if($sort!='price ASC') $this->sort.=' <a href="?sort=priceASC&'.$link.'" class="sortA">цена &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortC">цена &darr;</span>&nbsp;&nbsp;&nbsp;';
@@ -58,12 +61,13 @@ class sController extends controller {
 	protected function adminCategoryLink() {
 		$data=array();
 		if($this->category['id']!=0) {
-			$data[]=array('shop.category','?controller=shop&action=category&id='.$this->category['id'],'edit','Редактировать категорию &laquo;'.$this->category['title'].'&raquo;');
-			$data[]=array('shop.category','?controller=shop&action=categoryDelete&id='.$this->category['id'],'delete','Удалить категорию &laquo;'.$this->category['title'].'&raquo;','Удалить','if(!confirm(\'Подтвердите удаление.\')) return false;');
+			$data[]=array('shopContent.category','?controller=shopContent&action=category&id='.$this->category['id'],'edit','Редактировать категорию &laquo;'.$this->category['title'].'&raquo;');
+			$data[]=array('shopContent.category','?controller=shopContent&action=categoryDelete&id='.$this->category['id'],'delete','Удалить категорию &laquo;'.$this->category['title'].'&raquo;','Удалить','if(!confirm(\'Подтвердите удаление.\')) return false;');
 		}
-		$data[]=array('shop.category','?controller=shop&action=category&parent='.$this->category['id'],'new','Добавить категорию в &laquo;'.$this->category['title'].'&raquo;');
-		if($this->category['id']!=0) $data[]=array('shop.product','?controller=shop&action=product&category='.$this->category['id'],'productNew','Добавить новый товар в категорию &laquo;'.$this->category['title'].'&raquo;');
-		$data[]=array('shop.feature','?controller=shop&action=categoryFeature&id='.$this->category['id'],'layout','Характеристики товаров этой категории');
+		$data[]=array('shopContent.product','?controller=shopContent&action=productList&id='.$this->category['id'],'list','Открыть список товаров');
+		$data[]=array('shopContent.category','?controller=shopContent&action=category&parent='.$this->category['id'],'new','Добавить категорию в &laquo;'.$this->category['title'].'&raquo;');
+		if($this->category['id']!=0) $data[]=array('shopContent.product','?controller=shopContent&action=product&category='.$this->category['id'],'productNew','Добавить новый товар в категорию &laquo;'.$this->category['title'].'&raquo;');
+		$data[]=array('shopSetting.feature','?controller=shopSetting&action=categoryFeature&id='.$this->category['id'],'layout','Характеристики товаров этой категории');
 		return $data;
 	}
 
@@ -90,11 +94,11 @@ class sController extends controller {
 
 	protected function adminProductLink() {
 		return array(
-			array('shop.product','?controller=shop&action=product&id='.$this->product['id'],'edit','Редактировать товар &laquo;'.$this->product['title'].'&raquo;'),
-			array('shop.product','?controller=shop&action=productDelete&id='.$this->product['id'],'delete','Удалить товар &laquo;'.$this->product['title'].'&raquo;','Удалить','if(!confirm(\'Подтвердите удаление.\')) return false;'),
-			array('shop.product','?controller=shop&action=productImage&id='.$this->product['id'],'image','Управление изображениями'),
-			array('shop.product','?controller=shop&action=productMove&id='.$this->product['id'],'move','Перенести в другую категорию'),
-			array('shop.variant','?controller=shop&action=variant&pid='.$this->product['id'],'shopVariant','Варианты (модификации) товара')
+			array('shopContent.product','?controller=shopContent&action=product&id='.$this->product['id'],'edit','Редактировать товар &laquo;'.$this->product['title'].'&raquo;'),
+			array('shopContent.product','?controller=shopContent&action=productDelete&id='.$this->product['id'],'delete','Удалить товар &laquo;'.$this->product['title'].'&raquo;','Удалить','if(!confirm(\'Подтвердите удаление.\')) return false;'),
+			array('shopContent.product','?controller=shopContent&action=productImage&id='.$this->product['id'],'image','Управление изображениями'),
+			array('shopContent.product','?controller=shopContent&action=productMove&id='.$this->product['id'],'move','Перенести в другую категорию'),
+			array('shopContent.variant','?controller=shopContent&action=variant&pid='.$this->product['id'],'shopVariant','Варианты (модификации) товара')
 		 );
 	}
 
@@ -109,7 +113,7 @@ class sController extends controller {
 		if(!isset($_SESSION['cart'])) $_SESSION['cart']=array();
 		if(isset($_SESSION['cart'][$data['id']])) $_SESSION['cart'][$data['id']]['quantity']+=$data['quantity'];
 		else $_SESSION['cart'][$data['id']]=array('alias'=>$product[3],'title'=>$product[0],'categoryId'=>$product[2],'quantity'=>$data['quantity'],'price'=>$product[1]);
-		die('OK');
+		die('Товар добавлен в корзину');
 	}
 
 }

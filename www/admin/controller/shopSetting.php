@@ -1,21 +1,15 @@
 <?php
-/* Управление интернет-магазином (пора бы разбить этот контроллер на две части - файл стал достаточно велик) */
+/* Управление интернет-магазином (настройка магазина, импорт) */
 class sController extends controller {
 
 	public function right($right,$action) {
 		switch($action) {
 		case 'Setting': case 'ProductGroup': case 'ProductGroupDelete':
-			if(isset($right['shop.setting'])) return true; else return false;
-		case 'Category': case 'CategoryDelete':
-			if(isset($right['shop.category'])) return true; else return false;
-		case 'Product': case 'ProductDelete': case 'ProductImage': case 'ProductImageMain': case 'ProductImageDelete': case 'ProductMove':
-			if(isset($right['shop.product'])) return true; else return false;
+			if(isset($right['shopSetting.setting'])) return true; else return false;
 		case 'FeatureList': case 'FeatureGroupItem': case 'FeatureGroupDelete': case 'FeatureItem': case 'FeatureDelete': case 'CategoryFeature':
-			if(isset($right['shop.feature'])) return true; else return false;
-		case 'Variant': case 'VariantItem': case 'VariantDelete':
-			if(isset($right['shop.variant'])) return true; else return false;
+			if(isset($right['shopSetting.feature'])) return true; else return false;
 		case 'Import': case 'ImportStart': case 'ImportProcess':
-			if(isset($right['shop.import'])) return true; else return false;
+			if(isset($right['shopSetting.import'])) return true; else return false;
 		case 'MenuCategory': case 'MenuIndex': case 'WidgetCategory': case 'WidgetProductGroup': case 'WidgetCart': case 'WidgetFeatureSearch':
 			return true;
 		}
@@ -26,8 +20,9 @@ class sController extends controller {
 	/* Общие настройки */
 	public function actionSetting() {
 		$u=core::user();
-		if(isset($u->right['shop.feature'])) $this->button('?controller=shop&action=featureList','layout','Характеристики товаров');
-		if(isset($u->right['shop.import'])) $this->button('?controller=shop&action=import','install','Импорт товаров','Импорт');
+		if($u->group==255 || isset($u->right['shopSetting.feature'])) $this->button('?controller=shopSetting&action=featureList','layout','Характеристики товаров');
+		if($u->group==255 || isset($u->right['shopSetting.import'])) $this->button('?controller=shopSetting&action=import','install','Импорт товаров','Импорт');
+		if($u->group==255 || isset($u->right['shopContent.brand'])) $this->button('?controller=shopContent&action=brand','brand','Управление производителями','Производители');
 		$cfg=core::config('shop');
 		$this->form1=core::form();
 		//Общие
@@ -37,6 +32,8 @@ class sController extends controller {
 
 		//Изображения
 		$this->form1->html('</fieldset><fieldset><legend>Изображения</legend>');
+
+		$this->form1->html('<h3>Полноразмерное изображение товара</h3>');
 		if($cfg['productFullWidth'][0]=='<') {
 			$productFullWidthType='<';
 			$cfg['productFullWidth']=substr($cfg['productFullWidth'],1);
@@ -47,6 +44,12 @@ class sController extends controller {
 			$cfg['productFullHeight']=substr($cfg['productFullHeight'],1);
 		} elseif($cfg['productFullHeight']) $productFullHeightType='=';
 		else $productFullHeightType='';
+		$this->form1->select('productFullWidthType','Ширина',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$productFullWidthType);
+		$this->form1->text('productFullWidth','Размер (пикс.)',$cfg['productFullWidth']);
+		$this->form1->select('productFullHeightType','Высота',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$productFullHeightType);
+		$this->form1->text('productFullHeight','Размер (пикс.)',$cfg['productFullHeight']);
+
+		$this->form1->html('<h3>Миниатюрное изображение товара</h3>');
 		if($cfg['productThumbWidth'][0]=='<') {
 			$productThumbWidthType='<';
 			$cfg['productThumbWidth']=substr($cfg['productThumbWidth'],1);
@@ -57,12 +60,6 @@ class sController extends controller {
 			$cfg['productThumbHeight']=substr($cfg['productThumbHeight'],1);
 		} elseif($cfg['productThumbHeight']) $productThumbHeightType='=';
 		else $productThumbHeightType='';
-		$this->form1->html('<h3>Полноразмерное изображение товара</h3>');
-		$this->form1->select('productFullWidthType','Ширина',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$productFullWidthType);
-		$this->form1->text('productFullWidth','Размер (пикс.)',$cfg['productFullWidth']);
-		$this->form1->select('productFullHeightType','Высота',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$productFullHeightType);
-		$this->form1->text('productFullHeight','Размер (пикс.)',$cfg['productFullHeight']);
-		$this->form1->html('<h3>Миниатюрное изображение товара</h3>');
 		$this->form1->select('productThumbWidthType','Ширина',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$productThumbWidthType);
 		$this->form1->text('productThumbWidth','Размер (пикс.)',$cfg['productThumbWidth']);
 		$this->form1->select('productThumbHeightType','Высота',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$productThumbHeightType);
@@ -83,6 +80,23 @@ class sController extends controller {
 		$this->form1->text('categoryWidth','Размер (пикс.)',$cfg['categoryWidth']);
 		$this->form1->select('categoryHeightType','Высота',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$categoryHeightType);
 		$this->form1->text('categoryHeight','Размер (пикс.)',$cfg['categoryHeight']);
+
+		$this->form1->html('<h3>Изображение производителя (логотип)</h3>');
+		if($cfg['brandHeight'][0]=='<') {
+			$brandHeightType='<';
+			$cfg['brandHeight']=substr($cfg['brandHeight'],1);
+		} elseif($cfg['brandHeight']) $brandHeightType='=';
+		else $brandHeightType='';
+		if($cfg['brandWidth'][0]=='<') {
+			$brandWidthType='<';
+			$cfg['brandWidth']=substr($cfg['brandWidth'],1);
+		} elseif($cfg['brandWidth']) $brandWidthType='=';
+		else $brandWidthType='';
+		$this->form1->select('brandWidthType','Ширина',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$brandWidthType);
+		$this->form1->text('brandWidth','Размер (пикс.)',$cfg['brandWidth']);
+		$this->form1->select('brandHeightType','Высота',array(array('','исходный размер/пропорционально исходному'),array('<','не более заданной:'),array('=','точное значение:')),$brandHeightType);
+		$this->form1->text('brandHeight','Размер (пикс.)',$cfg['brandHeight']);
+
 		$this->form1->submit('Сохранить');
 		$this->form1->html('</fieldset><fieldset><legend>Шаблоны писем</legend>');
 
@@ -101,7 +115,7 @@ class sController extends controller {
 		$db->query('SELECT id,title FROM shpProductGroup ORDER BY title');
 		while($item=$db->fetch()) {
 			$t->text('<a href="#" onclick="return productGroup('.$item[0].',\''.$item[1].'\');">'.$item[1].'</a>');
-			$t->delete('?controller=shop&id='.$item[0].'&action=productGroupDelete');
+			$t->delete('?controller=shopSetting&id='.$item[0].'&action=productGroupDelete');
 		}
 		$this->productGroup=$t;
 
@@ -132,13 +146,20 @@ class sController extends controller {
 		elseif($data['categoryHeightType']=='<') $cfg->categoryHeight='<'.$data['categoryHeight'];
 		else $cfg->categoryHeight=(int)$data['categoryHeight'];
 
+		if($data['brandWidthType']=='') $cfg->brandWidth=null;
+		elseif($data['brandWidthType']=='<') $cfg->brandWidth='<'.$data['brandWidth'];
+		else $cfg->brandWidth=(int)$data['brandWidth'];
+		if($data['brandHeightType']=='') $cfg->brandHeight=null;
+		elseif($data['brandHeightType']=='<') $cfg->brandHeight='<'.$data['brandHeight'];
+		else $cfg->brandHeight=(int)$data['brandHeight'];
+
 		$cfg->productOnPage=(int)$data['productOnPage'];
 		if(!$cfg->save('shop')) return false;
 		$f=fopen(core::path().'data/email/shopOrderAdmin.html','w');
 		fwrite($f,$data['htmlAdmin']);
 		fclose($f);
 
-		core::redirect('?controller=shop&action=setting','Изменения сохранены');
+		core::redirect('?controller=shopSetting&action=setting','Изменения сохранены');
 	}
 
 	/* Создание или изменение группы товаров (форма находится на странице "общие настройки") */
@@ -149,7 +170,7 @@ class sController extends controller {
 			'id'=>array('primary'),
 			'title'=>array('string','Заголовок',true)
 		))) return false;
-		core::redirect('?controller=shop&action=setting');
+		core::redirect('?controller=shopSetting&action=setting');
 	}
 
 	/* Удаление группы товаров */
@@ -157,7 +178,7 @@ class sController extends controller {
 		$db=core::db();
 		$db->query('DELETE FROM shpProductGroupItem WHERE groupId='.$_GET['id']);
 		$db->query('DELETE FROM shpProductGroup WHERE id='.$_GET['id']);
-		core::redirect('?controller=shop&action=setting');
+		core::redirect('?controller=shopSetting&action=setting');
 	}
 
 	/* Общий список всех характеристик товаров */
@@ -170,7 +191,7 @@ class sController extends controller {
 		if($this->gid) {
 			//Если выбрана категория характеристик, то добавить кнопки
 			$this->button('#','delete','Удалить категорию','Удалить','onclick="featureGroupDelete();return false;"');
-			$this->button('?controller=shop&action=featureItem&gid='.$_GET['gid'],'layoutNew','Создать характеристику');
+			$this->button('?controller=shopSetting&action=featureItem&gid='.$_GET['gid'],'layoutNew','Создать характеристику');
 			core::import('admin/model/shop');
 			$data=shop::featureList($_GET['gid']);
 			if(!$data) $this->null=true; //Признак пустого списка
@@ -180,7 +201,7 @@ class sController extends controller {
 				$t->rowTh('|');
 				foreach($data as $item) {
 					$t->text($item['title']);
-					$t->itemDelete('?controller=shop&id='.$item['id'].'&gid='.$_GET['gid'].'&action=feature');
+					$t->itemDelete('?controller=shopSetting&id='.$item['id'].'&gid='.$_GET['gid'].'&action=feature');
 				}
 				$this->t=$t;
 			}
@@ -216,7 +237,7 @@ class sController extends controller {
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title,type,unit,variant,data FROM shpFeature WHERE id='.$_GET['id']);
 			$data['data']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','type'=>'text','unit'=>'','variant'=>false,'data'=>'');
-		if(isset($_GET['gid'])) $gid=(int)$_GET['gid']; else $gid=$_POST['shop']['groupId']; //Группа характеристик
+		if(isset($_GET['gid'])) $gid=(int)$_GET['gid']; else $gid=$_POST['shopSetting']['groupId']; //Группа характеристик
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('groupId',$gid);
@@ -254,88 +275,21 @@ class sController extends controller {
 			core::import('admin/model/shop');
 			shop::featureCategoryDelete($data['id']);
 		}
-		core::redirect('?controller=shop&action=featureList&gid='.$data['groupId']);
+		core::redirect('?controller=shopSetting&action=featureList&gid='.$data['groupId']);
 	}
 
 	/* Удаление характеристики */
 	public function actionFeatureDelete() {
 		core::import('admin/model/shop');
 		shop::featureDelete($_GET['id']);
-		core::redirect('?controller=shop&action=featureList&gid='.$_GET['gid']);
-	}
-
-	/* Создание или изменение категории товаров */
-	public function actionCategory() {
-		if(isset($_GET['id'])) { //Изменение
-			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shpCategory WHERE id='.$_GET['id']);
-			if(!$data) core::error404();
-		} else $data=array('id'=>null,'parentId'=>(isset($_GET['parent']) ? $_GET['parent'] : 0),'title'=>'','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
-		$f=core::form();
-		$f->hidden('id',$data['id']);
-		$f->hidden('parentId',$data['parentId']);
-		$f->text('title','Заголовок',$data['title']);
-		$f->editor('text1','Вступительный текст',$data['text1']);
-		if($data['id']!=='0') $f->file('image','Изображение');
-		$f->text('metaTitle','meta Заголовок',$data['metaTitle']);
-		$f->text('metaKeyword','meta Ключевые слова',$data['metaKeyword']);
-		$f->text('metaDescription','meta Описание',$data['metaDescription']);
-		$f->submit('Сохранить');
-
-		$this->cite='Рисунок, загруженный в поле <b>изображение</b> будет публиковаться в списке категорий.';
-		return $f;
-	}
-
-	public function actionCategorySubmit($data) {
-		$db=core::db();
-		$validate=array(
-			'id'=>array('primary'),
-			'parentId'=>array('id','',true),
-			'title'=>array('string','Заголовок',true),
-			'text1'=>array('html','Вступительный текст'),
-			'metaTitle'=>array('string'),
-			'metaKeyword'=>array('string'),
-			'metaDescription'=>array('string')
-		);
-		if(!$data['id']) { //Если категория новая, то узнать индекс сортировки
-			$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM shpCategory WHERE parentId='.$data['parentId']);
-			$validate['sort']=array('integer');
-		}
-		$model=core::model('shpCategory');
-		$model->set($data);
-		if(!$model->save($validate)) return false;
-		//Обработка изображений категории (если загружены)
-		if($data['image']['size']) {
-			core::import('core/picture');
-			$ext=strtolower(substr($data['image']['name'],strrpos($data['image']['name'],'.')+1)); //расширение файла изображения
-			$picture=new picture($data['image']['tmpName'],$ext);
-			if(controller::$error) return false; //Файл не является изображением?
-			//Удалить существующее изображение, если таковое есть
-			if($data['id']) {
-				$fname=$db->fetchValue('SELECT image FROM shpCategory WHERE id='.$data['id']);
-				if($fname) $fname=core::path().'public/categoryImage/'.$fname;
-				if($fname && file_exists($fname)) unlink($fname);
-			}
-			$cfg=core::config('shop');
-			$picture->resize($cfg['categoryWidth'],$cfg['categoryHeight']);
-			if(!$picture->save(core::path().'public/categoryImage/'.$model->id,85,$ext)) return false;
-			$db->query('UPDATE shpCategory SET image='.$db->escape($model->id.'.'.$ext).' WHERE id='.$model->id);
-		}
-		core::redirect('?controller=shop&action=category&id='.$data['id'],'Изменения сохранены');
-	}
-
-	/* Удаление категории товаров */
-	public function actionCategoryDelete() {
-		core::import('admin/model/shop');
-		shop::deleteCategory($_GET['id']);
-		core::redirect('?controller=shop','Категория удалена');
+		core::redirect('?controller=shopSetting&action=featureList&gid='.$_GET['gid']);
 	}
 
 	/* Сопоставление характеристик товаров для категории */
 	public function actionCategoryFeature() {
 		$this->scriptAdmin('shop');
 		core::import('admin/model/shop');
-		if(isset($_GET['id'])) $this->id=$_GET['id']; else $this->id=$_POST['shop']['categoryId'];
+		if(isset($_GET['id'])) $this->id=$_GET['id']; else $this->id=$_POST['shopSetting']['categoryId'];
 		$db=core::db();
 		$feature=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$this->id);
 		$this->feature2=shop::featureList(null,$feature); //Уже отмеченные для категории
@@ -357,282 +311,7 @@ class sController extends controller {
 			shop::featureCategoryDelete(implode(',',$lst),false,$data['categoryId']); //Убрать у всех товаров и модификаций (в будущем будет чекбоксе на форме)
 		}
 		$db->query('UPDATE shpCategory SET feature='.$db->escape($data['feature']).' WHERE id='.$data['categoryId']);
-		core::redirect('?controller=shop&action=categoryFeature&cid='.$data['categoryId'],'Изменения сохранены');
-	}
-
-	/* Создание или изменение товара */
-	public function actionProduct() {
-		$db=core::db();
-		if(isset($_GET['id'])) { //Изменение - загрузить данные этого товара
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shpProduct WHERE id='.$_GET['id']);
-			if(!$data) core::error404();
-			$db->query('SELECT id,title,productId AS checked FROM shpProductGroup g LEFT JOIN shpProductGroupItem i ON i.groupId=g.id AND i.productId='.$data['id']);
-		} else {
-			$data=array('id'=>null,'categoryId'=>$_GET['category'],'title'=>'','alias'=>'','text1'=>'','text2'=>'','price'=>0,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
-			$db->query('SELECT id,title,NULL AS checked FROM shpProductGroup');
-		}
-
-		$f=core::form();
-		$f->hidden('id',$data['id']);
-		$f->hidden('categoryId',$data['categoryId']);
-		$f->text('title','Заголовок (название)',$data['title']);
-		$f->text('alias','URL (псевдоним)',$data['alias']);
-		$f->text('price','Базовая цена',$data['price']);
-		$f->editor('text1','Описание 1 (краткое)',$data['text1']);
-		$f->editor('text2','Описание 2 (полное)',$data['text2']);
-		$f->text('metaTitle','meta Заголовок',$data['metaTitle']);
-		$f->text('metaKeyword','meta Ключевые слова',$data['metaKeyword']);
-		$f->text('metaDescription','meta Описание',$data['metaDescription']);
-		$f->html('<h1 style="clear:both;">Группы</h1>');
-		//Добавить в форму группы товаров
-		while($item=$db->fetch()) {
-			$f->checkbox('group]['.$item[0],$item[1],($item[2] ? true : false));
-		}
-		//Добавить в форму характеристики (привязаны к категории)
-		$f->html('<h1 style="clear:both;">Характеристики</h1>');
-		core::import('admin/model/shop');
-		$feature=shop::featureProduct($data['categoryId'],$data['id']);
-		foreach($feature as $item1) {
-			$f->html('<p><b>'.$item1['title'].'</b></p>');
-			foreach($item1['data'] as $item2) {
-				$f->field($item2['type'],'feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['value'],$item2['data']);
-			}
-		}
-		$f->submit('Сохранить');
-		$this->cite='<b>Группы</b> позволяют объединять любые товары. Наиболее часто группы используются для публикации избранных товаров в какой-либо области сайта.';
-		$this->scriptAdmin('shop');
-		return $f;
-	}
-
-	public function actionProductSubmit($data) {
-		$model=core::model('shpProduct');
-		if(!$data['alias']) $data['alias']='';
-		$model->set($data);
-		if(!$model->save(array(
-			'id'=>array('primary'),
-			'categoryId'=>array('id','',true),
-			'title'=>array('string','Заголовок',true),
-			'alias'=>array('latin','max'=>25),
-			'text1'=>array('html','Описание 1 (краткое)'),
-			'text2'=>array('html','Описание 2 (полное)'),
-			'metaTitle'=>array('string'),
-			'metaKeyword'=>array('string'),
-			'metaDescription'=>array('string'),
-			'price'=>array('float','Цена')
-		))) return false;
-		//Если псевдоним не задан, то использовать ИД товара
-		if(!$data['alias']) {
-			$db=core::db();
-			$db->query('UPDATE shpProduct SET alias='.$db->escape($model->id).' WHERE id='.$model->id);
-		}
-		//Обновить группы, к которым привязан этот товар
-		$values='';
-		if($data['group']) {
-			foreach($data['group'] as $id=>$value) {
-				if(!$values) $values='('.$id.','.$model->id.')';
-				else $values.=',('.$id.','.$model->id.')';
-			}
-		}
-		$db=core::db();
-		$db->query('DELETE FROM shpProductGroupItem WHERE productId='.$model->id);
-		if($data['group']) $db->query('INSERT INTO shpProductGroupItem (groupId,productId) VALUES '.$values);
-		//Обновить характеристики
-		$db->query('DELETE FROM shpProductFeature WHERE productId='.$model->id);
-		if(isset($data['feature'])) {
-			$feature=$db->fetchArray('SELECT id,unit,type FROM shpFeature WHERE id IN('.implode(',',array_keys($data['feature'])).')');
-			foreach($feature as $item) {
-				$id=$item[0];
-				if($item[2]=='checkbox') {
-					if(isset($data['feature'][$id])) $value='да'; else $value='нет';
-				} else $value=$data['feature'][$id];
-				if(!$value) continue;
-				if($item[1]) $value.=' '.$item[1];
-				$db->query('INSERT INTO shpProductFeature (productId,featureId,value) VALUES ('.$model->id.','.$id.','.$db->escape($value).')');
-			}
-		}
-		core::hook('modify','shop/category/'.$model->categoryId.'/'.$model->alias);
-		core::redirect('?controller=shop&action=product&id='.$model->id,'Изменения сохранены');
-	}
-
-	/* Удаление товара */
-	public function actionProductDelete() {
-		core::import('admin/model/shop');
-		shop::deleteProduct($_GET['id']);
-		core::redirect('?controller=shop','Товар удалён');
-	}
-
-	/* Список изображений товара (для добавления/удаления) */
-	public function actionProductImage() {
-		$db=core::db();
-		if(isset($_POST['shop']['id'])) $_GET['id']=$_POST['shop']['id'];
-		$data=$db->fetchArrayOnce('SELECT mainImage,image FROM shpProduct WHERE id='.$_GET['id']);
-		if(!$data[1]) $this->image=array(); else $this->image=explode(',',$data[1]);
-		$this->mainImage=$data[0]; //Главное изображение
-		$this->form=core::form();
-		$this->form->hidden('id',$_GET['id']);
-		$this->form->file('image','Изображение');
-		$this->form->submit('Продолжить');
-		return 'ProductImage';
-	}
-
-	public function actionProductImageSubmit($data) {
-		$db=core::db();
-		$image=$db->fetchArrayOnce('SELECT mainImage,image FROM shpProduct WHERE id='.$data['id']);
-		$mainImage=$image[0]; //Основное изображение
-		if($image[1]) $image=explode(',',$image[1]); else $image=array();
-		$index=count($image)+1; //Для формирования имени файла
-		core::import('core/picture');
-		$cfg=core::config('shop');
-		$ext=strtolower(substr($data['image']['name'],strrpos($data['image']['name'],'.')+1));
-		$picture=new picture($data['image']['tmpName'],$ext);
-		if(controller::$error) return false;
-		$picture->resize($cfg['productFullWidth'],$cfg['productFullHeight']);
-		$fname=$data['id'].'.'.$index;
-		if(!$picture->save(core::path().'public/productImage/'.$fname,100,$ext)) return false;
-		$picture->resize($cfg['productThumbWidth'],$cfg['productThumbHeight']);
-		if(!$picture->save(core::path().'public/productImage/_'.$fname,80,$ext)) return false;
-		$image[]=$fname.'.'.$ext;
-		$q='UPDATE shpProduct SET image='.$db->escape(implode(',',$image));
-		if(!$mainImage) $q.=',mainImage='.$db->escape($fname.'.'.$ext); //Если ранее небыло
-		$db->query($q.' WHERE id='.$data['id']);
-		core::redirect('?controller=shop&action=productImage&id='.$data['id']);
-	}
-
-	/* Установить выбранное изображение товара главным */
-	public function actionProductImageMain() {
-		$db=core::db();
-		$db->query('UPDATE shpProduct SET mainImage='.$db->escape($_GET['image']).' WHERE id='.$_GET['id']);
-		core::redirect('?controller=shop&action=productImage&id='.$_GET['id']);
-	}
-
-	/* Удаление изображения товара */
-	public function actionProductImageDelete() {
-		$db=core::db();
-		$fname=core::path().'public/productImage/'.$_GET['image'];
-		if(file_exists($fname)) unlink($fname);
-		$fname=core::path().'public/productImage/_'.$_GET['image'];
-		if(file_exists($fname)) unlink($fname);
-		$data=$db->fetchArrayOnce('SELECT mainImage,image FROM shpProduct WHERE id='.$_GET['id']);
-		$image=explode(',',$data[1]);
-		for($i=0;$i<count($image);$i++) {
-			if($image[$i]==$_GET['image']) {
-				if($data[0]==$_GET['image']) {
-					if($i>0) $data[0]=$image[$i-1];
-					elseif(count($image)>1) $data[0]=$image[1];
-					else $data[0]=null;
-				}
-				unset($image[$i]);
-				break;
-			}
-		}
-		$q='UPDATE shpProduct SET image='.$db->escape(implode($image,',')).',mainImage=';
-		if(!$data[0]) $q.='NULL'; else $q.=$db->escape($data[0]);
-		$db->query($q.' WHERE id='.$_GET['id']);
-		core::redirect('?controller=shop&action=productImage&id='.$_GET['id']);
-	}
-
-	/* Переместить товар в другую категорию */
-	public function actionProductMove() {
-		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT alias,categoryId FROM shpProduct WHERE id='.$_GET['id']);
-		core::import('model/shop');
-		$list=array();
-		$in=shop::categoryTree();
-		$this->_flatCategory($in[0]['child'],$list); //Плоский список категорий в $list
-		unset($in);
-		$f=core::form();
-		$f->select('categoryId','Категория',$list,$data[1]);
-		$f->hidden('id',$_GET['id']);
-		$f->hidden('alias',$data[0]);
-		$f->submit('Продолжить');
-		return $f;
-	}
-
-	public function actionProductMoveSubmit($data) {
-		$db=core::db();
-		$db->query('UPDATE shpProduct SET categoryId='.$data['categoryId'].' WHERE id='.$data['id']);
-		core::redirectPublic('shop/category/'.$data['categoryId'].'/'.$data['alias'],'Товар перенесён');
-	}
-
-	/* Список модификаций товара */
-	public function actionVariant() {
-		$db=core::db();
-		$categoryId=$db->fetchValue('SELECT categoryId FROM shpProduct WHERE id='.$_GET['pid']); //Для определения списка характеристик
-		$this->button('?controller=shop&action=variantItem&cid='.$categoryId.'&pid='.$_GET['pid'],'new','Создать модификацию товара');
-		$db=core::db();
-		$t=core::table();
-		$t->rowTh('Название|');
-		$db->query('SELECT id,title FROM shpVariant WHERE productId='.$_GET['pid']);
-		while($item=$db->fetch()) {
-			$t->link($item[1],'?controller=shop&action=variantItem&cid='.$categoryId.'&id='.$item[0]);
-			$t->delete('?controller=shop&action=variantDelete&pid='.$_GET['pid'].'&id='.$item[0]);
-		}
-		return $t;
-	}
-
-	/* Создание или изменение модификации товара */
-	public function actionVariantItem() {
-		if(isset($_GET['id'])) { //Изменение
-			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,productId,title,feature FROM shpVariant WHERE id='.$_GET['id']);
-		} else $data=array('id'=>null,'productId'=>$_GET['pid'],'title'=>'','feature'=>null);
-		if(isset($_GET['cid'])) $cid=$_GET['cid']; else $cid=$_POST['shop']['categoryId']; //ИД категории
-		$f=core::form();
-		$f->hidden('id',$data['id']);
-		$f->hidden('categoryId',$cid);
-		$f->hidden('productId',$data['productId']);
-		$f->text('title','Название (модель)',$data['title']);
-		//Подключить список характеристик к форме
-		core::import('admin/model/shop');
-		$feature=shop::featureVariant($cid,$data['feature']); //По $data['feature'] определяются значения характеристик
-		foreach($feature as $item1) {
-			$f->html('<p><b>'.$item1['title'].'</b></p>');
-			foreach($item1['data'] as $item2) {
-				$f->field($item2['type'],'feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['value']);
-			}
-		}
-		$f->submit();
-		return $f;
-	}
-
-	public function actionVariantItemSubmit($data) {
-		//$feature - список характеристик, заданных для категории
-		$db=core::db();
-		$feature=$db->fetchValue('SELECT c.feature f0 FROM shpProduct p INNER JOIN shpCategory c ON c.id=p.categoryId WHERE p.id='.$data['productId']);
-		//Обработка характеристик варианта товара, добавление единицы измерения (по модификациям поиска нет, поэтому можно ЕИ присоединить сразу)
-		if($feature) {
-			$feature=$db->fetchArray('SELECT id,unit,type FROM shpFeature WHERE id IN('.$feature.') AND variant=1');
-			$fData=array();
-			foreach($feature as $item) {
-				$id=$item[0];
-				if($data['feature'][$id]==='') continue;
-				if($item[2]=='checkbox') {
-					if(isset($data['feature'][$id])) $value='да'; else $value='нет';
-				} else $value=$data['feature'][$id];
-				if($item[1]) $value.=' '.$item[1];
-				$fData[$id]=$value;
-			}
-			$data['feature']=serialize($fData);
-		} else $data['feature']=null;
-		if(!$data['id']) $isNew=true; else $isNew=false;
-		$m=core::model('shpVariant');
-		$m->set($data);
-		if(!$m->save(array(
-			'id'=>array('primary'),
-			'productId'=>array('integer'),
-			'title'=>array('string','название',true),
-			'feature'=>array('string')
-		))) return false;
-		if($isNew) $db->query('UPDATE shpProduct SET variant=variant+1 WHERE id='.$data['productId']); //Если новый товар, то обновить счётчик модификаций товаров
-		core::redirect('?controller=shop&action=variant&pid='.$data['productId']);
-	}
-
-	/* Удаление модификации товара */
-	public function actionVariantDelete() {
-		$db=core::db();
-		$db->query('DELETE FROM shpVariant WHERE id='.$_GET['id']);
-		$db->query('UPDATE shpProduct SET variant=variant-1 WHERE id='.$_GET['pid']);
-		core::redirect('?controller=shop&action=variant&pid='.$_GET['pid']);
+		core::redirect('?controller=shopSetting&action=categoryFeature&cid='.$data['categoryId'],'Изменения сохранены');
 	}
 
 	/* Настраиваемый импорт данных из Excel. В будущем нужно вынести настройки отдельно. */
@@ -709,12 +388,12 @@ class sController extends controller {
 		if(file_exists($f)) unlink($f);
 		$f=core::path().'tmp/shopImportId.txt';
 		if(file_exists($f)) unlink($f);
-		core::redirect('?controller=shop&action=importStart');
+		core::redirect('?controller=shopSetting&action=importStart');
 	}
 
 	/* Запуск импорта */
 	public function actionImportStart() {
-		$this->link=core::url().'admin/index2.php?controller=shop&action=importProcess&stage=load&row=0&_front';
+		$this->link=core::url().'admin/index2.php?controller=shopSetting&action=importProcess&stage=load&row=0&_front';
 		return 'ImportStart';
 	}
 
@@ -729,7 +408,7 @@ class sController extends controller {
 			$count=shopImport::loadXLS($cfg,$start,ROW_LIMIT);
 			$start=$start+$count;
 			$this->total=$start-$cfg['firstRow'];
-			if($count!=ROW_LIMIT) $this->link='index2.php?controller=shop&action=importProcess&stage=clear'; else $this->link='index2.php?controller=shop&action=importProcess&stage=load&row='.$start;
+			if($count!=ROW_LIMIT) $this->link='index2.php?controller=shopSetting&action=importProcess&stage=clear'; else $this->link='index2.php?controller=shopSetting&action=importProcess&stage=load&row='.$start;
 			return 'ImportLoad';
 		}
 		if($_GET['stage']=='clear') { //Импорт завершён - удалить временные файлы
@@ -824,24 +503,81 @@ class sController extends controller {
 	/* Поиск по характеристикам товара
 	Параметры: bool $price - поиск по цене; array $feature - список характеристик и их настройки */
 	public function actionWidgetFeatureSearch($data=null) {
-		if(!$data) $this->data=array(); else $this->data=$data;
+		if(!$data) {
+			$this->price=false;
+			$this->brand=false;
+			$dataFeature=array();
+		} else {
+			$this->price=$data['price'];
+			$this->brand=$data['brand'];
+			$dataFeature=$data['feature'];
+		}
 		core::import('admin/model/shop');
 		$this->feature=shop::featureList();
+		foreach($this->feature as $groupId=>&$groupData) {
+			foreach($groupData['data'] as &$featureData) {
+				$featureId=$featureData['id'];
+				if(isset($dataFeature[$featureId])) {
+					$featureData['checked']=true;
+					$featureData['displayType']=$dataFeature[$featureId]['type'];
+					if($dataFeature[$featureId]['type']=='range') {
+						$featureData['min']=$dataFeature[$featureId]['min'];
+						$featureData['max']=$dataFeature[$featureId]['max'];
+					}
+				} else {
+					$featureData['checked']=false;
+					$featureData['displayType']=null;
+					if($featureData['type']=='text') $featureData['min']=$featureData['max']=0;
+				}
+			}
+		}
+		$this->style('shop');
 		return 'WidgetFeatureSearch';
 	}
 
+	//Рисует выпадающий список для выбора типа характеристики
+	public static function renderFeatureSelect($type,$id,$displayType) { ?>
+		<select name="shopSetting[type][<?=$id?>]" onchange="shopSelectType(this);">
+			<?php switch($type) {
+			case 'text': ?>
+				<option value="list"<?php if($displayType=='list') echo ' checked="checked"'; ?>>загрузить список</option>
+				<option value="range"<?php if($displayType=='range') echo ' checked="checked"'; ?>>диапазон целых чисел</option>
+				<?php break;
+			case 'select': ?>
+				<option value="select"<?php if($displayType=='select') echo ' checked="checked"'; ?>>выпадающий список</option>
+				<option value="checkboxList"<?php if($displayType=='checkboxList') echo ' checked="checked"'; ?>>список чекбоксов</option>
+				<?php break;
+			case 'checkbox': ?>
+				<option value="checkbox">флажок</option>
+				<?php break;
+			} ?>
+		</select>
+	<?php	}
+
+	//Рисует поля дополнительных данных для характеристики
+	public static function renderFeatureData($data) {
+		switch($data['type']) {
+		case 'text': ?>
+			<div class="range"<?php if($data['displayType']!='range') echo ' style="display:none;"'; ?>>
+			минимум: <input type="text" name="shopSetting[min][<?=$data['id']?>]" value="<?=$data['min']?>" />
+			максимум: <input type="text" name="shopSetting[max][<?=$data['id']?>]" value="<?=$data['max']?>" />
+			</div>
+			<?php
+			break;
+		}
+	}
 	public function actionWidgetFeatureSearchSubmit($data) {
 		$out=array('feature'=>array());
 		if(isset($data['price'])) $out['price']=true; else $out['price']=false;
-		foreach($data['item'] as $id=>$null) {
-			$type=$data['type'][$id];
-			$d=array('type'=>$type);
-			if($type=='slider') {
-				$d['min']=(int)$data['min'][$id];
-				$d['max']=(int)$data['max'][$id];
-				if(!$d['max']) continue;
+		if(isset($data['brand'])) $out['brand']=true; else $out['brand']=false;
+		foreach($data['checked'] as $featureId) {
+			$displayType=$data['type'][$featureId];
+			$feature=array('type'=>$displayType);
+			if($displayType=='range') {
+				$feature['min']=(int)$data['min'][$featureId];
+				$feature['max']=(int)$data['max'][$featureId];
 			}
-			$out['feature'][$id]=$d;
+			$out['feature'][$featureId]=$feature;
 		}
 		return $out;
 	}
@@ -849,14 +585,6 @@ class sController extends controller {
 
 
 /* ---------- PRIVATE ---------------------------------------------------------------- */
-	/* Помещает в $out плоский список категорий товаров */
-	private static function _flatCategory($in,&$out,$level=0) {
-		$s=str_repeat('&nbsp;',$level*3);
-		foreach($in as $id=>$item) {
-			if($item['title']) $out[]=array($id,$s.$item['title']);
-			if($item['child']) self::_flatCategory($item['child'],$out,$level+1);
-		}
-	}
 /* ----------------------------------------------------------------------------------- */
 }
 ?>

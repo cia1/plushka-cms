@@ -109,7 +109,7 @@ class shopImport {
 		//Определить список всех товаров, которые нужно удалить, добавить их ИД в $id, а также удалить изображения этих товаров
 		$db=core::db();
 		$db->query('SELECT id,image FROM shpProduct WHERE id NOT IN('.$id.')');
-		$path=core::path().'public/productImage/';
+		$path=core::path().'public/shop-product/';
 		$id='';
 		while($item=$db->fetch()) {
 			if($item[1]) {

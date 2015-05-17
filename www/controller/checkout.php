@@ -60,11 +60,11 @@ class sController extends controller {
 	}
 
 	/* Сообщение об успехе по умолчанию */
-	public function actionSuccess() { return 'Success'; }
+//	public function actionSuccess() { return 'Success'; }
 
-	protected function breadcrumbSuccess() {
-		return array('Магазин');
-	}
+//	protected function breadcrumbSuccess() {
+//		return array('Магазин');
+//	}
 
 }
 ?>

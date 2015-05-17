@@ -18,11 +18,9 @@
 	'config/forum.php',
 	'controller/forum.php',
 	'admin/public/icon/setting32.png',
-	'admin/hook/menuItemDelete.forum.php',
 	'admin/hook/userCreate.forum.php',
 	'admin/hook/userDelete.forum.php',
 	'admin/hook/userModify.forum.php',
-	'admin/hook/widgetDelete.forum.php',
 	'admin/controller/forum.php',
 	'admin/module/forum.php'
 )

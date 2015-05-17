@@ -52,7 +52,7 @@ class model {
 	/* Выполняет валидацию всех данных
 	$validate - правила валидации */
 	public function validate($validate=null) {
-		if(!$validate && method_exist($this,'validateRule')) $validate=$this->validateRule();
+		if(!$validate && method_exists($this,'validateRule')) $validate=$this->validateRule();
 		foreach($validate as $name=>$options) {
 			if(!$this->_validateField($this->_data[$name],$name,$options)) return false;
 		}
@@ -83,6 +83,10 @@ class model {
 		$primary=$this->_primary; //название первичного ключа (просто синоним для удобства).
 		//Если ID задан явно (не NULL), то восспринимать его как ключ возможно существующей записи, однако, в INSERT и UPDATE использовать ключ, заданный коссвенно (в списке полей).
 		if($id===null) $id=$this->_data[$primary];
+		//Триггер "до INSERT/UPDATE"
+		if(method_exists($this,'beforeInsertUpdate')) if(!$this->beforeInsertUpdate($id,$fields)) return false;
+
+		//А вот и сам SQL-запрос...
 		$db=core::db();
 		$s='';
 		if($primary && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE
@@ -113,7 +117,7 @@ class model {
 			if(!$this->db->query('INSERT INTO `'.$this->_table.'` ('.$s1.') VALUES ('.$s2.')')) return false;
 			if($primary) {
 				$this->_data[$primary]=$this->db->insertId(); //обновить значение первичного ключа
-				return $this->afterInsert($this->$primary); //тригер "после INSERT"
+				return $this->afterInsert($this->$primary); //триггер "после INSERT"
 			} else return $this->afterInsert(); //триггер "после INSERT"
 		}
 	}
@@ -232,7 +236,7 @@ class model {
 			break;
 		case 'regular':
 			if($value) {
-				$i=preg_match('/'.$options[3],$value);
+				$i=preg_match('%'.$options[3].'%',$value);
 				if(!$i) {
 					controller::$error='Поле &laquo;'.$options[1].'&raquo; задано неверно';
 					return false;

@@ -6,7 +6,7 @@ class widgetShopCart extends widget {
 
 	public function action() { return true; }
 
-	public function render() {
+	public function render($view=null) {
 		if(!$this->options) $this->options=array();
 		$this->options=array_merge(array('product'=>true,'total'=>true,'checkout'=>true),$this->options); //значения по умолчанию
 		echo '<div id="cart">';
@@ -28,11 +28,4 @@ class widgetShopCart extends widget {
 	}
 
 }
-
-//if(isset($_GET['get'])) {
-//	$o=array('product'=>true);
-//	$w=new widgetShopcart($o,'');
-//	$w->render();
-//	exit;
-//}
 ?>

@@ -5,7 +5,7 @@ class widgetChat extends widget {
 
 	public function action() { return true; }
 
-	public function render() {
+	public function render($view=null) {
 		echo '<link rel="stylesheet" type="text/css" href="'.core::url().'public/css/chat.css" />';
 		$f=file(core::path().'data/chat.'.$this->options['id'].'.txt'); //тут хранятся сообщения чата
 		$cnt=count($f)-1;

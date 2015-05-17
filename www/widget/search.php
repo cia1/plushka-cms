@@ -4,7 +4,7 @@ class widgetSearch extends widget {
 
 	public function action() { return true; }
 
-	public function render() {
+	public function render($view=null) {
 		if(isset($_GET['keyword'])) $keyword=$_GET['keyword']; else $keyword='Поиск...';
 		?>
 		<form action="<?=core::link('search')?>" onsubmit="if(document.getElementById('searchKeyword').value=='Поиск...') return false;">

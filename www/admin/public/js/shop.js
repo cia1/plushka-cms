@@ -1,7 +1,7 @@
 function featureGroupNew() {
 	var title=prompt('Название новой группы характеристик:');
 	if(!title) return false;
-	$.post(document.mainUrl+'index2.php?controller=shop&action=featureGroupItem',{'shop[title]':title},function(data) {
+	$.post(document.mainUrl+'index2.php?controller=shopSetting&action=featureGroupItem',{'shopSetting[title]':title},function(data) {
 		var data2=data.split("\n");
 		if(data2[0]!='OK') {
 			alert(data);
@@ -14,7 +14,7 @@ function featureGroupDelete() {
 	var id=$('#featureGroup').val();
 	if(!id) return false;
 	if(!confirm('Подтвердите удаление группы характеристик.')) return false;
-	$.post(document.mainUrl+'index2.php?controller=shop&action=featureGroupDelete',{'shop[id]':id},function(data) {
+	$.post(document.mainUrl+'index2.php?controller=shopSetting&action=featureGroupDelete',{'shopSetting[id]':id},function(data) {
 		if(data!='OK') {
 			alert(data);
 			return;

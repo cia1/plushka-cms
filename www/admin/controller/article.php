@@ -157,13 +157,12 @@ class sController extends controller {
 		$f->select('linkType','Вид ссылок на статьи',array(array('blog','article/blog/...'),array('list','article/list/...')),$data['linkType']);
 		$f->text('countPreview','Количество анонсов статей',$data['countPreview']);
 		$f->text('countLink','Количество ссылок на статьи',$data['countLink']);
-		$f->submit('Продолжиить');
+		$f->submit();
 		$f->cite='Если <b>Публиковать название на экране</b> установлен, то в начале модуля будет выведен текст, введённый в поле &laquo;Название&raquo;. В списке <b>Категория</b> выберите категорию статей, которая должна быть исползована в блоге.<br /><b>Количество анонсов</b> - в виде анонсов статей с кнопкой "читать далее", <b>Количество ссылок</b> - в виде ссылок на статьи. Если в обоих полях есть какое-то количество, то будут выведены сначала анонсы, затем ссылки в указанных количествах.<br /><b>Вид ссылок на сататьи</b> определяет какими будут ссылки на материалы: <i>http://example.com/article/<b>blog</b>/(category)/(article)</i> (в виде анонсов) или <i>http://example.com/article/<b>list</b>/(category)/(article)</i> (в виде списка).';
 		return $f;
 	}
 
 	public function actionWidgetBlogSubmit($data) {
-		unset($data['submit']);
 		$data['countPreview']=(int)$data['countPreview'];
 		$data['countLink']=(int)$data['countLink'];
 		return $data;
@@ -204,16 +203,12 @@ class sController extends controller {
 	/* Выполняет валидацию и сохранение статьи в базе данных */
 	private function _saveArticle($data) {
 		//Проверить уникальность псевдонима
-		if($data['id']) {
-			$db=core::db();
-			$oldAlias=$db->fetchValue('SELECT alias FROM article WHERE id='.$data['id']);
-			if($oldAlias!=$data['alias']) {
-				if($db->fetchValue('SELECT 1 FROM article WHERE categoryId='.$data['categoryId'].' AND alias='.$db->escape($data['alias']))) {
-					controller::$error='Статья с таким псевдонимом уже существует.';
-					return false;
-				}
-			}
-		} else $oldAlias=null;
+		$db=core::db();
+		if($data['id']) $oldAlias=$db->fetchValue('SELECT alias FROM article WHERE id='.$data['id']); else $oldAlias=null;
+		if($data['alias']!==$oldAlias && $db->fetchValue('SELECT 1 FROM article WHERE categoryId='.$data['categoryId'].' AND alias='.$db->escape($data['alias']).($data['id'] ? ' AND id!='.$data['id'] : ''))) {
+			controller::$error='Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.';
+			return false;
+		}
 		$m=core::model();
 		$m->set($data);
 		if(!$m->save(array(

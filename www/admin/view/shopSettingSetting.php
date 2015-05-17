@@ -19,6 +19,12 @@
 	$('dd.categoryHeightType select').change(function(a) {
 		if(this.value=='') $('.categoryHeight').hide(); else $('.categoryHeight').show();
 	}).change();
+	$('dd.brandWidthType select').change(function(a) {
+		if(this.value=='') $('.brandWidth').hide(); else $('.brandWidth').show();
+	}).change();
+	$('dd.brandHeightType select').change(function(a) {
+		if(this.value=='') $('.brandHeight').hide(); else $('.brandHeight').show();
+	}).change();
 	</script>
 
 	<fieldset><legend>Группы товаров</legend>

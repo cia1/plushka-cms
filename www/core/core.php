@@ -237,7 +237,7 @@ class core {
 		$view=$w->action();
 		if($view!==null && $view!==false) { //Если widget::action() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
 			echo '<div class="widget widget'.$name.'">';
-			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
+			//Если пользователь является администратором, то вывести элементы управления в соответствии его правами
 			$user=core::userCore();
 			if($user->group>=200) {
 				$admin=new admin();
@@ -450,7 +450,7 @@ class widget {
 	}
 	public function adminLink() { return array(); }
 
-	public function render($view) {
+	public function render($view=null) {
 		if($view!==true) include(core::path().'view/widget'.$view.'.php');
 	}
 

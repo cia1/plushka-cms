@@ -5,7 +5,7 @@ class widgetHtml extends widget {
 
 	public function action() { return true; }
 
-	public function render() {
+	public function render($view=null) {
 		include(core::path().'data/widgetHtml/'.$this->options.'.html');
 	}
 

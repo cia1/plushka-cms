@@ -4,6 +4,7 @@ array $options: array feature содержит характеристики, п�
 class widgetShopFeatureSearch extends widget {
 
 	public function action() {
+		if(count($_GET['corePath'])==4) return false;
 		if($_GET['corePath'][0]=='shop' && $_GET['corePath'][1]=='category') $this->categoryId=(int)$_GET['corePath'][2];
 		else $this->categoryId=null;
 		$db=core::db();
@@ -15,62 +16,117 @@ class widgetShopFeatureSearch extends widget {
 			$this->data=$db->fetchArrayAssoc('SELECT id,title,unit,data FROM shpFeature WHERE id IN('.implode(',',array_keys($this->options['feature'])).') AND id IN('.$feature.') ORDER BY id DESC');
 		} else $this->data=$db->fetchArrayAssoc('SELECT id,title,unit,data FROM shpFeature WHERE id IN('.implode(',',array_keys($this->options['feature'])).') ORDER BY id DESC');
 		if(!$this->data) return false;
+		$feature=$this->options['feature'];
+
+		//Если есть параметр с типом "list", то загрузить из кеша варианты значений для всех характеристик с типом "list"
+		$cache=array();
+		foreach($feature as $id=>$item) {
+			if($item['type']=='list') $cache[]=$id;
+		}
+		if($cache) {
+			$categoryId=$this->categoryId;
+			//Анонимная callback-функция возвращает массив уникальных значений характеристик товаров
+			$cache=core::cache('featureSearch-'.$this->categoryId,function() use($categoryId,$cache) {
+				if($categoryId) $q='SELECT DISTINCT pf.value FROM shpProductFeature pf INNER JOIN shpProduct p ON p.id=pf.productId AND p.categoryId='.$categoryId.' WHERE pf.featureId=';
+				else $q='SELECT DISTINCT value FROM shpProductFeature WHERE featureId=';
+				$db=core::db();
+				$featureValue=array();
+				foreach($cache as $featureId) {
+					$db->query($q.$featureId);
+					$data='';
+					while($item=$db->fetch()) {
+						if($data) $data.='|';
+						$data.=$item[0];
+					}
+					$featureValue[$featureId]=$data;
+				}
+				return $featureValue;
+			},7200);
+		} else $cache=null;
+		//Окончательный цикл, объединяющий исходные данные в один массив
+		for($i=0,$cnt=count($this->data);$i<$cnt;$i++) {
+			$id=$this->data[$i]['id'];
+			$this->data[$i]=array_merge($this->data[$i],$feature[$id]);
+			if($feature[$id]['type']=='list') {
+				$this->data[$i]['type']='select';
+				$this->data[$i]['data']=$cache[$id];
+			}
+		}
+		unset($cache);
 		return true;
 	}
 
-	public function render() {
-		echo '<form action="'.core::link('shop/category'.($this->categoryId ? '/'.$this->categoryId : '')).'" method="get">';
-		if($this->categoryId) echo '<input type="hidden" name="category" value="'.$this->categoryId.'" />';
+	public function render($view=null) {
+		echo '<form action="'.core::link('shop/category'.($this->categoryId ? '/'.$this->categoryId : '')).'" method="get" onsubmit="return submitMe();">';
 		echo '<link href="'.core::url().'public/css/shop.css" rel="stylesheet" type="text/css" />';
-		echo core::script('jquery.min');
-		echo core::script('shop');
+//		echo core::script('jquery.min');
+//		echo core::script('shop');
 		$db=core::db();
-		$title=array();
-		foreach($this->data as $item1) {
-			$id=$item1['id'];
-			$item2=$this->options['feature'][$id];
-			$s='_render'.ucfirst($item2['type']);
-			self::$s($item2,$item1);
+		foreach($this->data as $item) {
+			$s='_render'.ucfirst($item['type']);
+			self::$s($item);
 		}
 		if($this->options['price']) {
 			if(isset($_GET['price1']) && $_GET['price1']) $price1=(float)$_GET['price1']; else $price1='';
 			if(isset($_GET['price2']) && $_GET['price2']) $price2=(float)$_GET['price2']; else $price2='';
-			echo '<div class="price"><p>Цена</p>
-			от &nbsp;<input type="text" name="price1" value="'.$price1.'" />&nbsp;&nbsp;&nbsp;&nbsp; до &nbsp;<input type="text" name="price2" value="'.$price2.'" /></div>';
+			?>
+			<div class="price">
+				<p>Цена</p>
+				от &nbsp;<input type="text" name="price1" value="<?=$price1?>" />&nbsp;&nbsp;&nbsp;&nbsp; до &nbsp;<input type="text" name="price2" value="<?=$price2?>" />
+			</div>
+			<?php
 		}
 		echo '<input type="submit" class="button" value="Применить" /></form>';
+		?>
+		<script type="text/javascript">
+		function submitMe() {
+var o=$('.widgetshopFeatureSearch form select').each(function() {
+	if(!this.value) $(this).remove();
+});
+return true;
+//			return false;
+		}
+		</script>
+		<?php
 	}
 
-	/* Вывод HTML-кода слайдера (число) */
-	private static function _renderSlider($data2,$data1) {
-		if(isset($_GET['feature']) && isset($_GET['feature'][$data1['id']])) $value=$_GET['feature'][$data1['id']]; else $value=$data2['min'];
-		echo '<div class="slider"><p>'.$data1['title'].': <span>'.$value.' '.$data1['unit'].'</span></p>
-		<input type="hidden" name="feature['.$data1['id'].']" value="'.$value.'" />
-		<div class="box">
-		<div class="min">'.$data2['min'].'</div>
-		<div class="max">'.$data2['max'].'</div>
-		<div class="begun" min="'.$data2['min'].'" max="'.$data2['max'].'" unit="'.$data1['unit'].'"></div>
-		</div></div>';
-	}
+	// Вывод HTML-кода целого числа (диапазон)
+	private static function _renderRange($data) {
+		if(isset($_GET['feature']) && isset($_GET['feature'][$data['id']])) $value=$_GET['feature'][$data['id']]; else $value=array($data['min'],$data['max']);
+		?>
+		<div class="range"><p><?=$data['title']?>:</p>
+			<input type="text" name="feature[<?=$data['id']?>][]" value="<?=$value[0]?>" /> <?=$data['unit']?>
+			<input type="text" name="feature[<?=$data['id']?>][]" value="<?=$value[1]?>" /> <?=$data['unit']?>
+		</div>
+	<?php }
 
 	/* Вывод HTML-кода выпадающего списка */
-	private static function _renderSelect($data2,$data1) {
-		if(isset($_GET['feature']) && isset($_GET['feature'][$data1['id']])) $value=$_GET['feature'][$data1['id']]; else $value=null;
-		$data=explode('|',$data1['data']);
-		echo '<div class="select"><p>'.$data1['title'].'</p>
-		<select name="feature['.$data1['id'].']">';
-		foreach($data as $item) echo '<option value="'.$item.'"'.($item==$value ? ' selected="selected"' : '').'>'.$item.'</option>';
-		echo '</select></div>';
-	}
+	private static function _renderSelect($data) {
+		if(isset($_GET['feature']) && isset($_GET['feature'][$data['id']])) $value=$_GET['feature'][$data['id']]; else $value=null;
+		$valueList=explode('|',$data['data']);
+		?>
+		<div class="select">
+			<p><?=$data['title']?>:</p>
+			<select name="feature[<?=$data['id']?>]">
+			<option value=""></option>
+			<?php foreach($valueList as $item) { ?>
+				<option value="<?=$item?>"<?php if($item==$value) echo ' selected="selected"'; ?>><?=$item?></option>
+			<?php } ?>
+			</select></div>
+	<?php }
 
 	/* Вывод HTML-кода чекбокса */
-	private static function _renderCheckboxList($data2,$data1) {
-		if(isset($_GET['feature']) && isset($_GET['feature'][$data1['id']])) $g=$_GET['feature'][$data1['id']]; else $g=array();
-		$data=explode('|',$data1['data']);
-		echo '<div class="checkboxList"><p>'.$data1['title'].'</p>';
-		foreach($data as $item) echo '<label><input type="checkbox" name="feature['.$data1['id'].'][]" value="'.$item.'"'.(in_array($item,$g) ? ' checked="checked"' : '').' />'.$item.'</option></label>';
-		echo '</div>';
-	}
+	private static function _renderCheckboxList($data) {
+		if(isset($_GET['feature']) && isset($_GET['feature'][$data['id']])) $checked=$_GET['feature'][$data['id']]; else $checked=array();
+		$valueList=explode('|',$data['data']);
+		?>
+		<div class="checkboxList"><p><?=$data['title']?>:</p>
+		<?php foreach($valueList as $item) { ?>
+			<label><input type="checkbox" name="feature[<?=$data1['id']?>][]" value="<?=$item?>"<?php if(in_array($item,$checked)) echo ' checked="checked"'; ?> /><?=$item?></option></label>
+		<?php } ?>
+			<div style="clear:both;"></div>
+		</div>
+	<?php }
 
 }
 ?>

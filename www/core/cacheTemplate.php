@@ -44,7 +44,7 @@ class cache {
 			} else $sub=null;
 			$widget[]=array($data[1],$sub);
 			if(isset($data[3]) && (int)$data[3]) $s.=','.(int)$data[3];
-			if($data[4]) {
+			if(isset($data[4]) && $data[4]) {
 				if(!isset($data[3]) || !$data[3]) $s.=',null';
 				$s.=",'".$data[4]."'";
 			}

@@ -17,23 +17,33 @@ class shop {
 		//Удалить изображение категории
 		$img=$db->fetchValue('SELECT image FROM shpCategory WHERE id='.$id);
 		if($img) {
-			$f=core::path().'public/categoryImage/'.$img;
+			$f=core::path().'public/shop-category/'.$img;
 			if(file_exists($f)) unlink($f);
 		}
 		$db->query('DELETE FROM shpCategory WHERE id='.$id);
-
+		//Удалить файл кеша характеристик
+		$f=core::path().'cache/custom/featureSearch-'.$id.'.txt';
+		if(file_exists($f)) unlink($f);
 		return true;
 	}
 
-	/* Удаляет товар с идентификатором $id, а также все его модификации.
+	/* Удаляет товар с идентификатором $id (может быть массивом идентификаторов, а также все его модификации.
 	array $image - список изображений товара (позволяет сэкономить один SQL-запрос, если указано) */
 	public static function deleteProduct($id,$image=null) {
+		if(is_array($id)) $id=implode(',',$id);
 		$db=core::db();
 		//Удалить изображения товара
-		if(!$image) $image=$db->fetchValue('SELECT image FROM shpProduct WHERE id='.$id);
+		if(!$image) {
+			$db->query('SELECT image FROM shpProduct WHERE id IN('.$id.')');
+			$image='';
+			while($item=$db->fetch()) {
+				if(!$item[0]) continue;
+				if($image) $image.=','.$item[0]; else $image=$item[0];
+			}
+		}
 		if($image) {
 			$image=explode(',',$image);
-			$path=core::path().'public/productImage/';
+			$path=core::path().'public/shop-product/';
 			foreach($image as $item) {
 				$f=$path.$item;
 				if(file_exists($f)) unlink($f);
@@ -41,10 +51,10 @@ class shop {
 				if(file_exists($f)) unlink($f);
 			}
 		}
-		$db->query('DELETE FROM shpVariant WHERE productId='.$id);
-		$db->query('DELETE FROM shpProductFeature WHERE productId='.$id);
-		$db->query('DELETE FROM shopProductGroupItem WHERE productId='.$id);
-		$db->query('DELETE FROM shpProduct WHERE id='.$id);
+		$db->query('DELETE FROM shpVariant WHERE productId IN('.$id.')');
+		$db->query('DELETE FROM shpProductFeature WHERE productId IN('.$id.')');
+		$db->query('DELETE FROM shpProductGroupItem WHERE productId IN('.$id.')');
+		$db->query('DELETE FROM shpProduct WHERE id IN('.$id.')');
 		return true;
 	}
 
@@ -100,7 +110,7 @@ class shop {
 	}
 
 	/* Возвращает список характеристик товара для категории $categoryId. Если задан $productId, то также будут загружены значения характеристик */
-	public function featureProduct($categoryId,$productId=0) {
+	public static function featureProduct($categoryId,$productId=0) {
 		$db=core::db();
 		$feature=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$categoryId);
 		if(!$feature) return array();

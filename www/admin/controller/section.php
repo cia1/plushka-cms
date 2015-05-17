@@ -17,7 +17,7 @@ class scontroller extends controller {
 		$items=$db->fetchArray('SELECT w.id,w.title,t.title,s.sort,COUNT(s.widgetId) cnt FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
-			$t->link($items[$i][1],'?controller=section&action=widget&id='.$items[$i][0]);
+			$t->link($items[$i][1],'?controller=section&action=widget&id='.$items[$i][0].'&section='.$_GET['name']);
 			$t->text($items[$i][2]);
 			$t->upDown('?controller=section&id='.$items[$i][0].'&action=',$items[$i][3],$cnt);
 			$t->delete('?controller=section&name='.$this->section.'&id='.$items[$i][0].'&action=delete');
@@ -63,7 +63,11 @@ class scontroller extends controller {
 		//Параметры: (string) имя виджета, (int) его ИД, (mixed) настройки виджета
 		if(substr($data[2],0,2)=='a:' && $data[2][strlen($data[2])-1]=='}') $data[2]=unserialize($data[2]);
 		if(!core::hook('widgetDelete',$data[1],$data[0],$data[2])) return $this->actionIndex();
-		//Удалить из БД
+		//Удалить из БД, а также "сдвинуть" виджеты в секции (изменить сортировку)
+		$data=$db->fetchArrayOnce('SELECT name,sort FROM section WHERE widgetId='.$id);
+		if($data) { //бывает, что виджет не опубликован ни на одной странице
+			$db->query('UPDATE section SET sort=sort-1 WHERE name='.$db->escape($data[0]).' AND sort>'.$data[1]);
+		}
 		$db->query('DELETE FROM section WHERE widgetId='.$id);
 		$db->query('DELETE FROM widget WHERE id='.$id);
 		core::redirect('?controller=section&name='.$_GET['name'],'Виджет удалён');
@@ -73,7 +77,7 @@ class scontroller extends controller {
 	public function actionWidget() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Изменение
-			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,s.name section FROM widget w INNER JOIN widgetType t ON t.name=w.name LEFT JOIN section s ON s.widgetId=w.id WHERE w.id='.$_GET['id']);
+			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
 			$this->data['type']=array($this->data['id'],$this->data['controller'],$this->data['action']); //Нужен для загрузки (ajax) формы модуля.
 			//Загрузить список страниц, на которых публикуется виджет
 			$db->query('SELECT url FROM section WHERE widgetId='.$this->data['id']);
@@ -193,7 +197,8 @@ class scontroller extends controller {
 				}
 				$db->query('DELETE FROM section WHERE widgetId='.$m->id.' AND url IN ("'.implode('","',$delete0).'")');
 			}
-		} else {
+		}
+		if($sort===null) { //это новый виджет или не опубликован ни на одной странице
 			$sort=(int)$db->fetchValue('SELECT max(sort) FROM section WHERE name='.$db->escape($data['section']));
 			$sort++;
 		}

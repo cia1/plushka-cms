@@ -10,6 +10,7 @@ dl.form dd {float:right;width:65%;}
 dl.form input,dl.form select,dl.form textarea {width:100%;}
 dl.form textarea {height:200px;}
 dl.form .text,dl.form .select,dl.form  .password {height:23px;}
+dl.form input.checkbox,dl.form dd.checkbox input {width:auto;height:auto;}
 
 table.adminList {width:98%;margin:0 auto;border-collapse:collapse;}
 table.adminList th {text-align:left;border:1px solid #ddd;}

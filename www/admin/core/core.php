@@ -135,6 +135,55 @@ class core {
 		return $s.$front;
 	}
 
+	/* Генерирует виджет. Обрабатывает {{widget}}
+	$name - имя виджета, $options - какие-либо параметры виджета, $cacheTime - время актуальности кеша, $title - заголовок, $link - страница, для которой выводится виджет (только если процедура вызвана при обработке секции) */
+	public static function widget($name,$options=null,$cacheTime=null,$title=null,$link=null) {
+		if(is_string($options) && isset($options[1]) && $options[1]==':') $options=unserialize($options);
+		//Нужно ли кешировать?
+		if($cacheTime) {
+			if(is_array($options)) {
+				$f='';
+				ksort($options);
+				foreach($options as $index=>$value) $f.=$index.$value;
+			} else $f=$options;
+			$f=md5($f);
+			$cacheFile=core::path().'admin/cache/widget/'.$name.'.'.$f.'.html';
+			if(file_exists($cacheFile)) {
+				$f=filemtime($cacheFile)+$cacheTime*60;
+				if($f>time()) {
+					include($cacheFile);
+					return;
+				}
+			}
+			ob_start();
+		}
+		$f='widget'.$name;
+		include_once(core::path().'widget/'.$name.'.php');
+		$w=new $f($options,$link);
+		$view=$w->action();
+		if($view!==null && $view!==false) { //Если widget::action() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
+			echo '<div class="widget widget'.$name.'">';
+			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
+//			$user=core::userCore();
+//			if($user->group>=200) {
+//				$admin=new admin();
+//				$link=$w->adminLink();
+//				foreach($link as $item) {
+//					if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
+//				}
+//			}
+			if($title) $w->title($title); //Вывод заголовка
+			if(is_object($view)) $view->render(); else $w->render($view);
+			echo '<div style="clear:both;"></div></div>';
+		}
+		if($cacheTime && !$debug) {
+			$f=fopen($cacheFile,'w');
+			fwrite($f,ob_get_contents());
+			fclose($f);
+			ob_end_flush();
+		}
+	}
+
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
 	public static function form($url=null) {
 		if(!class_exists('form')) include(core::path().'core/form.php');
@@ -226,7 +275,8 @@ class core {
 		if(!$_script) $_script=array();
 		if(in_array($name,$_script)) return '';
 		$_script[]=$name;
-		return '<script type="text/javascript" src="'.core::url().'public/js/'.$name.'.js"></script>';
+		if(substr($name,0,5)!='http:') $name=core::url().'public/js/'.$name.'.js';
+		return '<script type="text/javascript" src="'.$name.'"></script>';
 	}
 
 	public static function scriptAdmin($name) {
@@ -245,10 +295,15 @@ class core {
 		$cfg=core::configAdmin('_hook');
 		if(!isset($cfg[$name]) || !$cfg[$name]) return true;
 		for($i=0,$cnt=count($cfg[$name]);$i<$cnt;$i++) {
-			if(!include(core::path().'admin/hook/'.$name.'.'.$cfg[$name][$i].'.php')) return false;
+			if(!self::_hook($name.'.'.$cfg[$name][$i],$data)) return false;
 		}
 		return true;
 	}
+
+	private static function _hook($name,$data) {
+		if(!include(core::path().'admin/hook/'.$name.'.php')) return false; else return true;
+	}
+
 }
 /* --- --- */
 
@@ -293,8 +348,11 @@ class controller {
 	/* Добавляет кнопку в специально отведённую область
 	Параметры: string $link - ссылка на страницу админки; string $image - условное имя файла изображения кнопки; string $title - всплывающая подсказка; $alt - текст тега ALT; $html - любой другой HTML-код, который будет добавлен к тегу <a> */
 	protected function button($link,$image,$title='',$alt='',$html='') {
-		if(strpos($link,'controller=')===false) $link='?controller='.$this->url[0].'&'.$link;
-		$this->_button.='<a href="'.core::link($link).'"'.($html ? ' '.$html : '').'><img src="'.core::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
+		if($link=='html') $this->_button.=$image;
+		else {
+			if(strpos($link,'controller=')===false) $link='?controller='.$this->url[0].'&'.$link;
+			$this->_button.='<a href="'.core::link($link).'"'.($html ? ' '.$html : '').'><img src="'.core::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
+		}
 	}
 
 	/* Генерирует HTML-код (шаблон, теги в <head>, кнопки админки, представление)
@@ -331,6 +389,37 @@ class controller {
 		return $code;
 	}
 
+}
+/* --- --- */
+
+
+
+/* --- WIDGET --- */
+//Базовый класс виджета
+class widget {
+	protected $options; //Предназначена для хранения параметров виджета, может быть переопределён в конструкторе
+	protected $link; //Предназначена для хранения той страницы, для которой виджет был сформирован в составе секции
+	public function __construct($options,$link) { $this->options=$options; $this->link=$link; }
+	public function action() {}
+	public function title($title) { //Заголовок виджета. Используется в основном чтобы дать возможность виджету вставить какую-либо ссылку в заголовок
+		echo '<p class="title">'.$title.'</p>';
+	}
+//	public function adminLink() { return array(); }
+
+	public function render($view) {
+		if($view!==true) include(core::path().'view/widget'.$view.'.php');
+	}
+
+	/* Выводит HTML-код кнопок админки для ЭЛЕМЕНТА СПИСКА */
+//	public function admin($data) {
+//		$u=core::userCore();
+//		if($u->group<200) return;
+//		$admin=new admin();
+//		$link=$this->adminLink2($data);
+//		foreach($link as $item) {
+//			if($u->group==255 || isset($u->right[$item[0]])) $admin->render($item);
+//		}
+//	}
 }
 /* --- --- */
 

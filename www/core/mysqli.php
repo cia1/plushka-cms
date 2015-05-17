@@ -78,7 +78,7 @@ class mysql {
 	}
 
 	/* Выполняет запрос $query и возвращает все записи в виде ассоциативного массива */
-	public function fetchArrayAssoc($query,$limit=null,$page=null) {
+	public function fetchArrayAssoc($query) {
 		$q=self::$_connectId->query($query);
 		$data=array();
 		while($item=$q->fetch_assoc()) $data[]=$item;
