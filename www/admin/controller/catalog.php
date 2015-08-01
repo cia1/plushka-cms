@@ -67,16 +67,44 @@ class sController extends controller {
 				$data['heightSize']=$data['height'];
 				$data['height']='=';
 			} else $data['heightSize']='';
-		} else $data['width']=$data['height']=$data['widthSize']=$data['heightSize']=null;
+			//миниатюра
+			if($data[1]=='gallery' && array_key_exists('thumbWidth',$data)) {
+				if($data['thumbWidth'][0]=='<') {
+					$data['thumbWidthSize']=substr($data['thumbWidth'],1);
+					$data['thumbWidth']='<';
+				} elseif($data['thumbWidth']) {
+					$data['thumbWidthSize']=$data['thumbWidth'];
+					$data['thumbWidth']='=';
+				} else $data['thumbWidthSize']='';
+				if($data['thumbHeight'][0]=='<') {
+					$data['thumbHeightSize']=substr($data['thumbHeight'],1);
+					$data['thumbHeight']='<';
+				} elseif($data['thumbHeight']) {
+					$data['thumbHeightSize']=$data['thumbHeight'];
+					$data['thumbHeight']='=';
+				} else $data['thumbHeightSize']='';
+				$data['thumbnail']=true;
+			}	else {
+				$data['thumbWidth']=$data['thumbHeight']=$data['thumbWidthSize']=$data['thumbHeightSize']='';
+				$data['thumbnail']=false;
+			}
+		} else $data['width']=$data['height']=$data['widthSize']=$data['heightSize']=$data['thumbWidth']=$data['thumbHeight']=$data['thumbWidthSize']=$data['thumbHeightSize']=$data['thumbnail']=null;
 		if($data[1]!='select' && $data[1]!='list') $data[2]='';
 		$f->hidden('oldId',$id);
 		$f->text('id','Идентификатор',$id);
 		$f->text('title','Заголовок',$data[0],null,'asdf');
 		$f->select('type','Тип данных',array(array('integer','целое число'),array('float','дробное число'),array('string','строка'),array('text','текст'),array('boolean','да/нет'),array('date','дата'),array('image','изображение'),array('list','список'),array('gallery','галерея')),$data[1],null,'id="catalogType"');
+
 		$f->select('width','Ширина',array(array('','исходная/пропорциональная'),array('=','указать размер'),array('<','указать максимальную')),$data['width'],null,' id="width"');
 		$f->text('widthSize','ширина (пикс.)',$data['widthSize']);
 		$f->select('height','Высота',array(array('','исходная/пропорциональная'),array('=','указать размер'),array('<','указать максимальную')),$data['height'],null,' id="height"');
 		$f->text('heightSize','высота (пикс.)',$data['heightSize']);
+		$f->checkbox('thumbnail','Миниатюры изображений',$data['thumbnail'],'id="thumbnail"');
+		$f->select('thumbWidth','Ширина миниатюры',array(array('','исходная/пропорциональная'),array('=','указать размер'),array('<','указать максимальную')),$data['thumbWidth'],null,' id="thumbWidth"');
+		$f->text('thumbWidthSize','ширина миниатюры (пикс.)',$data['thumbWidthSize']);
+		$f->select('thumbHeight','Высота миниатюры',array(array('','исходная/пропорциональная'),array('=','указать размер'),array('<','указать максимальную')),$data['thumbHeight'],null,' id="thumbHeight"');
+		$f->text('thumbHeightSize','высота миниатюры (пикс.)',$data['thumbHeightSize']);
+
 		$f->textarea('value','Значение',$data[2]);
 		$f->submit();
 		$this->scriptAdmin('catalog');
@@ -126,6 +154,10 @@ class sController extends controller {
 		elseif($data['type']=='image' || $data['type']=='gallery') {
 			if(!$data['width']) $d['width']=null; elseif($data['width']=='=') $d['width']=(int)$data['widthSize']; else $d['width']='<'.(int)$data['widthSize'];
 			if(!$data['height']) $d['height']=null; elseif($data['height']=='=') $d['height']=(int)$data['heightSize']; else $d['height']='<'.(int)$data['heightSize'];
+			if($data['type']=='gallery' && isset($data['thumbnail'])) { //если галерея с миниатюрами
+				if(!$data['thumbWidth']) $d['thumbWidth']=null; elseif($data['thumbWidth']=='=') $d['thumbWidth']=(int)$data['thumbWidthSize']; else $d['thumbWidth']='<'.(int)$data['thumbWidthSize'];
+				if(!$data['thumbHeight']) $d['thumbHeight']=null; elseif($data['thumbHeight']=='=') $d['thumbHeight']=(int)$data['thumbHeightSize']; else $d['thumbHeight']='<'.(int)$data['thumbHeightSize'];
+			}
 		}
 		//Если у поля был изменён идентификатор, то изменить все связанные объекты
 		if(!$isNew && $id!=$oldId) {
@@ -167,7 +199,7 @@ class sController extends controller {
 		core::redirect('?controller=catalog&action=layoutData&lid='.$layoutId);
 	}
 
-	/* Удаление поля */
+	/* Удаление поля (это не совсем верно, т.к. нужно ещё удалять изображения для image и gallery */
 	public function actionLayoutDataDelete() {
 		//Удалить поле из конфигурации (список всех полей)
 		core::import('admin/core/config');
@@ -419,13 +451,14 @@ class sController extends controller {
 			if(!$t) $index=0; else {
 				$t=explode('|',$t);
 				$index=0;
-				foreach($t as $item) {
-					$i=(int)substr($item,strrpos($item,'-')+1);
+				foreach($t as $_index) {
+					$i=(int)substr($_index,strrpos($_index,'-')+1);
 					if($i>$index) $index=$i;
 				}
 			}
 			unset($t);
 			$q0=$old[$id];
+			if(isset($cfg['data'][$id]['thumbWidth'])) $thumbnail=true; else $thumbnail=false;
 			foreach($item as $i=>$ext) {
 				$index++;
 				$p=new picture($data[$id]['tmpName'][$i],$ext);
@@ -434,6 +467,12 @@ class sController extends controller {
 				$p->save(core::path().'public/catalog/'.$f);
 				$f.='.'.$ext;
 				if($q0) $q0.='|'.$f; else $q0=$f;
+				//миниатюра
+				if($thumbnail) {
+					$p->resize($cfg['data'][$id]['thumbWidth'],$cfg['data'][$id]['thumbHeight']);
+					$f='_'.$data['lid'].'.'.$m->id.'-'.$id.'-'.$index;
+					$p->save(core::path().'public/catalog/'.$f);
+				}
 			}
 			if($q) $q.=',';
 			$q.=$id.'='.$db->escape($q0);
@@ -457,6 +496,8 @@ class sController extends controller {
 		if(!$data) return;
 		$data=explode('|',$data[0]);
 		$f=core::path().'public/catalog/'.$data[$index];
+		if(file_exists($f)) unlink($f);
+		$f=core::path().'public/catalog/_'.$data[$index];
 		if(file_exists($f)) unlink($f);
 		unset($data[$index]);
 		$db->query('UPDATE catalog_'.$lid.' SET '.$fld.'='.$db->escape(implode('|',$data)).' WHERE id='.$id);
@@ -495,6 +536,8 @@ class sController extends controller {
 					$path=core::path().'public/catalog/';
 					foreach($item as $f) {
 						$f=$path.$f;
+						if(file_exists($f)) unlink($f);
+						$f=$path.'_'.$f;
 						if(file_exists($f)) unlink($f);
 					}
 				}

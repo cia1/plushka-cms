@@ -1,4 +1,5 @@
 <?php return array(
+'depend'=>'shadowbox ver 1.0',
 'hook1'=>'search',
 'hook2'=>'menuItemDelete',
 'right'=>'catalog.layout,catalog.item',

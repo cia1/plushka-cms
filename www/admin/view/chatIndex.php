@@ -11,7 +11,7 @@ foreach($this->items as $i=>$item) {
 }
 ?>
 </table>
-<script type="text/javascript">
+<script>
 function chatBan(time) {
 	if(confirm("Забанить этот IP на неделю?")) {
 		jQuery.adminDialog.load('<?=core::url()?>admin/index2.php?controller=chat&action=ban&t='+time+'&ban&_front');

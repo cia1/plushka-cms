@@ -5,7 +5,7 @@ if(count($_SESSION['cart'])) { ?>
 	<h2>Оформить заявку</h2>
 	<?php $this->form->render('checkout/checkout'); ?>
 <?php } ?>
-<script type="text/javascript">
+<script>
 function shpCartDelete(id) {
 	if(!confirm('Подтвердите удаление товара из корзины')) return false;
 	var cart=$('#_cart');

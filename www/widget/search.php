@@ -2,9 +2,9 @@
 /* Текстовое поле "поиск по сайту" */
 class widgetSearch extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		if(isset($_GET['keyword'])) $keyword=$_GET['keyword']; else $keyword='Поиск...';
 		?>
 		<form action="<?=core::link('search')?>" onsubmit="if(document.getElementById('searchKeyword').value=='Поиск...') return false;">

@@ -4,7 +4,7 @@ int $options - идентификатор меню */
 class widgetMenu extends widget {
 	private $_requestMatches;
 
-	public function action() {
+	public function __invoke() {
 		//Алгоритм: выбрать все пункты меню из базы данных, затем для каждого посчитать количество совпавших частей ЧПУ ссылки (те, что разделены символом "/") с запрошенным адресом.
 		//"Текущим" пунктом (выделенным) считается тот, у которого всех больше совпадений (это не идельное решение, но на практике неплохо работает).
 		//В $this->data буедт древовидный массив всех пунктов меню, а в $this->active - все "текущие" пункты меню (несколько - чтобы выделить родительские)
@@ -43,6 +43,7 @@ class widgetMenu extends widget {
 	}
 
 	public function render($d,$child=false) {
+		if(!$child) echo '<nav>';
 		if($d===true) $d=$this->data[0];
 		echo '<ul class="menu'.($child ? '' : ' menu'.$this->options).'">';
 		for($i=0,$cnt=count($d);$i<$cnt;$i++) {
@@ -54,6 +55,7 @@ class widgetMenu extends widget {
 			echo '</li>';
 		}
 		echo '</ul>';
+		if(!$child) echo '</nav>';
 	}
 
 	public function adminLink() {

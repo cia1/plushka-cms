@@ -5,7 +5,7 @@ $f->submit('Продолжить');
 $f->render();
 ?>
 <cite>Выберите из списка меню, которое хотите отобразить на сайте.</cite>
-<script type="text/javascript">
+<script>
 function selectMenu(value) {
 	if(value=='') document.location="<?=$this->newItemLink?>";
 }

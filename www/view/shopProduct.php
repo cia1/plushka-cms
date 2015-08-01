@@ -33,8 +33,8 @@
 <button type="submit" value="В корзину" class="button">В корзину</button>
 </form>
 </div>
-<script type="text/javascript">Shadowbox.init();</script>
-<script type="text/javascript">
+<script>Shadowbox.init();</script>
+<script>
 function addToCart(form) {
 	var data={};
 	jQuery('button',form).attr('disabled','disabled');

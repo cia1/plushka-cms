@@ -2,9 +2,9 @@
 /* Дерево категорий интернет-магазина */
 class widgetShopCategory extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		//Определить ИД текущей категории
 		if(isset($_GET['corePath'][2]) && $_GET['corePath'][0]=='shop' && ($_GET['corePath'][1]=='category' || $_GET['corePath'][1]=='product')) $id=(int)$_GET['corePath'][2]; else $id=null;
 		core::import('model/shop');

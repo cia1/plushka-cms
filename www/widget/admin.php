@@ -3,7 +3,7 @@
 /* Виджет выводит общие кнопки административного интерфейса */
 class widgetAdmin extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
 	public function adminLink() {
 		$u=core::userCore();

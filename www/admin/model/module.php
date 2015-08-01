@@ -28,6 +28,7 @@ class module {
 			$data['table']=explode(',',$data['table']);
 			for($i=0,$cnt=count($data['table']);$i<$cnt;$i++) $data['table'][$i]=trim($data['table'][$i]);
 		} else $data['table']=array();
+		if(!isset($data['currentVersion'])) $data['currentVersion']=null;
 	}
 
 	/* Возвращает список установленных модулей */

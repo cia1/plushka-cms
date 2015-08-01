@@ -42,7 +42,7 @@ if(!$this->data['name']) {
 }
 	?>
 </div>
-<script type="text/javascript">
+<script>
 function loadForm(name,controller,action) {
 	jQuery('#widgetName').val(name);
 	var url='<?=core::url()?>admin/index2.php?controller='+controller+'&action='+action<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&section=<?=$this->data['section']?>&_serialize";

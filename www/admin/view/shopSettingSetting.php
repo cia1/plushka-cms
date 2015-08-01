@@ -1,6 +1,6 @@
 <div class="tab">
 	<?php $this->form1->render(); ?>
-	<script type="text/javascript">
+	<script>
 	$('dd.productFullWidthType select').change(function(a) {
 		if(this.value=='') $('.productFullWidth').hide(); else $('.productFullWidth').show();
 	}).change();
@@ -38,7 +38,7 @@
 		$f->submit('Продолжить');
 		$f->render('shop&action=productGroup');
 		?>
-		<script type="text/javascript">
+		<script>
 		function productGroup(id,title) {
 			document.getElementById('groupId').value=id;
 			document.getElementById('groupTitle').value=title;
@@ -52,6 +52,4 @@
 		</script>
 	</fieldset>
 </div>
-<script type="text/javascript">
-	setTimeout(function() { $('.tab').tab(); },200);
-</script>
+<script>setTimeout(function() { $('.tab').tab(); },200);</script>

@@ -14,7 +14,7 @@
 	<a href="#" class="next">NEXT</a>
 </div>
 <div style="clear:both;"></div>
-<script type="text/javascript">
+<script>
 	$('#slider<?=$this->index?>').sliderHorizontal({
 		prevButton:'.prev',
 		nextButton:'.next'

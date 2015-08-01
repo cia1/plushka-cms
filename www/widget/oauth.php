@@ -2,7 +2,7 @@
 /* Кнопки входа через социальные сети */
 class widgetOauth extends widget {
 
-	public function action() {
+	public function __invoke() {
 		if(core::userGroup()) return false;
 		$this->data=core::config('oauth');
 		unset($this->data['userGroup']);

@@ -30,7 +30,7 @@ if(!$this->data['type']) {
 <?php if(!$this->data['type']) echo '<cite>На этом этапе укажите сущность (тип страницы), которая должна открываться при переходе по ссылке меню (статья, блог, внешняя ссылка и т.д.)</cite>'; ?>
 </div>
 
-<script type="text/javascript">
+<script>
 function loadForm(id,controller,action) {
 	jQuery('#typeId').val(id);
 	var url='<?=core::url()?>admin/index2.php?controller='+controller+'&action='+action<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&link=<?=urlencode($this->data['link'])?>";

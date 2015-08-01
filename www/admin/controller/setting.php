@@ -39,8 +39,6 @@ class sController extends controller {
 		$f->text('smtpPassword','SMTP пароль',$cfg['smtpPassword']);
 		$f->submit('Сохранить');
 		$this->form=$f;
-
-		$this->cite='<b>Ключевые слова</b> и <b>описание по умолчанию</b> будут использованы на тех страницах, где они не указаны явно.';
 		return 'Core';
 	}
 

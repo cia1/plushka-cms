@@ -17,6 +17,7 @@ class modelUser extends model {
 			'code'=>array('string')
 		);
 		if(isset($this->_data['status'])) $data['status']=array('boolean');
+		if(isset($this->_data['groupId'])) $data['groupId']=array('integer');
 		return $data;
 	}
 
@@ -90,6 +91,11 @@ class modelUser extends model {
 	/* Отправляет личное сообщение пользователю
 	int $user2Id и string $user2Login - ИД и логин получателя; string $message - текст сообщения; bool $email - надо или нет продублировать сообщение по электронной почте */
 	public function message($user2Id=null,$user2Login=null,$message,$email=null) {
+		$message=trim($message);
+		if(!$message) {
+			controller::$error='Нечего отправлять';
+			return false;
+		}
 		$db=core::db();
 		//Даже если были бы заданы и ИД и логин, то всёравно нужно удостовериться что такой пользователь существует
 		if($user2Id) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE id='.$user2Id);

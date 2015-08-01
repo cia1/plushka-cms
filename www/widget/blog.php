@@ -4,7 +4,7 @@ array $options: int categoryId - ИД категории статей; string li
 int countPreview - количество записей с аннотацией (блог); int countLink -  количество записей без аннотации (только ссылка); */
 class widgetBlog extends widget {
 
-	public function action() {
+	public function __invoke() {
 		if(!isset($this->options['linkType'])) $this->options['linkType']='blog';
 		if(!isset($this->options['countPreview'])) $this->options['countPreview']=0; else $this->options['countPreview']=(int)$this->options['countPreview'];
 		if(!isset($this->options['countLink'])) $this->options['countLink']=0; else $this->options['countLink']=(int)$this->options['countLink'];

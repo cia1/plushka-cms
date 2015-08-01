@@ -23,7 +23,7 @@ echo '<option value="#'.$id.'" class="head">'.$data['title'].'</option>';
 </select>
 
 </td><td style="padding-left:15px;vertical-align:top;"><cite>Переместите в правую колонку нужные характеристики. Товары в данной категории будут обладать выбранными характеристиками.<br />Вы можете организовать глобальный поиск по характеристикам, если одни и те же характеристики будут привязаны к разным категориям.<br /><br /><b>Внимание!</b> Удалённые на этой странице характеристики будут также удалены у ВСЕХ товаров в данной категории!</cite></td></tr></table>
-<style type="text/css">
+<style>
 #feature1,#feature2 {height:300px;width:300px;}
 #feature1 {float:left;}
 #feature2 {float:right;}

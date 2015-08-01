@@ -15,9 +15,11 @@ class mysql {
 	/* Подключается к СУБД */
 	public function __construct() {
 		$cfg=core::config();
-		self::$_connectId=new mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
+		@self::$_connectId=new mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
 		if(self::$_connectId->connect_errno) {
-			controller::$error='Не могу подключиться к базе данных';
+			header('HTTP/1.1 500 Internal Server Error');
+//			controller::$error='Не могу подключиться к базе данных';
+			die('Cannot connect to database.');
 			return;
 		}
 		self::$_connectId->set_charset('utf8');

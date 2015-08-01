@@ -3,7 +3,7 @@
 int $options - идентификатор опроса */
 class widgetVote extends widget {
 
-	public function action() {
+	public function __invoke() {
 		$db=core::db();
 		$data=$db->fetchArrayOnce('SELECT question,answer FROM vote WHERE id='.$this->options);
 		$this->question=$data[0];
@@ -17,7 +17,7 @@ class widgetVote extends widget {
 		return true;
 	}
 
-	public function render($view=null) { ?>
+	public function render() { ?>
 		<h3><?=$this->question?></h3>
 		<?php $this->form->render('vote/'.$this->options); ?>
 		<div style="clear:both;"></div>

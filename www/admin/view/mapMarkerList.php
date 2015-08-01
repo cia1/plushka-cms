@@ -7,7 +7,7 @@
 
 <p><br /></p>
 <?php $this->formMap->render(null,'onsubmit="this[\'map[marker]\'].value=mapMarker.getJson();"'); ?>
-<script type="text/javascript">
+<script>
 $('iframe').load(function() {
 	<?php foreach($this->data['marker'] as $item) { ?>
 	mapMarker.add(false,{title:"<?=$item['title']?>",latitude:<?=$item['latitude']?>,longitude:<?=$item['longitude']?>});

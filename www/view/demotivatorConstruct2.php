@@ -11,7 +11,7 @@
 	<input type="submit" value="Продолжить" class="button" />
 </form>
 <p><i>Для изменения размера шрифта дважы щёлкните мышкой на строке текста. Для добавления новой строки нажмите клавишу Enter.</i></p>
-<script type="text/javascript">
+<script>
 function inputKeyUp(self) {
 	if(event.keyCode==13) {
 		event.cancelBubble=true;

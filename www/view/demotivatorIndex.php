@@ -11,6 +11,6 @@
 	</div>
 <?php } ?>
 </div>
-<script type="text/javascript">
+<script>
 Shadowbox.init();
 </script>

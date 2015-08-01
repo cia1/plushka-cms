@@ -4,9 +4,9 @@ array $options: bool product - выводить или нет список то�
 bool checkout - ссылка на страницу оформления заказа */
 class widgetShopCart extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		if(!$this->options) $this->options=array();
 		$this->options=array_merge(array('product'=>true,'total'=>true,'checkout'=>true),$this->options); //значения по умолчанию
 		echo '<div id="cart">';

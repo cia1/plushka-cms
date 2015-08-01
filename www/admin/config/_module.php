@@ -1,13 +1,13 @@
 <?php return array(
 'core'=>array(
 'name'=>'Ядро',
-'version'=>'2.3',
+'version'=>'2.4',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),
 'catalog'=>array(
 'name'=>'Универсальный каталог',
-'version'=>'1.1',
+'version'=>'1.2',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),
@@ -43,7 +43,7 @@
 ),
 'form'=>array(
 'name'=>'Контактные формы',
-'version'=>'1.1',
+'version'=>'1.3',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),

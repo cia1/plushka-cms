@@ -101,7 +101,6 @@ class sController extends controller {
 		$this->table=$table;
 		return 'ProductList';
 	}
-
 	/* Создание или изменение товара */
 	public function actionProduct() {
 		$db=core::db();

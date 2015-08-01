@@ -3,12 +3,12 @@
 array $options: int limit - количество элементов на странице; int count - полное количество элементов */
 class widgetPagination extends widget {
 
-	public function action() {
+	public function __invoke() {
 		if($this->options['limit']>=$this->options['count'] || !$this->options['count']) return false;
 		return true;
 	}
 
-	public function render($view=null) {
+	public function render() {
 		if(isset($_GET['page'])) $page=(int)$_GET['page']; else $page=1;
 		if(!isset($this->options['link'])) {
 			$uri=array();

@@ -59,6 +59,11 @@ class picture {
 */
 	/* Сжимает или растягивает изображение до указанных размеров */
 	public function resize($width=null,$height=null) {
+		if(!$width && !$height) {
+			$this->_dstW=$this->_srcW;
+			$this->_dstH=$this->_srcH;
+			return true;
+		}
 		if($width) {
 			if($width[0]=='<' || $width[0]=='>') $symbolWidth=$width[0]; else $symbolWidth='=';
 		} else $symbolWidth='';
@@ -68,7 +73,9 @@ class picture {
 		if(!is_int($width) && !is_int($height)) {
 			$w=(int)substr($width,1);
 			$h=(int)substr($height,1);
-			if($w>$h) $height=null; else $width=null;
+			if($symbolWidth=='<' && $symbolHeight=='<') {
+				if(($this->_srcW-$w)>($this->_srcH-$h)) $height=null; else $width=null;
+			} elseif($w>$h) $height=null; else $width=null;
 		}
 		if($symbolWidth=='<') {
 			$width=(int)substr($width,1);

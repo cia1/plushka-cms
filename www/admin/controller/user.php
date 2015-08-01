@@ -133,8 +133,7 @@ class sController extends controller {
 	}
 
 	public function actionUserItemSubmit($data) {
-		if($data['id']) $isNew=false; else $isNew=true;
-		core::import('model/user');
+		core::import('admin/model/user');
 		$model=new modelUser();
 		$model->set($data);
 		if(!$model->save()) return false;

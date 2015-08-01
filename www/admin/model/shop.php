@@ -21,9 +21,7 @@ class shop {
 			if(file_exists($f)) unlink($f);
 		}
 		$db->query('DELETE FROM shpCategory WHERE id='.$id);
-		//Удалить файл кеша характеристик
-		$f=core::path().'cache/custom/featureSearch-'.$id.'.txt';
-		if(file_exists($f)) unlink($f);
+
 		return true;
 	}
 

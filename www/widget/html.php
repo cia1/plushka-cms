@@ -3,9 +3,9 @@
 string $options - имя файла с текстом */
 class widgetHtml extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		include(core::path().'data/widgetHtml/'.$this->options.'.html');
 	}
 

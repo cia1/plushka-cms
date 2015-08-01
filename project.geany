@@ -1,6 +1,6 @@
 [file_prefs]
 final_new_line=false
-ensure_convert_new_lines=true
+ensure_convert_new_lines=false
 strip_trailing_spaces=true
 replace_tabs=false
 
@@ -23,8 +23,5 @@ long_line_behaviour=1
 long_line_column=100
 
 [files]
-current_page=3
-FILE_NAME_0=0;HTML;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fdata%2Femail%2FshopOrderAdmin.html;0;2
-FILE_NAME_1=0;PHP;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fmodule%2Fmap.php;0;2
-FILE_NAME_2=0;CSS;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fpublic%2Fcss%2Fshop.css;0;2
-FILE_NAME_3=0;PHP;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fview%2FmapMap.php;0;2
+current_page=0
+FILE_NAME_0=208;PHP;0;EUTF-8;1;1;0;%2Fhome%2Fcia%2Fwww%2Fcms%2Fwww%2Fadmin%2Fconfig%2F_module.php;0;2

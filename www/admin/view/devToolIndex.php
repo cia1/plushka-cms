@@ -51,6 +51,6 @@
 	</fieldset>
 */ ?>
 </div>
-<script type="text/javascript">
+<script>
 	setTimeout(function() { $('.tab').tab(); },200);
 </script>

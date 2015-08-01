@@ -23,31 +23,39 @@ class mForm extends form {
 		$this->formView=$data[1]; //MVC-представление
 		//Загрузить все поля формы
 		$this->field=$db->fetchArrayAssoc('SELECT id,title,htmlType,data,defaultValue,required FROM frmField WHERE formId='.$id.' ORDER BY sort');
-		$cnt=count($this->field);
-		for($i=0;$i<$cnt;$i++) {
-			$title=$this->field[$i]['title'];
-			if($this->field[$i]['required']) $title.='<span class="required">*</span>';
+		for($i=0,$cnt=count($this->field);$i<$cnt;$i++) {
 			$type=$this->field[$i]['htmlType'];
-			if($type=='email') $type='text';
 			if($type=='radio' || $type=='select' || $type=='listBox') {
-				$data=$this->field[$i]['data'];
-				$data=explode('|',$data);
-				for($y=0;$y<count($data);$y++) $data[$y]=array($data[$y],$data[$y]);
+				$data=explode('|',$this->field[$i]['data']);
+				for($y=0,$cntY=count($data);$y<$cntY;$y++) $data[$y]=array($data[$y],$data[$y]);
 				if($type=='select' && !$this->field[$i]['required']) {
 					array_unshift($data,array('','(выбрать)'));
 				}
-				$this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$data);
-			} else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
+				$this->field[$i]['data']=$data;
+			}
 		}
-		$this->field('submit','submit','Отправить');
+		$this->submit('Отправить');
 		return true;
 	}
 
-	public function render($action=null) {
+	public function render($action=null,$html=null) {
 		if($action) $this->action=$action;
 		if($this->formView) include(core::path().'view/form'.ucfirst($this->formView).'.php');
-		else return parent::render();
+		else { //представление не задано, использовать стандартный рендер базового класса
+			//Добавить поля в базовый класс формы
+			for($i=0,$cnt=count($this->field);$i<$cnt;$i++) {
+				$title=$this->field[$i]['title'];
+				if($this->field[$i]['required']) $title.='<span class="required">*</span>';
+				$type=$this->field[$i]['htmlType'];
+				if($type=='radio' || $type=='select' || $type=='listBox') {
+					$this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$this->field[$i]['data']);
+				} else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
+			}
+			unset($this->field);
+			return parent::render(null,$html);
+		}
 	}
+
 	/* Выполняет настроенное действие по обработке формы
 	$id - идентификатор формы, $data - данные (из $_POST) */
 	public function execute($id,$data) {

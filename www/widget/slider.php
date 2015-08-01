@@ -4,7 +4,7 @@ class widgetSlider extends widget {
 
 	public static $index;
 
-	public function action($view=null) {
+	public function __invoke() {
 		$this->index++;
 		echo core::script('jquery.min');
 		echo core::script('slider');

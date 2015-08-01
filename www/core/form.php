@@ -260,7 +260,7 @@ class form {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		return '<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'" '.$html.'>'.$value.'</textarea>
-		<script type="text/javascript">
+		<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();
 		if(document.ckeditor["'.$name.'"]!=undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
 		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{extraPlugins:"cyberim"});

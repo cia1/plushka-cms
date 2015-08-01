@@ -25,7 +25,7 @@
 <?php } ?>
 <input type="submit" class="button" style="float:right;" />
 </form>
-<script type="text/javascript">
+<script>
 function shopToggleShow(link,id) {
 	$(document.getElementById(id)).toggle('fast',function(a,b) {
 		if(this.style.display=='none') link.className='group minus'; else link.className='group plus';

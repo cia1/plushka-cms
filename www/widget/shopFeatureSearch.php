@@ -3,7 +3,7 @@
 array $options: array feature содержит характеристики, по которым нужно настроить фильтр (поиск) */
 class widgetShopFeatureSearch extends widget {
 
-	public function action() {
+	public function __invoke() {
 		if(count($_GET['corePath'])==4) return false;
 		if($_GET['corePath'][0]=='shop' && $_GET['corePath'][1]=='category') $this->categoryId=(int)$_GET['corePath'][2];
 		else $this->categoryId=null;
@@ -56,7 +56,7 @@ class widgetShopFeatureSearch extends widget {
 		return true;
 	}
 
-	public function render($view=null) {
+	public function render() {
 		echo '<form action="'.core::link('shop/category'.($this->categoryId ? '/'.$this->categoryId : '')).'" method="get" onsubmit="return submitMe();">';
 		echo '<link href="'.core::url().'public/css/shop.css" rel="stylesheet" type="text/css" />';
 //		echo core::script('jquery.min');
@@ -78,7 +78,7 @@ class widgetShopFeatureSearch extends widget {
 		}
 		echo '<input type="submit" class="button" value="Применить" /></form>';
 		?>
-		<script type="text/javascript">
+		<script>
 		function submitMe() {
 var o=$('.widgetshopFeatureSearch form select').each(function() {
 	if(!this.value) $(this).remove();

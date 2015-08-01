@@ -27,7 +27,7 @@ foreach($this->layout as $item) { ?>
 } ?>
 <input type="submit" class="button" value="Продолжить" style="float:right;" />
 </form>
-<script type="text/javascript">
+<script>
 function setEnabled(id,value) {
 	var item=document.getElementById('item'+id);
 	if(value) item.className='item enabled'; else item.className='item disabled';

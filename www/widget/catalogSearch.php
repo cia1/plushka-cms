@@ -3,7 +3,7 @@
 array $options: int id - идентификатор каталога; array fld - поля поиска */
 class widgetCatalogSearch extends widget {
 
-	public function action() {
+	public function __invoke() {
 		$this->layout=core::config('catalogLayout/'.$this->options['id']); //конфигурация каталога
 		//Перечислить все поля, по которым должен быть выполнен поиск и подготовленные данные загрузить в $this->data
 		$this->data=array();

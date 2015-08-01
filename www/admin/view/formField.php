@@ -1,5 +1,5 @@
 <?php $this->f->render(); ?>
-<script type="text/javascript">
+<script>
 	$('.htmlType select').change(function() {
 		if(this.value=='select' || this.value=='radio') $('.value').show(); else $('.value').hide();
 		if(this.value=='file') {
@@ -17,7 +17,7 @@
 		}
 	});
 </script>
-<style type="text/css">
+<style>
 <?php
 if(!$this->value) echo '.value {display:none;} ';
 if(!$this->fileType) echo '.fileType {display:none;} ';

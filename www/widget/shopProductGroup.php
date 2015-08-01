@@ -3,9 +3,9 @@
 int $options - идентификатор группы товаров */
 class widgetShopProductGroup extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		core::import('model/shop');
 		$items=shop::productGroup($this->options);
 		foreach($items as $item) {

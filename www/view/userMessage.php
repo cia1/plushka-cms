@@ -21,7 +21,7 @@ echo '</i></center></p>';
 	}
 } ?>
 </table>
-<script type="text/javascript">
+<script>
 function showAnswerForm(index) {
 	var o=document.getElementById('answer'+index);
 	if(!o.style.display) o.style.display='none'; else {

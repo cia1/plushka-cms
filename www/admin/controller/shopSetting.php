@@ -247,7 +247,7 @@ class sController extends controller {
 		$f->checkbox('variant','Модификации (варианты)',$data['variant']);
 		$f->text('unit','ЕИ (текст)',$data['unit']);
 		$f->submit();
-		if($data['type']!='select') $f->html('<script type="text/javascript">setTimeout(function() { $(\'.data\').hide(); },100);</script>');
+		if($data['type']!='select') $f->html('<script>setTimeout(function() { $(\'.data\').hide(); },100);</script>');
 		$this->cite='Если <b>Модификации</b> отмечен, то характеристика также будет использоваться для модификаций товаров';
 		return $f;
 	}

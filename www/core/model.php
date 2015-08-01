@@ -196,7 +196,7 @@ class model {
 				$value=null;
 				break;
 			}
-			$value=strtotime($value);
+			if(!is_numeric($value)) $value=strtotime($value);
 			if(!$value) {
 				controller::$error='Поле &laquo;'.$options[1].'&raquo; должно быть корректной датой (дд.мм.гггг)';
 				return false;

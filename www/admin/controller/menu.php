@@ -52,6 +52,7 @@ class sController extends controller {
 	/* Добавляет пункты меню к таблице $table, используя данные массива $d.
 	$parentId - ИД родителя, для которого добавлять пункты меню; $level - уровень вложенности (отвечает за отступ названия пункта меню от края) */
 	private function _buildViewTable($d,$table,$parentId=0,$level=0) {
+		if(!isset($d[$parentId])) return;
 		$data=$d[$parentId];
 		$cnt=count($data);
 		for($i=0;$i<$cnt;$i++) {

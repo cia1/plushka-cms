@@ -9,7 +9,7 @@ $f->text('message','Сообщение:','','id="message"');
 $f->submit('Сказать');
 $f->render('index2.php?controller=chat&amp;action=post&amp;id='.$this->id);
 ?>
-<script type="text/javascript">
+<script>
 jQuery(function() {
 	var isName=false;
 	var chatBtn=$('form.chat input.button');

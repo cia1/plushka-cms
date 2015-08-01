@@ -3,9 +3,9 @@
 array $options: int id - идентификатор чата; int count - количество сообщений */
 class widgetChat extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		echo '<link rel="stylesheet" type="text/css" href="'.core::url().'public/css/chat.css" />';
 		$f=file(core::path().'data/chat.'.$this->options['id'].'.txt'); //тут хранятся сообщения чата
 		$cnt=count($f)-1;

@@ -6,7 +6,7 @@
 } ?>
 <p>Не закрывайте это окно - идёт импорт.</p>
 <p>Обработано <b><?=$this->total?></b> записей.</p>
-<script type="text/javascript">
+<script>
 setTimeout(function() {
 	document.location='<?=core::url().'admin/'.$this->link?>&_front';
 },7000);

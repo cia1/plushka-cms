@@ -3,9 +3,9 @@
 int $options - идентификатор формы */
 class widgetForm extends widget {
 
-	public function action() { return true; }
+	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render() {
 		$db=core::db();
 		$form=$db->fetchArrayOnceAssoc('SELECT title,formView FROM frmForm WHERE id='.$this->options);
 		if(!$form) return;

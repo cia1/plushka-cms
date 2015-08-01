@@ -14,7 +14,7 @@
 echo core::script('jquery.min');
 echo core::script('jquery.form');
 ?>
-<script type="text/javascript">
+<script>
 $('form#comment').ajaxForm({success:function(data) {
 	if(data!='OK') {
 		alert(data);

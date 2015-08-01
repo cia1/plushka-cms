@@ -22,8 +22,8 @@ class sController extends controller {
 	public function adminIndexLink() {
 		$cfg=core::config('shop');
 		return array(
-			array('shop.setting','?controller=form&action=form&id='.$cfg['formId'],'setting','Настройка формы'),
-			array('shop.setting','?controller=form&action=field&id='.$cfg['formId'],'field','Управление полями формы')
+			array('shopSetting.setting','?controller=form&action=form&id='.$cfg['formId'],'setting','Настройка формы'),
+			array('shopSetting.setting','?controller=form&action=field&id='.$cfg['formId'],'field','Управление полями формы')
 		);
 	}
 

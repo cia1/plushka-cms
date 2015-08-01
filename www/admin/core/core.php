@@ -217,7 +217,7 @@ class core {
 				echo '</div>';
 				echo '<link href="'.core::url().'admin/public/template/front.css" rel="stylesheet" type="text/css" media="screen" /><script type="text/javascript" src="'.core::url().'public/js/jquery.min.js"></script>
 				<script type="text/javascript" src="'.core::url().'admin/public/js/front.js"></script>
-				<script type="text/javascript">setTimeout(function() { top.window.location=top.window.location.href; },2000);</script>';
+				<script>setTimeout(function() { top.window.location=top.window.location.href; },2000);</script>';
 				exit;
 			} else $_SESSION['successMessage']=$message;
 		}
@@ -229,7 +229,7 @@ class core {
 	public static function redirectPublic($url) {
 		if($url[0]!='/') $url=core::url().$url;
 		if(isset($_GET['_front'])) {
-			echo '<script type="text/javascript">top.document.location="'.$url.'";</script>';
+			echo '<script>top.document.location="'.$url.'";</script>';
 			exit;
 		}
 		header('Location: '.$url);

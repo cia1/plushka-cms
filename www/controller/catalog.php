@@ -86,7 +86,8 @@ class sController extends controller {
 			array('catalog.layout','?controller=catalog&action=layoutView&lid='.$this->layoutId.'&view=view1','layout','Макет списка'),
 			array('catalog.layout','?controller=catalog&action=layoutView&lid='.$this->layoutId.'&view=view2','layout','Макет записи'),
 			array('catalog.item','?controller=catalog&action=text&lid='.$this->layoutId,'edit','Редактировать статью'),
-			array('catalog.item','?controller=catalog&action=item&lid='.$this->layoutId,'new','Добавить элемент')
+			array('catalog.item','?controller=catalog&action=item&lid='.$this->layoutId,'new','Добавить элемент'),
+			array('catalog.item','?controller=catalog&action=list&lid='.$this->layoutId,'list','Открыть список элементов')
 		);
 	}
 
@@ -109,6 +110,8 @@ class sController extends controller {
 			$field['value']=$data[$id];
 			if($field['type']=='image') $field['value']=core::url().'public/catalog/'.$field['value'];
 			elseif($field['type']=='gallery') {
+				if(array_key_exists('thumbWidth',$this->layout['data'][$id])) $field['type']='galleryWithThumbnail';
+				else $field['type']='galleryWithoutThumbnail';
 				$v=$field['value'];
 				if($v) {
 					$v=explode('|',$v);

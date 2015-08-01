@@ -71,11 +71,23 @@ class sController extends controller {
 
 	/* Удаление комментария */
 	public function actionDelete() {
+		if(isset($_GET['noConfirm'])) { //Удалить без подтверждения (это действие может вызываться из разных мест)
+			$db=core::db();
+			$db->query('DELETE FROM comment WHERE id='.$_GET['id']);
+			core::redirect('?controller=comment&action=moderate');
+		}
+		$f=core::form();
+		$f->html('Подтвердите удаление комментария');
+		$f->hidden('id',$_GET['id']);
+		$f->submit();
+		return $f;
+	}
+
+	public function actionDeleteSubmit($data) {
 		$db=core::db();
 		$db->query('DELETE FROM comment WHERE id='.(int)$data['id']);
 		core::redirect('?controller=comment','Комментарий удалён');
 	}
-
 /* ----------------------------------------------------------------------------------- */
 
 

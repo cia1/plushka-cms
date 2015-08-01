@@ -23,7 +23,7 @@ class sController extends controller {
 
 		$f->html('</fieldset></div>');
 		$f->submit('Сохранить');
-		$f->html('<script type="text/javascript">setTimeout(function() { $(".tab").tab(); },100);</script>');
+		$f->html('<script>setTimeout(function() { $(".tab").tab(); },100);</script>');
 		return $f;
 	}
 

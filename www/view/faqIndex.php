@@ -18,7 +18,7 @@ else foreach($this->items as $item) { ?>
 		</div></div></div>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 function connectFAQForm() {
 	jQuery('#newQuestion form').ajaxForm({
 		url:'<?=core::url()?>index2.php?controller=faq&action=index',
