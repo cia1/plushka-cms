@@ -1,0 +1,5 @@
+readme.txt
+project.geany
+/cache/template/*.*
+/cache/widget/*.*
+/cache/custom/*.*

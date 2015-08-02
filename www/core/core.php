@@ -264,6 +264,7 @@ class core {
 		//Выборка виджетов секции. Построить SQL-запрос, включающий все варианты страниц
 		$s=$query='';
 		$cnt=count($_GET['corePath'])-1;
+		if(!$_GET['corePath'][1]) $cnt--;
 		foreach($_GET['corePath'] as $i=>$item) {
 			if(!$item) break;
 			if($s) {
