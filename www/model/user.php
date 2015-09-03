@@ -170,12 +170,15 @@ class modelUser extends model {
 		$template=array('login'=>$this->login);
 		//Разные параметры письма в зависимости от типа сообщения
 		$e->subject('Регистрация на сайте '.$_SERVER['HTTP_HOST']);
+		$email=$this->email;
 		switch($type) {
 		case 'activate':
 			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/confirm').'?code='.$this->code;
 			break;
 		case 'infoAdmin':
 			$e->replyTo($this->_data['email'],$this->_data['login']);
+			$template['email']=$this->_data['email'];
+			$email=$cfg['adminEmailEmail'];
 			break;
 		case 'restoreLink':
 			$e->subject('Восстановление пароля на сайте '.$_SERVER['HTTP_HOST']);
@@ -193,7 +196,7 @@ class modelUser extends model {
 			break;
 		}
 		$e->messageTemplate('user'.ucfirst($type),$template);
-		if(!$e->send($this->email)) return false;
+		if(!$e->send($email)) return false;
 		return true;
 	}
 

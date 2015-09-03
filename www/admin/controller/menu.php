@@ -96,7 +96,7 @@ class sController extends controller {
 			'parentId'=>array('integer'),
 			'menuId'=>array('string'),
 			'link'=>array('string'),
-			'title'=>array('string'),
+			'title'=>array('string','заголовок ссылки в меню','max'=>50),
 			'typeId'=>array('integer')
 		);
 		//Если это новый пункт меню, то вычислить индекс сортировки (задаёт порядок пунктов)
