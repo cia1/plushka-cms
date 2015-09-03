@@ -35,12 +35,12 @@ class sController extends controller {
 			$this->paginationCount=shop::foundRows();
 			$cfg=core::config('shop');
 			$this->productOnPage=$cfg['productOnPage'];
-			if($sort!='title ASC') $this->sort=' <a href="?sort=titleASC&'.$link.'" class="sortA">имя &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort=' <span class="sortC">имя &darr;</span>&nbsp;&nbsp;&nbsp;';
-			if($sort!='title DESC') $this->sort.=' <a href="?sort=titleDESC&'.$link.'" class="sortB">имя &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortD">имя &uarr;</span>&nbsp;&nbsp;&nbsp;';
-			if($sort!='price ASC') $this->sort.=' <a href="?sort=priceASC&'.$link.'" class="sortA">цена &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortC">цена &darr;</span>&nbsp;&nbsp;&nbsp;';
-			if($sort!='price DESC') $this->sort.=' <a href="?sort=priceDESC&'.$link.'" class="sortB">цена &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortD">цена &uarr;</span>&nbsp;&nbsp;&nbsp;';
-			if($sort!='id ASC') $this->sort.='<a href="?sort=dateASC&'.$link.'" class="sortA">дата &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortC">дата &darr;</span>&nbsp;&nbsp;&nbsp;';
-			if($sort!='id DESC') $this->sort.='<a href="'.core::link('shop/category/'.$this->category['id'].'?'.$link).'" class="sortB">дата &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortD">дата &uarr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='title ASC') $this->sort=' <a href="?sort=titleASC&'.$link.'" class="sortA">'.LNGname.' &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort=' <span class="sortC">'.LNGname.' &darr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='title DESC') $this->sort.=' <a href="?sort=titleDESC&'.$link.'" class="sortB">'.LNGname.' &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortD">'.LNGname.' &uarr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='price ASC') $this->sort.=' <a href="?sort=priceASC&'.$link.'" class="sortA">'.LNGprice.' &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortC">'.LNGprice.' &darr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='price DESC') $this->sort.=' <a href="?sort=priceDESC&'.$link.'" class="sortB">'.LNGprice.' &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortD">'.LNGprice.' &uarr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='id ASC') $this->sort.='<a href="?sort=dateASC&'.$link.'" class="sortA">'.LNGdate.' &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortC">'.LNGdate.' &darr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='id DESC') $this->sort.='<a href="'.core::link('shop/category/'.$this->category['id'].'?'.$link).'" class="sortB">'.LNGdate.' &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortD">'.LNGdate.' &uarr;</span>&nbsp;&nbsp;&nbsp;';
 		} else {
 			$this->productList=null;
 			$this->sort='';
@@ -54,8 +54,8 @@ class sController extends controller {
 	}
 
 	protected function breadcrumbCategory() {
-		if(!$this->url[2]) return array('Магазин');
-		return array('<a href="'.core::link('shop/category').'">Магазин</a>');
+		if(!$this->url[2]) return array(LNGShop);
+		return array('<a href="'.core::link('shop/category').'">'.LNGShop.'</a>');
 	}
 
 	protected function adminCategoryLink() {
@@ -89,7 +89,7 @@ class sController extends controller {
 
 	protected function breadcrumbProduct() {
 		$db=core::db();
-		return array('<a href="'.core::link('shop/category').'">Магазин</a>','<a href="'.core::link('shop/category/'.$this->url[2]).'">'.$this->product['categoryTitle'].'</a>');
+		return array('<a href="'.core::link('shop/category').'">'.LNGShop.'</a>','<a href="'.core::link('shop/category/'.$this->url[2]).'">'.$this->product['categoryTitle'].'</a>');
 	}
 
 	protected function adminProductLink() {
@@ -109,11 +109,11 @@ class sController extends controller {
 		$db=core::db();
 		$data['quantity']=(int)$data['quantity'];
 		$product=$db->fetchArrayOnce('SELECT title,price,categoryId,alias FROM shpProduct WHERE id='.(int)$data['id']);
-		if(!$product || !$data['quantity']) die('Товар не существует');
+		if(!$product || !$data['quantity']) die(LNGProductDoesntExists);
 		if(!isset($_SESSION['cart'])) $_SESSION['cart']=array();
 		if(isset($_SESSION['cart'][$data['id']])) $_SESSION['cart'][$data['id']]['quantity']+=$data['quantity'];
 		else $_SESSION['cart'][$data['id']]=array('alias'=>$product[3],'title'=>$product[0],'categoryId'=>$product[2],'quantity'=>$data['quantity'],'price'=>$product[1]);
-		die('Товар добавлен в корзину');
+		die(LNGProductAddedToCart);
 	}
 
 }

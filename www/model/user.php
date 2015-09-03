@@ -26,14 +26,14 @@ class modelUser extends model {
 		parent::__construct('user');
 		$this->_self=$user;
 		if($id) {
-			if(!$this->loginById($id)) controller::$error='Пользователь не существует';
+			if(!$this->loginById($id)) controller::$error=LNGUserNotExists;
 		}
 	}
 
 	//Загружает данные пользователя по адресу электронной почты (без авторизации)
 	public function loadByEmail($email) {
 		if(!$this->load('email='.$this->db->escape($email),'id,groupId,status,login,email')) {
-			controller::$error='Пользователь с таким адресом электронной почты не зарегистрирован';
+			controller::$error=LNGUserWithEmailNotFound;
 			return false;
 		}
 		return true;
@@ -42,7 +42,7 @@ class modelUser extends model {
 	//Загружает данные, а также авторизует пользователя по указанному идентификатору
 	public function loginById($id) {
 		if(!$this->loadById($id)) {
-			controller::$error='Пользователь не существует';
+			controller::$error=LNGUserNotExists;
 			return false;
 		}
 		if($this->_self) { //Если класс создан через core:user() или core::userCore()
@@ -58,7 +58,7 @@ class modelUser extends model {
 	//Загружает данные, а также авторизует пользователя по коду активации
 	public function loginByCode($code) {
 		if(!$this->load('status!=2 AND code='.$this->db->escape($code))) {
-			controller::$error='Неверный код активации';
+			controller::$error=LNGActivationCodeIsWrong;
 			return false;
 		}
 		if($this->_self) { //Если класс создан через core:user() или core::userCore()
@@ -75,7 +75,7 @@ class modelUser extends model {
 	public function login($login,$password) {
 		//Когда PHP 5.6 станет использоваться повсеместно, нужно переписать на hash_equals
 		if(!$this->load('login='.$this->db->escape($login).' AND password='.$this->db->escape(self::_hash($password)).' AND status=1')) {
-			controller::$error='Логин или пароль указаны неверно';
+			controller::$error=LNGLoginOrPasswordIsWrong;
 			return false;
 		}
 		if($this->_self) { //Если класс создан не напрямую, а через core::user()->model(), то передать в класс user данные пользователя
@@ -93,7 +93,7 @@ class modelUser extends model {
 	public function message($user2Id=null,$user2Login=null,$message,$email=null) {
 		$message=trim($message);
 		if(!$message) {
-			controller::$error='Нечего отправлять';
+			controller::$error=LNGNothingToSend;
 			return false;
 		}
 		$db=core::db();
@@ -101,7 +101,7 @@ class modelUser extends model {
 		if($user2Id) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE id='.$user2Id);
 		elseif($user2Login) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE login='.$db->escape($user2Login));
 		if(!$user2) {
-			controller::$error='Ошибка отправки сообщеня: некорректные данные получателя';
+			controller::$error=LNGIncorrectRecepientData;
 			return false;
 		}
 		if(!$this->_self->id) core::redirect('user/login');
@@ -111,9 +111,9 @@ class modelUser extends model {
 			$cfg=core::config();
 			$e=new email();
 			$e->from($this->_self->email,$cfg['adminEmailName']);
-			$e->subject('Личное сообщение от '.$this->_self->login);
+			$e->subject(sprintf(LNGPrivateMessageFrom,$this->_self->login));
 			$e->replyTo($this->_self->email);
-			$e->message('<p>На сайте '.$_SERVER['HTTP_HOST'].core::url().' вам было отправлено личное сообщение. Ниже приведён текст сообщения.</p><hr />'.$message);
+			$e->message('<p>'.sprintf(LNGYouGotNewMessageOnSite,$_SERVER['HTTP_HOST'].core::url()).'</p><hr />'.$message);
 			$e->send($user2['email']);
 		}
 		return true;
@@ -169,7 +169,7 @@ class modelUser extends model {
 		$e->replyTo($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 		$template=array('login'=>$this->login);
 		//Разные параметры письма в зависимости от типа сообщения
-		$e->subject('Регистрация на сайте '.$_SERVER['HTTP_HOST']);
+		$e->subject(sprintf(LNGRegistrationOnSite,$_SERVER['HTTP_HOST']));
 		switch($type) {
 		case 'activate':
 			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/confirm').'?code='.$this->code;
@@ -178,17 +178,17 @@ class modelUser extends model {
 			$e->replyTo($this->_data['email'],$this->_data['login']);
 			break;
 		case 'restoreLink':
-			$e->subject('Восстановление пароля на сайте '.$_SERVER['HTTP_HOST']);
+			$e->subject(sprintf(LNGPasswordRestoreOnSite,$_SERVER['HTTP_HOST']));
 			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/restore').'?code='.$this->code;
 			break;
 		case 'restorePassword':
-			$e->subject('Восстановление пароля на сайте '.$_SERVER['HTTP_HOST']);
+			$e->subject(sprintf(LNGPasswordRestoreOnSite,$_SERVER['HTTP_HOST']));
 			$template['password']=$this->_data['password'];
 			break;
 		case 'info':
-			$e->subject('Вы зарегистрироаны на сайте '.$_SERVER['HTTP_HOST']);
-			if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='(известен только вам)';
-			$template['status']=($this->_data['status'] ? 'учётная запись активна' : 'учётная запись заблокирована');
+			$e->subject(sprintf(LNGYouAreRegisteredOnSite,$_SERVER['HTTP_HOST']));
+			if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='('.LNGknownOnlyYou.')';
+			$template['status']=($this->_data['status'] ? LNGaccountActive : LNGaccountBlocked);
 			$template['email']=$this->_data['email'];
 			break;
 		}
@@ -219,17 +219,17 @@ class modelUser extends model {
 	public function validateLogin($field,$value) {
 		$value=trim(str_replace(array("'",'"','/','\\'),'',strip_tags($value)));
 		if(strlen($value)<3) {
-			controller::$error='Логин не может состоять менее чем из 3х символов';
+			controller::$error=LNGLoginCannotBeShorter3Symbols;
 			return false;
 		}
 		if(strlen($value)>20) {
-			controller::$error='Логин не может быть длинее 20 символов';
+			controller::$error=LNGLoginCannotBeLonger20Symbols;
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE login='.$this->db->escape($value);
 		if($this->_data['id']) $q.=' AND id!='.(int)$this->_data['id'];
 		if($this->db->fetchValue($q)) {
-			controller::$error='Пользователь с таким логином уже зарегистрирован';
+			controller::$error=LNGThisLoginAlreadyUses;
 			return false;
 		}
 		return $value;
@@ -238,13 +238,13 @@ class modelUser extends model {
 	/* Проверяет уникальность адреса электронной почты */
 	public function validateEmail($field,$value) {
 		if(!filter_var($value,FILTER_VALIDATE_EMAIL)) {
-			controller::$error='E-mail указан неверно';
+			controller::$error=LNGEMailIsWrong;
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE email='.$this->db->escape($value);
 		if($this->_data['id']) $q.=' AND id!='.$this->data['id'];
 		if($this->db->fetchValue($q)) {
-			controller::$error='Пользователь с таким адресом электронной почты уже зарегистрирован';
+			controller::$error=LNGThisEmailAlreadyUses;
 			return false;
 		}
 		return $value;
@@ -254,7 +254,7 @@ class modelUser extends model {
 	public function validatePassword($field,$value) {
 		$l=strlen($value);
 		if($l<3) {
-			controller::$error='Пароль слишком короткий';
+			controller::$error=LNGPasswordTooShort;
 			return false;
 		}
 		return $value;

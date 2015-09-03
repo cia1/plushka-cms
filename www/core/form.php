@@ -88,7 +88,7 @@ class form {
 	}
 
 	/* Кнопка "отправить" (<input type="submit") */
-	public function submit($label='Продолжить',$name=null,$html='') {
+	public function submit($label=LNGContinue,$name=null,$html='') {
 		$this->_data.='<dd class="submit">'.$this->getSubmit($label,$name,$html).'</dd>';
 	}
 

@@ -9,10 +9,10 @@ class sController extends controller {
 		else $this->keyword=null;
 		$this->form=core::form();
 		$this->form->method='get';
-		$this->form->text('keyword','Поиск:',$this->keyword);
-		$this->form->submit('Найти');
+		$this->form->text('keyword',LNGSearch.':',$this->keyword);
+		$this->form->submit(LNGFind);
 
-		$this->metaTitle=$this->pageTitle='Поиск по сайту';
+		$this->metaTitle=$this->pageTitle=LNGSearchAtSite;
 		return 'Index';
 	}
 

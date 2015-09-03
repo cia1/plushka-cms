@@ -6,6 +6,6 @@
 			<?php $this->renderField($item); ?>
 		</dd>
 	<?php } ?>
-	<dd class="submit"><input type="submit" value="Найти" class="button" /></dd>
+	<dd class="submit"><input type="submit" value="<?=LNGFind?>" class="button" /></dd>
 </dl>
 </form>

@@ -15,8 +15,8 @@ class sController extends controller {
 
 		$this->script('jquery.min');
 		$this->script('jquery.form');
-		$this->pageTitle=$this->metaTitle='Корзина';
-		return 'Index';		
+		$this->pageTitle=$this->metaTitle=LNGCart;
+		return 'Index';
 	}
 
 	public function adminIndexLink() {
@@ -43,7 +43,7 @@ class sController extends controller {
 	}
 
 	protected function breadcrumbIndex() {
-		return array('<a href="'.core::link('shop/category').'">Магазин</a>');
+		return array('<a href="'.core::link('shop/category').'">'.LNGShop.'</a>');
 	}
 
 	public function actionCheckout() {

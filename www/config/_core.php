@@ -2,6 +2,7 @@
 'debug'=>true,
 'adminEmailEmail'=>'admin@example.com',
 'adminEmailName'=>'CMS',
+'languageDefault'=>'ru',
 'dbDriver'=>'mysql',
 'mysqlHost'=>'localhost',
 'mysqlUser'=>'root',

@@ -20,7 +20,7 @@ class sController extends controller {
 		$this->script('jquery.form');
 		$this->login=$this->_login();
 
-		$this->pageTitle=$this->metaTitle='Чат';
+		$this->pageTitle=$this->metaTitle=LNGChat;
 		$this->style('chat');
 		return 'Index';
 	}
@@ -43,11 +43,11 @@ class sController extends controller {
 		$message=false; //содержит сообщение об ошибке, если она произошла
 		if(isset($data['login'])) { //проверка имени пользователя, если пользователь авторизован, то этого поля быть не должно.
 			$data['login']=str_replace(array("\n",'|||'),array(' ','||'),trim(strip_tags($data['login'])));
-			if(!$data['login']) $message='Имя пользователя задано неверно.';
+			if(!$data['login']) $message=LNGUserNameIsWrong;
 			else {
 				$db=core::db();
 				if($db->fetchValue('SELECT 1 FROM user WHERE login='.$db->escape($data['login']))) {
-					$message='Это имя пользователя уже кем-то используется, попробуйте другое.';
+					$message=LNGUserNameAlreadyUses;
 				}
 			}
 		} else $data['login']=$this->_login();
@@ -56,16 +56,16 @@ class sController extends controller {
 		$items=file(core::path().'data/chat.'.$this->id.'.txt'); //содержит список сообщений
 		//Проверка валидности текста сообщения
 		$last=explode('|||',$items[0]);
-		if($last[1]==$data['login'] && time()<$last[0]+30) $message='Вы только что уже отправили сообщение. Подждите минуту.';
+		if($last[1]==$data['login'] && time()<$last[0]+30) $message=LNGYouJustSentMessage;
 		$data['message']=strip_tags($data['message']);
 		if(!$message) {
 			$i=preg_match('/[a-z0-9_\.-]+\.(ru|com|net|org|name|su|biz|info|us)([^a-z]{1}.*?)?$/i',$data['message'],$res);
-			if($i) $message='Пожалуйста, не указывайте в чате какие-либо сайты.';
+			if($i) $message=LNGPleaseDontWriteSites;
 		}
 		if(!$message) {
 			$db=core::db();
 			if($db->fetchValue('SELECT 1 FROM chatBan WHERE ip='.$db->escape($this->_ip()).' AND date>'.time())) {
-				$message='Извините, но вам временно запрещено оставлять сообщения.';
+				$message=LNGSorryYouBanned;
 			}
 		}
 		//Если сообщение валидно, то сохранить новое сообщение

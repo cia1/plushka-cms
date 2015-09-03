@@ -102,7 +102,7 @@ class email {
 		if($this->_returnPath) $mime.='Return-path: '.$this->_returnPath."\n";
 		$mime.="MIME-Version: 1.0\n".$this->_buildMultipart();
 		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=','',$mime)) {
-			controller::$error='Не удалось отправить электронное письмо';
+			controller::$error=LNGCouldnotSendLetter;
 			return false;
 		}
 		return true;
@@ -124,48 +124,48 @@ class email {
 		if(!$this->_parseAnswer($socket,'220')) return false;
 		fputs($socket,'HELO '.$this->_smtpHost."\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error='Ошибка отправки smtp #250';
+			controller::$error=LNGSMTPError.' #250';
 			return false;
 		}
 		fputs($socket,"AUTH LOGIN\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			controller::$error='Ошибка отправки smtp #334-1';
+			controller::$error=LNGSMTPError.' #334-1';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpUser)."\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			controller::$error='Ошибка отправки smtp #334-2';
+			controller::$error=LNGSMTPError.' #334-2';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpPassword)."\r\n");
 		if(!$this->_parseAnswer($socket,'235')) {
-			controller::$error='Ошибка отправки smtp #235';
+			controller::$error=LNGSMTPError.' #235';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'MAIL FROM: <'.$this->_smtpEmail.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error='Ошибка отправки smtp #250-1';
+			controller::$error=LNGSMTPError.' #250-1';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'RCPT TO: <'.$email.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error='Ошибка отправки smtp #250-2';
+			controller::$error=LNGSMTPError.' #250-2';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,"DATA\r\n");
 		if(!$this->_parseAnswer($socket,'354')) {
-			controller::$error='Ошибка отправки smtp #354';
+			controller::$error=LNGSMTPError.' #354';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,$s."\r\n.\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error='Ошибка отправки smtp #250-3';
+			controller::$error=LNGSMTPError.' #250-3';
 			fclose($socket);
 			return false;
 		}

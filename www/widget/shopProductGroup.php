@@ -13,7 +13,7 @@ class widgetShopProductGroup extends widget {
 			echo '<div class="item">
 			<a href="'.$item['link'].'"><p class="title">'.$item['title'].'</p>
 			<img src="'.$url.$item['mainImage'].'" alt="'.$item['title'].'" /></a>
-			<span class="price">'.$item['price'].' руб.</span>
+			<span class="price">'.$item['price'].' '.LNGcurrency.'</span>
 			</div>';
 		}
 	}

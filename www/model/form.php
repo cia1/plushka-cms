@@ -29,12 +29,12 @@ class mForm extends form {
 				$data=explode('|',$this->field[$i]['data']);
 				for($y=0,$cntY=count($data);$y<$cntY;$y++) $data[$y]=array($data[$y],$data[$y]);
 				if($type=='select' && !$this->field[$i]['required']) {
-					array_unshift($data,array('','(выбрать)'));
+					array_unshift($data,array('','('.LNGselect.')'));
 				}
 				$this->field[$i]['data']=$data;
 			}
 		}
-		$this->submit('Отправить');
+		$this->submit(LNGSend);
 		return true;
 	}
 
@@ -59,6 +59,7 @@ class mForm extends form {
 	/* Выполняет настроенное действие по обработке формы
 	$id - идентификатор формы, $data - данные (из $_POST) */
 	public function execute($id,$data) {
+		core::language('form');
 		$this->data=$data;
 		$db=core::db();
 		$this->form=$db->fetchArrayOnceAssoc('SELECT title,email,subject,redirect,script FROM frmForm WHERE id='.$id);
@@ -78,7 +79,7 @@ class mForm extends form {
 			$value=$data[$fldName];
 			if($item[2]=='file') {
 				if($item[4] && !$data['fld'.$item[0]]['size']) {
-					controller::$error='Поле &laquo;'.$item[1].'&raquo; не может быть пустым';
+					controller::$error=sprintf(LNGFieldCannotByEmpty,$item[1]);
 					return false;
 				}
 				if($item[3]) {
@@ -86,7 +87,7 @@ class mForm extends form {
 					$ext=strtolower($data['fld'.$item[0]]['name']);
 					$ext=substr($ext,strrpos($ext,'.')+1);
 					if(!in_array($ext,$type)) {
-						controller::$error='Файл в поле &laquo;'.$item[1].'&raquo; имеет недопустимый тип';
+						controller::$error=LNGFileTypeNotSupport;
 						return false;
 					}
 				}
@@ -95,7 +96,7 @@ class mForm extends form {
 			if($item[2]=='radio' || $item[2]=='select') {
 				$d=explode('|',$item[3]);
 				if(array_search($value,$d)===false) {
-					controller::$error='Неверное значение для поля &laquo;'.$item[1].'&raquo;';
+					controller::$error=sprintf(LNGFieldIllegalValue,$item[1]);
 					return false;
 				}
 			}
@@ -117,7 +118,7 @@ class mForm extends form {
 		}
 		//Отправить письмо, если задан e-mail адрес.
 		if($this->form['email']) {
-			if(!$this->form['subject']) $this->form['subject']='Сообщение с сайта '.$_SERVER['HTTP_HOST'];
+			if(!$this->form['subject']) $this->form['subject']=sprintf(LNGMessageFromSite,$_SERVER['HTTP_HOST']);
 			core::import('core/email');
 			$e=new email();
 			$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
@@ -132,7 +133,7 @@ class mForm extends form {
 				else $s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';
 			}
 			$s.='</table>';
-			$e->message('<p>Новое сообщение на сайте <a href="http://'.$_SERVER['HTTP_HOST'].core::url().'">'.$_SERVER['HTTP_HOST'].core::url().'</a></p><hr />'.$s);
+			$e->message('<p>'.sprintf(LNGNewMessageOnSite,'<a href="http://'.$_SERVER['HTTP_HOST'].core::url().'">'.$_SERVER['HTTP_HOST'].core::url().'</a>').'</p><hr />'.$s);
 			if(!$e->send($this->form['email'])) return false;
 		}
 		return true;

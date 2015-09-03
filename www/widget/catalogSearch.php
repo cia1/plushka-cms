@@ -8,7 +8,7 @@ class widgetCatalogSearch extends widget {
 		//Перечислить все поля, по которым должен быть выполнен поиск и подготовленные данные загрузить в $this->data
 		$this->data=array();
 		foreach($this->options['fld'] as $id=>$item) {
-			if($id=='title') $item=array('id'=>$id,'title'=>'Заголовок','type'=>'string'); else {
+			if($id=='title') $item=array('id'=>$id,'title'=>LNGTitle,'type'=>'string'); else {
 				if(!is_array($item)) $item=array();
 				$item['id']=$id;
 				$item['title']=$this->layout['data'][$id][0];
@@ -58,7 +58,7 @@ class widgetCatalogSearch extends widget {
 		static $index;
 		$index++;
 		?>
-		от:&nbsp;&nbsp;
+		<?=LNGfrom?>&nbsp;&nbsp;
 		<select id="cir<?=$index?>-1" class="range1" onchange="document.getElementById('cir<?=$index?>').value=this.value+'-'+document.getElementById('cir<?=$index?>-2').value;"><option value="">&nbsp;</option>';
 		<?php for($i=$data['min'];$i<=$data['max'];$i+=$data['step']) {
 			echo '<option value="'.$i.'"'.($i==$data['value'][0] ? ' selected="selected"' : '').'>'.$i.'</option>';
@@ -66,7 +66,7 @@ class widgetCatalogSearch extends widget {
 		if($i!=$data['max']) echo '<option value="'.$data['max'].'"'.($data['max']==$data['value'][0] ? ' selected="selected"' : '').'>'.$data['max'].'</option>';
 		?>
 		</select>
-		&nbsp;&nbsp;&nbsp;&nbsp;до:&nbsp;&nbsp;<select id="cir<?=$index?>-2" class="range2" onchange="document.getElementById('cir<?=$index?>').value=document.getElementById('cir<?=$index?>-1').value+'-'+this.value;"><option value="">&nbsp;</option>
+		&nbsp;&nbsp;&nbsp;&nbsp;<?=LNGto?>&nbsp;&nbsp;<select id="cir<?=$index?>-2" class="range2" onchange="document.getElementById('cir<?=$index?>').value=document.getElementById('cir<?=$index?>-1').value+'-'+this.value;"><option value="">&nbsp;</option>
 		<?php for($i=$data['min'];$i<=$data['max'];$i+=$data['step']) {
 			echo '<option value="'.$i.'"'.($i==$data['value'][1] ? ' selected="selected"' : '').'>'.$i.'</option>';
 		}

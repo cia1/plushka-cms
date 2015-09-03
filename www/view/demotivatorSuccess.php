@@ -1,3 +1,3 @@
-<p>Демотиватор успешно создан, вот он:</p>
+<p><?=LNGDemotivatorCreatedHere?></p>
 <img src="<?=$this->link?>" style="margin:0 auto;" />
-<p><br /><br />Ссылка: http://<?=$_SERVER['HTTP_HOST'].$this->link?></p>
+<p><br /><br /><?=LNGLink?>: http://<?=$_SERVER['HTTP_HOST'].$this->link?></p>

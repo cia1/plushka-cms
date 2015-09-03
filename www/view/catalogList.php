@@ -1,7 +1,7 @@
 <div id="catalog" itemscope itemtype="https://schema.org/DataCatalog">
 <?php if($this->text1) echo '<div class="text1" itemprop="about">',$this->text1,'</div>'; ?>
 <?php if(!$this->data) {
-	echo '<p><i>По вашему запросу ничего не найдено.</i></p>';
+	echo '<p><i>'.LNGThereIsNothingToYourRequest.'</i></p>';
 } ?>
 <?php foreach($this->data as $item) {
 	?>
@@ -13,7 +13,7 @@
 			catalog::render($fld); //генерирует HTML-код поля
 			echo '</p>';
 		}
-		if($item['link']) echo '<!--noindex--><a class="readmore" href="',$item['link'],'">Подробнее...</a><!--/noindex-->';
+		if($item['link']) echo '<!--noindex--><a class="readmore" href="',$item['link'],'">'.LNGDetails.'</a><!--/noindex-->';
 		?>
 	</div>
 <?php } ?>

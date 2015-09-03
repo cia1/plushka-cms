@@ -2,12 +2,12 @@
 
 <?php
 if(count($_SESSION['cart'])) { ?>
-	<h2>Оформить заявку</h2>
+	<h2><?=LNGMakeRequest?></h2>
 	<?php $this->form->render('checkout/checkout'); ?>
 <?php } ?>
 <script>
 function shpCartDelete(id) {
-	if(!confirm('Подтвердите удаление товара из корзины')) return false;
+	if(!confirm('<?=LNGConfirmProductDeliting?>')) return false;
 	var cart=$('#_cart');
 	cart.html('<img src="<?=core::url()?>public/icon/loadingBig.gif" id="_load" style="display:block;margin:'+(cart.height()/2-10)+'px auto;" />');
 	$.get('<?=core::url()?>index2.php?controller=checkout&action=cart&delete='+id,function(html) {

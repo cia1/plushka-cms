@@ -44,7 +44,7 @@ class sController extends controller {
 		if(!isset($this->image)) { //шаг 2 (ввод надписи)
 			if($this->cfg['userGroup'] && $this->cfg['userGroup']=core::userGroup()) core::redirect('user/login');
 			$f=core::form();
-			$f->file('image','Загрузить изображение');
+			$f->file('image',LNGUploadImage);
 			$f->submit(null,'submit');
 			$view=$f;
 		} else { //шаг 1 (загрузка изображения)
@@ -60,7 +60,7 @@ class sController extends controller {
 			$this->script('jquery.min');
 		}
 
-		$this->pageTitle=$this->metaTitle='Конструктор';
+		$this->pageTitle=$this->metaTitle=LNGDesigner;
 		$this->style('demotivator');
 		return $view;
 	}
@@ -71,7 +71,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbConstruct() {
-		return array('<a href="'.core::link('demotivator').'">Демотиваторы</a>');
+		return array('<a href="'.core::link('demotivator').'">'.LNGDemotivators.'</a>');
 	}
 
 	public function adminConstructLink() {
@@ -85,13 +85,13 @@ class sController extends controller {
 		if(!isset($_SESSION['demId'])) core::redirect('demotivator/construct');
 		$f=core::form();
 		$f->hidden('id',$id);
-		if(!core::userId()) $f->text('author','Имя автора');
-		$f->text('title','Название');
+		if(!core::userId()) $f->text('author',LNGAuthorName);
+		$f->text('title',LNGDemotivatorName);
 		$f->submit();
 		$this->f=$f;
 		$this->img=(int)$this->url[2].'.jpg';
 
-		$this->pageTitle=$this->metaTitle='Создание демотиватора';
+		$this->pageTitle=$this->metaTitle=LNGDemotivatorCreating;
 		$this->style('demotivator');
 		return 'Rename';
 	}
@@ -109,7 +109,7 @@ class sController extends controller {
 		if(!$m->save(array(
 			'id'=>array('primary'),
 			'author'=>array('string'),
-			'title'=>array('string','название',true,'min'=>2),
+			'title'=>array('string',LNGDemotivatorname,true,'min'=>2),
 			'status'=>array('boolean')
 		))) return false;
 		core::redirect('demotivator/success/'.$this->url[2]);
@@ -118,12 +118,12 @@ class sController extends controller {
 	/* Сообщение об успешно созданном демотиваторе, ссылка на картинку */
 	public function actionSuccess() {
 		$this->link=core::url().'public/demotivator/'.(int)$this->url[2].'.jpg';
-		$this->pageTitle=$this->metaTitle='Демотиватор создан';
+		$this->pageTitle=$this->metaTitle=LNGDemotivatorCreated;
 		return 'Success';
 	}
 
 	public function breadcrumbSuccess() {
-		return array('<a href="'.core::link('demotivator').'">Демотиваторы</a>');
+		return array('<a href="'.core::link('demotivator').'">'.LNGDemotivators.'</a>');
 	}
 
 

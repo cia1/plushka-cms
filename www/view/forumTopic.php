@@ -20,11 +20,11 @@
 	</div>
 <?php } ?>
 <?php if(!$this->topic['status']) { ?>
-	<p style="font-style:italic;">Тема закрыта.</p>
+	<p style="font-style:italic;"><?=LNGTopicClosed?></p>
 <?php } ?>
 <?php if(isset($this->formReply)) { ?>
-	<p class="title">Быстрый ответ</p>
-	<p>Вы можете использовать следующие теги: <label title="[b]текст выделен жирным[/b]">[b]</label>, <label title="[i]текст выделен курсивом[/i]">[i]</label>, <label title="[u]подчёркнутый текст[/u]">[u]</label>, <label title="[img]http://адрес рисунка[/img]">[img]</label></p>
+	<p class="title"><?=LNGShorAnswer?></p>
+	<p><?=LNGYouCanUseTags?> <label title="[b]<?=LNGboldText?>[/b]">[b]</label>, <label title="[i]<?=LNGcursiveText?>[/i]">[i]</label>, <label title="[u]<?=LNGunderlineText?>[/u]">[u]</label>, <label title="[img]http://<?=LNGimageLink?>[/img]">[img]</label></p>
 	<?php $this->formReply->render(); ?>
 <?php } ?>
 <div style="clear:both;"></div>

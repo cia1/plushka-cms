@@ -43,7 +43,7 @@ class sController extends controller {
 		$form=$db->fetchArrayOnce('SELECT title,successMessage,redirect FROM frmForm WHERE id='.$this->id);
 		if(!$form) core::error404();
 		if($form[2]) core::redirect($form[2],$form[1]);
-		if(!$form[1]) $this->message='<p>Мы получили ваше сообщение. Большое спасибо за внимание.</p>'; else $this->message=$form[1];
+		if(!$form[1]) $this->message='<p>'.LNGWeGotYourMessage.'</p>'; else $this->message=$form[1];
 		$this->redirect=$form[2];
 
 		$this->pageTitle=$form[0];

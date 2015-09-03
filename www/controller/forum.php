@@ -28,14 +28,14 @@ class sController extends controller {
 		$this->avatar=$db->fetchValue('SELECT avatar FROM forumUser WHERE id='.core::userId());
 		if($this->avatar) $this->avatar=core::url().'public/avatar/'.$this->avatar;
 		$this->form=core::form();
-		$this->form->file('avatar','Загрузить аватар');
-		$this->form->submit('Сохранить','submit');
-		$this->pageTitle=$this->metaTitle='Профайл';
+		$this->form->file('avatar',LNGUploadAvatar);
+		$this->form->submit(LNGSave,'submit');
+		$this->pageTitle=$this->metaTitle=LNGProfile;
 		return 'Profile';
 	}
 
 	public function breadcrumbProfile() {
-		return array('<a href="'.core::link('forum').'">Форум</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>');
 	}
 
 	public function actionProfileSubmit($data) {
@@ -62,14 +62,14 @@ class sController extends controller {
 				'avatar'=>array('string')
 			))) return false;
 		} else unset($data['avatar']);
-		core::redirect('forum/profile','Изменения сохранены');
+		core::redirect('forum/profile',LNGChangesSaved);
 	}
 
 	/* Главная страница */
 	public function actionIndex() {
 		$db=core::db();
 		$this->data=$db->fetchArrayAssoc('SELECT id,title FROM forumCategory ORDER BY sort');
-		$this->pageTitle=$this->metaTitle='Форум';
+		$this->pageTitle=$this->metaTitle=LNGForum;
 		return 'Index';
 	}
 
@@ -113,7 +113,7 @@ class sController extends controller {
 
 	/* Хлебные крошки */
 	public function breadcrumbCategory() {
-		return array('<a href="'.core::link('forum').'">Форум</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>');
 	}
 
 	/* Интерфейс администратора */
@@ -132,9 +132,9 @@ class sController extends controller {
 		$f=core::form();
 		$f->action='forum/'.$this->categoryId.'/post';
 		$f->text('title','Тема');
-		$f->textarea('message','Текст сообщения');
+		$f->textarea('message',LNGMessageText);
 		$f->submit();
-		$this->pageTitle=$this->metaTitle='Новая тема';
+		$this->pageTitle=$this->metaTitle=LNGNewTopic;
 		return $f;
 	}
 
@@ -142,7 +142,7 @@ class sController extends controller {
 		if(!core::userGroup()) core::redirect('user/login');
 		$db=core::db();
 		if(!$db->fetchValue('SELECT newTopic FROM forumCategory WHERE id='.$this->categoryId)) {
-			controller::$error='В этом разделе форума нельзя открывать новые темы';
+			controller::$error=LNGNewTopicsForbiddenThisCategory;
 			return false;
 		}
 		core::import('core/model');
@@ -155,16 +155,16 @@ class sController extends controller {
 			'id'=>array('primary'),
 			'categoryId'=>array('integer'),
 			'userId'=>array('integer'),
-			'title'=>array('string','тема',true,'min'=>7,'max'=>200),
+			'title'=>array('string',LNGtopic,true,'min'=>7,'max'=>200),
 			'date'=>array('integer'),
-			'message'=>array('string','текст сообщения',true,'min'=>10,'mix'=>2000)
+			'message'=>array('string',LNGmessageText,true,'min'=>10,'mix'=>2000)
 		))) return false;
 		$db->query('UPDATE forumUser SET postCount=postCount+1 WHERE id='.core::userId()); //счётчик сообщений пользователя
-		core::redirect('forum/'.$this->categoryId.'/'.$model->id,'Тема создана');
+		core::redirect('forum/'.$this->categoryId.'/'.$model->id,LNGTopicCreated);
 	}
 
 	public function breadcrumbNewTopic() {
-		return array('<a href="'.core::link('forum').'">Форум</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>');
 	}
 
 	/* Форум - Категория - Тема */
@@ -206,7 +206,7 @@ class sController extends controller {
 		if($this->topic['status'] && core::userGroup() && $this->newPost) { //если тема открыта и пользователь авторизован
 			$this->formReply=core::form();
 			$this->formReply->action='forum/'.$this->categoryId.'/'.$this->topicId.'/post';
-			$this->formReply->textarea('message','Текс сообщения');
+			$this->formReply->textarea('message',LNGMessageText);
 			$this->formReply->submit();
 		}
 		return 'Topic';
@@ -214,7 +214,7 @@ class sController extends controller {
 
 	/* Хлебные крошки */
 	public function breadcrumbTopic() {
-		return array('<a href="'.core::link('forum').'">Форум</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>');
 	}
 
 	public function adminTopicLink() {
@@ -242,20 +242,20 @@ class sController extends controller {
 		$this->categoryTitle=$data[1];
 		$f=core::form();
 		$f->action='forum/'.$this->categoryId.'/'.$this->topicId.'/post';
-		$f->textarea('message','Текст сообщения');
+		$f->textarea('message',LNGMessageText);
 		$f->submit();
-		$this->pageTitle=$this->metaTitle='Новое сообщение';
+		$this->pageTitle=$this->metaTitle=LNGNewMessage;
 		return $f;
 	}
 
 	public function breadcrumbNewPost() {
-		return array('<a href="'.core::link('forum').'">Форум</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','<a href="'.core::link('forum/'.$this->categoryId.'/'.$this->topicId).'">'.$this->topicTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','<a href="'.core::link('forum/'.$this->categoryId.'/'.$this->topicId).'">'.$this->topicTitle.'</a>');
 	}
 
 	public function actionNewPostSubmit($data) {
 		$db=core::db();
 		if(!$db->fetchValue('SELECT newPost FROM forumCategory WHERE id='.$this->categoryId)) {
-			controller::$error='В этой ветке запрещено писать сообщения';
+			controller::$error=LNGThisTopcWrittingForbidden;
 			return false;
 		}
 		if(!core::userGroup()) core::redirect('user/login'); //писать сообщения могут только зарегистрированные пользователи
@@ -270,7 +270,7 @@ class sController extends controller {
 			'topicId'=>array('integer'),
 			'userId'=>array('integer'),
 			'date'=>array('integer'),
-			'message'=>array('string','текст сообщения',true,'min'=>2)
+			'message'=>array('string',LNGmessageText,true,'min'=>2)
 		))) return false;
 		$db->query('UPDATE forumTopic SET lastDate='.time().',postCount=postCount+1 WHERE id='.$this->topicId);
 		$db->query('UPDATE forumUser SET postCount=postCount+1 WHERE id='.core::userId());
@@ -288,13 +288,13 @@ class sController extends controller {
 		$this->date=$data[2];
 		$this->postCount=$data[3];
 		$this->status=(bool)$data[4];
-		$this->pageTitle='Пользователь &laquo;'.$data[0].'&raquo;';
-		$this->metaTitle='Пользователь '.$data[0];
+		$this->pageTitle=LNGUser.' &laquo;'.$data[0].'&raquo;';
+		$this->metaTitle=LNGUser.' '.$data[0];
 		return 'User';
 	}
 
 	public function breadcrumbUser() {
-		return array('<a href="'.core::link('forum').'">Форум</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>');
 	}
 
 	public function adminUserLink() {

@@ -6,7 +6,7 @@ class sController extends controller {
 	public function actionIndexSubmit($data) {
 		if(core::userGroup()) { //Если пользователь авторизован, то в качестве имени использовать его логин
 			$u=core::user();
-			if($u->group<200) $name=$u->login; else $name='Администратор';
+			if($u->group<200) $name=$u->login; else $name=LNGAdministrator;
 		} else $name=$data['name'];
 		$link=$data['link']; //Олицетворяет страницу, для которой добавляется комментарий
 		$db=core::db();
@@ -19,14 +19,14 @@ class sController extends controller {
 		$text=$data['text'];
 		if($u->group<200) {
 			$name=strip_tags($name);
-			if(strpos($name,'www.')!==false || strpos($name,'http://')!==false) die('Имя указано неправильно');
+			if(strpos($name,'www.')!==false || strpos($name,'http://')!==false) die(LNGCommentUserNameIsWrong);
 			$text=strip_tags($text);
-			if(strpos($text,'www.')!==false || strpos($text,'http://')!==false) die('Любые ссылки в комментариях запрещены');
+			if(strpos($text,'www.')!==false || strpos($text,'http://')!==false) die(LNGAnyLinksForbiddenInComments);
 		}
-		if(!$name) die('Обязательно укажите ваше имя');
-		if(!$text) die('Текст комментария не может быть пустым');
+		if(!$name) die(LNGUserNameNecessary);
+		if(!$text) die(LNGCommentTextCannotBeEmpty);
 		if(!core::userId()) { //Каптча только для неавторизованных пользователей
-			if($data['captcha']!=$_SESSION['captcha']) die('Проверочный код введён неверно');
+			if($data['captcha']!=$_SESSION['captcha']) die(LNGCaptchaIsWrong);
 		}
 		$cfg=core::config('comment');
 		$db->query('INSERT INTO comment (groupId,userId,date,name,text,status,ip) VALUES ('.$groupId.','.(int)$u->id.','.time().','.$db->escape($name).','.$db->escape($text).','.$cfg['status'].','.$db->escape($this->_ip()).')');

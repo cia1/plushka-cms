@@ -16,7 +16,7 @@ class widgetChat extends widget {
 			echo '<p><span class="time">'.date('H:i',$item[0]).'</span><span class="name">'.$item[1].'</span>: '.$item[2].'</p>';
 		}
 		echo '</div>';
-		echo '<a href="'.core::link('chat/'.$this->options['id']).'">Поболтать</a>';
+		echo '<a href="'.core::link('chat/'.$this->options['id']).'">'.LNGHaveJaw.'</a>';
 	}
 
 }

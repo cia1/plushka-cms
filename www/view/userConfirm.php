@@ -1,3 +1,3 @@
 <?php if(!controller::$error) { ?>
-<p>Адрес электронной почты подтверждён. Вы вошли как <?=$this->login?>.
+<p><?=sprintf(LNGEmailConfirmedYouLoggedIn,$this->login)?>.
 <?php } ?>

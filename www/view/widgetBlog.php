@@ -5,7 +5,7 @@ foreach($this->itemsPreview as $i=>$item) { ?>
 		<?php $this->admin($item); ?>
 		<p class="title"><?=$item['title']?></p>
 		<?=$item['text1']?>
-		<a href="<?=core::link('article/blog/'.$this->categoryAlias.'/'.$item['alias'])?>" class="readmore">Читать далее...</a>
+		<a href="<?=core::link('article/blog/'.$this->categoryAlias.'/'.$item['alias'])?>" class="readmore"><?=LNGReadMore?></a>
 	</div>
 <?php }
 

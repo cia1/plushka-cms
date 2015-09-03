@@ -136,13 +136,15 @@ class core {
 	public static function link($link) {
 		static $_link;
 		static $_main;
+		static $_lang;
 		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://') return $link;
 		if(!isset($_link)) {
 			$cfg=core::config();
 			$_link=$cfg['link'];
 			$_main=$cfg['mainPath'];
+			if(_LANG==$cfg['languageDefault']) $_lang=''; else $_lang=_LANG.'/';
 		}
-		if($link==$_main) return core::url();
+		if($link==$_main) return core::url().$_lang;
 		$i=strpos($link,'?');
 		if($i) {
 			$end=substr($link,$i);
@@ -157,7 +159,7 @@ class core {
 			$len2=strlen($s);
 			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 		}
-		return core::url().$link.$end;
+		return core::url().$_lang.$link.$end;
 	}
 
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
@@ -182,6 +184,7 @@ class core {
 
 	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
 	public static function error404() {
+		include(core::path().'language/'._LANG.'.global.php');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
 		controller::$self->url[0]='error';
 		$view=controller::$self->error(404);
@@ -409,14 +412,14 @@ class controller {
 		} else $b='';
 		if($this->pageTitle) $b.=' &raquo; '.$this->pageTitle;
 		if(!$b) return;
-		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().'" rel="nofollow">Главная</a>'.$b.'</div>';
+		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
 	}
 
 	/* Служебный метод, используется при провоцировании HTTP-ошибок (только 404) */
 	public function error($code) {
 		switch($code) {
 		case '404':
-			$this->pageTitle='Страница не найдена';
+			$this->pageTitle=LNGPageNotFound;
 			break;
 		}
 		return $code;
@@ -499,6 +502,7 @@ class user {
 /* С этой функции начинается вся основная работа */
 function runApplication($renderTemplate=true) {
 	session_start();
+	include(core::path().'language/'._LANG.'.global.php');
 	$user=core::userCore();
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
@@ -527,8 +531,20 @@ function runApplication($renderTemplate=true) {
 /* --- INITIALIZE --- */
 if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
 
-//Обработать запрошенный URL и положить его в $_GET['corePath']
+//Поиск языка в URL-адресе
+$lang=strpos($_GET['corePath'],'/');
 $cfg=core::config();
+if(!$lang || !isset($cfg['languageList'])) define('_LANG',$cfg['languageDefault']);
+else {
+	$lang=substr($_GET['corePath'],0,$lang);
+	if(in_array($lang,$cfg['languageList'])) {
+		define('_LANG',$lang);
+		$_GET['corePath']=substr($_GET['corePath'],strlen($lang)+1);
+	} else define('_LANG',$cfg['languageDefault']);
+}
+unset($lang);
+
+//Обработать запрошенный URL и положить его в $_GET['corePath']
 if(!isset($_GET['corePath']) || !$_GET['corePath']) $_GET['corePath']=$cfg['mainPath'];
 else {
 	$_link=array_flip($cfg['link']);
@@ -548,8 +564,9 @@ else {
 		if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 	}
 }
+unset($cfg);
 
-//Перехват if-modified-since
+//Перехват if-modified-since (работает без учёта мультиязычности)
 if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (не для CGI)
 	$db=core::db();
 	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($_GET['corePath']));
