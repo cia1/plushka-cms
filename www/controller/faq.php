@@ -8,6 +8,7 @@ class sController extends controller {
 		$cfg=core::config('faq');
 		if($cfg['keyword']) $this->metaKeyword=$cfg['keyword'];
 		if($cfg['description']) $this->metaDescription=$cfg['description'];
+		core::language('faq');
 	}
 
 	/* Список Вопросов и ответов */

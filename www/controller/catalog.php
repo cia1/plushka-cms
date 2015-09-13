@@ -13,6 +13,7 @@ class sController extends controller {
 		else core::error404();
 		if(count($this->url)==2) $this->url[1]='Index'; else $this->url[1]='View'; //http://example.com/catalog/ИД/элемент_каталога
 		core::import('model/catalog'); //Содержит методы для генерации HTML-представления полей каталога
+		core::language('catalog');
 	}
 
 	/* Список элементов каталога */

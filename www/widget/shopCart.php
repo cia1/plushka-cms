@@ -4,7 +4,10 @@ array $options: bool product - выводить или нет список то�
 bool checkout - ссылка на страницу оформления заказа */
 class widgetShopCart extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('shop');
+		return true;
+	}
 
 	public function render() {
 		if(!$this->options) $this->options=array();

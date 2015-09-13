@@ -7,6 +7,7 @@ class sController extends controller {
 		if($action=='restore' && isset($_GET['code'])) {
 			$this->url[1]='RestoreSendPassword';
 		}
+		core::language('user');
 	}
 
 	/* Личный кабинет */

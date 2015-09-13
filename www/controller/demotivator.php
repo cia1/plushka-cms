@@ -6,6 +6,11 @@
 */
 class sController extends controller {
 
+	public function __construct() {
+		parent::__construct();
+		core::language('demotivator');
+	}
+
 	/* Список демотиваторов */
 	public function actionIndex() {
 		$db=core::db();

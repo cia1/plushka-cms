@@ -6,6 +6,11 @@
 */
 class sController extends controller {
 
+	public function __construct() {
+		parent::__construct();
+		core::language('shop');
+	}
+
 	/* Корзина с формой оформления заказа */
 	public function actionIndex() {
 		if(isset($_GET['delete'])) unset($_SESSION['cart'][$_GET['delete']]);

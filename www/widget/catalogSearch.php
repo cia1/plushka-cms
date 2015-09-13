@@ -24,6 +24,7 @@ class widgetCatalogSearch extends widget {
 		}
 		$this->catalogId=$this->options['id'];
 		unset($this->options);
+		core::language('catalog');
 		return 'CatalogSearch';
 	}
 

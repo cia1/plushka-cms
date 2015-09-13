@@ -316,6 +316,14 @@ class core {
 		return true;
 	}
 
+	//Подключает файл локализации
+	public static function language($name) {
+		$f=core::path().'language/'._LANG.'.'.$name.'.php';
+		if(!file_exists($f)) return false;
+		include_once($f);
+		return true;
+	}
+
 	private static function _hook($name,$data) {
 		if(!include(core::path().'hook/'.$name.'.php')) return false; else return true;
 	}

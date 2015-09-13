@@ -4,7 +4,10 @@ array $options: bool form - выводить форму авторизации �
 bool message - Ссылка на личные сообщения */
 class widgetUser extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('user');
+		return true;
+	}
 
 	public function render() {
 		//Значения по умолчанию

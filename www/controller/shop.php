@@ -13,6 +13,7 @@ class sController extends controller {
 			if(isset($this->url[3])) $this->url[1]='product';
 			if(!isset($this->url[2])) $this->url[2]=0; else $this->url[2]=(int)$this->url[2];
 		}
+		core::language('shop');
 	}
 
 	public function actionIndex() { core::error404(); }

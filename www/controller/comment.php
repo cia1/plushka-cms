@@ -2,6 +2,11 @@
 /* Обрабатывает запросы на добавление комментариев. Все визуальные элементы формируются в виджете comment */
 class sController extends controller {
 
+	public function __construct() {
+		parent::__construct();
+		core::language('comment');
+	}
+
 	/* Добавляет комментарий в базу данных. Вызывается AJAX-запросом. */
 	public function actionIndexSubmit($data) {
 		if(core::userGroup()) { //Если пользователь авторизован, то в качестве имени использовать его логин

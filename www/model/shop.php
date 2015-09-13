@@ -8,11 +8,12 @@ class shop {
 		$db=core::db();
 		$db->query('SELECT id,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
 		$data=array(0=>array('child'=>array()));
-		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'title'=>$item[2],'parent'=>$item[1],'image'=>$item[3],'child'=>array());
+		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'title'=>$item[2],'parentId'=>$item[1],'image'=>$item[3],'child'=>array());
 		foreach($data as $id=>&$item) {
 			if($id==0) continue;
-			$parentId=$item['parent'];
-			unset($item['parent']);
+			$item['id']=(int)$item['id'];
+			$parentId=(int)$item['parentId'];
+//			unset($item['parent']);
 			$data[$parentId]['child'][]=&$item;
 		}
 		$data['ROOT']=$data[0]['child'];

@@ -11,6 +11,7 @@ class sController extends controller {
 			$this->url[1]='Index';
 		}
 		if(!$this->id) core::error404();
+		core::language('chat');
 	}
 
 	/* Основное окно чата (без сообщений) */

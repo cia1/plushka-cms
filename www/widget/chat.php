@@ -3,7 +3,10 @@
 array $options: int id - идентификатор чата; int count - количество сообщений */
 class widgetChat extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('chat');
+		return true;
+	}
 
 	public function render() {
 		echo '<link rel="stylesheet" type="text/css" href="'.core::url().'public/css/chat.css" />';

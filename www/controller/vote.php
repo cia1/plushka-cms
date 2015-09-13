@@ -6,6 +6,7 @@ class sController extends controller {
 		parent::__construct();
 		$this->id=(int)$this->url[1]; //идентификатор опроса
 		$this->url[1]='Index';
+		core::language('vote');
 	}
 
 	/* Выводит результаты опроса */

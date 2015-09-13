@@ -23,7 +23,7 @@
 	<p style="font-style:italic;"><?=LNGTopicClosed?></p>
 <?php } ?>
 <?php if(isset($this->formReply)) { ?>
-	<p class="title"><?=LNGShorAnswer?></p>
+	<p class="title"><?=LNGShortAnswer?></p>
 	<p><?=LNGYouCanUseTags?> <label title="[b]<?=LNGboldText?>[/b]">[b]</label>, <label title="[i]<?=LNGcursiveText?>[/i]">[i]</label>, <label title="[u]<?=LNGunderlineText?>[/u]">[u]</label>, <label title="[img]http://<?=LNGimageLink?>[/img]">[img]</label></p>
 	<?php $this->formReply->render(); ?>
 <?php } ?>

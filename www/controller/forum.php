@@ -19,6 +19,7 @@ class sController extends controller {
 			$this->url[1]='User';
 		}
 		$this->style('forum');
+		core::language('forum');
 	}
 
 	/* Настройки профиля пользователя */

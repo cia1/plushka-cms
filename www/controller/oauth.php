@@ -10,6 +10,7 @@ class sController extends controller {
 			$this->id=$_GET['corePath'][1];
 			$this->url[1]='Redirect';
 		}
+		core::language('oauth');
 	}
 
 	/* Редирект на сервер авторизации (соц.сеть) для запроса разрешений */

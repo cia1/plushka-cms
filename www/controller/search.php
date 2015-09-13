@@ -4,6 +4,11 @@
  */
 class sController extends controller {
 
+	function __construct() {
+		parent::__construct();
+		core::language('search');
+	}
+
 	public function actionIndex() {
 		if(isset($_GET['keyword'])) $this->keyword=$_GET['keyword'];
 		else $this->keyword=null;

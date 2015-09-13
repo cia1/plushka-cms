@@ -1,6 +1,7 @@
 <?php
 /* Модель "универсальная форма", может быть использована другими модулями */
 core::import('core/form');
+core::language('form');
 class mForm extends form {
 
 	public $title;
