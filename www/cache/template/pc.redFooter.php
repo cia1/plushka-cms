@@ -14,6 +14,8 @@
 		<div style="clear: both;">&nbsp;</div>
 	</div>
 
-	<footer><?=core::section('footer')?></footer>
+	<footer>
+		<p>Copyleft 2013 ;)</p>
+	</footer>
 
 </body></html>

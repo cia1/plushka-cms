@@ -3,7 +3,7 @@ body {background: #3C424C url(img01.jpg) repeat-x left top;}
 h1,h2,h3 {font-weight:normal;color:#549900;}
 h1 {margin-bottom:10px;font-size:18px;border-bottom:1px solid #E0E0E0;}
 h2 {padding:15px 0 12px 0;font-size:1.5em;}
-.title,p.title a {text-decoration:none;font-size:17px;line-height:120%;color:#238EC6;}
+.title,section header,p.title a,section header a {text-decoration:none;font-size:17px;line-height:120%;color:#238EC6;}
 p,ul,ol {padding:0;line-height:180%;text-align:justify;}
 a {color:#639CBF;}
 a:hover {text-decoration:none;}
@@ -35,10 +35,10 @@ span.date {float:right;margin-top:-18px;font-style:italic;}
 div.errorMessage {margin:15px 0;padding:10px;background:#a00;border:1px solid #000000;color:white;}
 div.successMessage {margin:15px 0;padding:10px;background:#0a0;border:1px solid #000000;color:white;}
 
-#head {width:1000px;height:140px;margin:0 auto;padding:0px;background:url(img02.jpg) no-repeat left top;}
-#head .widgetsearch {float:right;margin-top:30px;}
-#head .widgetsearch input {padding:3px 0 3px 3px;border:1px solid black;}
-#head .widgetsearch .button {height:23px;margin:0;}
+body > header {width:1000px;height:140px;margin:0 auto;padding:0px;background:url(img02.jpg) no-repeat left top;}
+body > header .widgetsearch {float:right;margin-top:30px;}
+body > header .widgetsearch input {padding:3px 0 3px 3px;border:1px solid black;}
+body > header .widgetsearch .button {height:23px;margin:0;}
 #breadcrumb {margin-bottom:13px;padding-left:5px;}
 
 #header {width:1000px;height:50px;margin:0 auto;padding:0;}
@@ -59,10 +59,10 @@ ul.menu li.active li {font-weight:normal;}
 #slider1 .inner {background:white;padding:5px;}
 
 #page {width:960px;margin:0 auto;padding:20px 20px 0 20px;background: #C1D6E2 url(img03.jpg) repeat-x left bottom;}
-#content {float:left;width:640px;}
-#content .category .item,#content
-#content p {padding-bottom:3px;}
-#content ul,#content ol {margin-left:16px;}
+main {float:left;width:640px;}
+main .category .item,main
+main p {padding-bottom:3px;}
+main ul,main ol {margin-left:16px;}
 .product .item {float:left;width:33%;text-align:center;}
 .product .item {margin:5px 0 15px 0;}
 .product .item:nth-child(1),.product .item:nth-child(2) {border-right:1px solid #eee;}
@@ -81,44 +81,44 @@ p.sort {padding-bottom:15px;}
 .blog .item,#catalog .item {margin-bottom:20px;}
 .widgetopenid a {text-decoration:none;}
 
-#sidebar {float:right;width:280px;font-family: Arial, Helvetica, sans-serif;font-size:12px;}
-#sidebar section {margin-bottom:20px;padding:10px;background:white;border:1px solid #8D9AB0;}
-#sidebar h4 {height:32px;margin:0 0 10px 0;padding:8px 0 2px 15px;background: url(img05.jpg) repeat-x left top;text-transform: capitalize;font-size: 18px;font-weight: normal;color: #FFFFFF;}
-#sidebar li {margin-bottom:20px;padding:10px 10px 10px 10px;background:white;border:1px solid #8D9AB0;}
-#sidebar ul {margin:0;padding:0;list-style-type:none;line-height:normal;border:none;}
-#sidebar li {margin:0;padding:10px 0;border:none;background: url(img06.jpg) repeat-x left bottom;}
-#sidebar ul li a {padding:0 0 0 30px;font-weight:normal;border: none;background: url(img07.jpg) no-repeat 15px 4px;}
-#sidebar ul li:last-child {background:transparent;}
-#sidebar ul ul {margin-left:20px;}
-#sidebar li.active a {font-weight:bold;}
-#sidebar li.active li a {font-weight:normal;}
-#sidebar a {text-decoration:none;font-weight:bold;color:#666666;}
-#sidebar .item {margin-bottom:20px;}
-#sidebar .link {margin-bottom:5px;}
-#sidebar dl.form {width:100%;}
-#sidebar dl.form dt {width:32%;}
-#sidebar dl.form dd {width:66%;float:right;}
-#siadebar .widgetvote dt.radio {display:none;}
-#sidebar .widgetvote dd.radio {width:100%;text-align:left;}
-#sidebar dd.radio input {margin-right:4px;}
+aside {float:right;width:280px;font-family: Arial, Helvetica, sans-serif;font-size:12px;}
+aside section {margin-bottom:20px;padding:10px;background:white;border:1px solid #8D9AB0;}
+aside h4 {height:32px;margin:0 0 10px 0;padding:8px 0 2px 15px;background: url(img05.jpg) repeat-x left top;text-transform: capitalize;font-size: 18px;font-weight: normal;color: #FFFFFF;}
+aside li {margin-bottom:20px;padding:10px 10px 10px 10px;background:white;border:1px solid #8D9AB0;}
+aside ul {margin:0;padding:0;list-style-type:none;line-height:normal;border:none;}
+aside li {margin:0;padding:10px 0;border:none;background: url(img06.jpg) repeat-x left bottom;}
+aside ul li a {padding:0 0 0 30px;font-weight:normal;border: none;background: url(img07.jpg) no-repeat 15px 4px;}
+aside ul li:last-child {background:transparent;}
+aside ul ul {margin-left:20px;}
+aside li.active a {font-weight:bold;}
+aside li.active li a {font-weight:normal;}
+aside a {text-decoration:none;font-weight:bold;color:#666666;}
+aside .item {margin-bottom:20px;}
+aside .link {margin-bottom:5px;}
+aside dl.form {width:100%;}
+aside dl.form dt {width:32%;}
+aside dl.form dd {width:66%;float:right;}
+aside .widgetvote dt.radio {display:none;}
+aside .widgetvote dd.radio {width:100%;text-align:left;}
+aside dd.radio input {margin-right:4px;}
 .widgetvote dl.form label {display:block;width:100%;padding-top:5px;}
 .widgetvote dl.form input {width:auto;height:auto;}
 .widgetvote dl.form .button {width:122px;height:32px;margin-bottom:15px;}
 .widgetvote #_adminButton17,.widgetvote #_adminButton18 {margin-top:-11px;margin-left:10px;}
 .widgetvote center {padding-top:18px;}
 .widgetuser span.link {clear:both;display:block;width:100%;padding-top:10px;}
-.widgetblog > .title {margin-bottom:10px;}
+.widgetblog > header {margin-bottom:10px;}
 .widgetblog .item .title {text-align:left;font-size:12px;font-weight:bold;}
 .widgetshopProductGroup .item {float:left;width:50%;margin-top:10px;}
 .widgetshopProductGroup .item .title {font-size:13px;padding-bottom:5px;}
 .widgetshopProductGroup .price {margin-left:10px;font-weight:bold;}
-.widgetdemotivatorLast .title {margin-bottom:10px;}
+.widgetdemotivatorLast header {margin-bottom:10px;}
 .widgetdemotivatorLast {text-align:center;margin:0 auto;}
 .widgetoauth {text-align:center;}
 .widgetoauth a img {margin: 10px 10px 0 0;}
 
-#footer {width:1000px;height:100px;margin:0 auto;padding:0;}
-#footer p {
+footer {width:1000px;height:100px;margin:0 auto;padding:0;}
+footer p {
 	margin: 0;
 	padding: 30px 0px 0px 0px;
 	text-align: center;
@@ -147,7 +147,7 @@ div.fld8 {float:left;margin-right:10px;}
 #commentList .item {margin-bottom:12px;}
 #commentList .item p {padding-left:10px;}
 #commentList .name {font-weight:bold;font-style:italic;}
-.widgetcomment p.title {padding-bottom:10px;}
+.widgetcomment header {padding-bottom:10px;}
 #commentList .date {margin-top:0;font-size:0.9em;}
 
 .category .item {float:left;width:33%;text-align:center;}

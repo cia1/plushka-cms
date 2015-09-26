@@ -45,7 +45,7 @@ class widgetMenu extends widget {
 	public function render($d,$child=false) {
 		if(!$child) echo '<nav>';
 		if($d===true) $d=$this->data[0];
-		echo '<ul class="menu'.($child ? '' : ' menu'.$this->options).'">';
+		echo '<ul>';
 		for($i=0,$cnt=count($d);$i<$cnt;$i++) {
 			$item=$d[$i];
 			echo '<li class="item'.$i;

@@ -17,10 +17,8 @@ class sController extends controller {
 		$f->text('keyword','meta Ключевые слова',$cfg['keyword']);
 		$f->text('description','meta Описание',$cfg['description']);
 		$f->html('</fieldset><fieldset><legend>Шаблоны писем</legend>');
-		$f->editor('htmlAdmin','Сообщение администратору',$htmlAdmin);
 		$f->editor('htmlAnswer','Ответ пользователю',$htmlAnswer);
 		$f->html('<cite>Вы можете использовать следующие теги:<br /><b>{{siteName}}</b> - название сайта (домен), <b>{{siteLink}}</b> - ссылка на главную страницу сайта, <b>{{date}}</b> - дата вопроса, <b>{{name}}</b> - имя пользователя, <b>{{email}}</b> - адрес электронной почты пользователя, <b>{{question}}</b> - текст вопроса, <b>{{answer}}</b> - текст ответа.</cite>');
-
 		$f->html('</fieldset></div>');
 		$f->submit('Сохранить');
 		$f->html('<script>setTimeout(function() { $(".tab").tab(); },100);</script>');
@@ -33,9 +31,6 @@ class sController extends controller {
 		$cfg->keyword=$data['keyword'];
 		$cfg->description=$data['description'];
 		if(!$cfg->save('faq')) return false;
-		$f=fopen(core::path().'data/email/faq.html','w');
-		fwrite($f,$data['htmlAdmin']);
-		fclose($f);
 		$f=fopen(core::path().'admin/data/email/faqAnswer.html','w');
 		fwrite($f,$data['htmlAnswer']);
 		fclose($f);
@@ -45,13 +40,13 @@ class sController extends controller {
 	/* Список вопросов и ответов. Почти дублирует тот список, что в общедоступной части. */
 	public function actionList() {
 		$db=core::db();
-		$t=&core::table();
+		$t=core::table();
 		$t->rowTh('Имя|Вопрос|Ответ|');
 		$db->query('SELECT id,name,email,question,answer FROM faq ORDER BY date DESC');
 		while($item=$db->fetch()) {
 			$t->text($item[1].' (<a href="mailto:'.$item[2].'">'.$item[2].'</a>)');
-			if(strlen($item[3])>50) $item[3]=substr($item[3],0,47).'...';
-			if(strlen($item[4])>50) $item[4]=substr($item[4],0,47).'...'; elseif(!$item[4]) $item[4]='( нет ответа )';
+			if(strlen($item[3])>50) $item[3]=mb_substr($item[3],0,47,'UTF-8').'...';
+			if(strlen($item[4])>50) $item[4]=mb_substr($item[4],0,47,'UTF-8').'...'; elseif(!$item[4]) $item[4]='( нет ответа )';
 			$t->text($item[3]);
 			$t->link($item[4],'?controller=faq&action=edit&id='.$item[0]);
 			$t->editDelete('?controller=faq&id='.$item[0].'&action=');
@@ -94,7 +89,11 @@ class sController extends controller {
 			$cfg=core::configAdmin();
 			$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 			$e->subject('Ответ на вопрос на сайте '.$_SERVER['HTTP_HOST']);
-			$e->messageTemplate('faqAnswer',array('date'=>date('d.m.Y',$m->date),'name'=>$m->name,'email'=>$m->email,'question'=>$m->question,'answer'=>nl2br($m->answer)));
+			$e->messageTemplate(
+				'faqAnswer',
+				array('date'=>date('d.m.Y',$m->date),'name'=>$m->name,'email'=>$m->email,'question'=>$m->question,'answer'=>nl2br($m->answer)),
+				true
+			);
 			$e->send($m->email);
 			$message='Изменения сохранены. Ответ отправлен на адрес '.$m->email;
 		} else $message='Изменения сохранены';

@@ -11,15 +11,15 @@
 </head>
 <body itemscope itemtype="http://schema.org/WebPage">
 	{{widget[admin]}}
-	<div id="head">
+	<header>
 		<a href="<?=core::url()?>"><img src="<?=core::url()?>public/template/logo1.png" alt="cms0" style="float:left;width:140px;" /></a>
 		{{widget[search]}}
-	</div>
+	</header>
 
 	<div id="header">{{widget[menu][1]}}</div>
 
 	<div id="page">
-		<div id="content">
+		<main>
 			{{breadcrumb}}
 			<div class="block">
 				{{section[top]}}
@@ -29,17 +29,17 @@
 			</div>
 			{{section[bottom]}}
 			<div style="clear:both;"></div>
-		</div>
+		</main>
 
-		<div id="sidebar">
+		<aside>
 			{{widget[user]}}
 			{{widget[oauth][][][Войти через...]}}
 			{{section[right]}}
-		</div>
+		</aside>
 
 		<div style="clear: both;">&nbsp;</div>
 	</div>
 
-	<div id="footer">{{section[footer]}}</div>
+	<footer>{{section[footer]}}</footer>
 
 </body></html>

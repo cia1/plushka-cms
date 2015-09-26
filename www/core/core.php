@@ -447,7 +447,7 @@ class widget {
 	public function __construct($options,$link) { $this->options=$options; $this->link=$link; }
 	public function action() {}
 	public function title($title) { //Заголовок виджета. Используется в основном чтобы дать возможность виджету вставить какую-либо ссылку в заголовок
-		echo '<p class="title">'.$title.'</p>';
+		echo '<header>'.$title.'</header>';
 	}
 	public function adminLink() { return array(); }
 

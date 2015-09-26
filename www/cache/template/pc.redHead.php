@@ -6,6 +6,7 @@
 	<meta name="keywords" content="<?=$this->metaKeyword?>" />
 	<title><?=$this->metaTitle?></title>
 	<link href="<?=core::url()?>public/template/style.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="<?=core::url()?>public/template/red.css" rel="stylesheet" type="text/css" media="screen" />
 	<link rel="shortcut icon" href="<?=core::url()?>favicon.ico" type="image/x-icon" />
 	<?=$this->_head?>
 </head>
@@ -22,6 +23,5 @@
 		<main>
 			<?php $this->breadcrumb(); ?>
 			<div class="block">
-				<?=core::section('top')?>
 				<?php if($this->pageTitle) echo '<h1 class="pageTitle">'.$this->pageTitle.'</h1>'; ?>
 				
