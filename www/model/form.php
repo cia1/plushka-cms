@@ -34,23 +34,25 @@ class mForm extends form {
 				$this->field[$i]['data']=$data;
 			}
 		}
-		$this->submit('Отправить');
 		return true;
 	}
 
 	public function render($action=null,$html=null) {
 		if($action) $this->action=$action;
-		if($this->formView) include(core::path().'view/form'.ucfirst($this->formView).'.php');
-		else { //представление не задано, использовать стандартный рендер базового класса
+		if($this->formView) {
+			$this->formView=null; //render() может быть вызван дважды: один раз из контроллера и один раз из представления, поэтому убрать, чтобы небыло зацикливания
+			include(core::path().'view/form'.ucfirst($this->formView).'.php');
+		} else { //представление не задано, использовать стандартный рендер базового класса
 			//Добавить поля в базовый класс формы
 			for($i=0,$cnt=count($this->field);$i<$cnt;$i++) {
 				$title=$this->field[$i]['title'];
 				if($this->field[$i]['required']) $title.='<span class="required">*</span>';
 				$type=$this->field[$i]['htmlType'];
-				if($type=='radio' || $type=='select' || $type=='listBox') {
-					$this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$this->field[$i]['data']);
-				} else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
+				if($type=='radio' || $type=='select' || $type=='listBox') $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$this->field[$i]['data']);
+				elseif($type=='email') $this->field('text',$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
+				else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
 			}
+			$this->submit('Отправить');
 			unset($this->field);
 			return parent::render(null,$html);
 		}
