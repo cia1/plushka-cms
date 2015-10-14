@@ -40,8 +40,9 @@ class email {
 
 	/* Задаёт текс письма (HTML), используя HTML-шаблон. $data - ассоциативный массив, содержащий данные, которые должны быть подставлены в письмо */
 	public function messageTemplate($fileName,$data) {
-		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
-		$this->_message=file_get_contents(core::path().$adminPath.'data/email/'.$fileName.'.html');
+		if(substr($fileName,0,6)=='admin/') $fileName=core::path().'admin/data/email/'.substr($fileName,6).'.html';
+		else $fileName=core::path().'data/email/'.$fileName.'.'._LANG.'.html';
+		$this->_message=file_get_contents($fileName);
 		$this->_message=str_replace(array('{{siteLink}}','{{siteName}}'),
 			array('http://'.$_SERVER['HTTP_HOST'].core::url(),$_SERVER['HTTP_HOST']),
 			$this->_message

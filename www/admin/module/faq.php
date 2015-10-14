@@ -4,11 +4,11 @@
 'table'=>'faq',
 'file'=>array(
 	'admin/controller/faq.php',
-	'admin/data/email/faqAnswer.html',
+	'data/email/faqAnswer.ru.html',
 	'config/faq.php',
 	'controller/faq.php',
 	'controller/shop.php',
-	'data/email/faq.html',
+	'admin/data/email/faq.html',
 	'public/css/faq.css',
 	'view/faqIndex.php',
 )

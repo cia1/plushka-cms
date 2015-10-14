@@ -49,7 +49,7 @@ class sController extends controller {
 		$e=new email();
 		$e->from($m->email,$m->name);
 		$e->subject(LNGFAQ);
-		$e->messageTemplate('faq',$data);
+		$e->messageTemplate('admin/faq',$data);
 		$cfg=core::config();
 		$e->send($cfg['adminEmailEmail']);
 		if(!$inFrame) core::redirect('faq',LNGThankyouForQuestion);

@@ -37,7 +37,7 @@ if($this->form['email']) {
 	$d['cart'].='</table>';
 	$d['totalQuantity']=$totalQuantity;
 	$d['totalCost']=formatPrice($totalCost);
-	$e->messageTemplate('shopOrderAdmin',$d);
+	$e->messageTemplate('admin/shopOrder',$d);
 	$e->send($this->form['email']);
 }
 unset($_SESSION['cart']);

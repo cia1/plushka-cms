@@ -170,29 +170,31 @@ class modelUser extends model {
 		$template=array('login'=>$this->login);
 		//Разные параметры письма в зависимости от типа сообщения
 		$e->subject(sprintf(LNGRegistrationOnSite,$_SERVER['HTTP_HOST']));
+		$templateName='user'.ucfirst($type);
 		switch($type) {
-		case 'activate':
+		case 'activate': //ссылка подтверждения e-mail
 			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/confirm').'?code='.$this->code;
 			break;
-		case 'infoAdmin':
+		case 'infoAdmin': //письмо администратору
 			$e->replyTo($this->_data['email'],$this->_data['login']);
+			$templateName='admin/'.$templateName;
 			break;
-		case 'restoreLink':
+		case 'restoreLink': //ссылка на восстановление пароля
 			$e->subject(sprintf(LNGPasswordRestoreOnSite,$_SERVER['HTTP_HOST']));
 			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/restore').'?code='.$this->code;
 			break;
-		case 'restorePassword':
+		case 'restorePassword': //содержит новый пароль
 			$e->subject(sprintf(LNGPasswordRestoreOnSite,$_SERVER['HTTP_HOST']));
 			$template['password']=$this->_data['password'];
 			break;
-		case 'info':
+		case 'info': //информация пользователю
 			$e->subject(sprintf(LNGYouAreRegisteredOnSite,$_SERVER['HTTP_HOST']));
 			if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='('.LNGknownOnlyYou.')';
 			$template['status']=($this->_data['status'] ? LNGaccountActive : LNGaccountBlocked);
 			$template['email']=$this->_data['email'];
 			break;
 		}
-		$e->messageTemplate('user'.ucfirst($type),$template);
+		$e->messageTemplate($templateName,$template);
 		if(!$e->send($this->email)) return false;
 		return true;
 	}

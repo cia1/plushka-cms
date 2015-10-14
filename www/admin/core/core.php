@@ -510,8 +510,14 @@ if(!isset($_GET['controller'])) {
 	$cfg=core::configAdmin();
 	$_GET['corePath']=explode('/',$cfg['mainPath']);
 	if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]='Index';
+	unset($cfg);
 } else {
 	$_GET['corePath']=array($_GET['controller']);
 	if(isset($_GET['action'])) $_GET['corePath'][1]=$_GET['action']; else $_GET['corePath'][1]='Index';
+}
+if(isset($_GET['_lang'])) define('_LANG',$_GET['_lang']); else {
+	$cfg=core::configAdmin();
+	define('_LANG',$cfg['defaultLanguage']);
+	unset($cfg);
 }
 ?>
