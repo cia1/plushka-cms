@@ -6,21 +6,19 @@ class shop {
 	/* Возвращает древовидный массив, содержащий структуру категорий (лучше использовать cacheCategoryTree) */
 	public static function categoryTree() {
 		$db=core::db();
-		$db->query('SELECT id,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
+		$db->query('SELECT id,alias,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
 		$data=array(0=>array('child'=>array()));
-		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'title'=>$item[2],'parent'=>$item[1],'image'=>$item[3],'child'=>array());
+		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'alias'=>$item[1],'title'=>$item[3],'parentId'=>$item[2],'image'=>$item[4],'child'=>array());
 		foreach($data as $id=>&$item) {
 			if($id==0) continue;
-			$parentId=$item['parent'];
-			unset($item['parent']);
-			$data[$parentId]['child'][]=&$item;
+			$data[$item['parentId']]['child'][]=&$item;
 		}
 		$data['ROOT']=$data[0]['child'];
 		unset($data[0]['child']);
 		return $data;
 	}
 
-	/* Для кешировани дерева каталогов */
+	/* Для кеширования дерева каталогов */
 	public static function cacheCategoryTree() {
 		$data=core::cache('shopCategoryList','shop::categoryTree',10);
 		return $data;
@@ -29,9 +27,9 @@ class shop {
 	/* Возвращает список дочерних категорий для категории с идентификатором $id */
 	public static function categoryList($id) {
 		$db=core::db();
-		$data=$db->fetchArrayAssoc('SELECT id,title,image FROM shpCategory WHERE parentId='.$id.' ORDER BY sort,id');
+		$data=$db->fetchArrayAssoc('SELECT id,alias,title,image FROM shpCategory WHERE parentId='.$id.' ORDER BY sort,id');
 		for($i=0;$i<count($data);$i++) {
-			$data[$i]['link']=core::link('shop/category/'.$data[$i]['id']);
+			$data[$i]['link']=core::link('shop/'.$data[$i]['alias']);
 			if($data[$i]['image']) $data[$i]['image']=core::url().'public/shop-category/'.$data[$i]['image'];
 		}
 		return $data;
@@ -42,7 +40,7 @@ class shop {
 	public static function productCategory($categoryId=null,$feature=false) {
 		//Построить SQL-запрос с учётом параметров поиска:
 		//$qSelect - выборка, $qCount - отдельный запрос для подсчёта количества товаров (для пагинации)
-		$qSelect='SELECT p.id id,p.alias alias,p.categoryId categoryId,p.title title,p.price price,p.mainImage mainImage,p.text1 text1';
+		$qSelect='SELECT p.id id,p.alias alias,c.alias categoryAlias,p.title title,p.price price,p.mainImage mainImage,p.text1 text1';
 		$qCount='SELECT COUNT(id) FROM shpProduct p';
 		if($feature) { //если характеристики заданы, то присоединить их к запросу
 			$s=' FROM shpProduct p';
@@ -52,9 +50,10 @@ class shop {
 			}
 			$q.=$s;
 		} else $qSelect.=' FROM shpProduct p';
+		$qSelect.=' INNER JOIN shpCategory c ON c.id=p.categoryId';
 //		$qSelect.=' LEFT JOIN shpBrand b ON b.id=p.brandId';
-		$db=core::db();
 		//Задан отбор по характеристикам
+		$db=core::db();
 		if(isset($_GET['feature'])) {
 			foreach($_GET['feature'] as $id=>$item) {
 				if(!$item) continue;
@@ -98,7 +97,7 @@ class shop {
 	}
 	/* Возвращает список товаров, принадлежащих к группе с идентификатором $id */
 	public static function productGroup($id) {
-		$q='SELECT p.id id,p.alias alias,p.categoryId categoryId,p.title title,p.price price,p.mainImage mainImage,p.text1 text1 FROM shpProductGroupItem gi INNER JOIN shpProduct p ON p.id=gi.productId WHERE gi.groupId='.$id.' ORDER BY p.id DESC';
+		$q='SELECT p.id id,p.alias alias,c.alias categoryAlias,p.title title,p.price price,p.mainImage mainImage,p.text1 text1 FROM shpProductGroupItem gi INNER JOIN shpProduct p ON p.id=gi.productId INNER JOIN shpCategory c ON c.id=p.categoryId WHERE gi.groupId='.$id.' ORDER BY p.id DESC';
 		return self::_loadList($q);
 	}
 
@@ -154,7 +153,7 @@ class shop {
 		$data=$db->fetchArrayAssoc($query);
 		$uri=core::url().'public/shop-brand/';
 		for($i=0,$cnt=count($data);$i<$cnt;$i++) {
-			$data[$i]['link']=core::link('shop/category/'.$data[$i]['categoryId'].'/'.$data[$i]['alias']);
+			$data[$i]['link']=core::link('shop/'.$data[$i]['categoryAlias'].'/'.$data[$i]['alias']);
 			$data[$i]['price']=self::_price($data[$i]['price']);
 			if(!$data[$i]['mainImage']) $data[$i]['mainImage']='noimage.jpg';
 		}

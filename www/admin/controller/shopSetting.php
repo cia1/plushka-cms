@@ -427,10 +427,10 @@ class sController extends controller {
 /* ---------- MENU ------------------------------------------------------------------- */
 	/* Категория интернет-магазина. Ссылка shop/category/ИД */
 	public function actionMenuCategory() {
-		$categoryId=(int)strrpos($_GET['link'],'/');
-		if($categoryId) $categoryId=substr($_GET['link'],$categoryId+1);
+		$categoryAlias=strrpos($_GET['link'],'/');
+		if($categoryAlias) $categoryAlias=substr($_GET['link'],$categoryAlias+1);
 		$f=core::form();
-		$f->select('categoryId','Категория','SELECT id,title FROM shpCategory WHERE parentId=0',$categoryId,'- все категории -');
+		$f->select('categoryAlias','Категория','SELECT alias,title FROM shpCategory WHERE parentId=0',$categoryAlias,'- все категории -');
 		$f->submit('Продолжить');
 
 		$this->cite='Укажите раздел (категорию) интернет-магазина, которая должна открываться при переходе по этому пункту меню. Если выбрано "- все категории -", то будет открыта страница со списком всех разделов магазина.';
@@ -438,7 +438,7 @@ class sController extends controller {
 	}
 
 	public function actionMenuCategorySubmit($data) {
-		if($data['categoryId']) return 'shop/category/'.$data['categoryId']; else return 'shop/category';
+		if($data['categoryAlias']) return 'shop/'.$data['categoryAlias']; else return 'shop';
 	}
 
 	/* Главная страница сайта (пока нет таковой) */
