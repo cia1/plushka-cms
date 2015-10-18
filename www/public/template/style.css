@@ -47,12 +47,12 @@ body > header .widgetsearch .button {height:23px;margin:0;}
 #header .widgetmenu li {float:left;background: url(img04.jpg) no-repeat left top;}
 #header .widgetmenu li a {display:block;height:32px;padding:12px 15px 0px 15px;letter-spacing: -1px;text-decoration: none;text-align:center;font-family:Arial, Helvetica, sans-serif;font-size:18px;color:#515F6B;}
 #header .widgetmenu li:first-child {background:transparent;}
-#header .widgetmenu ul.menu li li {float:none;background:#f7fbfe;}
-#header ul.menu li:hover,#header .widgetmenu ul.menu li li:hover {background:#e7ebf3;}
-#header ul.menu ul {position:absolute;margin:0;display:none;}
-#header ul.menu li:hover ul {display:block;}
-ul.menu li.active {font-weight:bold;}
-ul.menu li.active li {font-weight:normal;}
+#header .widgetmenu ul li li {float:none;background:#f7fbfe !important;}
+#header ul li:hover,#header .widgetmenu ul li li:hover {background:#e7ebf3;}
+#header ul ul {position:absolute;margin:0;display:none;z-index:999;}
+#header ul li:hover ul {display:block;}
+.widgetmenu ul li.active {font-weight:bold;}
+.widgetmenu ul li.active li {font-weight:normal;}
 
 #slider1 .item {margin:3px;padding:5px;border:1px solid grey;}
 .sliderContainer img.bg {width:283px;}

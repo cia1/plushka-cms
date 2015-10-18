@@ -24,11 +24,12 @@ class sController extends controller {
 			$db=core::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shpCategory WHERE id='.$_GET['id']);
 			if(!$data) core::error404();
-		} else $data=array('id'=>null,'parentId'=>(isset($_GET['parent']) ? $_GET['parent'] : 0),'title'=>'','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
+		} else $data=array('id'=>null,'parentId'=>(isset($_GET['parent']) ? $_GET['parent'] : 0),'alias'=>'','title'=>'','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('parentId',$data['parentId']);
 		$f->text('title','Заголовок',$data['title']);
+		$f->text('alias','Псевдоним',$data['alias']);
 		$f->editor('text1','Вступительный текст',$data['text1']);
 		if($data['id']!=='0') $f->file('image','Изображение');
 		$f->text('metaTitle','meta Заголовок',$data['metaTitle']);
@@ -36,7 +37,7 @@ class sController extends controller {
 		$f->text('metaDescription','meta Описание',$data['metaDescription']);
 		$f->submit('Сохранить');
 
-		$this->cite='Рисунок, загруженный в поле <b>изображение</b> будет публиковаться в списке категорий.';
+		$this->cite='Рисунок, загруженный в поле <b>изображение</b> будет публиковаться в списке категорий.<br /><b>Псевдоним</b> - часть URL-адреса категории, оставьте поле пустым, чтобы сгенерировать его автоматически на основании заголовка категории.';
 		return $f;
 	}
 
@@ -45,6 +46,7 @@ class sController extends controller {
 		$validate=array(
 			'id'=>array('primary'),
 			'parentId'=>array('id','',true),
+			'alias'=>array('latin','псевдоним',true,'max'=>50),
 			'title'=>array('string','Заголовок',true),
 			'text1'=>array('html','Вступительный текст'),
 			'metaTitle'=>array('string'),
@@ -55,6 +57,7 @@ class sController extends controller {
 			$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM shpCategory WHERE parentId='.$data['parentId']);
 			$validate['sort']=array('integer');
 		}
+		if(!$data['alias']) $data['alias']=core::translit($data['title']);
 		$model=core::model('shpCategory');
 		$model->set($data);
 		if(!$model->save($validate)) return false;

@@ -1,31 +1,32 @@
 <?php
 /* Интернет-магазин (кроме оформления заказа)
-	ЧПУ: /shop - главная страница магазина
-	/shop/category (actionCategory) - "верхняя" категория интернет-магазина
-	/shop/category/ИД (actionCategory) - категория
-	/shop/category/ИД/псевдоним (actionProduct) - страница товара
+	ЧПУ: /shop - главная страница магазина ("верхняя категория")
+	/shop//псевдоним_категории (actionCategory) - категория
+	/shop/псевдоним_категории/псевдоним_товара (actionProduct) - страница товара
 */
 class sController extends controller {
 
 	public function __construct($action) {
 		parent::__construct();
-		if($action=='category') {
-			if(isset($this->url[3])) $this->url[1]='product';
-			if(!isset($this->url[2])) $this->url[2]=0; else $this->url[2]=(int)$this->url[2];
-		}
+		if($this->url[1]=='Index') $this->categoryAlias=null;
+		else $this->categoryAlias=$_GET['corePath'][1];
+		if(count($this->url)==2) $this->url[1]='Category'; else $this->url[1]='Product';
 	}
 
 	public function actionIndex() { core::error404(); }
 
 	/* Категория интренет-магазина */
 	public function actionCategory() {
-		if($this->url[2]!=0) { //если ИД категории не задан, то это "верхняя" категория
+		//Если нет categoryAlias, то это "верхняя" категория
+		if(!$this->categoryAlias) $this->category=array('id'=>0,'parentId'=>0,'title'=>'Каталог товаров','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
+		else {
 			$db=core::db();
-			$this->category=$db->fetchArrayOnceAssoc('SELECT id,parentId,title,text1,metaTitle,metaKeyword,metaDescription FROM shpCategory WHERE id='.$this->url[2]);
+			$this->category=$db->fetchArrayOnceAssoc('SELECT id,parentId,title,text1,metaTitle,metaKeyword,metaDescription FROM shpCategory WHERE alias='.$db->escape($this->categoryAlias));
 			if(!$this->category) core::error404();
-		} else $this->category=array('id'=>0,'parentId'=>0,'title'=>'Каталог товаров','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
+		}
+
 		core::import('model/shop');
-		$this->categoryList=shop::categoryList($this->url[2]); //$this->categoryList содержит список категорий
+		$this->categoryList=shop::categoryList($this->category['id']); //$this->categoryList содержит список категорий
 		if($this->category['id']) {
 			if(isset($_GET['sort'])) {
 				if($_GET['sort']=='dateASC') $sort='id ASC'; elseif($_GET['sort']=='dateDESC') $sort='id DESC';
@@ -40,7 +41,7 @@ class sController extends controller {
 			if($sort!='price ASC') $this->sort.=' <a href="?sort=priceASC&'.$link.'" class="sortA">цена &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortC">цена &darr;</span>&nbsp;&nbsp;&nbsp;';
 			if($sort!='price DESC') $this->sort.=' <a href="?sort=priceDESC&'.$link.'" class="sortB">цена &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.=' <span class="sortD">цена &uarr;</span>&nbsp;&nbsp;&nbsp;';
 			if($sort!='id ASC') $this->sort.='<a href="?sort=dateASC&'.$link.'" class="sortA">дата &darr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortC">дата &darr;</span>&nbsp;&nbsp;&nbsp;';
-			if($sort!='id DESC') $this->sort.='<a href="'.core::link('shop/category/'.$this->category['id'].'?'.$link).'" class="sortB">дата &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortD">дата &uarr;</span>&nbsp;&nbsp;&nbsp;';
+			if($sort!='id DESC') $this->sort.='<a href="?'.$link.'" class="sortB">дата &uarr;</a>&nbsp;&nbsp;&nbsp;'; else $this->sort.='<span class="sortD">дата &uarr;</span>&nbsp;&nbsp;&nbsp;';
 		} else {
 			$this->productList=null;
 			$this->sort='';
@@ -54,8 +55,8 @@ class sController extends controller {
 	}
 
 	protected function breadcrumbCategory() {
-		if(!$this->url[2]) return array('Магазин');
-		return array('<a href="'.core::link('shop/category').'">Магазин</a>');
+		if(!$this->categoryAlias) return array('Магазин');
+		return array('<a href="'.core::link('shop').'">Магазин</a>');
 	}
 
 	protected function adminCategoryLink() {
@@ -74,7 +75,7 @@ class sController extends controller {
 	/* Страница товара */
 	public function actionProduct() {
 		core::import('model/shop');
-		$this->product=shop::productByAlias($this->url[3],true); //полная информация о товаре, $this->url[3] - идентификатор товара
+		$this->product=shop::productByAlias($this->url[2],true); //полная информация о товаре, $this->url[3] - идентификатор товара
 		if(!$this->product) core::error404();
 
 		$this->script('jquery.min');
@@ -89,7 +90,7 @@ class sController extends controller {
 
 	protected function breadcrumbProduct() {
 		$db=core::db();
-		return array('<a href="'.core::link('shop/category').'">Магазин</a>','<a href="'.core::link('shop/category/'.$this->url[2]).'">'.$this->product['categoryTitle'].'</a>');
+		return array('<a href="'.core::link('shop').'">Магазин</a>','<a href="'.core::link('shop/'.$this->categoryAlias).'">'.$this->product['categoryTitle'].'</a>');
 	}
 
 	protected function adminProductLink() {
