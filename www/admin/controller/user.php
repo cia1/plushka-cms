@@ -134,7 +134,7 @@ class sController extends controller {
 
 	public function actionUserItemSubmit($data) {
 		core::import('admin/model/user');
-		$model=new modelUser();
+		$model=new modelUserAdmin();
 		$model->set($data);
 		if(!$model->save()) return false;
 		$s='Изменения сохранены';

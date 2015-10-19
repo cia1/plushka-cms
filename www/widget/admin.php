@@ -17,6 +17,7 @@ class widgetAdmin extends widget {
 				if ($q) $q.=','.$db->escape($module); else $q=$db->escape($module);
 			}
 		});
+		if(!$q) return array();
 		$db->query('SELECT module,description,picture FROM userRight WHERE module IN ('.$q.')');
 		//Сформировать массив кнопок
 		while($item=$db->fetch()) {

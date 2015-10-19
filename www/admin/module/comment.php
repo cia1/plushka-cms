@@ -10,6 +10,7 @@
 	'admin/public/icon/comment16.png',
 	'config/comment.php',
 	'controller/comment.php',
+	'view/widgetComment.php',
 	'model/comment.php',
 	'widget/comment.php'
 )

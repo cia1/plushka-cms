@@ -51,7 +51,6 @@ class shop {
 			$q.=$s;
 		} else $qSelect.=' FROM shpProduct p';
 		$qSelect.=' INNER JOIN shpCategory c ON c.id=p.categoryId';
-//		$qSelect.=' LEFT JOIN shpBrand b ON b.id=p.brandId';
 		//Задан отбор по характеристикам
 		$db=core::db();
 		if(isset($_GET['feature'])) {

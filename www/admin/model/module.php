@@ -400,7 +400,7 @@ class module {
 				if(!self::clearDirectory($s)) return false;
 			} elseif(file_exists($s)) {
 				if(!unlink($s)) {
-					controller:$error='Не удаётся удалить файл &laquo;'.$s.'&raquo;';
+					controller::$error='Не удаётся удалить файл &laquo;'.$s.'&raquo;';
 					return false;
 				}
 			}

@@ -1,7 +1,7 @@
 <?php
 /* Объект "пользователь". */
 core::import('core/model');
-class modelUser extends model {
+class modelUserAdmin extends model {
 	protected $fields='*';
 
 	public function __construct() {
@@ -27,6 +27,8 @@ class modelUser extends model {
 				controller::$error='Введённые пароли не совпадают';
 				return false;
 			}
+			$this->_data['password']=self::_hash($this->_data['password']);
+			unset($this->_data['password2']);
 		}
 		if(!parent::validate($fields)) return false;
 		if(!$this->id) {
@@ -40,12 +42,6 @@ class modelUser extends model {
 			}
 		}
 		return true;
-	}
-
-	/* Возвращает пароль пользователя (не вижу смысла его прятать в md5 */
-	public function passwordByLogin($login=null) {
-		if(!$login) $login=$this->login;
-		return $this->db->fetchValue('SELECT password FROM user WHERE login='.$this->db->escape($login));
 	}
 
 	/* Меняет статус на противоположенный (предполагается, что пользователь уже подтвердил e-mail) */
@@ -63,6 +59,11 @@ class modelUser extends model {
 		$db->query('DELETE FROM userMessage WHERE user1Id='.$id.' OR user2Id='.$id);
 		$db->query('DELETE FROM user WHERE id='.$id);
 		return true;
+	}
+
+	private static function _hash($password) {
+		core::import('model/user');
+		return crypt($password,_SALT);
 	}
 
 }
