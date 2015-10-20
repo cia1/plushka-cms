@@ -10,8 +10,8 @@ class sController extends controller {
 	/* Общие настройки модуля */
 	public function actionSetting() {
 		$cfg=core::config('faq'); //конфигурация модуля
-		$htmlAdmin=file_get_contents(core::path().'data/email/faq.html'); //шаблон письма администрации
-		$htmlAnswer=file_get_contents(core::path().'admin/data/email/faqAnswer.html'); //шаблон письма ответа на вопрос пользователя
+		$htmlAdmin=file_get_contents(core::path().'admin/data/email/faq.html'); //шаблон письма администрации
+		$htmlAnswer=file_get_contents(core::path().'/data/email/'._LANG.'.faqAnswer.html'); //шаблон письма ответа на вопрос пользователя
 		$f=core::form();
 		$f->html('<div class="tab"><fieldset><legend>Meta-теги</legend>');
 		$f->text('keyword','meta Ключевые слова',$cfg['keyword']);

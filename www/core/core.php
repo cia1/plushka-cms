@@ -7,6 +7,17 @@ class core {
 
 	private static $_template='default'; //имя шаблона, который будет использован при выводе контента
 
+	//Переводит строку в транслит, пригодный для использования в URL
+	public static function translit($string) {
+		$string=mb_strtolower($string,'UTF-8');
+		$d1=explode(',',LNGtranslit1);
+		$d2=explode(',',LNGtranslit2);
+		$string=str_replace($d1,$d2,$string);
+		$d1=array(' ',',','/','%','?','@','#','&');
+		$d2=array('-','-','','','','','','-and-');
+		return str_replace($d1,$d2,$string);
+	}
+
 	/* Меняет имя шаблона (по умолчанию "default" - /template/(pc/pda).default.html). Возвращает имя шаблона с указанием типа клиента ("pc" или "pda").
 	Разумеетя должна вызываться до начала вывода контента */
 	public static function template($set=null) {
@@ -384,7 +395,7 @@ class controller {
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">
-				<div class="head"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a></div>
+				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><b>',_LANG,'</b></div>
 				<img id="_adminDialogBoxLoading" src="'.core::url().'admin/public/icon/loadingBig.gif" alt="Загрузка..." />
 				<iframe class="container"></iframe>
 				</div>';

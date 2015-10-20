@@ -394,14 +394,14 @@ class module {
 	public static function unlink($file) {
 		$cnt=count($file)-1;
 		$path=core::path();
-		$languageFile=array();
+		$languagePath=array(
+			core::path().'data/email/',
+			core::path().'language/'
+		);
 		for($i=$cnt;$i>=0;$i--) {
-			if(substr($file[$i],0,11)=='data/email/' || substr($file[$i],0,9)=='language/') {
-				self::_unlinkLanguage($file[$i]);
-				continue;
-			}
 			$s=$path.$file[$i];
-			if(is_dir($s)) {
+			if(in_array($path,$languagePath)) self::_unlinkLanguage($s);
+			elseif(is_dir($s)) {
 				if(!self::clearDirectory($s)) return false;
 			} elseif(file_exists($s)) {
 				if(!unlink($s)) {
@@ -497,11 +497,9 @@ class module {
 
 	//Удаляет мультиязычные файлы (шаблоны писем и файлы локализации)
 	private static function _unlinkLanguage($f) {
-		$i=strrpos($f,'/')+1;
-		$name=preg_replace('|^[a-z][a-z]\.|','',substr($f,$i));
-		$f=substr($f,0,$i).'??.'.$name;
-		$f=glob(core::path().$f,GLOB_NOSORT);
-		foreach($f as $item) unlink($item);
+		$f=glob('??.'.$f,GLOB_NOSORT);
+var_dump($f);exit;
+
 	}
 }
 ?>

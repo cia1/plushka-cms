@@ -85,7 +85,7 @@ class mForm extends form {
 				}
 				if($item[3]) {
 					$type=explode(',',$item[3]);
-					$ext=strtolower($data['fld'.$item[0]]['name']);
+					$ext=strtolower($data[$item[0]]['name']);
 					$ext=substr($ext,strrpos($ext,'.')+1);
 					if(!in_array($ext,$type)) {
 						controller::$error=LNGFileTypeNotSupport;
@@ -129,7 +129,7 @@ class mForm extends form {
 				if($this->field[$i]['htmlType']=='textarea') $s.='<tr><td colspan="2"><b>'.$this->field[$i]['title'].'</b></td></tr><tr><td colspan="2"><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';
 				elseif($this->field[$i]['htmlType']=='file') {
 					$s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.($data[$this->field[$i]['id']]['size'] ? $data[$this->field[$i]['id']]['name'] : '(не загружен)').'</i></td></tr>';
-					$e->attach($data[$this->field[$i]['id']]['tmpName'],$this->_rus2lat($data[$this->field[$i]['id']]['name']));
+					$e->attach($data[$this->field[$i]['id']]['tmpName'],core::translit($data[$this->field[$i]['id']]['name']));
 				}
 				else $s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';
 			}
@@ -138,14 +138,6 @@ class mForm extends form {
 			if(!$e->send($this->form['email'])) return false;
 		}
 		return true;
-	}
-
-	/* Для формирования англоязычных имён файлов */
-	private static function _rus2lat($s) {
-		$keyword=strtolower($s);
-		$d1=array('а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','ы','ь','щ','ъ','э','ю','я',' ',',');
-		$d2=array('a','b','v','g','d','e','yo','j','z','i','iy','k','l','m','n','o','p','r','s','t','u','f','h','c','ch','sh','y','','sh','','e','yu','ya','-','-');
-		return str_replace($d1,$d2,$s);
 	}
 
 } ?>

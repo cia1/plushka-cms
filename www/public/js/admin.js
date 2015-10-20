@@ -23,9 +23,9 @@ $.adminDialog=function(o) {
 	var img=o.children('img');
 	$.adminDialog.self=$('#_adminDialogBox');
 	$('#_adminDialogBoxLoading').show();
-	$('#_adminDialogBox .head span').html('<img src="'+img.attr('src')+'"> '+img.attr('title'));
+	$('#_adminDialogBox ._adminHead span').html('<img src="'+img.attr('src')+'"> '+img.attr('title'));
 	$.adminDialog.load(o.attr('href'));
-	$('#_adminDialogBox .head').mousedown(function(e) {
+	$('#_adminDialogBox ._adminHead').mousedown(function(e) {
 		$.adminDialog.x=e.pageX;
 		$.adminDialog.y=e.pageY;
 		if($.adminDialog.isMove) return;
@@ -44,7 +44,7 @@ $.adminDialog=function(o) {
 		});
 		$.adminDialog.self.css('opacity',0.7);
 	});
-	$('.head img',$.adminDialog.self).mouseover(function() {
+	$('._adminHead img',$.adminDialog.self).mouseover(function() {
 		$.adminDialog.self.css('opacity',0.4);
 	}).mouseout(function() {
 		$.adminDialog.self.css('opacity',1);
