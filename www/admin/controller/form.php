@@ -24,7 +24,7 @@ class sController extends controller {
 		$t=core::table();
 		$t->rowTh('Заголовок|Тип поля|Обязательное||');
 		$db=core::db();
-		$items=$db->fetchArray('SELECT id,title,htmlType,required,sort FROM frmField WHERE formId='.$_GET['id'].' ORDER BY sort');
+		$items=$db->fetchArray('SELECT id,title_'._LANG.',htmlType,required,sort FROM frmField WHERE formId='.$_GET['id'].' ORDER BY sort');
 		$type=array('text'=>'текстовое поле','radio'=>'переключатель','select'=>'выпадающий список','checkbox'=>'да/нет','textarea'=>'многострочный текст','email'=>'E-mail','file'=>'файл','captcha'=>'каптча');
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			$item=$items[$i];
@@ -42,14 +42,14 @@ class sController extends controller {
 	public function actionFieldItem() {
 		if(isset($_GET['id'])) { //редактирование поля - загрузить данные по умолчанию
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title,htmlType,data,defaultValue,required FROM frmField WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frmField WHERE id='.$_GET['id']);
 			$data['value']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','htmlType'=>'text','required'=>0,'value'=>'','defaultValue'=>'');
 		//Сформировать HTML-форму
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('formId',$_GET['formId']);
-		$f->text('title','Название',$data['title']);
+		$f->text('title_'._LANG,'Название',$data['title']);
 		$f->select('htmlType','Тип',array(array('text','текстовое поле'),array('radio','переключатель'),array('select','выпадающий список'),array('checkbox','да,нет'),array('textarea','многострочный текст'),array('email','e-mail'),array('file','файл'),array('captcha','каптча')),$data['htmlType']);
 		$f->textarea('value','Список значений',$data['value']);
 		$f->text('defaultValue','Значение по умолчанию',$data['defaultValue']);
@@ -72,9 +72,9 @@ class sController extends controller {
 
 	public function actionFieldItemSubmit($data) {
 		//Значения для списков задаются в текстовом поле, сохраняются в БД строкой с разделителем "|"
-		if($data['htmlType']=='radio' || $data['htmlType']=='select') $data['data']=str_replace(array("\n","\r"),array('|',''),$data['value']);
+		if($data['htmlType']=='radio' || $data['htmlType']=='select') $data['data_'._LANG]=str_replace(array("\n","\r"),array('|',''),$data['value']);
 		elseif($data['htmlType']=='file') $data['data']=strtolower(str_replace(array('.',' '),'',$data['fileType']));
-		else $data['data']=null;
+		else $data['data_'._LANG]=null;
 		if($data['htmlType']=='captcha') {
 			$data['defaultValue']=null;
 			$data['required']=true;
@@ -82,9 +82,9 @@ class sController extends controller {
 		$validate=array(
 			'id'=>array('primary'),
 			'formId'=>array('integer'),
-			'title'=>array('string','название',true),
+			'title_'._LANG=>array('string','название',true),
 			'htmlType'=>array('string'),
-			'data'=>array('string'),
+			'data_'._LANG=>array('string'),
 			'defaultValue'=>array('string'),
 			'required'=>array('boolean'),
 		);
@@ -174,7 +174,7 @@ class sController extends controller {
 		//это может быть ассоциативный массив, содержащий все настройки, число - идентификатор формы или NULL
 		if($data && !is_array($data)) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title,email,subject,successMessage,redirect,formView,script FROM frmForm WHERE id='.$data);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script FROM frmForm WHERE id='.$data);
 			if(!$data['email']) $data['emailSource']='no';
 			elseif($data['email']=='cfg') $data['emailSource']='cfg';
 			else $data['emailSource']='other';
@@ -189,11 +189,11 @@ class sController extends controller {
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('cacheTime',30);
-		$f->text('title','Заголовок страницы',$data['title']);
+		$f->text('title_'._LANG,'Заголовок страницы',$data['title']);
 		$f->radio('emailSource','Адрес отправки',array(array('no','не отправлять e-mail'),array('cfg','e-mail в общих настройках'),array('other','другой адрес:')),$data['emailSource']);
 		$f->text('email','E-mail',$data['email']);
-		$f->text('subject','Тема письма',$data['subject']);
-		$f->editor('successMessage','Сообщение после отправки',$data['successMessage']);
+		$f->text('subject_'._LANG,'Тема письма',$data['subject']);
+		$f->editor('successMessage_'._LANG,'Сообщение после отправки',$data['successMessage']);
 		$f->text('redirect','Редирект после отправки формы',$data['redirect']);
 		$s='<b>Редирект</b> - URL адрес, на который будет осуществлён переход после успешной отправки формы.';
 		//Только для суперпользователя показывать поля, связанные со сложной обработкой данных формы
@@ -217,10 +217,10 @@ class sController extends controller {
 		$m=core::model('frmForm');
 		$validate=array(
 			'id'=>array('primary'),
-			'title'=>array('string','заголовок страницы',true),
+			'title_'._LANG=>array('string','заголовок страницы',true),
 			'email'=>array('email','E-mail'),
-			'subject'=>array('string','Тема письма'),
-			'successMessage'=>array('html','Сообщение при успешной отправке'),
+			'subject_'._LANG=>array('string','Тема письма'),
+			'successMessage_'._LANG=>array('html','Сообщение при успешной отправке'),
 			'redirect'=>array('string'),
 			'formView'=>array('string'),
 			'script'=>array('script')

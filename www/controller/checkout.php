@@ -6,6 +6,11 @@
 */
 class sController extends controller {
 
+	public function __construct() {
+		parent::__construct();
+		core::language('shop');
+	}
+
 	/* Корзина с формой оформления заказа */
 	public function actionIndex() {
 		if(isset($_GET['delete'])) unset($_SESSION['cart'][$_GET['delete']]);
@@ -15,8 +20,8 @@ class sController extends controller {
 
 		$this->script('jquery.min');
 		$this->script('jquery.form');
-		$this->pageTitle=$this->metaTitle='Корзина';
-		return 'Index';		
+		$this->pageTitle=$this->metaTitle=LNGCart;
+		return 'Index';
 	}
 
 	public function adminIndexLink() {
@@ -43,7 +48,7 @@ class sController extends controller {
 	}
 
 	protected function breadcrumbIndex() {
-		return array('<a href="'.core::link('shop/category').'">Магазин</a>');
+		return array('<a href="'.core::link('shop/category').'">'.LNGShop.'</a>');
 	}
 
 	public function actionCheckout() {

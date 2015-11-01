@@ -8,9 +8,9 @@
 		</div>
 	</div>
 	<div style="clear:both;"></div>
-	<input type="submit" value="Продолжить" class="button" />
+	<input type="submit" value="<?=LNGContinue?>" class="button" />
 </form>
-<p><i>Для изменения размера шрифта дважы щёлкните мышкой на строке текста. Для добавления новой строки нажмите клавишу Enter.</i></p>
+<p><i><?=LNGToChangeFontSize?></i></p>
 <script>
 function inputKeyUp(self) {
 	if(event.keyCode==13) {
@@ -26,16 +26,16 @@ function inputKeyUp(self) {
 }
 function appendLine(self) {
 	document.demTextLastIndex++;
-	var s=$('<input type="text" name="demotivator[text][]" onkeyup="return inputKeyUp(this);" ondblclick="return changeFontSize(this);" id="demLine'+document.demTextLastIndex+'" rel="'+document.demTextLastIndex+'" value="Ваш текст..." style="<?=$this->defaultInputStyle?>" />');
+	var s=$('<input type="text" name="demotivator[text][]" onkeyup="return inputKeyUp(this);" ondblclick="return changeFontSize(this);" id="demLine'+document.demTextLastIndex+'" rel="'+document.demTextLastIndex+'" value="<?=LNGYourText?>" style="<?=$this->defaultInputStyle?>" />');
 	$(self).after(s);
 	s.select().focus();
 }
 function changeFontSize(self) {
 	var o=$(self);
 	var fs1=parseInt(o.css('fontSize'));
-	var fs2=parseInt(prompt('Размер шрифта',fs1));
+	var fs2=parseInt(prompt('<?=LNGFontSize?>',fs1));
 	if(!fs2 || fs1==fs2 || fs2<8 || fs2>80) return;
-	o.css('fontSize',fs2);	
+	o.css('fontSize',fs2);
 }
 function prepareSize() {
 	var s='';

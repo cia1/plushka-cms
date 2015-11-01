@@ -6,6 +6,7 @@ class sController extends controller {
 		parent::__construct();
 		$this->id=(int)$this->url[1]; //идентификатор опроса
 		$this->url[1]='Index';
+		core::language('vote');
 	}
 
 	/* Выводит результаты опроса */
@@ -26,7 +27,7 @@ class sController extends controller {
 				$this->answer[$i][1]=round($this->answer[$i][1]/$this->total*100).'% ('.$this->answer[$i][1].')';
 			}
 		}
-		$this->pageTitle=$this->metaTitle='Опрос: '.$data[0];
+		$this->pageTitle=$this->metaTitle=LNGVote.': '.$data[0];
 		return 'Index';
 	}
 
@@ -36,14 +37,14 @@ class sController extends controller {
 		$vote=$db->fetchArrayOnce('SELECT result,ip FROM vote WHERE id='.$this->id);
 		if(!$vote) core::error404();
 		if($vote[1]) $ip=explode('|',$vote[1]); else $ip=array();
-		if(in_array($this->_ip(),$ip)) core::redirect('vote/'.$this->id,'Вы уже голосовали в этом опросе.');
+		if(in_array($this->_ip(),$ip)) core::redirect('vote/'.$this->id,LNGYouAlreadyVoted);
 		$ip[]=$this->_ip();
 		$ip=implode('|',$ip);
 		$result=explode('|',$vote[0]);
 		$result[$data['answer']]++;
 		$result=implode('|',$result);
 		$db->query('UPDATE vote SET result='.$db->escape($result).',ip='.$db->escape($ip).' WHERE id='.$this->id);
-		core::redirect('vote/'.$this->id,'Ваш голос принят. Большое спасибо за участие.');
+		core::redirect('vote/'.$this->id,LNGYourVoteGot);
 	}
 
 	public function adminIndexLink() {

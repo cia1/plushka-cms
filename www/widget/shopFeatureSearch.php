@@ -71,12 +71,12 @@ class widgetShopFeatureSearch extends widget {
 			if(isset($_GET['price2']) && $_GET['price2']) $price2=(float)$_GET['price2']; else $price2='';
 			?>
 			<div class="price">
-				<p>Цена</p>
-				от &nbsp;<input type="text" name="price1" value="<?=$price1?>" />&nbsp;&nbsp;&nbsp;&nbsp; до &nbsp;<input type="text" name="price2" value="<?=$price2?>" />
+				<p><?=LNGPrice?></p>
+				<?=LNGfrom?> &nbsp;<input type="text" name="price1" value="<?=$price1?>" />&nbsp;&nbsp;&nbsp;&nbsp; <?=LNGto?> &nbsp;<input type="text" name="price2" value="<?=$price2?>" />
 			</div>
 			<?php
 		}
-		echo '<input type="submit" class="button" value="Применить" /></form>';
+		echo '<input type="submit" class="button" value="'.LNGCommit.'" /></form>';
 		?>
 		<script>
 		function submitMe() {

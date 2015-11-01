@@ -11,7 +11,10 @@ class shop {
 		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'alias'=>$item[1],'title'=>$item[3],'parentId'=>$item[2],'image'=>$item[4],'child'=>array());
 		foreach($data as $id=>&$item) {
 			if($id==0) continue;
-			$data[$item['parentId']]['child'][]=&$item;
+			$item['id']=(int)$item['id'];
+			$parentId=(int)$item['parentId'];
+//			unset($item['parent']);
+			$data[$parentId]['child'][]=&$item;
 		}
 		$data['ROOT']=$data[0]['child'];
 		unset($data[0]['child']);

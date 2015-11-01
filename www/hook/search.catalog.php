@@ -19,7 +19,7 @@ function _catalog($id,$keyword) {
 	$db=core::db();
 	$db->query('SELECT alias,title FROM catalog_'.$id.' WHERE title LIKE '.$keyword);
 	while($item=$db->fetch()) {
-		echo '<li><p><a href="'.core::link('catalog/'.$id).'">Каталог</a> / <a href="'.core::link('catalog/'.$id.'/'.$item[0]).'">'.$item[1].'</a></p></li>';
+		echo '<li><p><a href="'.core::link('catalog/'.$id).'">'.LNGCatalog.'</a> / <a href="'.core::link('catalog/'.$id.'/'.$item[0]).'">'.$item[1].'</a></p></li>';
 	}
 }
 ?>

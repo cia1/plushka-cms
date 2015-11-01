@@ -8,6 +8,7 @@ class sController extends controller {
 		$cfg=core::config('faq');
 		if($cfg['keyword']) $this->metaKeyword=$cfg['keyword'];
 		if($cfg['description']) $this->metaDescription=$cfg['description'];
+		core::language('faq');
 	}
 
 	/* Список Вопросов и ответов */
@@ -20,7 +21,7 @@ class sController extends controller {
 		$this->script('jquery.min');
 		$this->script('jquery.form');
 		$this->style('faq');
-		$this->pageTitle=$this->metaTitle='Часто задаваемые вопросы';
+		$this->pageTitle=$this->metaTitle=LNGFAQ;
 		return 'Index';
 	}
 
@@ -30,11 +31,11 @@ class sController extends controller {
 		$data['date']=time();
 		$m->set($data);
 		if(!$m->save(array(
-			'name'=>array('string','Имя',true),
+			'name'=>array('string',LNGName,true),
 			'email'=>array('email','E-mail',true),
-			'question'=>array('string','Текст вопроса',true),
+			'question'=>array('string',LNGYourQuestion,true),
 			'date'=>array('integer'),
-			'captcha'=>array('captcha','Проверочный код')
+			'captcha'=>array('captcha',LNGCaptcha)
 		))) {
 			if($inFrame) {
 				core::error(controller::$error);
@@ -47,12 +48,12 @@ class sController extends controller {
 		core::import('core/email');
 		$e=new email();
 		$e->from($m->email,$m->name);
-		$e->subject('ЧаВо на сайте sukor.ru');
-		$e->messageTemplate('faq',$data);
+		$e->subject(LNGFAQ);
+		$e->messageTemplate('admin/faq',$data);
 		$cfg=core::config();
 		$e->send($cfg['adminEmailEmail']);
-		if(!$inFrame) core::redirect('faq','Спасибо за вопрос. Мы ответим на него в ближайшее время.');
-		core::success('Спасибо за вопрос. Мы ответим на него в ближайшее время.');
+		if(!$inFrame) core::redirect('faq',LNGThankyouForQuestion);
+		core::success(LNGThankyouForQuestion);
 		echo '<dl class="form"><dd class="button"><input type="button" class="button" value="Закрыть" onclick="jQuery(\'#faqContainer\').fadeOut();" /></dd></dl>';
 		exit;
 	}
@@ -68,12 +69,12 @@ class sController extends controller {
 	Параметры: bool $render - нужно или нет выводить HTML-представление формы (если форма загружается во фрейме) */
 	private function _newQuestionForm($render=false) {
 		$f=core::form();
-		$f->text('name','Имя','Ваше имя...','id="faqName"');
+		$f->text('name',LNGName,LNGYourName.'...','id="faqName"');
 		$f->text('email','E-mail','Ваш e-mail...','id="faqEmail"');
-		$f->textarea('question','Текст вопроса','Текст вопроса...','id="faqQuestion"');
-		$f->captcha('captcha','Введите цифры&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-		$f->html('<dd class="submit"><input type="button" onclick="jQuery(\'#faqContainer\').fadeOut();" class="button" style="float:left;color:#666;" value="Отмена" /></dd>');
-		$f->submit('Отправить');
+		$f->textarea('question',LNGYourQuestion,LNGYourQuestion.'...','id="faqQuestion"');
+		$f->captcha('captcha',LNGCaptcha.'&nbsp;&nbsp;&nbsp;&nbsp;');
+		$f->html('<dd class="submit"><input type="button" onclick="jQuery(\'#faqContainer\').fadeOut();" class="button" style="float:left;color:#666;" value="'.LNGCancel.'" /></dd>');
+		$f->submit();
 		$this->newQuestion=$f;
 		if($render) $this->newQuestion->render();
 	}

@@ -1,11 +1,9 @@
 <?php
-//Отображает список категорий. Модуль: shop
 class widgetShopCategory extends widget {
 
 	public function __invoke() { return true; }
 
 	public function render() {
-		//Попытка определить ИД категории разными способами (для экономии SQL-запроса)
 		if(isset($_GET['corePath'][1]) && $_GET['corePath'][0]=='shop') {
 			if(isset(controller::$self->category)) $id=controller::$self->category['id'];
 			else {
@@ -14,7 +12,7 @@ class widgetShopCategory extends widget {
 			}
 		} else $id=null;
 		core::import('model/shop');
-		$items=shop::cacheCategoryTree(); //древовидный массив категорий
+		$items=shop::cacheCategoryTree();
 		if($id) $pid=$items[$id]['parentId']; else $pid=null;
 		$this->_renderList($items['ROOT'],$id,$pid);
 	}

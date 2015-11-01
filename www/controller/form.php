@@ -9,7 +9,7 @@ class sController extends controller {
 		$this->id=(int)$this->url[1]; //идентификатор формы
 		if(!$this->id) core::error404();
 		if(isset($this->url[2])) $this->url[1]=$this->url[2]; else $this->url[1]='Index';
-		}
+	}
 
 	/* Вывод формы */
 	public function actionIndex() {
@@ -40,10 +40,10 @@ class sController extends controller {
 	/* Выводит сообщение об успехе */
 	public function actionSuccess() {
 		$db=core::db();
-		$form=$db->fetchArrayOnce('SELECT title,successMessage,redirect FROM frmForm WHERE id='.$this->id);
+		$form=$db->fetchArrayOnce('SELECT title_'._LANG.',successMessage_'._LANG.',redirect FROM frmForm WHERE id='.$this->id);
 		if(!$form) core::error404();
 		if($form[2]) core::redirect($form[2],$form[1]);
-		if(!$form[1]) $this->message='<p>Мы получили ваше сообщение. Большое спасибо за внимание.</p>'; else $this->message=$form[1];
+		if(!$form[1]) $this->message='<p>'.LNGWeGotYourMessage.'</p>'; else $this->message=$form[1];
 		$this->redirect=$form[2];
 
 		$this->pageTitle=$form[0];

@@ -11,7 +11,12 @@ class sController extends controller {
 	public function actionItem() {
 		if($_GET['id']) { //Текст уже существует - загрузить его
 			$data=array('filename'=>$_GET['id']);
-			$data['text']=file_get_contents(core::path().'data/widgetHtml/'.$data['filename'].'.html');
+			$f=core::path().'data/widgetHtml/'.$data['filename'].'_'._LANG.'.html';
+			if(!file_exists($f)) {
+				$cfg=core::config();
+				$f=core::path().'data/widgetHtml/'.$data['filename'].'_'.$cfg['languageDefault'].'.html';
+			}
+			$data['text']=file_get_contents($f);
 		} else $data=array('filename'=>'','text'=>''); //Текста нет - пустой массив, чтобы небыло warning
 		$f=core::form();
 		$f->hidden('filename',$data['filename']);
@@ -30,8 +35,14 @@ class sController extends controller {
 /* ---------- WIDGET ----------------------------------------------------------------- */
 	/* Редактирование текста или создание нового блока текста */
 	public function actionWidgetHtml($data=null) {
-		if($data) $this->data=array('section'=>$_GET['section'],'filename'=>$data,'text'=>file_get_contents(core::path().'data/widgetHtml/'.$data.'.html'));
-		else $this->data=array('section'=>$_GET['section'],'filename'=>null,'text'=>'');
+		if($data) {
+			$f=core::path().'data/widgetHtml/'.$data.'_'._LANG.'.html';
+			if(!file_exists($f)) {
+				$cfg=core::config();
+				$f=core::path().'data/widgetHtml/'.$data.'_'.$cfg['languageDefault'].'.html';
+			}
+			$this->data=array('section'=>$_GET['section'],'filename'=>$data,'text'=>file_get_contents($f));
+		} else $this->data=array('section'=>$_GET['section'],'filename'=>null,'text'=>'');
 		return 'Widget';
 	}
 
@@ -60,7 +71,7 @@ class sController extends controller {
 /* ---------- PRIVATE ---------------------------------------------------------------- */
 	/* Сохраняет текст в файл */
 	private function _save($data) {
-		$f=fopen(core::path().'data/widgetHtml/'.$data['filename'].'.html','w');
+		$f=fopen(core::path().'data/widgetHtml/'.$data['filename'].'_'._LANG.'.html','w');
 		fwrite($f,$data['html']);
 		fclose($f);
 		return true;

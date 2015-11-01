@@ -1,9 +1,9 @@
 <div class="product">
 
 <div class="description"><?=$this->product['text2']?></div>
-<div class="price">Цена: <span><?=$this->product['price']?></span> руб.</div>
+<div class="price"><?=LNGPrice?>: <span><?=$this->product['price']?></span> <?=LNGcurrenct?></div>
 <?php if($this->product['variantCount']) {
-	echo '<div id="variant">Модификации товара: ';
+	echo '<div id="variant">'.LNGProductModifications.': ';
 	foreach($this->product['variant'] as $item) {
 		$feature='';
 		if($item['feature']) foreach($item['feature'] as $f) {
@@ -20,9 +20,9 @@
 </div>
 <div style="clear:both;"></div>
 
-<p>Производитель: <?=$this->product['brand']?></p>
+<p><?=LNGBrand?>: <?=$this->product['brand']?></p>
 <?php if($this->product['feature']) {
-	echo '<h2>Характеристики</h2>';
+	echo '<h2>'.LNGSpecifications.'</h2>';
 	foreach($this->product['feature'] as $item) {
 		echo '<p>'.$item['title'].': '.$item['value'].'</p>';
 	}
@@ -30,7 +30,7 @@
 <form action="<?=core::url()?>index2.php?controller=shop&amp;action=addToCart" onsubmit="return addToCart(this);" method="post" class="addToCart">
 <input type="hidden" name="shop[id]" value="<?=$this->product['id']?>" />
 <input type="hidden" name="shop[quantity]" value="1" />
-<button type="submit" value="В корзину" class="button">В корзину</button>
+<button type="submit" value="<?=LNGToCart?>" class="button"><?=LNGToCart?></button>
 </form>
 </div>
 <script>Shadowbox.init();</script>

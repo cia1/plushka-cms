@@ -4,7 +4,10 @@ array $options: bool form - выводить форму авторизации �
 bool message - Ссылка на личные сообщения */
 class widgetUser extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('user');
+		return true;
+	}
 
 	public function render() {
 		//Значения по умолчанию
@@ -12,18 +15,18 @@ class widgetUser extends widget {
 		else $this->options=array('form'=>true,'link'=>true,'message'=>true);
 		$u=core::user();
 		if($u->id) { //Пользователь авторизован
-			echo 'Здравствуйте, <a href="'.core::link('user').'">'.$u->login.'</a> (<a href="'.core::link('user/logout').'">выйти</a>)<br />';
-			if($this->options['message']) echo '<span class="link"><a href="'.core::link('user/message').'">Сообщения</a></span>';
+			echo LNGHello.', <a href="'.core::link('user').'">'.$u->login.'</a> (<a href="'.core::link('user/logout').'">'.LNGexit.'</a>)<br />';
+			if($this->options['message']) echo '<span class="link"><a href="'.core::link('user/message').'">'.LNGMessages.'</a></span>';
 			$this->view=null;
 		} else { //Пользователь не авторизован
 			if($this->options['form']) {
 				$f=core::form('user');
-				$f->text('login','Логин');
-				$f->password('password','Пароль');
-				$f->submit('Войти');
+				$f->text('login',LNGLogin);
+				$f->password('password',LNGPassword);
+				$f->submit(LNGEnter);
 				$f->render('user/login');
 			}
-			if($this->options['link']) echo '<span class="link"><a href="'.core::link('user/register').'">Регистрация</a> / <a href="'.core::link('user/restore').'">Забыли пароль?</a></span>';
+			if($this->options['link']) echo '<span class="link"><a href="'.core::link('user/register').'">'.LNGRegistration.'</a> / <a href="'.core::link('user/restore').'">'.LNGForgotPassword.'</a></span>';
 		}
 	}
 

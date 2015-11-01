@@ -13,6 +13,7 @@ class sController extends controller {
 		else core::error404();
 		if(count($this->url)==2) $this->url[1]='Index'; else $this->url[1]='View'; //http://example.com/catalog/ИД/элемент_каталога
 		core::import('model/catalog'); //Содержит методы для генерации HTML-представления полей каталога
+		core::language('catalog');
 	}
 
 	/* Список элементов каталога */
@@ -76,7 +77,7 @@ class sController extends controller {
 		}
 		unset($this->layout);
 		$this->foundRows=$db->foundRows();
-		$this->pageTitle=$this->metaTitle='Каталог';
+		$this->pageTitle=$this->metaTitle=LNGCatalog;
 		return 'List';
 	}
 
@@ -130,7 +131,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbView() {
-		return array('<a href="'.core::link('catalog/'.$this->layoutId).'">Каталог</a>');
+		return array('<a href="'.core::link('catalog/'.$this->layoutId).'">'.LNGCatalog.'</a>');
 	}
 
 	public function adminViewLink() {

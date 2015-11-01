@@ -14,7 +14,7 @@ class scontroller extends controller {
 		$t=core::table();
 		$t->rowTh('Виджет|Тип||');
 		$db=core::db();
-		$items=$db->fetchArray('SELECT w.id,w.title,t.title,s.sort,COUNT(s.widgetId) cnt FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
 			$t->link($items[$i][1],'?controller=section&action=widget&id='.$items[$i][0].'&section='.$_GET['name']);
@@ -77,7 +77,7 @@ class scontroller extends controller {
 	public function actionWidget() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Изменение
-			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
+			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
 			$this->data['type']=array($this->data['id'],$this->data['controller'],$this->data['action']); //Нужен для загрузки (ajax) формы модуля.
 			//Загрузить список страниц, на которых публикуется виджет
 			$db->query('SELECT url FROM section WHERE widgetId='.$this->data['id']);
@@ -97,7 +97,7 @@ class scontroller extends controller {
 			$url=array();
 		}
 		//Постройка древовидного массива, содержащего все пункты всех меню. Нужен чтобы вывести чекбоксы для отметки страниц.
-		$db->query('SELECT i.id,i.parentId,m.title,i.title,i.link FROM menuItem i LEFT JOIN menu m ON m.id=i.menuId ORDER BY i.menuId,i.parentId,i.sort');
+		$db->query('SELECT i.id,i.parentId,m.title,i.title_'._LANG.',i.link FROM menuItem i LEFT JOIN menu m ON m.id=i.menuId ORDER BY i.menuId,i.parentId,i.sort');
 		$this->pageMenu=array(0=>array('title'=>null,'child'=>array(),'parent'=>null));
 		while($item=$db->fetch()) $this->pageMenu[$item[0]]=array('menuTitle'=>$item[2],'title'=>$item[3],'parent'=>$item[1],'child'=>array(),'link'=>$item[4]);
 		foreach($this->pageMenu as $id=>$null) {
@@ -121,7 +121,7 @@ class scontroller extends controller {
 			'name'=>array('latin','Имя',true),
 			'data'=>array('html'),
 			'cache'=>array('integer','Время кеширования'),
-			'title'=>array('string','Описание',true),
+			'title_'._LANG=>array('string','Описание',true),
 			'publicTitle'=>array('boolean')
 		))) return false;
 		//Проверить правильность ссылок, перечисленных в поле "другие страницы"

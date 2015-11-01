@@ -381,7 +381,7 @@ class sController extends controller {
 				$cfg->$key=$value;
 			}
 			if(isset($data['notDelete'])) $cfg->notDelete=true; else $cfg->notDelete=false;
-			$cfg->save('../admin/config/shop');
+			$cfg->save('admin/shop');
 		}
 		//Удалить временные файлы
 		$f=core::path().'tmp/shopImport.log';

@@ -1,12 +1,12 @@
 <div id="chatPage">
-<div class="online"><p><b>Кто в чате:</b></p><div id="online">Загрузка...</div></div>
+<div class="online"><p><b><?=LNGWhoInChat?>:</b></p><div id="online"><?=LNGLoading?></div></div>
 <div id="console"></div>
 <?php
 $f=core::form('chat');
 $f->hidden('time',0,'id="time"');
-if($this->login) $f->label('Имя:',$this->login); else $f->text('login','Имя:',$this->login,'id="login"');
-$f->text('message','Сообщение:','','id="message"');
-$f->submit('Сказать');
+if($this->login) $f->label(LNGName.':',$this->login); else $f->text('login',LNGName.':',$this->login,'id="login"');
+$f->text('message',LNGMessage.':','','id="message"');
+$f->submit(LNGAsk);
 $f->render('index2.php?controller=chat&amp;action=post&amp;id='.$this->id);
 ?>
 <script>
@@ -34,7 +34,7 @@ jQuery(function() {
 		var chatPause=setInterval(function() {
 			if(!--chatBtn.timeout) {
 				clearInterval(chatPause);
-				chatBtn.removeAttr('disabled').val('Сказать');
+				chatBtn.removeAttr('disabled').val('<?=LNGAsk?>');
 			} else chatBtn.attr('value','( '+chatBtn.timeout+' )');
 		},1000);
 	}});
@@ -48,7 +48,7 @@ jQuery(function() {
 	function appendChatData(data) {
 		data=data.split("\n");
 		if(data[data.length-1]) $('#online').html('<ul><li>'+data[data.length-1].split('|||').sort().join('</li><li>')+'</li></ul>');
-		else $('#online').html('Активности в чате нет.');
+		else $('#online').html('<?=ThereIsNoActivityInChat?>');
 		$('#online li').click(function() {
 			var o=$('#message');
 			o.val(this.innerHTML+': '+o.val());
@@ -61,7 +61,7 @@ jQuery(function() {
 		}
 		if(s) $('#time').val(data[0][0]);
 		$('#console').append(s);
-		$("#console").animate({scrollTop:$("#console").prop("scrollHeight")}); 
+		$("#console").animate({scrollTop:$("#console").prop("scrollHeight")});
 	}
 
 	loadChatData();
@@ -70,4 +70,4 @@ jQuery(function() {
 </script>
 </div>
 <div style="clear:both;"></div>
-<?php if(!core::userGroup()) echo '<p><br />Чтобы общение было более приятным пройдите простую <a href="'.core::link('user/register').'" rel="nofollow">процедуру регистрации</a>.</p>'; ?>
+<?php if(!core::userGroup()) echo '<p><br />'.sprintf(LNGRegisterChat,'<a href="'.core::link('user/register').'" rel="nofollow">процедуру регистрации</a>').'</p>'; ?>

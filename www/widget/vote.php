@@ -13,7 +13,7 @@ class widgetVote extends widget {
 		}
 		$this->form=core::form('vote');
 		$this->form->radio('answer','',$answer);
-		$this->form->submit('Продолжить');
+		$this->form->submit();
 		return true;
 	}
 
@@ -21,7 +21,7 @@ class widgetVote extends widget {
 		<h3><?=$this->question?></h3>
 		<?php $this->form->render('vote/'.$this->options); ?>
 		<div style="clear:both;"></div>
-		<p style="text-align:center;"><a href="<?=core::link('vote/'.$this->options)?>">результаты</a></p>
+		<p style="text-align:center;"><a href="<?=core::link('vote/'.$this->options)?>"><?=LNGresults?></a></p>
 	<?php }
 
 	public function adminLink() {

@@ -30,7 +30,7 @@ class sController extends controller {
 		$articleCategory=array();
 		foreach($data['articleCategory'] as $id=>$item) $articleCategory[]=$id;
 		$cfg->articleCategory=$articleCategory;
-		$cfg->save('../admin/config/remotePublic');
+		$cfg->save('admin/remotePublic');
 		core::redirect('?controller=remotePublic&action=setting','Настройки сохранены');
 	}
 

@@ -1,7 +1,7 @@
 <div class="faq">
-	<a href="#" onclick="jQuery('#faqContainer').fadeIn();return false;" class="question">Задать вопрос</a>
+	<a href="#" onclick="jQuery('#faqContainer').fadeIn();return false;" class="question"><?=LNGAskQuestion?></a>
 <?php
-if(!$this->items) echo '<p><i>Ни одного вопроса ещё не задано.</i></p>';
+if(!$this->items) echo '<p><i>'.LNGNoOneQuestion.'</i></p>';
 else foreach($this->items as $item) { ?>
 	<div class="item">
 	<p class="question"><?=$item['question']?></p>
@@ -26,24 +26,24 @@ function connectFAQForm() {
 			if(html!='OK') {
 				$('#newQuestion > div > div').html(html+'<div style="clear:both;"></div>');
 				connectFAQForm();
-			} else $('#newQuestion > div > div').html('Спасибо за вопрос. Мы ответим на него в ближайшее время. Вы получите ответ на указанный адрес электронной почты.');
+			} else $('#newQuestion > div > div').html('<?=LNGThankyouForQuestion?>');
 		}
 	});
 
 	$('#faqName').focus(function() {
-		if(this.value=='Ваше имя...') this.value='';
+		if(this.value=='<?=LNGYourName?>') this.value='';
 	}).blur(function() {
-		if(this.value=='') this.value='Ваше имя...';
+		if(this.value=='') this.value='<?=LNGYourName?>';
 	});
 	$('#faqEmail').focus(function() {
-		if(this.value=='Ваш e-mail...') this.value='';
+		if(this.value=='<?=LNGYourEmail?>') this.value='';
 	}).blur(function() {
-		if(this.value=='') this.value='Ваш e-mail...';
+		if(this.value=='') this.value='<?=LNGYourEmail?>';
 	});
 	$('#faqQuestion').focus(function() {
-		if(this.value=='Текст вопроса...') this.value='';
+		if(this.value=='<?=LNGQuestionText?>') this.value='';
 	}).blur(function() {
-		if(this.value=='') this.value='Текст вопроса...';
+		if(this.value=='') this.value='<?=LNGQuestionText?>';
 	});
 }
 connectFAQForm();

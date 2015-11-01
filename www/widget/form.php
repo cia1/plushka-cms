@@ -25,7 +25,7 @@ class widgetForm extends widget {
 				$f->field($type,'fld'.$items[$i]['id'],$title,$items[$i]['defaultValue'],$data);
 			} else $f->field($type,'fld'.$items[$i]['id'],$title,$items[$i]['defaultValue']);
 		}
-		$f->field('submit','submit','Отправить');
+		$f->field('submit','submit',LNGSend);
 		if($form['formView']) { //задано индивидуальное MVC-представление
 			$this->form=$f;
 			$this->formData=$form;

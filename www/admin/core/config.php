@@ -3,14 +3,14 @@
 /* Служит для создания и изменения конфигурационных файлов */
 class config {
 	private $_data=array(); //тут содержатся все данные
-	
+
 	public function __construct($fname=null) {
-		if($fname) $this->load($fname); 
+		if($fname) $this->load($fname);
 	}
 
 	/* Загружает в $this->_data конфигурацию из указанного файла */
 	public function load($fname) {
-		$f=core::path().'config/'.$fname.'.php';
+		if(substr($fname,0,6)=='admin/') $f=core::path().'admin/config/'.substr($fname,6).'.php'; else $f=core::path().'config/'.$fname.'.php';
 		if(!file_exists($f)) {
 			controller::$error='Конфигурации '.$fname.' не существует';
 			return false;
@@ -46,7 +46,8 @@ class config {
 
 	/* Сохраняет конфигурацию в php-файл */
 	public function save($fname) {
-		$f=fopen(core::path().'config/'.$fname.'.php','w');
+		if(substr($fname,0,6)=='admin/') $fname=core::path().'admin/config/'.substr($fname,6).'.php'; else $fname=core::path().'config/'.$fname.'.php';
+		$f=fopen($fname,'w');
 		if(!$f) {
 			controller::$error='Ошибка записи конфигурации '.$fname;
 			return false;

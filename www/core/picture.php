@@ -39,11 +39,11 @@ class picture {
 			$this->_src=imagecreatefrompng($fname);
 			break;
 		default:
-			controller::$error='Файл не является изображением';
+			controller::$error=LNGFileIsNotImage;
 			return false;
 		}
 		if(!$this->_src) {
-			controller::$error='Данный тип файла не поддерживается';
+			controller::$error=LNGFileTypeNotSupport;
 			return;
 		}
 		$this->_x1=$this->_y1=0;
@@ -113,7 +113,7 @@ class picture {
 			imagealphablending($this->_w,true);
 			break;
 		default:
-			controller::$error='Файл не является изображением';
+			controller::$error=LNGFileIsNotImage;
 			return false;
 		}
 		$this->_wW=imagesx($this->_w);

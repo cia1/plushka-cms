@@ -586,7 +586,7 @@ class sController extends controller {
 		//Поиск в меню всех каталогов, чтобы предоставить пользователю выбор (каталог создаётся только из меню)
 		$catalogList=array();
 		$db=core::db();
-		$db->query('SELECT link,title FROM menuItem WHERE link LIKE '.$db->escape('catalog/%'));
+		$db->query('SELECT link,title_'._LANG.' FROM menuItem WHERE link LIKE '.$db->escape('catalog/%'));
 		while($item=$db->fetch()) {
 			$catalogList[]=array((int)substr($item[0],strrpos($item[0],'/')+1),$item[1]);
 		}

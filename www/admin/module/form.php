@@ -1,9 +1,9 @@
 <?php return array(
-'hook2'=>'menuItemDelete,widgetDelete',
+'hook2'=>'menuItemDelete,widgetDelete,languageCreate',
 'right'=>'form.*',
 'widget'=>'form',
 'menu'=>'7',
-'table'=>'frmForm,frmField',
+'table'=>'frmForm(title subject successMessage),frmField(title data)',
 'file'=>array(
 	'admin/controller/form.php',
 	'admin/hook/menuItemDelete.form.php',

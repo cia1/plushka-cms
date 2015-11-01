@@ -13,6 +13,7 @@
 	<?=core::widget('admin')?>
 	<header>
 		<a href="<?=core::url()?>"><img src="<?=core::url()?>public/template/logo1.png" alt="cms0" style="float:left;width:140px;" /></a>
+		<?=core::widget('language')?>
 		<?=core::widget('search')?>
 	</header>
 

@@ -21,6 +21,8 @@ dl.form dt.textarea {float:right;width:100%;height:15px;padding-bottom:0;}
 dl.form dd.textarea {width:100%;height:auto;}
 dl.form textarea {height:90px;}
 dl.form dd.radio,dl.form dd.checkbox {text-align:left;}
+dl.form .radio {width:100%;}
+dl.form dd.radio {height:auto;}
 dl.form .radio label {margin:2px 20px 0 0;}
 dl.form .radio input,dl.form .checkbox input {width:auto;height:auto;margin:3px 5px 0 0;}
 dl.form dd.submit {width:100%;height:auto;}
@@ -39,6 +41,7 @@ body > header {width:1000px;height:140px;margin:0 auto;padding:0px;background:ur
 body > header .widgetsearch {float:right;margin-top:30px;}
 body > header .widgetsearch input {padding:3px 0 3px 3px;border:1px solid black;}
 body > header .widgetsearch .button {height:23px;margin:0;}
+.widgetlanguage {float:right;margin:33px 0 0 30px;}
 #breadcrumb {margin-bottom:13px;padding-left:5px;}
 
 #header {width:1000px;height:50px;margin:0 auto;padding:0;}

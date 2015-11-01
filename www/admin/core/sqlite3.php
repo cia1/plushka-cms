@@ -38,6 +38,10 @@ class sqliteExt extends sqlite {
 		foreach($field as $item) {
 			if($q) $q.=',';
 			$item=trim($item);
+			if($item[0]=="'") { //если кавычки были использованы ошибочно
+				$item='"'.substr($item,1);
+				$item[strpos($item,"'")]='"';
+			}
 			$q.=substr($item,0,strpos($item,' '));
 		}
 		if(!$this->query('INSERT INTO "TEMP_'.$table.'" SELECT '.$q.' FROM "'.$table.'"')) return $this->_rollback();
@@ -63,6 +67,37 @@ class sqliteExt extends sqlite {
 		return true;
 	}
 
+	//Возвращает SQL-азпрос "CREATE TABLE"
+	public function getCreateTableQuery($table) {
+		return $this->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$table."'");
+	}
+
+	//Возвращает структуру таблицы, разобранную по полям, имя таблицы помещает в &$table
+	public function parseStructure($sql,&$table=null) {
+		//выбор имени таблицы
+		if(!preg_match('|CREATE TABLE\s+[`"\']?([A-Z0-9_-]+)|is',$sql,$data)) return false;
+		$table=$data[1];
+		//разбор полей
+		$i1=strpos($sql,'(');
+		$i2=strrpos($sql,')');
+		$sql=trim(substr($sql,$i1+1,$i2-$i1-1));
+		$structure=array();
+		$i1=0;
+		$quote1=$quote2=false;
+		for($i2=0,$cnt=strlen($sql);$i2<$cnt;$i2++) {
+
+			if($sql[$i2]=='(' || $sql[$i2]==')') $quote1=!$quote1;
+			elseif($sql[$i2]=='`' || $sql[$i2]=='"' || $sql[$i2]=="'") $quote2=!$quote2;
+			if(($sql[$i2]==',' || $i2==$cnt-1) && !$quote1 && !$quote2) {
+				if($i2==$cnt-1) $s=substr($sql,$i1); else $s=substr($sql,$i1,$i2-$i1); //пропустить запятую (кроме5 последнего поля)
+				if(preg_match('|[`"\']?([a-zA-Z0-9_-]+)[`"\']?(.+)$|',$s,$data)) $structure[$data[1]]=trim($data[2]);
+				else $structure[]=$s;
+				$i1=$i2+1;
+			}
+		}
+		return $structure;
+	}
+
 	/* Возвращает строку, описывающую тип $expression (должна быть задана в формате MySQL) */
 	private static function _type($expression) {
 		if(is_array($expression)) {
@@ -81,8 +116,12 @@ class sqliteExt extends sqlite {
 			$type=strtoupper(substr($expression,0,$i3));
 		}
 		if($key) $text=' PRIMARY KEY';
-		elseif(stripos($expression,'NOT NULL')!==false) $text=' NOT NULL';
-		else $text='';
+		elseif(stripos($expression,'NOT NULL')!==false) {
+			$text=' NOT NULL';
+			if(stripos($expression,'DEFAULT')===false) { //для значений NOT NULL лучше добавить DEFAULT
+				$text.=" DEFAULT ''";
+			}
+		} else $text='';
 		if($default!='' && $type!='CHAT' && $type!='VARCHAR') $text.=" DEFAULT '".$default."'";
 		switch($type) {
 		case 'INTEGER': case 'INT': case 'TINYINT': case 'MEDIUMINT': case 'BIGINT':
@@ -94,7 +133,7 @@ class sqliteExt extends sqlite {
 		case 'BLOB':
 			return 'BLOB'.$text;
 		default:
-			echo '<p>Warning! Type &laquo;'.$type.'&raquo; defined wrong ('.$expression.')</p>';
+			//echo '<p>Warning! Type &laquo;'.$type.'&raquo; defined wrong ('.$expression.')</p>';
 			return $type.$text;
 		}
 	}

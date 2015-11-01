@@ -10,8 +10,11 @@ class core {
 	//Переводит строку в транслит, пригодный для использования в URL
 	public static function translit($string) {
 		$string=mb_strtolower($string,'UTF-8');
-		$d1=array('а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','ы','ь','щ','ъ','э','ю','я',' ',',','/','%','?','@','#','&');
-		$d2=array('a','b','v','g','d','e','yo','j','z','i','iy','k','l','m','n','o','p','r','s','t','u','f','h','c','ch','sh','y','','sh','','e','yu','ya','-','-','','','','','','-and-');
+		$d1=explode(',',LNGtranslit1);
+		$d2=explode(',',LNGtranslit2);
+		$string=str_replace($d1,$d2,$string);
+		$d1=array(' ',',','/','%','?','@','#','&');
+		$d2=array('-','-','','','','','','-and-');
 		return str_replace($d1,$d2,$string);
 	}
 
@@ -144,13 +147,15 @@ class core {
 	public static function link($link) {
 		static $_link;
 		static $_main;
+		static $_lang;
 		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://') return $link;
 		if(!isset($_link)) {
 			$cfg=core::config();
 			$_link=$cfg['link'];
 			$_main=$cfg['mainPath'];
+			if(_LANG==$cfg['languageDefault']) $_lang=''; else $_lang=_LANG.'/';
 		}
-		if($link==$_main) return core::url();
+		if($link==$_main) return core::url().$_lang;
 		$i=strpos($link,'?');
 		if($i) {
 			$end=substr($link,$i);
@@ -165,7 +170,7 @@ class core {
 			$len2=strlen($s);
 			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 		}
-		return core::url().$link.$end;
+		return core::url().$_lang.$link.$end;
 	}
 
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
@@ -190,6 +195,7 @@ class core {
 
 	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
 	public static function error404() {
+		include(core::path().'language/'._LANG.'.global.php');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
 		controller::$self->url[0]='error';
 		$view=controller::$self->error(404);
@@ -283,7 +289,7 @@ class core {
 			if($i<$cnt) $query.='"'.$s.'/","'.$s.'*"'; else $query.='"'.$s.'/","'.$s.'."';
 		}
 		$db=core::db();
-		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title,s.url FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
 		$cnt=count($items);
 		echo '<div class="section section'.$name.'">';
 		$u=core::userCore();
@@ -318,6 +324,14 @@ class core {
 		for($i=0,$cnt=count($cfg[$name]);$i<$cnt;$i++) {
 			if(!self::_hook($name.'.'.$cfg[$name][$i],$data)) return false;
 		}
+		return true;
+	}
+
+	//Подключает файл локализации
+	public static function language($name) {
+		$f=core::path().'language/'._LANG.'.'.$name.'.php';
+		if(!file_exists($f)) return false;
+		include_once($f);
 		return true;
 	}
 
@@ -381,7 +395,7 @@ class controller {
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">
-				<div class="head"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a></div>
+				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><b>',_LANG,'</b></div>
 				<img id="_adminDialogBoxLoading" src="'.core::url().'admin/public/icon/loadingBig.gif" alt="Загрузка..." />
 				<iframe class="container"></iframe>
 				</div>';
@@ -407,7 +421,7 @@ class controller {
 
 	/* Выводит HTML-код хлебных крошек */
 	public function breadcrumb() {
-		if(core::url()==$_SERVER['REQUEST_URI']) return; //главная страница
+		if(core::url()==$_SERVER['REQUEST_URI'] || core::url()._LANG.'/'==$_SERVER['REQUEST_URI']) return; //главная страница
 		$b='breadcrumb'.$this->url[1];
 		//Если метод контроллера существует, то добавить элементы, а иначе вывести просто ГЛАВНАЯ > ИМЯ_СТРАНИЦЫ
 		if(method_exists($this,$b)) {
@@ -417,14 +431,15 @@ class controller {
 		} else $b='';
 		if($this->pageTitle) $b.=' &raquo; '.$this->pageTitle;
 		if(!$b) return;
-		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().'" rel="nofollow">Главная</a>'.$b.'</div>';
+		$cfg=core::config();
+		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
 	}
 
 	/* Служебный метод, используется при провоцировании HTTP-ошибок (только 404) */
 	public function error($code) {
 		switch($code) {
 		case '404':
-			$this->pageTitle='Страница не найдена';
+			$this->pageTitle=LNGPageNotExists;
 			break;
 		}
 		return $code;
@@ -507,6 +522,7 @@ class user {
 /* С этой функции начинается вся основная работа */
 function runApplication($renderTemplate=true) {
 	session_start();
+	include(core::path().'language/'._LANG.'.global.php');
 	$user=core::userCore();
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
@@ -535,8 +551,20 @@ function runApplication($renderTemplate=true) {
 /* --- INITIALIZE --- */
 if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
 
-//Обработать запрошенный URL и положить его в $_GET['corePath']
+//Поиск языка в URL-адресе
+$lang=strpos($_GET['corePath'],'/');
 $cfg=core::config();
+if(!$lang || !isset($cfg['languageList'])) define('_LANG',$cfg['languageDefault']);
+else {
+	$lang=substr($_GET['corePath'],0,$lang);
+	if(in_array($lang,$cfg['languageList'])) {
+		define('_LANG',$lang);
+		$_GET['corePath']=substr($_GET['corePath'],strlen($lang)+1);
+	} else define('_LANG',$cfg['languageDefault']);
+}
+unset($lang);
+
+//Обработать запрошенный URL и положить его в $_GET['corePath']
 if(!isset($_GET['corePath']) || !$_GET['corePath']) $_GET['corePath']=$cfg['mainPath'];
 else {
 	$_link=array_flip($cfg['link']);
@@ -556,8 +584,9 @@ else {
 		if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 	}
 }
+unset($cfg);
 
-//Перехват if-modified-since
+//Перехват if-modified-since (работает без учёта мультиязычности)
 if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (не для CGI)
 	$db=core::db();
 	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($_GET['corePath']));

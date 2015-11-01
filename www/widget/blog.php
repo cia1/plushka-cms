@@ -10,8 +10,8 @@ class widgetBlog extends widget {
 		if(!isset($this->options['countLink'])) $this->options['countLink']=0; else $this->options['countLink']=(int)$this->options['countLink'];
 		$db=core::db();
 		$countTotal=$this->options['countPreview']+$this->options['countLink'];
-		$this->categoryAlias=$db->fetchValue('SELECT alias FROM articleCategory WHERE id='.$this->options['categoryId']);
-		$db->query('SELECT id,alias,date,title,text1 FROM article WHERE categoryId='.$this->options['categoryId'].' AND date<'.time().' ORDER BY sort,date DESC LIMIT 0,'.$countTotal);
+		$this->categoryAlias=$db->fetchValue('SELECT alias FROM articleCategory_'._LANG.' WHERE id='.$this->options['categoryId']);
+		$db->query('SELECT id,alias,date,title,text1 FROM article_'._LANG.' WHERE categoryId='.$this->options['categoryId'].' AND date<'.time().' ORDER BY sort,date DESC LIMIT 0,'.$countTotal);
 		$cnt=$this->options['countPreview'];
 		$this->itemsPreview=array();
 		while($cnt && $item=$db->fetchAssoc()) {

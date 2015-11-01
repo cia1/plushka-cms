@@ -57,7 +57,7 @@ class catalog {
 	}
 
 	public static function renderBoolean($value) {
-		if($value==1) echo 'да'; else echo 'нет';
+		if($value==1) echo LNGyes; else echo LNGno;
 	}
 
 

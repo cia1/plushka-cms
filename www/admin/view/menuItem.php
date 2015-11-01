@@ -5,8 +5,8 @@ $f->hidden('menuId',$this->data['menuId']);
 $f->hidden('typeId',$this->data['typeId'],'id="typeId"'); //Обновляется при выборе какого-либо типа (для новых пунктов меню)
 $f->hidden('id',$this->data['id']);
 $f->hidden('link',$this->data['link'],'id="menuLink"'); //Ссылка будет погружена сюда после обработки формы модуля
-$f->select('parentId','Родительское меню','SELECT id,title FROM menuItem WHERE menuId='.$this->data['menuId'].' AND parentId=0 ORDER BY sort',$this->data['parentId'],' ( нет ) ');
-$f->text('title','Заголовок ссылки в меню',$this->data['title'],'id="menuTitle"');
+$f->select('parentId','Родительское меню','SELECT id,title_'._LANG.' FROM menuItem WHERE menuId='.$this->data['menuId'].' AND parentId=0 ORDER BY sort',$this->data['parentId'],' ( нет ) ');
+$f->text('title_'._LANG,'Заголовок ссылки в меню',$this->data['title'],'id="menuTitle"');
 $f->label('Ссылка',$this->data['link'],'id="menuUrl"');
 $f->render();
 ?>
@@ -33,7 +33,7 @@ if(!$this->data['type']) {
 <script>
 function loadForm(id,controller,action) {
 	jQuery('#typeId').val(id);
-	var url='<?=core::url()?>admin/index2.php?controller='+controller+'&action='+action<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&link=<?=urlencode($this->data['link'])?>";
+	var url='<?=core::url()?>admin/index2.php?controller='+controller+'&action='+action+'&_lang=<?=_LANG?>'<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&link=<?=urlencode($this->data['link'])?>";
 	$('#_type').load(url,function(data) { //После загрузки формы модуля
 		setTimeout(function() {
 			var f=$('#_type form');

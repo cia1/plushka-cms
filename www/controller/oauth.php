@@ -10,6 +10,7 @@ class sController extends controller {
 			$this->id=$_GET['corePath'][1];
 			$this->url[1]='Redirect';
 		}
+		core::language('oauth');
 	}
 
 	/* Редирект на сервер авторизации (соц.сеть) для запроса разрешений */
@@ -25,7 +26,7 @@ class sController extends controller {
 	public function actionReturn() {
 		if(isset($_REQUEST['error'])) {
 			if(isset($_REQUEST['error_description'])) controller::$error=urldecode($_REQUEST['error_description']);
-			else controller::$error='Авторизоваться не удалось';
+			else controller::$error=LNGLogInFailed;
 			return 'Answer';
 		}
 		$data=core::config('oauth');
@@ -45,7 +46,7 @@ class sController extends controller {
 		$data=$db->fetchArrayOnceAssoc('SELECT u.id,u.groupId,u.login,u.email FROM oauth o LEFT JOIN user u ON u.id=o.userId WHERE o.id='.$db->escape($answer['id']).' AND o.social='.$db->escape($this->id));
 		if(!$data) { //пользователь не был зарегистрирован ранее
 			if(!$userGroup) {
-				controller::$error='Вы не зарегистрированы на этом сайте';
+				controller::$error=LNGYouDontRegisteredThisSite;
 				return 'Answer';
 			}
 			$user=core::user()->model();
@@ -67,7 +68,7 @@ class sController extends controller {
 //		$u->group=$data['groupId'];
 //		$u->login=$data['login'];
 //		$u->email=$data['email'];
-		core::redirect('','Вы вошли как '.$user->login);
+		core::redirect('',LNGYouLoginAs.' '.$user->login);
 	}
 
 	/* Возвращает URL страницы соц.сети, открывающей сессию авторизации (первый запрос) */
@@ -109,13 +110,13 @@ class sController extends controller {
 			$data=curl_exec($ch);
 		} else $data=file_get_contents($link);
 		if(!$data) {
-			controller::$error='Авторизация не удалась';
+			controller::$error=LNGLogInFailed;
 			return false;
 		}
 		if($data[0]=='{') $data=json_decode($data,true); else parse_str($data,$data);
 		if(isset($data['error'])) {
 			if(isset($data['error_description'])) controller::$error=$data['error_description'];
-			else controller::$error='Авторизоваться не удалось';
+			else controller::$error=LNGLogInFailed;
 			return false;
 		}
 		if(isset($data['user_id'])) { //разные соц. сети именуют это поле по разному

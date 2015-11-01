@@ -17,7 +17,7 @@ class admin {
 			$_count++;
 			$link=$item[1];
 			if($link[0]=='?') $link=core::url().'admin/index.php'.$link; else $link=core::url().'admin/'.$link;
-			$link.='&_front';
+			$link.='&_front&_lang='._LANG;
 			echo '<a href="',$link,'" onclick="';
 			if($item[5]) echo $item[5],';';
 			echo 'return $.adminDialog(this);" class="_adminItem"><img src="',core::url(),'admin/public/icon/',$item[2],'16.png" alt="';

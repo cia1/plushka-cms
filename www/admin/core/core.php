@@ -12,8 +12,11 @@ class core {
 	//Переводит строку в транслит, пригодный для использования в URL
 	public static function translit($string) {
 		$string=mb_strtolower($string,'UTF-8');
-		$d1=array('а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','ы','ь','щ','ъ','э','ю','я',' ',',','/','%','?','@','#','&');
-		$d2=array('a','b','v','g','d','e','yo','j','z','i','iy','k','l','m','n','o','p','r','s','t','u','f','h','c','ch','sh','y','','sh','','e','yu','ya','-','-','','','','','','-and-');
+		$d1=explode(',',LNGtranslit1);
+		$d2=explode(',',LNGtranslit2);
+		$string=str_replace($d1,$d2,$string);
+		$d1=array(' ',',','/','%','?','@','#','&');
+		$d2=array('-','-','','','','','','-and-');
 		return str_replace($d1,$d2,$string);
 	}
 
@@ -134,13 +137,14 @@ class core {
 	/* Формирует относительную ссылку, служит главным образом для добавления к ссылке дополнительных параметров */
 	public static function link($link) {
 		if($link[0]=='/') return $link;
-		if(isset($_GET['_front'])) $front='&_front'; else $front='';
+		$add='&_lang='._LANG;
+		if(isset($_GET['_front'])) $add.='&_front';
 		if(isset($_GET['backlink'])) $backlink='&backlink='.urlencode($_GET['backlink']); else $backlink='';
-		if($link[0]=='?') return core::url().'admin/index.php'.$link.$front.$backlink;
+		if($link[0]=='?') return core::url().'admin/index.php'.$link.$add.$backlink;
 		$link=explode('/',$link);
 		$s=core::url().'admin/index.php?controller='.$link[0].$backlink;
 		if(isset($link[1])) $s.='&action='.$link[1];
-		return $s.$front;
+		return $s.$add;
 	}
 
 	/* Генерирует виджет. Обрабатывает {{widget}}
@@ -518,8 +522,15 @@ if(!isset($_GET['controller'])) {
 	$cfg=core::configAdmin();
 	$_GET['corePath']=explode('/',$cfg['mainPath']);
 	if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]='Index';
+	unset($cfg);
 } else {
 	$_GET['corePath']=array($_GET['controller']);
 	if(isset($_GET['action'])) $_GET['corePath'][1]=$_GET['action']; else $_GET['corePath'][1]='Index';
 }
+if(isset($_GET['_lang'])) define('_LANG',$_GET['_lang']); else {
+	$cfg=core::configAdmin();
+	define('_LANG',$cfg['languageDefault']);
+	unset($cfg);
+}
+core::import('language/'._LANG.'.global');
 ?>

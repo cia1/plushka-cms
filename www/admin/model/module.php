@@ -89,9 +89,9 @@ class module {
 		$cfg->file=array();
 		$cfg->currentVersion=$currentVersion;
 		$cfg->save('../admin/module/'.$id);
-		$cfg=new config('../admin/config/_module');
+		$cfg=new config('admin/_module');
 		$cfg->$id=array('name'=>$name,'version'=>$version,'status'=>1,'url'=>$url);
-		$cfg->save('../admin/config/_module');
+		$cfg->save('admin/_module');
 		self::$_config=$cfg;
 		return true;
 	}
@@ -100,7 +100,7 @@ class module {
 	public static function status($id,$status) {
 		if(!self::$_config) {
 			core::import('admin/core/config');
-			self::$_config=new config('../admin/config/_module');
+			self::$_config=new config('admin/_module');
 		}
 		$s=self::$_config->get($id);
 		$s['status']=$status;
@@ -249,7 +249,7 @@ class module {
 				$f=explode('.',$f);
 				if($f[2]!='php') continue;
 				//Обновить информацию о собитиях в файле _hook.php
-				if(!$cfg) $cfg=new config('../admin/config/_hook');
+				if(!$cfg) $cfg=new config('admin/_hook');
 				$name=$f[0]; //имя события
 				$h=$cfg->get($name); //Получить массив
 				if(!$h) $h=array();
@@ -260,7 +260,7 @@ class module {
 				if($hook2) $hook2.=','.$name; else $hook2=$name;
 			}
 			if($cfg) {
-				$cfg->save('../admin/config/_hook');
+				$cfg->save('admin/_hook');
 				$module['hook2']=$hook2;
 			}
 			closedir($d);
@@ -282,15 +282,18 @@ class module {
 		core::import('admin/core/config');
 		$sql=file_get_contents($f);
 		//Извлечь имена создаваемых таблиц и записать в файл
-		preg_match_all('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))([^\s]+)\s/is',$sql,$f);
+		preg_match_all('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))`?([a-zA-Z0-9_]+)`?\s/is',$sql,$table);
+		$table=$table[1];
 		$cfg=new config('../admin/module/'.$id);
-		$cfg->table=implode(',',$f[1]);
+		$cfg->table=implode(',',$table);
 		$cfg->save('../admin/module/'.$id);
+
 		//Теперь поочерёдно выполнить все SQL-запросы
 		$db=core::db();
 		$cnt=strlen($sql);
 		$quote=$escape=false;
 		$i0=0;
+		$lang=$cfg0['languageList'];
 		for($i=0;$i<$cnt;$i++) {
 			if($escape) {
 				$escape=false;
@@ -302,13 +305,50 @@ class module {
 			}
 			if($sql[$i]=='"' || $sql[$i]=='\'') {
 				if(!$quote) $quote=$sql[$i]; else $quote=null;
-			} elseif($sql[$i]==';' && !$quote) {
-				$query=trim(substr($sql,$i0,($i-$i0)));
-				$db->query($query);
+			} elseif($sql[$i]==';' && !$quote) { //конец очередного sql-запроса
+				if(!self::_executeLanguage(trim(substr($sql,$i0,($i-$i0))))) {
+					controller::$error='Ошибка выполнения SQL-запросов';
+					return false;
+				}
 				$i0=$i+1;
 			}
 		}
 		return true;
+	}
+
+	//Выполняет SQL-запрос с учётом мультиязынчх преобразований
+	private static function _executeLanguage($sql) {
+		$cfg=core::config();
+		$lang=$cfg['languageList'];
+		//Если это создание мультиязычной таблицы
+		$db=core::db();
+		if(preg_match('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))`?([a-zA-Z0-9_]+_LANG)`?\s/is',$sql,$table)) {
+			$table=$table[1];
+			$langTable=substr($table,0,strlen($table)-4); //имя таблицы без префикса языка
+			foreach($lang as $item) {
+				if(!$db->query(str_replace($table,$langTable.$item,$sql))) return false;
+			}
+			return true;
+		}
+		//Поиск мультиязычных полей
+		$data=$db->parseStructure($sql);
+		if($data) { //это запрос "CREATE TABLE...": нужно добавить дубли мультиязычных полей
+			foreach($data as $field=>$item) {
+				if(substr($field,strlen($field)-5)!='_LANG') continue;
+				$i1=strpos($sql,$field);
+				$quote=$sql[$i1-1];
+				if($sql[$i1-1]=='`' || $sql[$i1-1]=='"' || $sql[$i1-1]=="'") $i1--;
+				$i2=strpos($sql,$item,$i1)+strlen($item);
+				$field=substr($field,0,strlen($field)-5);
+				$query='';
+				foreach($lang as $i=>$lng) {
+					if($i) $query.=',';
+					$query.=$field.'_'.$lng.' '.$item;
+				}
+				$sql=substr($sql,0,$i1).$query.substr($sql,$i2);;
+			}
+		}
+		return $db->query($sql);
 	}
 
 	/* Составляет список файлов в директории /tmp и заносит его в конфигурацию модуля с именем $id */
@@ -375,7 +415,16 @@ class module {
 	/* Разрушает все таблицы, созданные модулем, а также удаляет информцию о типах меню и виджетах */
 	public static function dropDb($module) {
 		$db=core::db();
-		foreach($module['table'] as $item) $db->query('DROP TABLE '.$item);
+		$lang=core::config();
+		$lang=$lang['languageList'];
+		foreach($module['table'] as $item) {
+			if(substr($item,strlen($item)-5)=='_LANG') {
+				$item=substr($item,0,strlen($item)-4);
+				foreach($lang as $itemLang) {
+					$db->query('DROP TABLE '.$item.$itemLang);
+				}
+			} else $db->query('DROP TABLE '.$item);
+		}
 		if($module['menu']) $db->query('DELETE FROM menuType WHERE id IN ('.implode(',',$module['menu']).')');
 		if($module['widget']) {
 			$s='';
@@ -394,7 +443,12 @@ class module {
 	public static function unlink($file) {
 		$cnt=count($file)-1;
 		$path=core::path();
+		$languageFile=array();
 		for($i=$cnt;$i>=0;$i--) {
+			if(substr($file[$i],0,11)=='data/email/' || substr($file[$i],0,9)=='language/') {
+				self::_unlinkLanguage($file[$i]);
+				continue;
+			}
 			$s=$path.$file[$i];
 			if(is_dir($s)) {
 				if(!self::clearDirectory($s)) return false;
@@ -411,9 +465,9 @@ class module {
 	/* Удаляет информацию о модуле и его конфигурационный файл */
 	public static function delete($id) {
 		unlink(core::path().'admin/module/'.$id.'.php');
-		$cfg=new config('../admin/config/_module');
+		$cfg=new config('admin/_module');
 		$cfg->delete($id);
-		$cfg->save('../admin/config/_module');
+		$cfg->save('admin/_module');
 		return true;
 	}
 
@@ -490,5 +544,13 @@ class module {
 		return true;
 	}
 
+	//Удаляет мультиязычные файлы (шаблоны писем и файлы локализации)
+	private static function _unlinkLanguage($f) {
+		$i=strrpos($f,'/')+1;
+		$name=preg_replace('|^[a-z][a-z]\.|','',substr($f,$i));
+		$f=substr($f,0,$i).'??.'.$name;
+		$f=glob(core::path().$f,GLOB_NOSORT);
+		foreach($f as $item) unlink($item);
+	}
 }
 ?>

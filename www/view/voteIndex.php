@@ -3,4 +3,4 @@
 	echo '<tr><td>'.$item[0].':</td><td>'.$item[1].'</td></tr>';
 } ?>
 </table>
-<p>Всего проголосовало <b><?=$this->total?></b> человек.</p>
+<p><?php printf(LNGVoteCount,$this->total); ?></p>

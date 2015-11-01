@@ -3,7 +3,10 @@
 int $options - идентификатор группы товаров */
 class widgetShopProductGroup extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('shop');
+		return true;
+	}
 
 	public function render() {
 		core::import('model/shop');
@@ -13,7 +16,7 @@ class widgetShopProductGroup extends widget {
 			echo '<div class="item">
 			<a href="'.$item['link'].'"><p class="title">'.$item['title'].'</p>
 			<img src="'.$url.$item['mainImage'].'" alt="'.$item['title'].'" /></a>
-			<span class="price">'.$item['price'].' руб.</span>
+			<span class="price">'.$item['price'].' '.LNGcurrency.'</span>
 			</div>';
 		}
 	}
