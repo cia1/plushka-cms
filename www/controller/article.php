@@ -50,7 +50,7 @@ class sController extends controller {
 		if($this->category['metaKeyword']) $this->metaKeyword=$this->category['metaKeyword'];
 		if($this->category['metaDescription']) $this->metaDescription=$this->category['metaDescription'];
 		$this->pageTitle=$this->category['title'];
-		$this->items=$db->fetchArrayAssoc('SELECT id,alias,title,text1,date FROM article_'._LANG.' WHERE categoryId='.$this->category['id'].' AND date<'.time().' ORDER BY sort,date DESC,id DESC',$this->category['onPage']);
+		$this->items=$db->fetchArrayAssoc('SELECT id,alias,title,text1,date FROM article_'._LANG.' WHERE categoryId='.$this->category['id'].' AND (date<'.time().' OR date IS NULL) ORDER BY sort,date DESC,id DESC',$this->category['onPage']);
 		$this->totalCount=$db->foundRows();
 		return 'Blog';
 	}
