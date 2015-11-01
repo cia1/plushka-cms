@@ -22,9 +22,9 @@ class sController extends controller {
 	public function actionCategory() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Выбрать категорию по ИД
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM articleCategory WHERE id='.(int)$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT * FROM articleCategory_'._LANG.' WHERE id='.(int)$_GET['id']);
 		} elseif(isset($_GET['link']) && $_GET['link']) { //Выбрать категорию по псевдониму
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM articleCategory WHERE alias='.$db->escape(substr($_GET['link'],strrpos($_GET['link'],'/')+1)));
+			$data=$db->fetchArrayOnceAssoc('SELECT * FROM articleCategory_'._LANG.' WHERE alias='.$db->escape(substr($_GET['link'],strrpos($_GET['link'],'/')+1)));
 		} else $data=array('id'=>null,'parentId'=>0,'title'=>'','alias'=>'','onPage'=>20,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'','text1'=>'');
 		if(!$data) core::error404();
 		$f=core::form();
@@ -50,7 +50,7 @@ class sController extends controller {
 	//Список не опубликованных статей
 	public function actionFeature() {
 		$db=core::db();
-		$db->query('SELECT id,date,title FROM article WHERE categoryId='.(int)$_GET['categoryId'].' AND date>'.time());
+		$db->query('SELECT id,date,title FROM article_'._LANG.' WHERE categoryId='.(int)$_GET['categoryId'].' AND date>'.time());
 		$table=core::table();
 		$table->rowTh(array('Дата','Заголовок',''));
 		while($item=$db->fetch()) {
@@ -65,10 +65,10 @@ class sController extends controller {
 	public function actionArticle() {
 		if(isset($_GET['id'])) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM article WHERE id='.(int)$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT * FROM article_'._LANG.' WHERE id='.(int)$_GET['id']);
 		} elseif(isset($_GET['alias'])) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM article WHERE alias='.$db->escape($_GET['alias']));
+			$data=$db->fetchArrayOnceAssoc('SELECT * FROM article_'._LANG.' WHERE alias='.$db->escape($_GET['alias']));
 		} elseif($_POST) $data=$_POST['article']; //просто чтобы избежать повторного обращения к базе данных
 		else { //Это новая статья - заполнить данными по умолчанию
 			$data=array('id'=>'','text1'=>'','text2'=>'','sort'=>0,'categoryId'=>'0','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'','title'=>'','alias'=>'','date'=>time());
@@ -102,7 +102,7 @@ class sController extends controller {
 	/* Удаление статьи (форма подтверждения) */
 	public function actionArticleDelete() {
 		$db=core::db();
-		$db->query('DELETE FROM article WHERE id='.$_GET['id']);
+		$db->query('DELETE FROM article_'._LANG.' WHERE id='.$_GET['id']);
 		core::redirect('?controller=article&acttion=article','Статья удалена');
 	}
 /* --------------------------------------------------------------------------------------------- */
@@ -176,13 +176,13 @@ class sController extends controller {
 	private function _saveCategory($data) {
 		//Проверить уникальность псевдонима
 		$db=core::db();
-		if($data['id']) $err=$db->fetchValue('SELECT id FROM articleCategory WHERE alias='.$db->escape($data['alias']).' AND id<>'.$data['id']);
-		else $err=$db->fetchValue('SELECT id FROM articleCategory WHERE alias='.$db->escape($data['alias']));
+		if($data['id']) $err=$db->fetchValue('SELECT id FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($data['alias']).' AND id<>'.$data['id']);
+		else $err=$db->fetchValue('SELECT id FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($data['alias']));
 		if($err) {
 			controller::$error='Такой псевдоним уже используется для другой категории статей (блога)';
 			return false;
 		}
-		$m=core::model('articleCategory');
+		$m=core::model('articleCategory_'._LANG);
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -204,12 +204,12 @@ class sController extends controller {
 	private function _saveArticle($data) {
 		//Проверить уникальность псевдонима
 		$db=core::db();
-		if($data['id']) $oldAlias=$db->fetchValue('SELECT alias FROM article WHERE id='.$data['id']); else $oldAlias=null;
-		if($data['alias']!==$oldAlias && $db->fetchValue('SELECT 1 FROM article WHERE categoryId='.$data['categoryId'].' AND alias='.$db->escape($data['alias']).($data['id'] ? ' AND id!='.$data['id'] : ''))) {
+		if($data['id']) $oldAlias=$db->fetchValue('SELECT alias FROM article_'._LANG.' WHERE id='.$data['id']); else $oldAlias=null;
+		if($data['alias']!==$oldAlias && $db->fetchValue('SELECT 1 FROM article_'._LANG.' WHERE categoryId='.$data['categoryId'].' AND alias='.$db->escape($data['alias']).($data['id'] ? ' AND id!='.$data['id'] : ''))) {
 			controller::$error='Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.';
 			return false;
 		}
-		$m=core::model();
+		$m=core::model('article_'._LANG);
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),

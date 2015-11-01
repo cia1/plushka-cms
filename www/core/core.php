@@ -289,7 +289,7 @@ class core {
 			if($i<$cnt) $query.='"'.$s.'/","'.$s.'*"'; else $query.='"'.$s.'/","'.$s.'."';
 		}
 		$db=core::db();
-		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title,s.url FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
 		$cnt=count($items);
 		echo '<div class="section section'.$name.'">';
 		$u=core::userCore();
@@ -421,7 +421,7 @@ class controller {
 
 	/* Выводит HTML-код хлебных крошек */
 	public function breadcrumb() {
-		if(core::url()==$_SERVER['REQUEST_URI']) return; //главная страница
+		if(core::url()==$_SERVER['REQUEST_URI'] || core::url()._LANG.'/'==$_SERVER['REQUEST_URI']) return; //главная страница
 		$b='breadcrumb'.$this->url[1];
 		//Если метод контроллера существует, то добавить элементы, а иначе вывести просто ГЛАВНАЯ > ИМЯ_СТРАНИЦЫ
 		if(method_exists($this,$b)) {
@@ -431,14 +431,15 @@ class controller {
 		} else $b='';
 		if($this->pageTitle) $b.=' &raquo; '.$this->pageTitle;
 		if(!$b) return;
-		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
+		$cfg=core::config();
+		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
 	}
 
 	/* Служебный метод, используется при провоцировании HTTP-ошибок (только 404) */
 	public function error($code) {
 		switch($code) {
 		case '404':
-			$this->pageTitle=LNGPageNotFound;
+			$this->pageTitle=LNGPageNotExists;
 			break;
 		}
 		return $code;

@@ -224,6 +224,10 @@ class model {
 				controller::$error=sprintf(LNGFieldCanByLatin,$options[1]);
 				return false;
 			}
+			if(isset($options['max']) && strlen($value)>$options['max']) {
+				controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+				return false;
+			}
 			break;
 		case 'email':
 			if($value) {

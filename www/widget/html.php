@@ -6,7 +6,12 @@ class widgetHtml extends widget {
 	public function __invoke() { return true; }
 
 	public function render() {
-		include(core::path().'data/widgetHtml/'.$this->options.'.html');
+		$f=core::path().'data/widgetHtml/'.$this->options.'_'._LANG.'.html';
+		if(!file_exists($f)) {
+			$cfg=core::config();
+			$f=core::path().'data/widgetHtml/'.$this->options.'_'.$cfg['languageDefault'].'.html';
+		}
+		include($f);
 	}
 
 	public function adminLink() {

@@ -18,5 +18,9 @@
 ),
 'template'=>array(
 'article/blog/news'=>'red'
+),
+'languageList'=>array(
+'ru',
+'en'
 )
 ); ?>

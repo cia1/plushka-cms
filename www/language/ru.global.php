@@ -19,7 +19,6 @@ define('LNGLogin','Логин');
 define('LNGMain','Главная');
 define('LNGName','Имя');
 define('LNGno','нет');
-define('LNGPageNotFound','Страница не найдена');
 define('LNGReadMore','Читать далее...');
 define('LNGSave','Сохранить');
 define('LNGSend','Отправить');
@@ -29,7 +28,4 @@ define('LNGToMain','На главную');
 define('LNGUser','Пользователь');
 define('LNGwroteWrong','введён неверно');
 define('LNGyes','да');
-
-//404
-define('LNGPageNotFound','Запрошенная страница %s не существует.');
 ?>

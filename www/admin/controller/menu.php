@@ -36,7 +36,7 @@ class sController extends controller {
 		$this->button('action=item&menuId='.$menuId,'new','Создать новый пункт меню','Создать');
 		//Подготовить древовидный массив пунктов меню (меню может быть многоуровневым)
 		$db=core::db();
-		$db->query('SELECT id,parentId,link,title,sort FROM menuItem WHERE menuId='.$db->escape($menuId).' ORDER BY sort');
+		$db->query('SELECT id,parentId,link,title_'._LANG.',sort FROM menuItem WHERE menuId='.$db->escape($menuId).' ORDER BY sort');
 		$data=array();
 		while($item=$db->fetch()) {
 			if(!isset($data[$item[1]])) $data[$item[1]]=array();
@@ -67,7 +67,7 @@ class sController extends controller {
 	public function actionItem() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Редактирование - загрузить данные
-			$this->data=$db->fetchArrayOnceAssoc('SELECT i.id id,i.parentId parentId,i.menuId menuId,i.link link,i.title title,i.typeId typeId,t.controller controller,t.action action FROM menuItem i LEFT JOIN menuType t ON t.id=i.typeId WHERE i.id='.$_GET['id']);
+			$this->data=$db->fetchArrayOnceAssoc('SELECT i.id id,i.parentId parentId,i.menuId menuId,i.link link,i.title_'._LANG.' title,i.typeId typeId,t.controller controller,t.action action FROM menuItem i LEFT JOIN menuType t ON t.id=i.typeId WHERE i.id='.$_GET['id']);
 			$this->data['type']=array($this->data['typeId'],$this->data['controller'],$this->data['action']);
 		} else { //Новый пункт меню
 			//ИД меню сохраняется в сессии, т.к. возможны случаи (на будущее в общем-то) кодга из меню будет переход на другую страницу админки, а потом возврат
@@ -96,7 +96,7 @@ class sController extends controller {
 			'parentId'=>array('integer'),
 			'menuId'=>array('string'),
 			'link'=>array('string'),
-			'title'=>array('string'),
+			'title_'._LANG=>array('string'),
 			'typeId'=>array('integer')
 		);
 		//Если это новый пункт меню, то вычислить индекс сортировки (задаёт порядок пунктов)

@@ -1,3 +1,3 @@
 <?php
-define('LNGPageNotFound','Запрошенная страница %s не существует.');
+define('LNGPageNotExists','Запрошенная страница %s не существует.');
 ?>

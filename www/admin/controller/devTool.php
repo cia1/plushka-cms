@@ -66,7 +66,7 @@ class sController extends controller {
 		$cfg->clearFile=explode("\n",$data['clearFile']);
 		$cfg->dropTable=explode("\n",$data['dropTable']);
 		$cfg->unlinkFile=explode("\n",$data['unlinkFile']);
-		$cfg->save('../admin/config/devTool');
+		$cfg->save('admin/devTool');
 		core::redirect('devTool','Настройки сохранены');
 	}
 
@@ -222,48 +222,39 @@ class sController extends controller {
 		}
 		foreach($m['widget'] as $item) {
 			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM widgetType WHERE name='.$db0->escape($item));
-//			$sql1.='INSERT INTO widgetType (name,title,controller,action) VALUES ('.$db1->escape($item).','.$db1->escape($data[0]).','.$db1->escape($data[1]).','.$db1->escape($data[2]).");\n";
-//			$sql2.='INSERT INTO widgetType (name,title,controller,action) VALUES ('.$db2->escape($item).','.$db2->escape($data[0]).','.$db2->escape($data[1]).','.$db2->escape($data[2]).");\n";
 			$widget.='widget: '.$item."\t".$data[0]."\t".$data[1]."\t".$data[2]."\n";
 		}
 		$menu='';
 		foreach($m['menu'] as $item) {
 			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM menuType WHERE id='.$db0->escape($item));
-//			$sql1.='INSERT INTO menuType (title,controller,action) VALUES ('.$db1->escape($data[0]).','.$db1->escape($data[1]).','.$db1->escape($data[2]).");\n";
-//			$sql2.='INSERT INTO menuType (title,controller,action) VALUES ('.$db2->escape($data[0]).','.$db2->escape($data[1]).','.$db2->escape($data[2]).");\n";
 			$menu.='menu: '.$data[0]."\t".$data[1]."\t".$data[2]."\n";
 		}
-//		core::import('admin/core/config');
-//		$data=array();
-//		if($m['hook1']) {
-//			mkdir(core::path().'tmp/config');
-//			foreach($m['hook1'] as $item) {
-//				if(!isset($data[$item[0]])) $data[$item[0]]=array();
-//				$data[$item[0]][]=$item[1];
-//			}
-//			$cfg=new config();
-//			$cfg->setData($data);
-//			$cfg->save('../tmp/config/_hook');
-//		}
-//		if($m['hook2']) {
-//			foreach($m['hook2'] as $item) {
-//				if(!isset($data[$item[0]])) $data[$item[0]]=array();
-//				$data[$item[0]][]=$item[1];
-//			}
-//			mkdir(core::path().'tmp/admin');
-//			mkdir(core::path().'tmp/admin/config');
-//			$cfg=new config();
-//			$cfg->setData($data);
-//			$cfg->save('../tmp/admin/config/_hook');
-//		}
-		foreach($m['table'] as $item) {
+		//Конструирование SQL-запроса (для двух СУБД)
+		$lang=core::config();
+		$lang=$lang['languageDefault'];
+		foreach($m['table'] as $item) { //перебор таблиц из конфигурационного файла модуля
+			$i=strpos($item,'(');
+			if($i) {
+				$langField=explode(' ',substr($item,$i+1,strlen($item)-$i-2));
+				$item=substr($item,0,$i);
+			}
+			$langItem=$item;
+			if(substr($item,strlen($item)-5)=='_LANG') {
+				$item=substr($item,0,strlen($item)-4).$lang;
+			}
 			$db1->query('SHOW CREATE TABLE `'.$item.'`');
 			$data=$db1->fetch();
 			$data=$data[1];
 			$i=strpos($data,' ENGINE=');
 			if($i) $data=substr($data,0,$i);
+			foreach($langField as $fld) {
+				$data=str_replace($fld.'_'.$lang,$fld.'_LANG',$data);
+			}
+			if($langItem!=$item) $data=str_replace($item,$langItem,$data);
 			$sql1.=$data.";\n";
-			$sql2.=$db2->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$item."'").";\n";
+			$data=$db2->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$item."'").";\n";
+			if($langItem!=$item) $data=str_replace($item,$langItem,$data);
+			$sql2.=$data;
 		}
 
 		$path1=str_replace('\\','/',core::path());

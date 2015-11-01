@@ -137,13 +137,14 @@ class core {
 	/* Формирует относительную ссылку, служит главным образом для добавления к ссылке дополнительных параметров */
 	public static function link($link) {
 		if($link[0]=='/') return $link;
-		if(isset($_GET['_front'])) $front='&_front'; else $front='';
+		$add='&_lang='._LANG;
+		if(isset($_GET['_front'])) $add.='&_front';
 		if(isset($_GET['backlink'])) $backlink='&backlink='.urlencode($_GET['backlink']); else $backlink='';
-		if($link[0]=='?') return core::url().'admin/index.php'.$link.$front.$backlink;
+		if($link[0]=='?') return core::url().'admin/index.php'.$link.$add.$backlink;
 		$link=explode('/',$link);
 		$s=core::url().'admin/index.php?controller='.$link[0].$backlink;
 		if(isset($link[1])) $s.='&action='.$link[1];
-		return $s.$front;
+		return $s.$add;
 	}
 
 	/* Генерирует виджет. Обрабатывает {{widget}}
@@ -531,4 +532,5 @@ if(isset($_GET['_lang'])) define('_LANG',$_GET['_lang']); else {
 	define('_LANG',$cfg['languageDefault']);
 	unset($cfg);
 }
+core::import('language/'._LANG.'.global');
 ?>

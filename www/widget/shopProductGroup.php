@@ -3,7 +3,10 @@
 int $options - идентификатор группы товаров */
 class widgetShopProductGroup extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('shop');
+		return true;
+	}
 
 	public function render() {
 		core::import('model/shop');

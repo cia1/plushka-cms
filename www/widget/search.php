@@ -2,7 +2,10 @@
 /* Текстовое поле "поиск по сайту" */
 class widgetSearch extends widget {
 
-	public function __invoke() { return true; }
+	public function __invoke() {
+		core::language('search');
+		return true;
+	}
 
 	public function render() {
 		if(isset($_GET['keyword'])) $keyword=$_GET['keyword']; else $keyword='';

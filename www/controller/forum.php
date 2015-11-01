@@ -250,7 +250,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbNewPost() {
-		return array('<a href="'.core::link('forum').'">'LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','<a href="'.core::link('forum/'.$this->categoryId.'/'.$this->topicId).'">'.$this->topicTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','<a href="'.core::link('forum/'.$this->categoryId.'/'.$this->topicId).'">'.$this->topicTitle.'</a>');
 	}
 
 	public function actionNewPostSubmit($data) {

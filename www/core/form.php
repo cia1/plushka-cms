@@ -293,12 +293,5 @@ class form {
 		return $s;
 	}
 
-/*
-	public function renderFile($filename,$url=null) { die('not emplemented'); }
-	public function sqlite() {}
-	public function mysql() {}
-	public function db() {}
-*/
 }
-
 ?>

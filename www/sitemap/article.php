@@ -13,7 +13,7 @@ for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 	echo '<url><loc>http://'.$_SERVER['HTTP_HOST'].core::link($item[0]).'</loc>'.($m ? '<lastmod>'.date('Y-m-d',$m).'</lastmod>' : '').'</url>'."\n";
 }
 echo "\n";
-$items=$db->fetchArray('SELECT c.alias,a.alias FROM article a LEFT JOIN articleCategory c ON c.id=a.categoryId ORDER BY c.alias');
+$items=$db->fetchArray('SELECT c.alias,a.alias FROM article_'._LANG.' a LEFT JOIN articleCategory_'._LANG.' c ON c.id=a.categoryId ORDER BY c.alias');
 $lastAlias='';
 for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 	echo '<url>';
