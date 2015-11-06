@@ -167,8 +167,10 @@ class module {
 			}
 			$widget[$i]=$item[0];
 		}
-		$s1='DELETE FROM widgetType WHERE name IN ('.$s1.')';
-		$db->query($s1);
+		if($s1) {
+			$s1='DELETE FROM widgetType WHERE name IN ('.$s1.')';
+			$db->query($s1);
+		}
 		if($widget) {
 			$s2='INSERT INTO widgetType (name,title,controller,`action`) VALUES '.$s2;
 			$db->query($s2);

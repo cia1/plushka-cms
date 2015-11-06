@@ -95,6 +95,12 @@
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
+'highlight'=>array(
+'name'=>'Подсветка кода PHP',
+'version'=>'1.0',
+'status'=>100,
+'url'=>'http://plushka-cms.ru'
+),
 'language'=>array(
 	'name'=>'Управление языками',
 	'version'=>'1.0',
@@ -202,5 +208,5 @@
 	'version'=>'.',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
-),
+)
 ); ?>

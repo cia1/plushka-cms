@@ -259,6 +259,7 @@ class form {
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
 			$value=$_POST[$this->_namespace][$name];
 		}
+		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
 		return '<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'" '.$html.'>'.$value.'</textarea>
 		<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();

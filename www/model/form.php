@@ -35,7 +35,6 @@ class mForm extends form {
 				$this->field[$i]['data']=$data;
 			}
 		}
-		$this->submit(LNGSend);
 		return true;
 	}
 
@@ -54,7 +53,7 @@ class mForm extends form {
 				elseif($type=='email') $this->field('text',$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
 				else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
 			}
-			$this->submit('Отправить');
+			$this->submit(LNGSend);
 			unset($this->field);
 			return parent::render(null,$html);
 		}

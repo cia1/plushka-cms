@@ -1,0 +1,8 @@
+pre {padding:10px;background:#eee;line-height:18px;font-family:"Courier New";overflow:auto;}
+.hljs-variable {color:#d29400;font-weight:bold;}
+.hljs-comment {font-style:italic;color:#777;}
+.hljs-string {color:green;}
+.hljs-keyword,.hljs-function {color:black;font-weight:bold;}
+.hljs-title {font-weight:normal;}
+.hljs-number {color:#c28400;}
+.hljs-preprocessor {font-weight:bold;font-style:italic;}

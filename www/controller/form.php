@@ -14,13 +14,9 @@ class sController extends controller {
 	/* Вывод формы */
 	public function actionIndex() {
 		core::import('model/form');
+		$f=new mForm($this->id);
 		$this->pageTitle=$this->metaTitle=$f->title;
-		return new mForm($this->id); //$this->id - идентификатор формы (таблица form)
-//		if($f->formView) { //если для формы задано индивидуальное представление
-//			$this->form=$f;
-//			$view=$f->formView;
-//		} else $view=$f;
-		return $view;
+		return $f; //$this->id - идентификатор формы (таблица form)
 	}
 
 	public function adminIndexLink() {
