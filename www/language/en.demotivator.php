@@ -11,7 +11,7 @@ define('LNGDesigner','Constructor');
 define('LNGFontSize','Font size');
 define('LNGLink','Link');
 define('LNGTakePart','Take part: create your demotivator %s');
-define('LNGToChangeSize','To change the font size, double-click the mouse on the line of text. To add a new row press Enter.');
+define('LNGToChangeFontSize','To change the font size, double-click the mouse on the line of text. To add a new row press Enter.');
 define('LNGUploadImage','Load image');
 define('LNGYourText','Your text...');
 ?>

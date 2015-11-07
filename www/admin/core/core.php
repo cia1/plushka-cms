@@ -467,23 +467,30 @@ class user {
 function runApplication($renderTemplate=true) {
 	session_start();
 	controller::$self=new sController($_GET['corePath'][1]);
+
+	$alias=controller::$self->url[0];
 	//Проверка прав доступа к запрошенной странице
 	$user=core::user();
-	if(controller::$self->url[0]!='user' || controller::$self->url[1]!='Login') {
+	if($alias!='user' || controller::$self->url[1]!='Login') {
 		if($user->group<200) core::redirect('user/login');
 		if($user->group!=255) {
 			if(!controller::$self->right($user->right,controller::$self->url[1])) core::redirect('user/login');
 		}
 	}
 	//Запуск submit-действия
-	if(isset($_POST[controller::$self->url[0]])) {
+	if(isset($_POST[$alias])) {
 		if(!method_exists('sController','action'.controller::$self->url[1].'Submit')) core::error404();
 		$s='action'.controller::$self->url[1].'Submit';
 		//Подготовить данные _POST и _FILES для передачи submit-действию
-		if(isset($_FILES[controller::$self->url[0]])) {
-			$f1=$_FILES[controller::$self->url[0]];
+		if(isset($_FILES[$alias])) {
+			$f1=$_FILES[$alias];
 			foreach($f1['name'] as $name=>$value) {
-				$_POST[controller::$self->url[0]][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
+				if(is_array($value)) {
+					$_POST[$alias][$name]=array();
+					foreach($value as $i=>$valueValue) {
+						$_POST[$alias][$name][]=array('name'=>$valueValue,'tmpName'=>$f1['tmp_name'][$name][$i],'type'=>$f1['type'][$name][$i],'size'=>$f1['size'][$name][$i]);
+					}
+				} else $_POST[$alias][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
 			}
 		}
 		$post=$_POST[controller::$self->url[0]];

@@ -64,8 +64,7 @@ class sController extends controller {
 		//Обработка изображений категории (если загружены)
 		if($data['image']['size']) {
 			core::import('core/picture');
-			$ext=strtolower(substr($data['image']['name'],strrpos($data['image']['name'],'.')+1)); //расширение файла изображения
-			$picture=new picture($data['image']['tmpName'],$ext);
+			$picture=new picture($data['image']);
 			if(controller::$error) return false; //Файл не является изображением?
 			//Удалить существующее изображение, если таковое есть
 			if($data['id']) {
@@ -75,8 +74,9 @@ class sController extends controller {
 			}
 			$cfg=core::config('shop');
 			$picture->resize($cfg['categoryWidth'],$cfg['categoryHeight']);
-			if(!$picture->save(core::path().'public/shop-category/'.$model->id,85,$ext)) return false;
-			$db->query('UPDATE shpCategory SET image='.$db->escape($model->id.'.'.$ext).' WHERE id='.$model->id);
+			$fname=$picture->save('public/shop-category/'.$model->id,85);
+			if(!$fname) return false;
+			$db->query('UPDATE shpCategory SET image='.$db->escape($fname).' WHERE id='.$model->id);
 		}
 		core::redirect('?controller=shopContent&action=category&id='.$data['id'],'Изменения сохранены');
 	}
@@ -235,17 +235,17 @@ class sController extends controller {
 		$index=count($image)+1; //Для формирования имени файла
 		core::import('core/picture');
 		$cfg=core::config('shop');
-		$ext=strtolower(substr($data['image']['name'],strrpos($data['image']['name'],'.')+1));
-		$picture=new picture($data['image']['tmpName'],$ext);
+		$picture=new picture($data['image']);
 		if(controller::$error) return false;
 		$picture->resize($cfg['productFullWidth'],$cfg['productFullHeight']);
 		$fname=$data['id'].'.'.$index;
-		if(!$picture->save(core::path().'public/shop-product/'.$fname,100,$ext)) return false;
+		$fname=$picture->save('public/shop-product/'.$fname,100);
+		if(!$fname) return false;
 		$picture->resize($cfg['productThumbWidth'],$cfg['productThumbHeight']);
-		if(!$picture->save(core::path().'public/shop-product/_'.$fname,80,$ext)) return false;
-		$image[]=$fname.'.'.$ext;
+		if(!$picture->save('public/shop-product/_'.$fname,80)) return false;
+		$image[]=$fname;
 		$q='UPDATE shpProduct SET image='.$db->escape(implode(',',$image));
-		if(!$mainImage) $q.=',mainImage='.$db->escape($fname.'.'.$ext); //Если ранее небыло
+		if(!$mainImage) $q.=',mainImage='.$db->escape($fname); //Если ранее небыло
 		$db->query($q.' WHERE id='.$data['id']);
 		core::redirect('?controller=shopContent&action=productImage&id='.$data['id']);
 	}
@@ -431,7 +431,7 @@ class sController extends controller {
 		if($data['image']['size']) {
 			core::import('core/picture');
 			$cfg=core::config('shop');
-			$picture=new picture($data['image']['tmpName'],$data['image']['type']);
+			$picture=new picture($data['image']);
 			if(controller::$error) return false;
 			$db=core::db();
 			//Удалить старое изображение, если загружено новое
@@ -443,8 +443,8 @@ class sController extends controller {
 				}
 			}
 			$picture->resize($cfg['brandWidth'],$cfg['brandHeight']);
-			$extension=$picture->save(core::path().'public/shop-brand/'.$model->id);
-			$db->query('UPDATE shpBrand SET image='.$db->escape($model->id.'.'.$extension).' WHERE id='.$model->id);
+			$fname=$picture->save('public/shop-brand/'.$model->id);
+			$db->query('UPDATE shpBrand SET image='.$db->escape($fname).' WHERE id='.$model->id);
 		}
 		core::redirect('?controller=shopContent&action=brand');
 	}

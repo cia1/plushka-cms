@@ -50,7 +50,7 @@ class sController extends controller {
 			if($this->cfg['userGroup'] && $this->cfg['userGroup']=core::userGroup()) core::redirect('user/login');
 			$f=core::form();
 			$f->file('image',LNGUploadImage);
-			$f->submit(null,'submit');
+			$f->submit(LNGContinue,'submit');
 			$view=$f;
 		} else { //шаг 1 (загрузка изображения)
 			$s=getimagesize(core::path().'public/demotivator/tmp/'.$this->image);
@@ -136,24 +136,22 @@ class sController extends controller {
 
 	/* submit-действие (шаг 1) */
 	private function _construct1($data) {
-		$path=core::path().'public/demotivator/tmp/';
+		$path='public/demotivator/tmp/';
 		//Предварительно удалить устаревшие файлы чтобы не накапливать мусор
-		$d=opendir($path);
+		$d=opendir(core::path().$path);
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..') continue;
-			//$t=fileatime($f);
 			$t=filectime($path.$f);
 			if($t<(time()-600)) unlink($path.$f);
 		}
 		closedir($d);
 		core::import('core/picture');
-		$p=new picture($data['image']['tmpName'],$data['image']['type']);
+		$p=new picture($data['image']);
 		if(controller::$error) return false;
 		$this->cfg=core::config('demotivator');
 		$p->resize('<'.$this->cfg['imageWidthMax'],null);
 		$f=mktime();
-		$ext=$p->save($path.$f);
-		$this->image=$f.'.'.$ext;
+		$this->image=$p->save($path.$f);
 	}
 
 	/* submit-действие (шаг 2) */

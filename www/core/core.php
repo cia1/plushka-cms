@@ -526,21 +526,22 @@ function runApplication($renderTemplate=true) {
 	$user=core::userCore();
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
-	if(!isset($_POST[controller::$self->url[0]])) { //в _POST нет данных, относящихся к запрошенному контроллеру
+	$alias=controller::$self->url[0];
+	if(!isset($_POST[$alias])) { //в _POST нет данных, относящихся к запрошенному контроллеру
 		if(!method_exists('sController','action'.controller::$self->url[1])) core::error404();
 	} else { //в _POST есть данные, относящиеся к запрошенному контроллеру
 		if(!method_exists('sController','action'.controller::$self->url[1].'Submit')) core::error404();
 	}
 	//Подготовить данные $_POST и $_FILES для передачи submit-действию
-	if(isset($_POST[controller::$self->url[0]])) {
-		if(isset($_FILES[controller::$self->url[0]])) {
-			$f1=$_FILES[controller::$self->url[0]];
+	if(isset($_POST[$alias])) {
+		if(isset($_FILES[$alias])) {
+			$f1=$_FILES[$alias];
 			foreach($f1['name'] as $name=>$value) {
-				$_POST[controller::$self->url[0]][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
+				$_POST[$alias][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
 			}
 		}
 		$s='action'.controller::$self->url[1].'Submit';
-		controller::$self->$s($_POST[controller::$self->url[0]]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
+		controller::$self->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
 	}
 	//Запуск действия (не submit) и вывод контента
 	$s='action'.controller::$self->url[1];

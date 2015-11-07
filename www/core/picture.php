@@ -17,26 +17,22 @@ class picture {
 	private $_wH;
 
 	/* Открывает файл изображения, проверяет что это действительно изображение
-	$filename - имя файл, $type - MIME-тип или расширение файла (если его нет в $filename) */
-	public function __construct($fname,$type=null) {
-		if($type) {
-			$i=strrpos($type,'/');
-			if($i) $type=substr($type,$i+1);
-		} else {
-			$i=strrpos($fname,'.');
-			if($i) $type=substr($fname,$i+1);
-		}
-		$type=strtolower($type);
-		$this->_type=$type;
+	$filename - имя файла, если массив, то воспринимается как файл из массива $_FILES */
+	public function __construct($file) {
+		if(is_array($file)) {
+			$this->_type=substr($file['type'],strrpos($file['type'],'/')+1);
+			$file=$file['tmpName'];
+		} else $this->_type=substr($file,strrpos($file,'.')+1);
+		$type=strtolower($this->_type);
 		switch($type) {
 		case 'jpg': case 'jpeg':
-			$this->_src=imagecreatefromjpeg($fname);
+			$this->_src=imagecreatefromjpeg($file);
 			break;
 		case 'gif':
-			$this->_src=imagecreatefromgif($fname);
+			$this->_src=imagecreatefromgif($file);
 			break;
 		case 'png':
-			$this->_src=imagecreatefrompng($fname);
+			$this->_src=imagecreatefrompng($file);
 			break;
 		default:
 			controller::$error=LNGFileIsNotImage;
@@ -138,9 +134,15 @@ class picture {
 		if($minus) $this->_wY=$this->_dstW-$this->_wW-$y; else $this->_wY=$y;
 	}
 
-	/* Выполняет все действия обработки и сохраняет изображение в файл */
-	public function save($fname,$quality=100,$type=null) {
-		if(!$type) $type=$this->_type; else $type=strtolower($type);
+	/* Выполняет все действия обработки и сохраняет изображение в файл.
+	Тип файла определяется расширением $fileName, если оно задано, возвращает имя файба без директория, но с расширением */
+	public function save($fileName,$quality=100) {
+		$type=strrpos($fileName,'.');
+		if($type) $type=strtolower(substr($fileName,$type+1));
+		if($type!='jpg' && $type!='jpeg' && $type!='gif' && $type!='png') {
+			$type=$this->_type;
+			$fileName.='.'.$type;
+		}
 		$dst=imagecreatetruecolor($this->_dstW,$this->_dstH);
 		if($type=='png') {
 			imagealphablending($dst,false);
@@ -156,19 +158,19 @@ class picture {
 			imagecopy($dst,$this->_w,$this->_wX,$this->_wY,0,0,$this->_wW,$this->_wH);
 			$this->_w=null;
 		}
-		$fname=$fname.'.'.$type;
 		switch($type) {
 		case 'jpg': case 'jpeg':
-			imagejpeg($dst,$fname,$quality);
+			imagejpeg($dst,core::path().$fileName,$quality);
 			break;
 		case 'gif':
-			imagegif($dst,$fname);
+			imagegif($dst,core::path().$fileName);
 			break;
 		case 'png':
-			imagepng($dst,$fname);
+			imagepng($dst,core::path().$fileName);
 			break;
 		}
-		return $type;
+		$i=strrpos($fileName,'/');
+		if(!$i) return $fileName; else return substr($fileName,$i+1);
 	}
 
 }

@@ -45,11 +45,11 @@ class sController extends controller {
 		//Если был выбра файл, то установить аватар
 		if($data['avatar']) {
 			core::import('core/picture');
-			$p=new picture($data['avatar']['tmpName'],$data['avatar']['type']);
+			$p=new picture($data['avatar']);
 			if(controller::$error) return false;
 			$cfg=core::config('forum');
 			$p->resize($cfg['avatarWidth'],$cfg['avatarHeight']);
-			$fname=$userId.'.'.$p->save('public/avatar/'.$userId);
+			$fname=$p->save('public/avatar/'.$userId);
 			//Удалить старый аватар
 			$db=core::db();
 			$oldAvatar=$db->fetchValue('SELECT avatar FROM forumUser WHERE id='.$userId);

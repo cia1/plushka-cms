@@ -408,21 +408,21 @@ class sController extends controller {
 					controller::$error='Файл в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должен быть изображением';
 					return false;
 				}
-				$uploadImage[$id]=$ext;
+				$uploadImage[]=$id;
 				if($old) $old.=',';
 				$old.=$id;
 				break;
 			case 'gallery':
 				//Проверить тип загружаемых файлов
 				$img=$data[$id];
-				if(!$img['size'][0]) $img=array();
-				for($i=0,$cnt=count($img['size']);$i<$cnt;$i++) {
-					$ext=strtolower(substr($img['name'][$i],strrpos($img['name'][$i],'.')+1));
+				if(!$img[0]['size']) $img=array();
+				for($i=0,$cnt=count($img);$i<$cnt;$i++) {
+					$ext=strtolower(substr($img[$i]['name'],strrpos($img[$i]['name'],'.')+1));
 					if($ext!='gif' && $ext!='jpg' && $ext!='jpeg' && $ext!='png') {
 						controller::$error='Файлы в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должны быть изображениями';
 						return false;
 					}
-					if(!isset($uploadGallery[$id])) $uploadGallery[$id]=array($ext); else $uploadGallery[$id][]=$ext;
+					if(!in_array($id,$uploadGallery)) $uploadGallery[]=$id;
 				}
 				if($old) $old.=','.$id; else $old=$id;
 			 	break;
@@ -433,20 +433,19 @@ class sController extends controller {
 		$q='';
 		if($old) $old=$db->fetchArrayOnceAssoc('SELECT '.$old.' FROM catalog_'.$data['lid'].' WHERE id='.$oldId);
 		if($uploadImage || $uploadGallery) core::import('core/picture');
-		foreach($uploadImage as $id=>$ext) {
+		foreach($uploadImage as $id) {
 			if($oldId) { //удалить сначала старый файл изображения
 				$f=core::path().'public/catalog/'.$oldImage[$id];
 				if(file_exists($f)) unlink($f);
 			}
-			$p=new picture($data[$id]['tmpName'],$ext);
+			$p=new picture($data[$id]);
 			$p->resize($cfg['data'][$id]['width'],$cfg['data'][$id]['height']);
 			$f=$data['lid'].'.'.$m->id.'-'.$id;
-			$p->save(core::path().'public/catalog/'.$f);
-			$f.='.'.$ext;
+			$f=$p->save('public/catalog/'.$f);
 			if($q) $q.=',';
 			$q.=$id.'='.$db->escape($f);
 		}
-		foreach($uploadGallery as $id=>$item) {
+		foreach($uploadGallery as $id) {
 			$t=$old[$id];
 			if(!$t) $index=0; else {
 				$t=explode('|',$t);
@@ -459,19 +458,18 @@ class sController extends controller {
 			unset($t);
 			$q0=$old[$id];
 			if(isset($cfg['data'][$id]['thumbWidth'])) $thumbnail=true; else $thumbnail=false;
-			foreach($item as $i=>$ext) {
+			for($i=0,$cnt=count($data[$id]);$i<$cnt;$i++) {
 				$index++;
-				$p=new picture($data[$id]['tmpName'][$i],$ext);
+				$p=new picture($data[$id][$i]);
 				$p->resize($cfg['data'][$id]['width'],$cfg['data'][$id]['height']);
 				$f=$data['lid'].'.'.$m->id.'-'.$id.'-'.$index;
-				$p->save(core::path().'public/catalog/'.$f);
-				$f.='.'.$ext;
+				$f=$p->save('public/catalog/'.$f);
 				if($q0) $q0.='|'.$f; else $q0=$f;
 				//миниатюра
 				if($thumbnail) {
 					$p->resize($cfg['data'][$id]['thumbWidth'],$cfg['data'][$id]['thumbHeight']);
 					$f='_'.$data['lid'].'.'.$m->id.'-'.$id.'-'.$index;
-					$p->save(core::path().'public/catalog/'.$f);
+					$p->save('public/catalog/'.$f);
 				}
 			}
 			if($q) $q.=',';
