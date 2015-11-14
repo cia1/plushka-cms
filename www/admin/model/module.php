@@ -130,11 +130,11 @@ class module {
 			if(!isset($item[3])) $item[3]=null;
 			if($s1) {
 				$s1.=','.$db->escape($item[0]);
-				$s2.=',('.$db->escape($item[0]).','.$db->escape($item[1]).','.($item[2] ? $db->escape($item[2]) : 'null').','.($item[3] ? $db->escape($item[3]) : 'null').')';
+				$s2.=',('.$db->escape($item[0]).','.$db->escape($item[1]).','.($item[2] ? $db->escape($item[2]) : 'null').')';
 			} else {
 				$s1=$db->escape($item[0]);
 				if(!isset($item[3])) $item[3]='';
-				$s2='('.$db->escape($item[0]).','.$db->escape($item[1]).','.($item[2] ? $db->escape($item[2]) : 'null').','.($item[3] ? $db->escape($item[3]) : 'null').')';
+				$s2='('.$db->escape($item[0]).','.$db->escape($item[1]).','.($item[2] ? $db->escape($item[2]) : 'null').')';
 			}
 			$right[$i]=$item[0];
 		}
@@ -142,7 +142,7 @@ class module {
 		$s1='DELETE FROM userRight WHERE module IN ('.$s1.')';
 		$db->query($s1);
 		if($right) {
-			$s2='INSERT INTO userRight (module,description,groupId,picture) VALUES '.$s2;
+			$s2='INSERT INTO userRight (module,description,picture) VALUES '.$s2;
 			$db->query($s2);
 		}
 		$cfg=new config('../admin/module/'.$id);

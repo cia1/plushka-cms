@@ -4,7 +4,8 @@
 	'admin/config/devTool.php',
 	'admin/controller/devTool.php',
 	'admin/data/devTool-image.php',
-	'admin/public/icon/tool32.png',
+	'admin/data/devTool-model.php.txt',
+	'admin/public/icon/tool16.png',
 	'admin/view/devToolImageCompare.php',
 	'admin/view/devToolIndex.php',
 	'admin/view/devToolCompare.php'

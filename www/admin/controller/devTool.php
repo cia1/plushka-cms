@@ -39,6 +39,13 @@ class sController extends controller {
 		$this->formImageMake=core::form(); //создание снимка состояния системы
 		$this->formImageMake->submit('Сделать снимок');
 		//Форма генератора кода
+		$form=core::form();
+		$form->select('dbDriver','СУБД',array(array('mysql','MySQLi'),array('sqlite','SQLite')),$this->config['dbDriver'],null,'id="dbDriver"');
+		$form->select('table','Таблица',array());
+		$form->checkbox('comment','Комментарии',true);
+		$form->checkbox('save','Сохранить в файл',false);
+		$form->submit();
+		$this->formCodeModel=$form;
 		return 'Index';
 	}
 
@@ -218,7 +225,7 @@ class sController extends controller {
 		$right='';
 		foreach($m['right'] as $item) {
 			$data=$db0->fetchArrayOnce('SELECT description,groupId,picture FROM userRight WHERE module='.$db0->escape($item));
-			$right.='right: '.$item."\t".$data[0]."\t".$data[1]."\t".$data[2]."\n";
+			$right.='right: '.$item."\t".$data[0]."\t".$data[2]."\n";
 		}
 		foreach($m['widget'] as $item) {
 			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM widgetType WHERE name='.$db0->escape($item));
@@ -419,6 +426,64 @@ class sController extends controller {
 		return 'ImageCompare';
 	}
 
+	public function actionTableList() {
+		if($_GET['driver']=='sqlite') $structure=self::_structureSQLite(false);
+		else $structure=self::_structureMySQL(false);
+		echo '<select name="devTool[table]">';
+		foreach($structure as $item) { ?>
+			<option value="<?=$item?>"><?=$item?></option>
+		<?php }
+		echo '</select>';
+	}
+
+	public function actionCodeModel() {
+		$f=core::form();
+		$f->textarea('html',$this->table.(isset($_POST['devTool']['save']) ? '<br />Модель сохранена в файл /model/'.$this->table.'.php' : '').'.php',$this->template);
+		return $f;
+	}
+
+	public function actionCodeModelSubmit($data) {
+		$template=file_get_contents(core::path().'admin/data/devTool-model.php.txt');
+		if(isset($data['comment'])) $template=str_replace(array('{{comment}}','{{/comment}}'),'',$template);
+		else $template=preg_replace('|\{\{comment\}\}.*?\{\{/comment\}\}|is','',$template);
+
+		if($_GET['driver']=='sqlite') $db=core::sqlite(); else $db=core::mysql();
+		$structure=$db->getCreateTableQuery($data['table']);
+		if(preg_match('|PRIMARY\s+KEY\s?\(([^)]+)|is',$structure,$primary)) {
+			$primary=str_replace(array("'",'"','`'),'',trim($primary[1]));
+		} else $primary=null;
+		$structure=$db->parseStructure($structure);
+		$rule=array();
+		foreach($structure as $field=>$item) {
+			if($field==$primary) $s="'".$field."'=>array('primary')";
+			else {
+				$type=self::_sqlType($item);
+				$s="'".$field."'=>array('".$type[1]."','".strtoupper($field)."'";
+				if(strpos($item,'NOT NULL')) $s.=',true';
+				$max=self::_sqlMax($type[0],$item);
+				if($max) $s.=",'max'=>".$max;
+				$s.=')';
+			}
+			$rule[$field]=$s;
+		}
+		$rule=implode(",\n\t\t\t",$rule);
+		$template=str_replace(
+			array('{{table}}','{{fields}}','{{validateRule}}'),
+			array($data['table'],implode(',',array_keys($structure)),$rule),
+			$template
+		);
+		if(isset($data['save'])) {
+			$f=fopen(core::path().'model/'.$data['table'].'.php','w');
+			fwrite($f,$template);
+			fclose($f);
+		}
+		$this->template=$template;
+		$this->table=$data['table'];
+	}
+
+
+
+
 /* --- PRIVALTE -------------------------------------------------------------------------------- */
 	private static function _structureDb($field=true) {
 		$cfg=core::config();
@@ -457,6 +522,40 @@ class sController extends controller {
 			while($item=$db->fetch()) $data[$table][]=$item[1];
 		}
 		return $data;
+	}
+
+	private static function _sqlType($query,$name) {
+		$query=strtoupper($query);
+		preg_match('|[a-zA-Z0-9_-]+|',$query,$type);
+		$type=$type[0];
+		switch($type) {
+		case 'TINYINT': case 'SMALLINT': case 'MEDIUMINT': case 'BIGINT': case 'INT': case 'INTEGER':
+			if(strpos($query,'UNSIGNED')) return array($type,'integer'); else return array($type,'float');
+		case 'FLOAT': case 'DOUBLE':
+			return array($type,'float');
+		case 'SMALLTEXT': case 'MEDIUMTEXT': case 'LARGETEXT': case 'TEXT':
+			return array($type,'html');
+		case 'CHAR': case 'VARCHAR': case 'ENUM': case 'STRING': default:
+			return array($type,'string');
+		}
+	}
+
+	private static function _sqlMax($type,$query) {
+		if($type=='ENUM') return false;
+		switch($type) {
+		case 'TINYINT': case 'SMALLINT': case 'MEDIUMINT': case 'BIGINT': case 'INT': case 'INTEGER':
+			if($type=='TINYINT') $max=255;
+			elseif($type=='SMALLINT') $max=65535;
+			else $max=false;
+			if($max && strpos($query,'UNSIGNED')) return round($max/2);
+			return $max;
+		case 'FLOAT': case 'DOUBLE': return false;
+		}
+		//Это строка...
+		$query=substr($query,strlen($type));
+		$query=str_replace(array(' ',"\t","'",'"','`'),'',$query);
+		if($query[0]!='(') return false;
+		return $query=(int)substr($query,1);
 	}
 
 	/* Рекурсивно удаляет файлы и директории */

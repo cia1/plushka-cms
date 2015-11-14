@@ -55,7 +55,7 @@
 ),
 'devTool'=>array(
 'name'=>'Инструменты разработчика',
-'version'=>'1.1',
+'version'=>'1.2',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),

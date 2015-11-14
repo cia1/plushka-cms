@@ -45,12 +45,17 @@
 		<cite>Снимок помогает отследить изменение файлов и структуры базы данных.</cite>
 		<div style="clear:both;"></div><br /><br />
 	</fieldset>
-<?php /*
 	<fieldset>
-		<legend>Генератор кода</legend>
+		<legend>Генератор кода модели</legend>
+		<?php $this->formCodeModel->render('devTool/codeModel'); ?>
+		<cite>Шаблон модели находится в файле /admin/data/devTool-model.php.txt</cite>
 	</fieldset>
-*/ ?>
 </div>
 <script>
 	setTimeout(function() { $('.tab').tab(); },200);
+</script>
+<script type="text/javascript">
+$('#dbDriver').change(function() {
+	$('dd.table').html('Загрузка...').load('<?=core::url()?>admin/index2.php?controller=devTool&action=tableList&driver='+this.value);
+}).change();
 </script>
