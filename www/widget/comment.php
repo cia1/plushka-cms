@@ -11,6 +11,7 @@ class widgetComment extends widget {
 		$this->link=implode('/',$_GET['corePath']);
 		$cfg=core::config('comment');
 		$this->status=$cfg['status'];
+		core::language('comment');
 		return 'Comment';
 	}
 

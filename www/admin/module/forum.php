@@ -10,7 +10,6 @@
 	'admin/hook/userDelete.forum.php',
 	'admin/hook/userModify.forum.php',
 	'admin/module/forum.php',
-	'admin/public/icon/setting32.png',
 	'config/forum.php',
 	'controller/forum.php',
 	'hook/search.forum.php',

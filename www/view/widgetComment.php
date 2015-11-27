@@ -22,6 +22,6 @@ $('form#comment').ajaxForm({success:function(data) {
 	}
 	$('form#comment').remove();
 	alert('<?=($this->status ? LNGCommentAdded : LNGCommentWillBePublicAfterAprove)?>');
-	$("#commentList").load('<?=core::url()?>index2.php?controller=comment&action=list&link=<?=$link?>');
+	$("#commentList").load('<?=core::url()?>index2.php?controller=comment&action=list&link=<?=$this->link?>');
 } });
 </script>

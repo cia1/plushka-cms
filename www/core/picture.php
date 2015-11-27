@@ -48,6 +48,17 @@ class picture {
 		$this->_dstW=$this->_srcW;
 		$this->_dstH=$this->_srcH;
 	}
+
+	//Возвращает высоту исходного изображения
+	public function height() {
+		return $this->_srcH;
+	}
+
+	//Возвращает широту исходного изображения
+	public function width() {
+		return $this->_srcW;
+	}
+
 /*
 	public function cropByCoord($x1,$y1,$x2=null,$y2=null) { die('crop function not emplemented'); }
 

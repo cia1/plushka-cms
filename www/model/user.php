@@ -91,6 +91,7 @@ class modelUser extends model {
 	/* Отправляет личное сообщение пользователю
 	int $user2Id и string $user2Login - ИД и логин получателя; string $message - текст сообщения; bool $email - надо или нет продублировать сообщение по электронной почте */
 	public function message($user2Id=null,$user2Login=null,$message,$email=null) {
+		core::language('user');
 		$message=trim($message);
 		if(!$message) {
 			controller::$error=LNGNothingToSend;
@@ -100,6 +101,7 @@ class modelUser extends model {
 		//Даже если были бы заданы и ИД и логин, то всёравно нужно удостовериться что такой пользователь существует
 		if($user2Id) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE id='.$user2Id);
 		elseif($user2Login) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE login='.$db->escape($user2Login));
+		else $user2=null;
 		if(!$user2) {
 			controller::$error=LNGIncorrectRecepientData;
 			return false;
