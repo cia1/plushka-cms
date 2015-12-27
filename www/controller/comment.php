@@ -31,7 +31,7 @@ class sController extends controller {
 		if(!$name) die(LNGUserNameNecessary);
 		if(!$text) die(LNGCommentTextCannotBeEmpty);
 		if(!core::userId()) { //Каптча только для неавторизованных пользователей
-			if($data['captcha']!=$_SESSION['captcha']) die(LNGCaptchaIsWrong);
+			if($data['captcha']!==$_SESSION['captcha']) die(LNGCaptchaIsWrong);
 		}
 		$cfg=core::config('comment');
 		$db->query('INSERT INTO comment (groupId,userId,date,name,text,status,ip) VALUES ('.$groupId.','.(int)$u->id.','.time().','.$db->escape($name).','.$db->escape($text).','.$cfg['status'].','.$db->escape($this->_ip()).')');

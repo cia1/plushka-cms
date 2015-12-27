@@ -248,7 +248,7 @@ class model {
 			}
 			break;
 		case 'captcha':
-			if($value!=$_SESSION['captcha']) {
+			if($value!==$_SESSION['captcha']) {
 				controller::$error=$options[1].' '.LNGwroteWrong;
 				return;
 			}

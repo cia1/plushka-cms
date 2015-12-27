@@ -29,7 +29,7 @@ class mysql {
 	$limit - количество элементов на странице (для пагинации), $page - номер страницы (для пагинации) */
 	public function query($query,$limit=null,$page=null) {
 		if($limit!==null) {
-			if($page) $page=(int)$page; else {
+			if($page) $page=(int)$page-1; else {
 				if(isset($_GET['page'])) $page=((int)$_GET['page'])-1; else $page=0;
 			}
 			$query='SELECT SQL_CALC_FOUND_ROWS '.substr($query,7).' LIMIT '.($page*$limit).','.$limit;
