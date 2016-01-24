@@ -3,7 +3,7 @@
 
 /* ---------- CORE ------------------------------------------------------------------- */
 /* Базовый класс, содержит основные статические методы */
-class core {
+class _core {
 
 	private static $_template='default'; //имя шаблона, который будет использован при выводе контента
 
@@ -41,7 +41,7 @@ class core {
 
 	/* Возвращает true если включён отладочный режим и false в противном случае */
 	public static function debug() {
-		$cfg=core::config();
+		$cfg=self::config();
 		if(isset($cfg['debug']) && $cfg['debug']) return true; else return false;
 	}
 
@@ -49,13 +49,13 @@ class core {
 	Массив возвращается по ссылке, т.к. конфигурация может быть изменена при помощи класса "config" */
 	public static function &config($name='_core') {
 		static $_cfg;
-		if(!isset($_cfg[$name])) $_cfg[$name]=include(core::path().'config/'.$name.'.php');
+		if(!isset($_cfg[$name])) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
 		return $_cfg[$name];
 	}
 
 	/* Подключает указанный php-скрипт */
 	public static function import($name) {
-		include_once(core::path().$name.'.php');
+		include_once(self::path().$name.'.php');
 	}
 
 	/* Возвращает относительный URL до корня сайта */
@@ -86,10 +86,10 @@ class core {
 	$id - идентификатор данных (строка), $callback - функция, возвращающая свежие данные, $timeout - время в секундах актуальности кеша */
 	public static function cache($id,$callback,$timeout=-1) {
 		if($timeout) {
-			$cfg=core::config();
+			$cfg=self::config();
 			if($cfg['debug']) $timeout=0;
 		}
-		$f=core::path().'cache/custom/'.$id.'.txt';
+		$f=self::path().'cache/custom/'.$id.'.txt';
 		if(file_exists($f)) {
 			if($timeout===-1) return unserialize(file_get_contents($f));
 			if(time()-filemtime($f)<$timeout) return unserialize(file_get_contents($f));
@@ -105,7 +105,7 @@ class core {
 	Если задан $nc, то будет открыто новое подключение */
 	public static function sqlite($nc=false) {
 		static $_sqlite;
-		if(!$_sqlite) core::import('core/sqlite3');
+		if(!$_sqlite) self::import('core/sqlite3');
 		if($nc) return new sqlite();
 		if(!$_sqlite) $_sqlite=new sqlite();
 		return $_sqlite;
@@ -115,7 +115,10 @@ class core {
 	Если задан $nc, то будет открыто новое подключение */
 	public static function mysql($nc=false) {
 		static $_mysql;
-		if(!$_mysql) core::import('core/mysqli');
+		if(!$_mysql) {
+			self::import('core/mysqli');
+			if(self::debug()) self::import('core/mysqli-debug'); else class_alias('_mysql','mysql');
+		}
 		if($nc) return new mysql();
 		if(!$_mysql) $_mysql=new mysql();
 		return $_mysql;
@@ -126,8 +129,8 @@ class core {
 	public static function db($nc=false) {
 		static $_db;
 		if(!$_db) {
-			$cfg=core::config();
-			if($cfg['dbDriver']=='mysql') $_db=core::mysql($nc); else $_db=core::sqlite($nc);
+			$cfg=self::config();
+			if($cfg['dbDriver']=='mysql') $_db=self::mysql($nc); else $_db=self::sqlite($nc);
 		}
 		return $_db;
 	}
@@ -141,7 +144,7 @@ class core {
 
 	/* Возвращает группу пользователей, к которой относится текущий пользователь */
 	public static function userGroup() {
-		$u=core::user();
+		$u=self::user();
 		return $u->group;
 	}
 
@@ -152,12 +155,12 @@ class core {
 		static $_lang;
 		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://') return $link;
 		if(!isset($_link)) {
-			$cfg=core::config();
+			$cfg=self::config();
 			$_link=$cfg['link'];
 			$_main=$cfg['mainPath'];
 			if(_LANG==$cfg['languageDefault']) $_lang=''; else $_lang=_LANG.'/';
 		}
-		if($link==$_main) return core::url().$_lang;
+		if($link==$_main) return self::url().$_lang;
 		$i=strpos($link,'?');
 		if($i) {
 			$end=substr($link,$i);
@@ -172,18 +175,18 @@ class core {
 			$len2=strlen($s);
 			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 		}
-		return core::url().$_lang.$link.$end;
+		return self::url().$_lang.$link.$end;
 	}
 
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
 	public static function form($namespace=null) {
-		if(!class_exists('form')) include(core::path().'core/form.php');
+		if(!class_exists('form')) include(self::path().'core/form.php');
 		return new form($namespace);
 	}
 
 	/* Возвращает экземпляр класса model (универсальная модель). $namespace - имя таблицы (если нужно), $db - имя СУБД */
 	public static function model($namespace=null,$db='db') {
-		if(!class_exists('model')) include(core::path().'core/model.php');
+		if(!class_exists('model')) include(self::path().'core/model.php');
 		return new model($namespace,$db);
 	}
 
@@ -191,13 +194,13 @@ class core {
 	Если задан $message, то после перенаправления будет выведено указанное сообщение */
 	public static function redirect($url,$message=null) {
 		if($message) $_SESSION['successMessage']=$message;
-		header('Location: '.core::link($url));
+		header('Location: '.self::link($url));
 		exit;
 	}
 
 	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
 	public static function error404() {
-		include(core::path().'language/'._LANG.'.global.php');
+		include(self::path().'language/'._LANG.'.global.php');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
 		controller::$self->url[0]='error';
 		$view=controller::$self->error(404);
@@ -229,7 +232,7 @@ class core {
 	public static function widget($name,$options=null,$cacheTime=null,$title=null,$link=null) {
 		if(is_string($options) && isset($options[1]) && $options[1]==':') $options=unserialize($options);
 		//Нужно ли кешировать?
-		$debug=core::debug();
+		$debug=self::debug();
 		if($cacheTime && !$debug) {
 			if(is_array($options)) {
 				$f='';
@@ -237,7 +240,7 @@ class core {
 				foreach($options as $index=>$value) $f.=$index.$value;
 			} else $f=$options;
 			$f=md5($f);
-			$cacheFile=core::path().'cache/widget/'.$name.'.'.$f.'.html';
+			$cacheFile=self::path().'cache/widget/'.$name.'.'.$f.'.html';
 			if(file_exists($cacheFile)) {
 				$f=filemtime($cacheFile)+$cacheTime*60;
 				if($f>time()) {
@@ -248,7 +251,7 @@ class core {
 			ob_start();
 		}
 		$f='widget'.$name;
-		include_once(core::path().'widget/'.$name.'.php');
+		include_once(self::path().'widget/'.$name.'.php');
 		$w=new $f($options,$link);
 		$view=$w();
 		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
@@ -290,11 +293,11 @@ class core {
 			$s.=$item;
 			if($i<$cnt) $query.='"'.$s.'/","'.$s.'*"'; else $query.='"'.$s.'/","'.$s.'."';
 		}
-		$db=core::db();
+		$db=self::db();
 		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
 		$cnt=count($items);
 		echo '<div class="section section'.$name.'">';
-		$u=core::userCore();
+		$u=self::userCore();
 		//Если пользователь админ и имеет права управления секциями, то вывести кнопки административного интерфейса
 		if($u->group>=200 && ($u->group==255 || isset($u->right['section.*']))) {
 			$admin=new admin();
@@ -313,7 +316,7 @@ class core {
 		if(isset($_script[$name])) return '';
 		$_script[$name]=true;
 		if(substr($name,0,7)=='http://') return '<script type="text/javascript" src="'.$name.'"></script>';
-		return '<script type="text/javascript" src="'.core::url().'public/js/'.$name.'.js"></script>';
+		return '<script type="text/javascript" src="'.self::url().'public/js/'.$name.'.js"></script>';
 	}
 
 	/* Генерирует событие (прерывание).
@@ -321,7 +324,7 @@ class core {
 	public static function hook() {
 		$data=func_get_args();
 		$name=array_shift($data); //имя события
-		$cfg=core::config('_hook');
+		$cfg=self::config('_hook');
 		if(!isset($cfg[$name]) || !$cfg[$name]) return true;
 		for($i=0,$cnt=count($cfg[$name]);$i<$cnt;$i++) {
 			if(!self::_hook($name.'.'.$cfg[$name][$i],$data)) return false;
@@ -331,14 +334,14 @@ class core {
 
 	//Подключает файл локализации
 	public static function language($name) {
-		$f=core::path().'language/'._LANG.'.'.$name.'.php';
+		$f=self::path().'language/'._LANG.'.'.$name.'.php';
 		if(!file_exists($f)) return false;
 		include_once($f);
 		return true;
 	}
 
 	private static function _hook($name,$data) {
-		if(!include(core::path().'hook/'.$name.'.php')) return false; else return true;
+		if(!include(self::path().'hook/'.$name.'.php')) return false; else return true;
 	}
 }
 /* --- --- */
@@ -358,6 +361,10 @@ class controller {
 	private $_head=''; //содержит теги, которые должны быть подключены в секции <head>
 
 	public function __construct() {
+		$cfg=core::config();
+		if(isset($cfg['languageList'])) foreach($cfg['languageList'] as $item) {
+			$this->_head.='<link rel="alternate" hreflang="'.$item.'" href="'.core::url().($cfg['languageDefault']==$item ? '' : $item).'">';
+		}
 		$this->url=$_GET['corePath'];
 		if($this->url[1]) $this->url[1]=ucfirst($this->url[1]); else $this->url[1]='Index';
 		controller::$self=&$this;
@@ -529,6 +536,10 @@ function runApplication($renderTemplate=true) {
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
 	$alias=controller::$self->url[0];
+	if(core::debug()) {
+		log::add('Requested URI',implode('/',$_GET['corePath']),false);
+		log::add('Controller.Action',$_GET['corePath'][0].'.action'.controller::$self->url[1].(isset($_POST[$alias]) ? 'Submit()' : '()'),false);
+	}
 	if(!isset($_POST[$alias])) { //в _POST нет данных, относящихся к запрошенному контроллеру
 		if(!method_exists('sController','action'.controller::$self->url[1])) core::error404();
 	} else { //в _POST есть данные, относящиеся к запрошенному контроллеру
@@ -548,10 +559,21 @@ function runApplication($renderTemplate=true) {
 	//Запуск действия (не submit) и вывод контента
 	$s='action'.controller::$self->url[1];
 	@$view=controller::$self->$s();
+	if(core::debug()) {
+		if(is_object($view)) {
+			$r=new ReflectionClass($view);
+			log::add('view',get_class($view).' ('.$r->getFileName().')',false);
+			unset($r);
+		} elseif(is_string($view)) log::add('view','view/'.$alias.$view.'.php',false);
+	}
 	controller::$self->render($view,$renderTemplate);
+	if(core::debug()) log::render();
 }
 
 /* --- INITIALIZE --- */
+if(_core::debug()) {
+	_core::import('core/core-debug');
+} else class_alias('_core','core');
 if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
 
 //Поиск языка в URL-адресе

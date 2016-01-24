@@ -142,7 +142,7 @@ class picture {
 			$y=(int)$y;
 			$y=round($this->_dstH/100*$y-($this->_wH/100*$y));
 		} else $y=(int)$y;
-		if($minus) $this->_wY=$this->_dstW-$this->_wW-$y; else $this->_wY=$y;
+		if($minus) $this->_wY=$this->_dstH-$this->_wH-$y; else $this->_wY=$y;
 	}
 
 	/* Выполняет все действия обработки и сохраняет изображение в файл.

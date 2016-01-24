@@ -11,14 +11,14 @@ class widgetMenu extends widget {
 		$db=core::db();
 		$db->query('SELECT link,title_'._LANG.',id,parentId FROM menuItem WHERE menuId="'.$this->options.'" ORDER BY sort');
 		$items=array();
-		if($_GET['corePath'][1]) $this->requestMatches=count($_GET['corePath']);
-		else $this->requestMatches=1; //количество элементов ЧПУ ссылки в запрошенной странице
+		if($_GET['corePath'][1]) $this->_requestMatches=count($_GET['corePath']);
+		else $this->_requestMatches=1; //количество элементов ЧПУ ссылки в запрошенной странице
 		$activeMatches=null; //для подсчёта совпадений
 		$this->active=array(); //содержит список активных пунктов в меню  (для выделения всех родительских пунктов)
 		$activeCount=0;
 		$parent=array();
 		while($item=$db->fetch()) {
-			if($this->requestMatches!=$activeMatches) { //Если активный пункт меню ещё не определён
+			if($this->_requestMatches!=$activeMatches) { //Если активный пункт меню ещё не определён
 				$matches=$this->_matches($item[0]);
 				if($matches>$activeMatches) {
 					$activeMatches=$matches;
@@ -70,8 +70,8 @@ class widgetMenu extends widget {
 		$link=explode('/',$link);
 		$match=0;
 		$cnt=count($link);
-		if($cnt>$this->requestMatches) $cnt=$this->requestMatches;
-//		if($cnt>$this->requestMatches) return 0;
+		if($cnt>$this->_requestMatches) $cnt=$this->_requestMatches;
+//		if($cnt>$this->_requestMatches) return 0;
 		for($i=0;$i<$cnt;$i++) if($link[$i]==$_GET['corePath'][$i]) $match++; else break;
 		return $match;
 	}
