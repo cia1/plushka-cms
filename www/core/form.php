@@ -260,11 +260,12 @@ class form {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
-		return '<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'" '.$html.'>'.$value.'</textarea>
+		return '<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'" '.$html.'>'.$value.'</textarea>'.
+		(isset($_GET['_lang']) ? '' : core::script('ckeditor/ckeditor')).'
 		<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();
 		if(document.ckeditor["'.$name.'"]!=undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
-		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{extraPlugins:"cyberim"});
+		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{customConfig:"'.(isset($_GET['_lang']) ? core::url().'admin/public/js/ckeditor-config.js' : core::url().'public/js/ckeditor-config.js').'"});
 		</script>';
 	}
 

@@ -2,7 +2,7 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 /* Реализует интерфейс с СУБД MySQL. Расширенная версия */
 core::import('core/mysqli');
-class mysqlExt extends mysql {
+class mysqlExt extends _mysql {
 
 	/* Создаёт таблицу в соответствии с описанной в $structure структурой */
 	public function create($table,$structure) {

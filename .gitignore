@@ -1,5 +1,6 @@
 readme.txt
-project.geany
+cms.sublime-project
+cms.sublime-workspace
 /cache/template/*.*
 /cache/widget/*.*
 /cache/custom/*.*
