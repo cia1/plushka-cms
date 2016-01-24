@@ -105,7 +105,10 @@ class _core {
 	Если задан $nc, то будет открыто новое подключение */
 	public static function sqlite($nc=false) {
 		static $_sqlite;
-		if(!$_sqlite) self::import('core/sqlite3');
+		if(!$_sqlite) {
+			self::import('core/sqlite3');
+			if(self::debug()) self::import('core/sqlite3-debug'); else class_alias('_sqlite','sqlite');
+		}
 		if($nc) return new sqlite();
 		if(!$_sqlite) $_sqlite=new sqlite();
 		return $_sqlite;
