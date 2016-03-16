@@ -152,7 +152,7 @@ class sController extends controller {
 	public function actionWidgetBlog($data=null) {
 		if(!$data) $data=array('categoryId'=>null,'countPreview'=>0,'countLink'=>0,'linkType'=>'blog');
 		$f=core::form();
-		$newCategoryLink=core::link('article&action=category').'&backlink='.urlencode('?controller=section&action=widget&amp;section='.$_GET['section'].'&type=blog');
+		$newCategoryLink=core::link('article&action=category').'&backlink='.urlencode('?controller=section&action=widget&amp;section='.$_GET['section'].'&type=blog&lang='._LANG);
 		$f->listBox('categoryId','Категория','SELECT id,title FROM articleCategory',$data['categoryId'],'< создать новую категорию >','onclick="if(this.value==\'\') document.location=\''.$newCategoryLink.'\';"');
 		$f->select('linkType','Вид ссылок на статьи',array(array('blog','article/blog/...'),array('list','article/list/...')),$data['linkType']);
 		$f->text('countPreview','Количество анонсов статей',$data['countPreview']);

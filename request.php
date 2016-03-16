@@ -103,7 +103,7 @@
 		$i=preg_match('/Content-Type:.+charset\s*?=\s*?[\'"]?([a-zA-Z0-9-]+)/',$this->_head,$s);
 		if($i) $charset=trim(strtoupper($s[1]));
 		else {
-			$i=preg_match('/<meta\s+http-equiv="Content-Type"[^>]+charset=([a-z0-9-]+)[\'"]?/is',$data,$s);
+			$i=preg_match('/<meta\s+http-equiv="Content-Type"[^>]+charset=([a-z0-9-]+)[\'"]?/is',$this->_content,$s);
 			if(!$i) $charset='UTF-8';
 			else $charset=strtoupper($s[1]);
 		}

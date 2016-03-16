@@ -203,11 +203,11 @@ class _core {
 
 	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
 	public static function error404() {
-		include(self::path().'language/'._LANG.'.global.php');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
+		core::language('error');
 		controller::$self->url[0]='error';
-		$view=controller::$self->error(404);
-		controller::$self->render($view,true);
+		controller::$self->pageTitle=LNGPageNotExists1;
+		controller::$self->render('404',true);
 		exit;
 	}
 
@@ -445,16 +445,6 @@ class controller {
 		if(!$b) return;
 		$cfg=core::config();
 		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
-	}
-
-	/* Служебный метод, используется при провоцировании HTTP-ошибок (только 404) */
-	public function error($code) {
-		switch($code) {
-		case '404':
-			$this->pageTitle=LNGPageNotExists;
-			break;
-		}
-		return $code;
 	}
 
 	/* Служебный метод, используется для вывода кнопок административного интерфейса */

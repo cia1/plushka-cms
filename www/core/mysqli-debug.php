@@ -2,7 +2,7 @@
 
 	public function query($query,$limit=null,$page=null) {
 		log::add('mysql',$query);
-		parent::query($query,$limit,$page);
+		return parent::query($query,$limit,$page);
 	}
 
 }

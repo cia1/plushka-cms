@@ -1,5 +1,5 @@
 <?php
-define('LNGAccountActive','your account has been activated');
+define('LNGaccountActive','your account has been activated');
 define('LNGActivationCodeIsWrong','Activation code is incorrect');
 define('LNGAnswer','Answer');
 define('LNGAuthorization','Log in');

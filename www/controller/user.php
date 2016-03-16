@@ -98,7 +98,7 @@ class sController extends controller {
 		$user->status=1;
 		$this->code=null;
 		$user->save(false,'status,code');
-		$user->sendMail('userInfoAdmin'); //сообщение администрации
+		$user->sendMail('infoAdmin'); //сообщение администрации
 		$this->login=$user->login;
 		$this->pageTitle=$this->metaTitle=LNGRegistration;
 		return 'Confirm';

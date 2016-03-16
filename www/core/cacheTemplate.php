@@ -9,8 +9,8 @@ class cache {
 		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
 		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
 		$template=str_replace('{{metaTitle}}','<?=$this->metaTitle?>',$template);
-		$template=str_replace('{{metaKeyword}}','<?=$this->metaKeyword?>',$template);
-		$template=str_replace('{{metaDescription}}','<?=$this->metaDescription?>',$template);
+		$template=str_replace('{{metaKeyword}}','<?php if($this->meataKeyword) echo \'<meta name="keyword" content="\'.$this->metaKeyword.\'" />\'; ?>',$template);
+		$template=str_replace('{{metaDescription}}','<?php if($this->meataDescription) echo \'<meta name="description" content="\'.$this->metaDescription.\'" />\'; ?>',$template);
 		$template=str_replace('{{head}}','<?=$this->_head?>',$template);
 		$template=str_replace('{{pageTitle}}','<?php if($this->pageTitle) echo \'<h1 class="pageTitle">\'.$this->pageTitle.\'</h1>\'; ?>',$template);
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);

@@ -2,8 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="<?=$this->metaDescription?>" />
-	<meta name="keywords" content="<?=$this->metaKeyword?>" />
+	<?php if($this->meataDescription) echo '<meta name="description" content="'.$this->metaDescription.'" />'; ?><?php if($this->meataKeyword) echo '<meta name="keyword" content="'.$this->metaKeyword.'" />'; ?>
 	<title><?=$this->metaTitle?></title>
 	<link href="<?=core::url()?>public/template/style.css" rel="stylesheet" type="text/css" media="screen" />
 	<link rel="shortcut icon" href="<?=core::url()?>favicon.ico" type="image/x-icon" />

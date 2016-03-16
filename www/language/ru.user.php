@@ -1,5 +1,5 @@
 <?php
-define('LNGAccountActive','учётная запись активна');
+define('LNGaccountActive','учётная запись активна');
 define('LNGActivationCodeIsWrong','Неверный код активации');
 define('LNGAnswer','Ответить');
 define('LNGAuthorization','Авторизация');
