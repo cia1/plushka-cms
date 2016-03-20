@@ -274,7 +274,7 @@ class form {
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
 			$value=$_POST[$this->_namespace][$name];
 		}
-		if(is_numeric($value)) $value=date('d.m.Y',$value);
+		if($value && is_numeric($value)) $value=date('d.m.Y',$value);
 		return core::script('calendar').'<input type="text" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' onfocus="this.select();lcs(this)" onclick="event.cancelBubble=true;this.select();lcs(this)" />';
 	}
 

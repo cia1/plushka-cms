@@ -1,16 +1,14 @@
 <?php
-/* Внимание! Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-Кеширует шаблоны */
+//Внимание! Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 class cache {
-
 
 	/* Создаёт кеш шаблона с именем $name */
 	public static function template($name) {
 		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
 		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
 		$template=str_replace('{{metaTitle}}','<?=$this->metaTitle?>',$template);
-		$template=str_replace('{{metaKeyword}}','<?php if($this->meataKeyword) echo \'<meta name="keyword" content="\'.$this->metaKeyword.\'" />\'; ?>',$template);
-		$template=str_replace('{{metaDescription}}','<?php if($this->meataDescription) echo \'<meta name="description" content="\'.$this->metaDescription.\'" />\'; ?>',$template);
+		$template=str_replace('{{metaKeyword}}','<?php if($this->metaKeyword) echo \'<meta name="keyword" content="\'.$this->metaKeyword.\'" />\'; ?>',$template);
+		$template=str_replace('{{metaDescription}}','<?php if($this->metaDescription) echo \'<meta name="description" content="\'.$this->metaDescription.\'" />\'; ?>',$template);
 		$template=str_replace('{{head}}','<?=$this->_head?>',$template);
 		$template=str_replace('{{pageTitle}}','<?php if($this->pageTitle) echo \'<h1 class="pageTitle">\'.$this->pageTitle.\'</h1>\'; ?>',$template);
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);
@@ -68,6 +66,36 @@ class cache {
 		$s.='),\'section\'=>array(\''.implode('\',\'',$section).'\')); ?>';
 		$f=fopen(core::path().$adminPath.'cache/template/'.$name.'.ini','w');
 		fwrite($f,$s);
+	}
+
+	//Кеширует мультиязычные таблицы
+	static function languageDatabase() {
+		$path=core::path().'admin/module/';
+		$d=opendir($path);
+		$language=array();
+		while($f=readdir($d)) {
+			if($f=='.' || $f=='..') continue;
+			if(strpos($f,'.lang_') || substr($f,strlen($f)-12)=='.install.php') continue;
+			$cfg=include($path.$f);
+			if(!isset($cfg['table'])) continue;
+			$cfg=explode(',',$cfg['table']);
+			foreach($cfg as $table) {
+				if(substr($table,strlen($table)-5)=='_LANG') $language[substr($table,0,strlen($table)-5)]=true;
+				else {
+					$i=strpos($table,'(');
+					if(!$i) continue;
+					$field=substr($table,$i+1,strlen($table)-$i-2);
+					$field=explode(' ',$field);
+					$language[substr($table,0,$i)]=$field;
+				}
+			}
+		}
+		closedir($d);
+		core::import('admin/core/config');
+		$cfg=new config();
+		$cfg->setData($language);
+		$cfg->save('../cache/language-database');
+		return true;
 	}
 
 }

@@ -18,7 +18,7 @@ $f->hidden('data',null,'id="widgetData"');
 $f->hidden('section',$this->data['section'],'id="widgetSection"');
 $f->hidden('cache','','id="cacheTime"');
 $f->label('Секция',$this->data['section']);
-$f->text('title_'._LANG,'Название',$this->data['title'],'id="widgetTitle"');
+$f->text('title','Название',$this->data['title'],'id="widgetTitle"');
 $f->checkbox('publicTitle','Публиковать название виджета',$this->data['publicTitle']);
 //Сформировать список чекбоксов
 $f->html('<dt>Страницы</dt><dd id="_admPageCheck" style="height:auto;">'.getHTMLMenu($this->pageMenu).'</dd>');

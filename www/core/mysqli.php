@@ -102,7 +102,7 @@ class _mysql {
 
 	/* Возвращает количество изменённых и добавленных записей */
 	public function affected() {
-		return $this->_queryId->affected_rows;
+		return self::$_connectId->affected_rows;
 	}
 }
 ?>

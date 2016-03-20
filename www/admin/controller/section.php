@@ -112,16 +112,17 @@ class scontroller extends controller {
 	}
 
 	public function actionWidgetSubmit($data) {
-		$m=core::model('widget');
-		$m->set($data);
+		$model=core::model('widget');
+		$model->set($data);
+		$model->multiLanguage();
 		if($data['id']) $isNew=false; else $isNew=true;
-		if(!$m->save(array(
+		if(!$model->save(array(
 			'id'=>array('primary'),
 			'section'=>array('string'),
 			'name'=>array('latin','Имя',true),
 			'data'=>array('html'),
 			'cache'=>array('integer','Время кеширования'),
-			'title_'._LANG=>array('string','Описание',true),
+			'title'=>array('string','Описание',true),
 			'publicTitle'=>array('boolean')
 		))) return false;
 		//Проверить правильность ссылок, перечисленных в поле "другие страницы"
@@ -154,7 +155,7 @@ class scontroller extends controller {
 		$db=core::db();
 		//Если виджет уже существует, то выяснить с каких страниц был убран этот виджет - это нужно для того, чтобы корректно обработать событие "widgetPageDelete"
 		if(!$isNew) {
-			$db->query('SELECT url,sort FROM section WHERE widgetId='.$m->id);
+			$db->query('SELECT url,sort FROM section WHERE widgetId='.$model->id);
 			$delete=$delete0=$add=array();
 			$sort=null;
 			while($item=$db->fetch()) {
@@ -193,24 +194,24 @@ class scontroller extends controller {
 				//Если есть страницы, с которых виджет был удалён, то спровоцировать событие "удаление виджета со страниц". Это позволит виджетам удалить сопутствующий контент
 				//Параметры: (string) - имя виджета; (int) - ИД виджета; (array) - список страниц, с которых был убран виджет
 				if($delete) {
-					if(!core::hook('widgetPageDelete',$data['name'],$m->id,$delete)) return false;
+					if(!core::hook('widgetPageDelete',$data['name'],$model->id,$delete)) return false;
 				}
-				$db->query('DELETE FROM section WHERE widgetId='.$m->id.' AND url IN ("'.implode('","',$delete0).'")');
+				$db->query('DELETE FROM section WHERE widgetId='.$model->id.' AND url IN ("'.implode('","',$delete0).'")');
 			}
 		}
 		if($sort===null) { //это новый виджет или не опубликован ни на одной странице
 			$sort=(int)$db->fetchValue('SELECT max(sort) FROM section WHERE name='.$db->escape($data['section']));
 			$sort++;
 		}
-		if($url) core::hook('widgetPageAdd',$data['name'],$m->id,$url); //Событие "виджет добавлен на страницы сайта
+		if($url) core::hook('widgetPageAdd',$data['name'],$model->id,$url); //Событие "виджет добавлен на страницы сайта
 		if($add) {
 			foreach($add as $item) {
-				$db->query('INSERT INTO section (name,url,widgetId,sort) VALUES ('.$db->escape($data['section']).','.$db->escape($item).','.$m->id.','.$sort.')');
+				$db->query('INSERT INTO section (name,url,widgetId,sort) VALUES ('.$db->escape($data['section']).','.$db->escape($item).','.$model->id.','.$sort.')');
 			}
 		}
 		if($url) {
 			foreach($url as $item) {
-				$db->query('INSERT INTO section (name,url,widgetId,sort) VALUES ('.$db->escape($data['section']).','.$db->escape($item).','.$m->id.','.$sort.')');
+				$db->query('INSERT INTO section (name,url,widgetId,sort) VALUES ('.$db->escape($data['section']).','.$db->escape($item).','.$model->id.','.$sort.')');
 			}
 		}
 		core::redirect('?controller=section&action=widget&id='.$data['section'],'Изменения сохранены');

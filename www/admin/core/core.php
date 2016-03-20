@@ -10,15 +10,16 @@ class core {
 	private static $_template='default'; //Имя используемого шаблона
 
 	//Переводит строку в транслит, пригодный для использования в URL
-	public static function translit($string,$maxLength=100) {
+	public static function translit($string,$max=60) {
 		$string=mb_strtolower($string,'UTF-8');
 		$d1=explode(',',LNGtranslit1);
 		$d2=explode(',',LNGtranslit2);
 		$string=str_replace($d1,$d2,$string);
-		$d1=array(' ',',','/','%','?','@','#','&');
-		$d2=array('-','-','','','','','','-and-');
+		$d1=array(' ',',','&','і');
+		$d2=array('-','-','-and-','i');
 		$string=str_replace($d1,$d2,$string);
-		if(strlen($string)>$maxLength) $string=substr($string,$maxLength);
+		$string=preg_replace('|[^A-Za-z0-9\._+-]|','',$string);
+		if(strlen($string)>$max) $string=substr($string,0,$max);
 		return $string;
 	}
 
@@ -377,7 +378,7 @@ class controller {
 		if($renderTemplate) { //Вывести верхнюю часть шаблона
 			$s=core::path().'admin/cache/template/'.core::template().'Head.php';
 			if(!file_exists($s) || core::debug()) {
-				core::import('core/cacheTemplate');
+				core::import('core/cache');
 				cache::template(core::template());
 			}
 			include($s);

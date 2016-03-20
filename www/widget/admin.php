@@ -7,7 +7,6 @@ class widgetAdmin extends widget {
 
 	public function adminLink() {
 		$u=core::userCore();
-		$modelUser=$u->model();
 		$link=array();
 		//Загрузить общие кнопки админки для текущего пользователя
 		$q='';
