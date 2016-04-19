@@ -28,7 +28,7 @@ define('LNGOldPassword','Old password');
 define('LNGOldPasswordIsWrong','Old password is incorrect.');
 define('LNGPassword','Password');
 define('LNGPasswordAgain','Password (repeat)');
-define('LNGPasswordChanged','The password has changed.');
+define('LNGPasswordChanged','The password has been changed.');
 define('LNGPasswordChanging','Password changing');
 define('LNGPasswordRestore','Password restoring');
 define('LNGPasswordRestoreOnSite','Restoring password on site %s');

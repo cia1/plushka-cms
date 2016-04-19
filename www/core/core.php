@@ -603,12 +603,14 @@ else {
 		if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 	}
 }
-unset($cfg);
 
 //Перехват if-modified-since (работает без учёта мультиязычности)
 if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (не для CGI)
 	$db=core::db();
-	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($_GET['corePath']));
+	if($cfg['languageDefault']==_LANG) $s=$_GET['corePath']; else $s=_LANG.'/'.$_GET['corePath'];
+	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($s));
+	unset($s);
+
 	if($lastModified) {
 		header('Last-Modified: '.gmdate('D, d M Y H:i:s \G\M\T',$lastModified));
 		if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
@@ -620,6 +622,7 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 		}
 	}
 }
+unset($cfg);
 
 $_GET['corePath']=explode('/',$_GET['corePath']);
 if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]=null; //чтобы транслятор не выдавал предупреждений (Warning)

@@ -85,7 +85,13 @@ class sController extends controller {
 
 	public function actionDeleteSubmit($data) {
 		$db=core::db();
-		$db->query('DELETE FROM comment WHERE id='.(int)$data['id']);
+		$id=(int)$data['id'];
+		$comment=$db->fetchArrayOnce('SELECT c.status,g.link,c.groupId FROM comment c LEFT JOIN commentGroup g ON g.id=c.groupId WHERE c.id='.$id);
+		if(!$comment) core::error404();
+		if($comment[0]>0) {
+			if(!core::hook('commentDelete',$comment[1],$comment[2],$id)) return false;
+		}
+		$db->query('DELETE FROM comment WHERE id='.$id);
 		core::redirect('?controller=comment','Комментарий удалён');
 	}
 /* ----------------------------------------------------------------------------------- */

@@ -75,7 +75,7 @@ class sController extends controller {
 			if(isset($_GET['categoryId'])) $data['categoryId']=(int)$_GET['categoryId'];
 		}
 		if(!$data) core::error404();
-		if($data['date']) $data['date']=date('d.m.Y',$data['date']); else $data['date']='';
+		if($data['date'] && is_numeric($data['date'])) $data['date']=date('d.m.Y',$data['date']);
 		$f=core::form();
 		$f->hidden('categoryId',$data['categoryId']);
 		$f->hidden('id',$data['id']);

@@ -8,7 +8,7 @@ class table {
 	private $_data='<table cellpadding="0" cellspacing="0" class="admin"';
 
 	/* Если задан $html, то присоединить его к тегу <table> */
-	public function __construct($html) {
+	public function __construct($html=null) {
 		if($html) $this->_data.=$html;
 		$this->_data.='><tr>';
 	}

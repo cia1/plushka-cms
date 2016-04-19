@@ -188,7 +188,7 @@ class model {
 					controller::$error=sprintf(LNGFieldTextTooShort,$options[1]);
 					return false;
 				}
-				if(isset($options['max']) && $options['max']<strlen($value)) {
+				if(isset($options['max']) && $options['max']<mb_strlen($value,'UTF-8')) {
 					controller::$error=sprintf(LNGFieldTextTooLong,$options[1]);
 					return false;
 				}
@@ -242,6 +242,11 @@ class model {
 	//Собирает и выполняет SQL-запрос INSERT
 	private function _insert($fields,$validate,$primary) {
 		//Подготовить данные для обработки мультиязычных полей
+		$f=core::path().'cache/language-database.php';
+		if(!file_exists($f)) {
+			core::import('core/cache');
+			cache::languageDatabase();
+		}
 		$langCache=core::config('../cache/language-database');
 		if(isset($langCache[$this->_table])) {
 			$langCache=$langCache[$this->_table];

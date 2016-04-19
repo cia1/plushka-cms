@@ -164,7 +164,12 @@ class sController extends controller {
 			'id'=>$item[0],'date'=>$item[1],'direct'=>($item[2]==$uid ? 2 : 1),'subject'=>($item[2]==$uid ? LNGYouWriteTo.' <b>'.$item[4].'</b>' : LNGWriteToYou.' <b>'.$item[3].'</b>'),'message'=>$item[5],'isNew'=>$item[6]);
 			if($item[6]) $this->newCount++;
 		}
-		if($this->newCount) $db->query('UPDATE userMessage SET isNew=0 WHERE user2Id='.$uid);
+		if($this->newCount) {
+			$db->query('UPDATE userMessage SET isNew=0 WHERE user2Id='.$uid);
+			$f=fopen(core::path().'cache/custom/message/'.$uid.'.txt','w');
+			fwrite($f,'i:0;');
+			fclose($f);
+		}
 
 		$this->pageTitle=$this->metaTitle=LNGYourMessages;
 		return 'Message';

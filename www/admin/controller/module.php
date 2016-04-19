@@ -99,9 +99,9 @@ class sController extends controller {
 		if($this->$s($module)) {
 			//Удалить атрибут currentVersion
 			core::import('admin/core/config');
-			$cfg=new config('../admin/module/'.$module['id']);
+			$cfg=new config('admin/module/'.$module['id']);
 			$cfg->delete('currentVersion');
-			$cfg->save('../admin/module/'.$module['id']);
+			$cfg->save('admin/module/'.$module['id']);
 			core::redirect('?controller=module','Модуль установлен');
 		}
 		return 'Info';

@@ -54,6 +54,7 @@ class sController extends controller {
 		$cfg=core::configAdmin('devTool');
 		$f=core::form();
 		$struc=self::_structureDb(false);
+		$html='';
 		foreach($struc as $item) {
 			$html.='<label><input type="checkbox" name="devTool[noClearTable][]" value="'.$item.'" '.(in_array($item,$cfg['noClearTable']) ? ' checked="checked"' : '').'/> '.$item.'</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 		}
