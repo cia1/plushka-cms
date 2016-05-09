@@ -182,8 +182,12 @@ class sController extends controller {
 			controller::$error='Такой псевдоним уже используется для другой категории статей (блога)';
 			return false;
 		}
-		$m=core::model('articleCategory_'._LANG);
+		$m=core::model('articleCategory');
+		$m->multiLanguage();
 		$m->set($data);
+		if($data['id']) {
+			$oldAlias=$db->fetchValue('SELECT alias FROM articleCategory_'._LANG.' WHERE id='.$data['id']);
+		} else $oldAlias=$data['alias'];
 		if(!$m->save(array(
 			'id'=>array('primary'),
 			'parentId'=>array('id','',true),
@@ -195,6 +199,13 @@ class sController extends controller {
 			'text1'=>array('html','Вступительный текст'),
 			'onPage'=>array('integer','кол-во статей на странице','min'=>0,'max'=>255)
 		))) return false;
+		if($oldAlias!=$data['alias']) {
+			$cfg=core::config();
+			if(isset($cfg['languageList'])) foreach($cfg['languageList'] as $item) {
+				if($item==_LANG) continue;
+				$db->query('UPDATE articleCategory_'.$item.' SET alias='.$db->escape($data['alias']).' WHERE id='.$data['id']);
+			}
+		}
 		core::hook('modify','article/blog/'.$m->alias); //Обновить дату изменения страницы
 		core::hook('modify','article/list/'.$m->alias);
 		return true;

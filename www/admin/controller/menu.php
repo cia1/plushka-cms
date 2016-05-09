@@ -88,6 +88,7 @@ class sController extends controller {
 	public function actionItemSubmit($data) {
 		unset($_SESSION['_menuId']);
 		$model=core::model('menuItem');
+		$model->multiLanguage();
 		$db=core::db();
 		if(!$data['parentId']) $data['parentId']='0';
 		//Подготовить массив с правилами валидации
@@ -96,7 +97,7 @@ class sController extends controller {
 			'parentId'=>array('integer'),
 			'menuId'=>array('string'),
 			'link'=>array('string'),
-			'title_'._LANG=>array('string','заголовок ссылки в меню','max'=>50),
+			'title'=>array('string','заголовок ссылки в меню','max'=>50),
 			'typeId'=>array('integer')
 		);
 		//Если это новый пункт меню, то вычислить индекс сортировки (задаёт порядок пунктов)

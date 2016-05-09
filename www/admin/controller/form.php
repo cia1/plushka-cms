@@ -45,11 +45,12 @@ class sController extends controller {
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frmField WHERE id='.$_GET['id']);
 			$data['value']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','htmlType'=>'text','required'=>0,'value'=>'','defaultValue'=>'');
+		if(isset($_POST['form'])) $formId=$_POST['form']['formId']; else $formId=$_GET['formId'];
 		//Сформировать HTML-форму
 		$f=core::form();
 		$f->hidden('id',$data['id']);
-		$f->hidden('formId',$_GET['formId']);
-		$f->text('title_'._LANG,'Название',$data['title']);
+		$f->hidden('formId',$formId);
+		$f->text('title','Название',$data['title']);
 		$f->select('htmlType','Тип',array(array('text','текстовое поле'),array('radio','переключатель'),array('select','выпадающий список'),array('checkbox','да,нет'),array('textarea','многострочный текст'),array('email','e-mail'),array('file','файл'),array('captcha','каптча')),$data['htmlType']);
 		$f->textarea('value','Список значений',$data['value']);
 		$f->text('defaultValue','Значение по умолчанию',$data['defaultValue']);
@@ -72,9 +73,9 @@ class sController extends controller {
 
 	public function actionFieldItemSubmit($data) {
 		//Значения для списков задаются в текстовом поле, сохраняются в БД строкой с разделителем "|"
-		if($data['htmlType']=='radio' || $data['htmlType']=='select') $data['data_'._LANG]=str_replace(array("\n","\r"),array('|',''),$data['value']);
+		if($data['htmlType']=='radio' || $data['htmlType']=='select') $data['data']=str_replace(array("\n","\r"),array('|',''),$data['value']);
 		elseif($data['htmlType']=='file') $data['data']=strtolower(str_replace(array('.',' '),'',$data['fileType']));
-		else $data['data_'._LANG]=null;
+		else $data['data']=null;
 		if($data['htmlType']=='captcha') {
 			$data['defaultValue']=null;
 			$data['required']=true;
@@ -82,9 +83,9 @@ class sController extends controller {
 		$validate=array(
 			'id'=>array('primary'),
 			'formId'=>array('integer'),
-			'title_'._LANG=>array('string','название',true),
+			'title'=>array('string','название',true),
 			'htmlType'=>array('string'),
-			'data_'._LANG=>array('string'),
+			'data'=>array('string'),
 			'defaultValue'=>array('string'),
 			'required'=>array('boolean'),
 		);
@@ -96,6 +97,7 @@ class sController extends controller {
 		}
 		$m=core::model('frmField');
 		$m->set($data);
+		$m->multiLanguage();
 		if(!$m->save($validate)) return false;
 		core::redirect('?controller=form&action=field&id='.$data['formId']);
 	}
@@ -189,11 +191,11 @@ class sController extends controller {
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('cacheTime',30);
-		$f->text('title_'._LANG,'Заголовок страницы',$data['title']);
+		$f->text('title','Заголовок страницы',$data['title']);
 		$f->radio('emailSource','Адрес отправки',array(array('no','не отправлять e-mail'),array('cfg','e-mail в общих настройках'),array('other','другой адрес:')),$data['emailSource']);
 		$f->text('email','E-mail',$data['email']);
-		$f->text('subject_'._LANG,'Тема письма',$data['subject']);
-		$f->editor('successMessage_'._LANG,'Сообщение после отправки',$data['successMessage']);
+		$f->text('subject','Тема письма',$data['subject']);
+		$f->editor('successMessage','Сообщение после отправки',$data['successMessage']);
 		$f->text('redirect','Редирект после отправки формы',$data['redirect']);
 		$s='<b>Редирект</b> - URL адрес, на который будет осуществлён переход после успешной отправки формы.';
 		//Только для суперпользователя показывать поля, связанные со сложной обработкой данных формы
@@ -217,10 +219,10 @@ class sController extends controller {
 		$m=core::model('frmForm');
 		$validate=array(
 			'id'=>array('primary'),
-			'title_'._LANG=>array('string','заголовок страницы',true),
+			'title'=>array('string','заголовок страницы',true),
 			'email'=>array('email','E-mail'),
-			'subject_'._LANG=>array('string','Тема письма'),
-			'successMessage_'._LANG=>array('html','Сообщение при успешной отправке'),
+			'subject'=>array('string','Тема письма'),
+			'successMessage'=>array('html','Сообщение при успешной отправке'),
 			'redirect'=>array('string'),
 			'formView'=>array('string'),
 			'script'=>array('script')
@@ -230,6 +232,7 @@ class sController extends controller {
 			$validate['email'][0]='string';
 		}
 		$m->set($data);
+		$m->multiLanguage();
 		if(!$m->save($validate)) return false;
 		return $m->id;
 	}

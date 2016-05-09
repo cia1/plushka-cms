@@ -7,6 +7,7 @@ class model {
 	protected $_primary; //имя первичного ключа
 	protected $db; //экземпляр класса базы данных (может быть отличным от заданного по умолчанию)
 	protected $_multiLanguage=false; //если true, то будут выполнены запросы для всех языков
+	protected $_languageDb=false; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
 
 	public function __construct($namespace=null,$db='db') {
 		if($namespace) $this->_table=$namespace; else $this->_table=$_GET['corePath'][0];
@@ -91,6 +92,17 @@ class model {
 		if($id===null) $id=$this->_data[$primary];
 		//Триггер "до INSERT/UPDATE"
 		if(method_exists($this,'beforeInsertUpdate')) if(!$this->beforeInsertUpdate($id,$fields)) return false;
+
+		//Подготовить данные о мультиязычности
+		$f=core::path().'cache/language-database.php';
+		if(!file_exists($f)) {
+			core::import('core/cache');
+			cache::languageDatabase();
+		}
+		$this->_languageDb=core::config('../cache/language-database');
+		if(isset($this->_languageDb[$this->_table])) {
+			$this->_languageDb=$this->_languageDb[$this->_table];
+		} else $this->_languageDb=false;
 
 		//А вот и сам SQL-запрос...
 		if($primary && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE
@@ -241,55 +253,64 @@ class model {
 
 	//Собирает и выполняет SQL-запрос INSERT
 	private function _insert($fields,$validate,$primary) {
-		//Подготовить данные для обработки мультиязычных полей
-		$f=core::path().'cache/language-database.php';
-		if(!file_exists($f)) {
-			core::import('core/cache');
-			cache::languageDatabase();
-		}
-		$langCache=core::config('../cache/language-database');
-		if(isset($langCache[$this->_table])) {
-			$langCache=$langCache[$this->_table];
+		if($this->_languageDb) {
 			$languageList=core::config();
-			if(isset($languageList['languageList'])) $languageList=$languageList['languageList']; else $languageList=array();
-		} else $langCache=array();
+			if(isset($languageList['languageList'])) $languageList=$languageList['languageList']; else $languageList=array($cfg['languageDefault']);
+		}
 
 		$s1=$s2='';
 		foreach($fields as $name) {
 			if(isset($validate[$name])) $options=$validate[$name]; else $options=null;
-				if(($options[0]=='primary' && !$this->_data[$primary]) || $options[0]=='captcha') continue; //Пропустить каптчу, а также первичный ключ, если он не задан (должен быть сформирован автоматически).
-				if($options[0]=='boolean') if(!$this->_data[$name]) $this->_data[$name]='0'; else $this->_data[$name]='1';
-				if($this->_data[$name]===null) if(isset($options['default'])) $this->_data[$name]=$options['default']; else continue;
-				$value=($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
-				if(in_array($name,$langCache)) { //это поле является мультиязычным
-					if($this->_multiLanguage) {
-						foreach($languageList as $lang) { //добавить поля для каждого языка
-							if($lang==_LANG) continue;
-							if($s1) {
-								$s1.=',`'.$name.'_'.$lang.'`';
-								$s2.=','.$value;
-							} else {
-								$s1='`'.$name.'`';
-								$s2=$value;
-							}
+			if(($options[0]=='primary' && !$this->_data[$primary]) || $options[0]=='captcha') continue; //Пропустить каптчу, а также первичный ключ, если он не задан (должен быть сформирован автоматически).
+			if($options[0]=='boolean') if(!$this->_data[$name]) $this->_data[$name]='0'; else $this->_data[$name]='1';
+			if($this->_data[$name]===null) if(isset($options['default'])) $this->_data[$name]=$options['default']; else continue;
+			$value=($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
+			if(is_array($this->_languageDb) && in_array($name,$this->_languageDb)) { //это поле является мультиязычным
+				if($this->_multiLanguage) {
+					foreach($languageList as $lang) { //добавить поля для каждого языка
+						if($lang==_LANG) continue;
+						if($s1) {
+							$s1.=',`'.$name.'_'.$lang.'`';
+							$s2.=','.$value;
+						} else {
+							$s1='`'.$name.'`';
+							$s2=$value;
 						}
 					}
-					$name.='_'._LANG;
 				}
-				if($s1) {
-					$s1.=',`'.$name.'`';
-					$s2.=','.$value;
+				$name.='_'._LANG;
+			}
+			if($s1) {
+				$s1.=',`'.$name.'`';
+				$s2.=','.$value;
+			} else {
+				$s1='`'.$name.'`';
+				$s2=$value;
+			}
+		}
+		//Если мультиязычная таблица (_langDb===true), то выполнить несколько запросов
+		if($this->_multiLanguage && $this->_languageDb===true) {
+			foreach($languageList as $i=>$item) {
+				if(!$i) { //первичный ключ определить только один раз
+					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
+					if(!$this->db->query($query)) return false;
+					$this->_data[$primary]=$this->db->insertId(); //обновить значение первичного ключа
 				} else {
-					$s1='`'.$name.'`';
-					$s2=$value;
+					$s1.=',`'.$primary.'`';
+					$s2.=','.$this->db->escape($this->_data[$primary]);
+					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
+					if(!$this->db->query($query)) return false;
 				}
 			}
+		} else {
 			$query='INSERT INTO `'.$this->_table.'` ('.$s1.') VALUES ('.$s2.')';
 			if(!$this->db->query($query)) return false;
 			if($primary) {
 				$this->_data[$primary]=$this->db->insertId(); //обновить значение первичного ключа
-				return $this->afterInsert($this->$primary); //триггер "после INSERT"
-			} else return $this->afterInsert(); //триггер "после INSERT"
+			}
+		}
+		if($primary) return $this->afterInsert($this->$primary); //триггер "после INSERT"
+		else return $this->afterInsert(); //триггер "после INSERT"
 	}
 
 	//Собирает и выполняет SQL-запрос UPDATE
@@ -299,9 +320,14 @@ class model {
 			if(isset($validate[$name])) $options=$validate[$name]; else $options=null;
 			if(($options[0]=='primary' && $id==$this->_data[$primary]) || $options[0]=='captcha') continue; //Пропустить каптчу, а также первичный ключ, если он совпадает с явно заданным (нет необходимости обновлять первичный ключ).
 			if($options[0]=='boolean') if(!$this->_data[$name]) $this->_data[$name]='0'; else $this->_data[$name]='1';
-			if($s) $s.=',`'.$name.'`='.($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name])) ; else $s='`'.$name.'`='.($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
+			if($s) $s.=',';
+			$s.='`'.$name;
+			if($this->_multiLanguage && is_array($this->_languageDb) && in_array($name,$this->_languageDb)) $s.='_'._LANG;
+			$s.='`='.($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
 		}
-		if(!$this->db->query('UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id))) return false;
+		if($this->_languageDb===true) $s='UPDATE `'.$this->_table.'_'._LANG.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
+		else $s='UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
+		if(!$this->db->query($s)) return false;
 		return $this->afterUpdate($this->$primary); //триггер "после UPDATE"
 	}
 

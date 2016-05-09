@@ -22,15 +22,18 @@ function _blogDelete($link) {
 	$db=core::db();
 	if($db->fetchValue('SELECT count(id) FROM menuItem WHERE link='.$db->escape($link))!='1') return true;
 	$alias=substr($link,13);
-	$id=$db->fetchValue('SELECT id FROM articleCategory WHERE alias='.$db->escape($alias));
+	$id=$db->fetchValue('SELECT id FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($alias));
 
 	core::import('admin/model/objectLink');
 	$param=array('categoryId'=>$id);
 	$cnt=modelObjectLink::fromSectionWidget('blog',$param)+modelObjectLink::fromTemplateWidget('blog',$param);
 	if($cnt) return true;
-
-	$db->query('DELETE FROM articleCategory WHERE id='.$id);
-	$db->query('DELETE FROM article WHERE categoryId='.$id);
+	$cfg=core::config();
+	if(isset($cfg['languageList'])) $languageList=$cfg['languageList']; else $languageList=array($cfg['languageDefault']);
+	foreach($languageList as $item) {
+		$db->query('DELETE FROM articleCategory_'.$item.' WHERE id='.$id);
+		$db->query('DELETE FROM article_'.$item.' WHERE categoryId='.$id);
+	}
 	return true;
 }
 ?>

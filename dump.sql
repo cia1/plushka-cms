@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS `articleCategory_en` (
   `onPage` tinyint(3) unsigned NOT NULL DEFAULT '20',
   PRIMARY KEY (`id`),
   KEY `parentId` (`parentId`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.articleCategory_en: 2 rows
+-- Дамп данных таблицы cms.articleCategory_en: 3 rows
 /*!40000 ALTER TABLE `articleCategory_en` DISABLE KEYS */;
 INSERT INTO `articleCategory_en` (`id`, `parentId`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `alias`, `text1`, `text2`, `onPage`) VALUES
 	(1, 0, 'News', '', '', '', 'news', '<p>\r\n	Dear readers, we offer you a series of photographs taken in RP Buturlino Nizhny Novgorod region, where there was a collapse of the soil...</p>\r\n<p>\r\n	 </p>\r\n', NULL, 20),
@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS `articleCategory_ru` (
   `onPage` tinyint(3) unsigned NOT NULL DEFAULT '20',
   PRIMARY KEY (`id`),
   KEY `parentId` (`parentId`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.articleCategory_ru: 2 rows
+-- Дамп данных таблицы cms.articleCategory_ru: 3 rows
 /*!40000 ALTER TABLE `articleCategory_ru` DISABLE KEYS */;
 INSERT INTO `articleCategory_ru` (`id`, `parentId`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `alias`, `text1`, `text2`, `onPage`) VALUES
 	(1, 0, 'Новости', '', '', '', 'news', '<p>\r\n	Уважаемые читатели, предлагаем вашему вниманию серию фотографий, сделанных в р.п. Бутурлино Нижегородской области, где произошёл обвал грунта.…</p>\r\n<p>\r\n	 </p>\r\n<p>\r\n	 </p>\r\n', NULL, 20),
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `article_ru` (
   KEY `categoryId` (`categoryId`)
 ) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.article_ru: 9 rows
+-- Дамп данных таблицы cms.article_ru: 10 rows
 /*!40000 ALTER TABLE `article_ru` DISABLE KEYS */;
 INSERT INTO `article_ru` (`id`, `categoryId`, `alias`, `title`, `text1`, `text2`, `sort`, `metaTitle`, `metaKeyword`, `metaDescription`, `date`) VALUES
 	(1, 0, 'index', 'Статья на главной странице', NULL, '<p>\r\n	Главная страница&nbsp;– это информация, которая предстаёт перед пользователем при переходе его по адресу сайта. Другими словами, главная страница – это первое, с чем сталкивается посетитель, оказываясь на сайте. Правилу этому подчиняются все сайты в Интернете – контент-провайдеры, модные интернет-магазины, мощные порталы и многолюдные форумы. Предназначение главной страницы любого сайта – это обеспечение такого «приёма» посетителя, чтобы, в идеале, он стал пользователем. Или, по крайней мере, чтобы задержался на сайте в течение длительного времени.</p>\r\n', 0, 'meta Главная страница', 'meta Ключевые слова', 'meta Описание', NULL),
@@ -462,9 +462,9 @@ CREATE TABLE IF NOT EXISTS `menuItem` (
   `title_en` char(30) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `menuId` (`menuId`)
-) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.menuItem: 13 rows
+-- Дамп данных таблицы cms.menuItem: 14 rows
 /*!40000 ALTER TABLE `menuItem` DISABLE KEYS */;
 INSERT INTO `menuItem` (`id`, `parentId`, `menuId`, `typeId`, `link`, `title_ru`, `sort`, `title_en`) VALUES
 	(1, 0, 1, 1, 'article/view/index', 'Главная', 1, 'Main'),
@@ -519,7 +519,7 @@ CREATE TABLE IF NOT EXISTS `modified` (
   PRIMARY KEY (`link`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.modified: 17 rows
+-- Дамп данных таблицы cms.modified: 42 rows
 /*!40000 ALTER TABLE `modified` DISABLE KEYS */;
 INSERT INTO `modified` (`link`, `time`) VALUES
 	('article/view/222', 1461069025),
@@ -554,8 +554,16 @@ INSERT INTO `modified` (`link`, `time`) VALUES
 	('en/article/blog/article', 1461064721),
 	('en/article/view/index', 1461064716),
 	('article/view/index', 1461064360),
-	('article/view/about', 1461068978),
-	('en/article/view/about', 1461064341);
+	('article/view/about', 1462789962),
+	('en/article/view/about', 1462790023),
+	('article/blog/test', 1462824013),
+	('article/list/test', 1462824013),
+	('article/blog/222', 1462785952),
+	('article/list/222', 1462785952),
+	('en/article/blog/test', 1462794158),
+	('en/article/list/test', 1462794158),
+	('article/blog/test2', 1462807026),
+	('article/list/test2', 1462807026);
 /*!40000 ALTER TABLE `modified` ENABLE KEYS */;
 
 
@@ -854,7 +862,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 INSERT INTO `user` (`id`, `groupId`, `login`, `password`, `status`, `email`, `code`) VALUES
 	(2, 250, 'admin', '2fVRwDsHuyNI6', 1, 'admin@mail.com', ''),
 	(3, 200, 'moderator', '2fy8kc7l/6nd6', 1, 'editro@mail.com', ''),
-	(1, 255, 'root', '2fy8kc7l/6nd6', 1, 'root@example.com', NULL);
+	(1, 255, 'root', '2fzr2Ln.VAGRA', 1, 'root@example.com', NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
 
