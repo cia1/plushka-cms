@@ -200,8 +200,8 @@ class sController extends controller {
 
 	/* Добавление обработчиков событий (админка и общедоступная часть) */
 	private static function _install6(&$module) {
-		module::hook($module);
-		module::status($module['id'],6);
+//		module::hook($module);
+//		module::status($module['id'],6);
 		return self::_install7($module);
 	}
 
@@ -295,8 +295,8 @@ class sController extends controller {
 		}
 		if(isset($module['currentVersion'])) $currentVersion=$module['currentVersion']; else $currentVersion=null;
 		if(!$currentVersion) { //удалять только если модуль не был ранее установлен
-			module::dropHook($module,true); //Удалить обработчики событий общедоступной части
-			module::dropHook($module,false); //Удалить обработчики событий админки
+//			module::dropHook($module,true); //Удалить обработчики событий общедоступной части
+//			module::dropHook($module,false); //Удалить обработчики событий админки
 			module::dropDb($module); //Удалить все таблицы модуля
 		}
 		if(function_exists('uninstallAfter')) uninstallAfter($currentVersion); //Скрипт "после удаления"

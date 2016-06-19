@@ -1,6 +1,4 @@
 <?php return array(
-'hook1'=>'search,userCreate',
-'hook2'=>'userCreate,userDelete,userModify',
 'right'=>'forum.moderate,forum.category',
 'menu'=>'12,13',
 'table'=>'forumCategory,forumPost,forumTopic,forumUser',

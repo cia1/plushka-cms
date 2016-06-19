@@ -10,8 +10,8 @@
 			if($item==$cfg['languageDefault']) $lang=''; else $lang=$item.'/';
 			$this->language[$i]=array('alias'=>$item,'link'=>core::url().$lang.$link,'title'=>$item);
 		}
-		$this->language[0]['title']='русский';
-		$this->language[1]['title']='английский';
+		$this->language[0]['title']='english';
+		$this->language[1]['title']='русский';
 		return true;
 	}
 

@@ -1,5 +1,4 @@
 <?php return array(
-'hook2'=>'menuItemDelete,widgetDelete,languageCreate',
 'right'=>'form.*',
 'widget'=>'form',
 'menu'=>'7',

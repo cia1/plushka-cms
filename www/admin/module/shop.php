@@ -1,6 +1,5 @@
 <?php return array(
 'depend'=>'form ver 1.1',
-'hook1'=>'search',
 'right'=>'shopContent.brand,shopContent.category,shopSetting.feature,shopSetting.setting',
 'widget'=>'shopProductGroup,shopCart,shopCategory,shopFeatureSearch',
 'menu'=>'5',

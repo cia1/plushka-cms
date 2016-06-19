@@ -156,7 +156,9 @@ class picture {
 		}
 		$dst=imagecreatetruecolor($this->_dstW,$this->_dstH);
 		if($type=='png') {
-			if(!$this->_w) imagealphablending($dst,false);
+			$transparent=imagecolorallocatealpha($dst,0,0,0,127);
+			imagefill($dst,0,0,$transparent);
+			imagecolortransparent($dst,$transparent);
 			imagesavealpha($dst,true);
 		}
 		imagecopyresampled($dst,$this->_src,0,0,$this->_x1,$this->_y1,$this->_dstW,$this->_dstH,$this->_srcW,$this->_srcH);

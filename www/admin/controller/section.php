@@ -12,11 +12,12 @@ class scontroller extends controller {
 		$this->section=$_GET['name']; //Имя секции
 		$this->button('?controller=section&action=widget&section='.$this->section,'new','Добавить новый виджет','Создать');
 		$t=core::table();
-		$t->rowTh('Виджет|Тип||');
+		$t->rowTh('Пользователи|Виджет|Тип||');
 		$db=core::db();
-		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
+			$t->text(($items[$i][5] ? $items[$i][5] : 'все'));
 			$t->link($items[$i][1],'?controller=section&action=widget&id='.$items[$i][0].'&section='.$_GET['name']);
 			$t->text($items[$i][2]);
 			$t->upDown('?controller=section&id='.$items[$i][0].'&action=',$items[$i][3],$cnt);
@@ -77,14 +78,15 @@ class scontroller extends controller {
 	public function actionWidget() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Изменение
-			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
+			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section,w.groupId FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
 			$this->data['type']=array($this->data['id'],$this->data['controller'],$this->data['action']); //Нужен для загрузки (ajax) формы модуля.
+			if($this->data['groupId']!==null) $this->data['groupId']=$this->data['groupId'];
 			//Загрузить список страниц, на которых публикуется виджет
 			$db->query('SELECT url FROM section WHERE widgetId='.$this->data['id']);
 			$url=array();
 			while($item=$db->fetch()) $url[]=$item[0];
 		} else { //Создание
-			$this->data=array('id'=>null,'name'=>null,'title'=>'','cache'=>0,'data'=>null,'publicTitle'=>false);
+			$this->data=array('id'=>null,'groupId'=>null,'name'=>null,'title'=>'','cache'=>0,'data'=>null,'publicTitle'=>false);
 			//Тип виджета может быть определён ранее - тогда в представлении нужно "подгрузить" (AJAX) соответствующую форму модуля
 			//Иначе загрузить список типов, чтобы предоставить выбор
 			if(isset($_GET['type'])) {
@@ -105,6 +107,8 @@ class scontroller extends controller {
 			$item=&$this->pageMenu[$id];
 			$this->pageMenu[$item['parent']]['child'][]=&$item;
 		}
+		$this->userGroupList=$db->fetchArray('SELECT id,name FROM userGroup ORDER BY id');
+		array_unshift($this->userGroupList,array('0','не авторизованные'));
 		$this->pageMenu=$this->pageMenu[0]['child']; //Теперь уже лишний "обвес" не нужен
 		$this->pageOther=self::_pageOther($url,$this->pageMenu); //Обработка $this->pageMenu и создание $this->pageOther
 		$this->script('jquery.form');
@@ -118,6 +122,7 @@ class scontroller extends controller {
 		if($data['id']) $isNew=false; else $isNew=true;
 		if(!$model->save(array(
 			'id'=>array('primary'),
+			'groupId'=>array('integer','группа пользователей','max'=>254),
 			'section'=>array('string'),
 			'name'=>array('latin','Имя',true),
 			'data'=>array('html'),

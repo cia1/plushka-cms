@@ -307,16 +307,24 @@ class core {
 	public static function hook() {
 		$data=func_get_args();
 		$name=array_shift($data);
-		$cfg=core::configAdmin('_hook');
-		if(!isset($cfg[$name]) || !$cfg[$name]) return true;
-		for($i=0,$cnt=count($cfg[$name]);$i<$cnt;$i++) {
-			if(!self::_hook($name.'.'.$cfg[$name][$i],$data)) return false;
+		$d=opendir(core::path().'admin/hook');
+		$result=array();
+		$len=strlen($name);
+		while($f=readdir($d)) {
+			if($f=='.' || $f=='..') continue;
+			if(substr($f,0,$len)!=$name) continue;
+			$tmp=self::_hook($f,$data);
+			if($tmp===false || $tmp===null) {
+				closedir($d);
+				return false;
+			}
+			$result[]=$tmp;
 		}
-		return true;
+		return $result;
 	}
 
 	private static function _hook($name,$data) {
-		if(!include(core::path().'admin/hook/'.$name.'.php')) return false; else return true;
+		if(!include(core::path().'admin/hook/'.$name)) return false; else return true;
 	}
 
 }

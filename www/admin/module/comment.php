@@ -1,5 +1,4 @@
 <?php return array(
-'hook2'=>'widgetDelete,widgetPageDelete',
 'right'=>'comment.moderate,comment.widget',
 'widget'=>'comment',
 'table'=>'comment,commentGroup',

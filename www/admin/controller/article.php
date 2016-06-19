@@ -182,12 +182,8 @@ class sController extends controller {
 			controller::$error='Такой псевдоним уже используется для другой категории статей (блога)';
 			return false;
 		}
-		$m=core::model('articleCategory');
-		$m->multiLanguage();
+		$m=core::model('articleCategory_'._LANG);
 		$m->set($data);
-		if($data['id']) {
-			$oldAlias=$db->fetchValue('SELECT alias FROM articleCategory_'._LANG.' WHERE id='.$data['id']);
-		} else $oldAlias=$data['alias'];
 		if(!$m->save(array(
 			'id'=>array('primary'),
 			'parentId'=>array('id','',true),
@@ -199,13 +195,6 @@ class sController extends controller {
 			'text1'=>array('html','Вступительный текст'),
 			'onPage'=>array('integer','кол-во статей на странице','min'=>0,'max'=>255)
 		))) return false;
-		if($oldAlias!=$data['alias']) {
-			$cfg=core::config();
-			if(isset($cfg['languageList'])) foreach($cfg['languageList'] as $item) {
-				if($item==_LANG) continue;
-				$db->query('UPDATE articleCategory_'.$item.' SET alias='.$db->escape($data['alias']).' WHERE id='.$data['id']);
-			}
-		}
 		core::hook('modify','article/blog/'.$m->alias); //Обновить дату изменения страницы
 		core::hook('modify','article/list/'.$m->alias);
 		return true;
@@ -234,6 +223,27 @@ class sController extends controller {
 			'metaDescription'=>array('string','meta Описание'),
 			'date'=>array('date','Дата публикации',false)
 		))) return false;
+		if(!$data['id'] && !$data['categoryId']) {
+			$data['id']=$m->id;
+			$cfg=core::config();
+			if(isset($cfg['languageList'])) foreach($cfg['languageList'] as $item) {
+				if($item==_LANG) continue;
+				$m=core::model('article_'.$item);
+				$m->set($data);
+				if(!$m->save(array(
+					'id'=>array('integer'),
+					'alias'=>array('latin','URL (псевдоним)',true),
+					'title'=>array('string','Заголовок',true,'max'=>150),
+					'text1'=>array('html','Краткий текст (введение)'),
+					'text2'=>array('html','Текст статььи'),
+					'categoryId'=>array('id','Категория'),
+					'metaTitle'=>array('string','meta Заголовок'),
+					'metaKeyword'=>array('string','meta Ключевые слова'),
+					'metaDescription'=>array('string','meta Описание'),
+					'date'=>array('date','Дата публикации',false)
+				))) return false;
+			}
+		}
 		//Если псевдоним был изменён, то проверить адрес главной страницы, а также изменить все ссылки во всех меню
 		if($oldAlias && $oldAlias!=$data['alias']) {
 			$cfg1=core::config();

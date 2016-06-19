@@ -60,12 +60,16 @@ class _core {
 	}
 
 	/* Возвращает относительный URL до корня сайта */
-	public static function url() {
+	public static function url($lang=false) {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER)) {
 				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')+1);
 			} else $_url=null;
+		}
+		if($lang) {
+			$cfg=core::config();
+			if($cfg['languageDefault']!=_LANG) return $_url._LANG.'/';
 		}
 		return $_url;
 	}
@@ -298,7 +302,7 @@ class _core {
 			if($i<$cnt) $query.='"'.$s.'/","'.$s.'*"'; else $query.='"'.$s.'/","'.$s.'."';
 		}
 		$db=self::db();
-		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url,w.groupId FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
 		$cnt=count($items);
 		echo '<div class="section section'.$name.'">';
 		$u=self::userCore();
@@ -308,7 +312,11 @@ class _core {
 			$admin->add('?controller=section&name='.$name,'section','Управление виджетами в этой области','Секция');
 		}
 		//Теперь перебрать все виджеты секции
-		for($i=0;$i<$cnt;$i++) core::widget($items[$i][0],$items[$i][1],$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
+		$userGroup=core::userGroup();
+		for($i=0;$i<$cnt;$i++) {
+			if($items[$i][6]!==null && $items[$i][6]!=$userGroup) continue;
+			core::widget($items[$i][0],$items[$i][1],$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
+		}
 		echo '</div>';
 	}
 
@@ -327,13 +335,21 @@ class _core {
 	Параметры: 1й - системное имя события, 2й и последующие - индивидуальны для каждого события */
 	public static function hook() {
 		$data=func_get_args();
-		$name=array_shift($data); //имя события
-		$cfg=self::config('_hook');
-		if(!isset($cfg[$name]) || !$cfg[$name]) return true;
-		for($i=0,$cnt=count($cfg[$name]);$i<$cnt;$i++) {
-			if(!self::_hook($name.'.'.$cfg[$name][$i],$data)) return false;
+		$name=array_shift($data);
+		$d=opendir(core::path().'hook');
+		$result=array();
+		$len=strlen($name);
+		while($f=readdir($d)) {
+			if($f=='.' || $f=='..') continue;
+			if(substr($f,0,$len)!=$name) continue;
+			$tmp=self::_hook($f,$data);
+			if($tmp===false || $tmp===null) {
+				closedir($d);
+				return false;
+			}
+			$result[]=$tmp;
 		}
-		return true;
+		return $result;
 	}
 
 	//Подключает файл локализации
@@ -345,7 +361,7 @@ class _core {
 	}
 
 	private static function _hook($name,$data) {
-		if(!include(self::path().'hook/'.$name.'.php')) return false; else return true;
+		if(!include(self::path().'hook/'.$name)) return false; else return true;
 	}
 }
 /* --- --- */

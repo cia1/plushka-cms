@@ -18,12 +18,12 @@ class module {
 			$data['menu']=explode(',',$data['menu']);
 			for($i=0,$cnt=count($data['menu']);$i<$cnt;$i++) $data['menu'][$i]=trim($data['menu'][$i]);
 		} else $data['menu']=array();
-		if(isset($data['hook1']) && $data['hook1']) { //события (порождённые модулем) общедоступной части сайта
-			$data['hook1']=explode(',',$data['hook1']);
-		} else $data['hook1']=array();
-		if(isset($data['hook2']) && $data['hook2']) { //события (порождённые модулем) админки
-			$data['hook2']=explode(',',$data['hook2']);
-		} else $data['hook2']=array();
+//		if(isset($data['hook1']) && $data['hook1']) { //события (порождённые модулем) общедоступной части сайта
+//			$data['hook1']=explode(',',$data['hook1']);
+//		} else $data['hook1']=array();
+//		if(isset($data['hook2']) && $data['hook2']) { //события (порождённые модулем) админки
+//			$data['hook2']=explode(',',$data['hook2']);
+//		} else $data['hook2']=array();
 		if(isset($data['table']) && $data['table']) { //список таблиц БД
 			$data['table']=explode(',',$data['table']);
 			for($i=0,$cnt=count($data['table']);$i<$cnt;$i++) $data['table'][$i]=trim($data['table'][$i]);
@@ -83,8 +83,8 @@ class module {
 		$cfg->right='';
 		$cfg->widget='';
 		$cfg->menu='';
-		$cfg->hook1='';
-		$cfg->hook2='';
+//		$cfg->hook1='';
+//		$cfg->hook2='';
 		$cfg->table='';
 		$cfg->file=array();
 		$cfg->currentVersion=$currentVersion;
@@ -211,6 +211,7 @@ class module {
 
 	/* Добавляет в конфигугацию модуля информацию об обработчиках событий.
 	Информацию берёт из найденных в директориях /hook и /admin/hook файлов */
+/*
 	public static function hook(&$module) {
 		core::import('admin/core/config');
 		//Общедоступная часть сайта
@@ -275,7 +276,7 @@ class module {
 		}
 		return true;
 	}
-
+*/
 	/* Выполняет SQL-запросы установки модуля (/tmp/instal.СУБД.sql) и сохраняет информацию о созданных таблицах */
 	public static function sql($id) {
 		$cfg0=core::configAdmin();
@@ -380,6 +381,7 @@ class module {
 	}
 
 	/* Удаляет информацию о обработчиках событий */
+/*
 	public static function dropHook($module,$front=true) {
 		if($front) {
 			$folder='hook/';
@@ -413,7 +415,7 @@ class module {
 		$cfg->save($cfgFile);
 		return true;
 	}
-
+*/
 	/* Разрушает все таблицы, созданные модулем, а также удаляет информцию о типах меню и виджетах */
 	public static function dropDb($module) {
 		$db=core::db();
@@ -511,7 +513,7 @@ class module {
 				if(!is_dir($path1.$f)) $data[]=$f.'/';
 				$data=array_merge($data,self::_scanDirectory($f.'/',$exists));
 			} else {
-			if($path=='config/' || $path=='admin/config/') if($f=='_hook.php') continue;
+//			if($path=='config/' || $path=='admin/config/') if($f=='_hook.php') continue;
 				if(file_exists($path1.$path.$f)) $exists[]=$path.$f;
 				$data[]=$path.$f;
 			}

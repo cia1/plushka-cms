@@ -1,5 +1,4 @@
 <?php return array(
-'hook2'=>'widgetDelete',
 'right'=>'chat.moderate',
 'widget'=>'chat',
 'table'=>'chatBan',

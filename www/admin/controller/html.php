@@ -9,24 +9,19 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Форма для редактирования текста */
 	public function actionItem() {
+		core::import('admin/model/html');
+		$html=new html();
 		if($_GET['id']) { //Текст уже существует - загрузить его
-			$data=array('filename'=>$_GET['id']);
-			$f=core::path().'data/widgetHtml/'.$data['filename'].'_'._LANG.'.html';
-			if(!file_exists($f)) {
-				$cfg=core::config();
-				$f=core::path().'data/widgetHtml/'.$data['filename'].'_'.$cfg['languageDefault'].'.html';
-			}
-			$data['text']=file_get_contents($f);
-		} else $data=array('filename'=>'','text'=>''); //Текста нет - пустой массив, чтобы небыло warning
-		$f=core::form();
-		$f->hidden('filename',$data['filename']);
-		$f->editor('html','Содержимое (html):',$data['text']);
-		$f->submit('Готово');
-		return $f;
+			if(!$html->load($_GET['id'])) core::error404();
+		} else $html->init(); //Текста нет - пустой массив, чтобы небыло warning
+		return $html->form();
 	}
 
 	public function actionItemSubmit($data) {
-		if(!$this->_save($data)) return false;
+		core::import('admin/model/html');
+		$html=new html();
+		$html->html=$data['html'];
+		if(!$html->save($data['fileName'])) return false;
 		core::redirect('?controller=html&action=item&id='.$data['filename'],'Изменения сохранены');
 	}
 /* ----------------------------------------------------------------------------------- */
@@ -35,47 +30,24 @@ class sController extends controller {
 /* ---------- WIDGET ----------------------------------------------------------------- */
 	/* Редактирование текста или создание нового блока текста */
 	public function actionWidgetHtml($data=null) {
+		core::import('admin/model/html');
+		$html=new html();
 		if($data) {
-			$f=core::path().'data/widgetHtml/'.$data.'_'._LANG.'.html';
-			if(!file_exists($f)) {
-				$cfg=core::config();
-				$f=core::path().'data/widgetHtml/'.$data.'_'.$cfg['languageDefault'].'.html';
-			}
-			$this->data=array('section'=>$_GET['section'],'filename'=>$data,'text'=>file_get_contents($f));
-		} else $this->data=array('section'=>$_GET['section'],'filename'=>null,'text'=>'');
-		return 'Widget';
+			if(!$html->load($data)) core::error404();
+		}
+		return $html->form();
 	}
 
 	public function actionWidgetHtmlSubmit($data) {
+		core::import('admin/model/html');
 		//Если это новый блок текста, то "придумать" имя файла исходя из названия секции, в которой находится виджет
-		if(!$data['filename']) {
-			$data['filename']=$data['section'];
-			$d=opendir(core::path().'data/widgetHtml');
-			$index=1;
-			$len=strlen($data['section'])+1;
-			while($f=readdir($d)) {
-				if($f=='.' || $f=='..') continue;
-				if(substr($f,0,$len)==$data['section'].'.') {
-					$i=(int)substr($f,$len);
-					if($i>=$index) $index=$i+1;
-				}
-			}
-			$data['filename']=$data['section'].'.'.$index;
-		}
-		if(!$this->_save($data)) return false;
-		return $data['filename'];
+		if(!$data['fileName']) $data['fileName']=html::fileNameBySection($data['section']);
+		$html=new html();
+		$html->html=$data['html'];
+		if(!$html->save($data['fileName'])) return false;
+		return $data['fileName'];
 	}
 /* ----------------------------------------------------------------------------------- */
 
-
-/* ---------- PRIVATE ---------------------------------------------------------------- */
-	/* Сохраняет текст в файл */
-	private function _save($data) {
-		$f=fopen(core::path().'data/widgetHtml/'.$data['filename'].'_'._LANG.'.html','w');
-		fwrite($f,$data['html']);
-		fclose($f);
-		return true;
-	}
-/* ----------------------------------------------------------------------------------- */
 }
 ?>

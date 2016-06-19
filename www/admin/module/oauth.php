@@ -1,5 +1,4 @@
 <?php return array(
-'hook2'=>'userDelete',
 'table'=>'oauth',
 'widget'=>'oauth',
 'file'=>array(
