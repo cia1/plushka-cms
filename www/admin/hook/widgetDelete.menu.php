@@ -11,7 +11,7 @@ if($cnt>1) return true;
 //Иначе удалить пункты меню и само меню
 $db=core::db();
 if($db->fetchValue('SELECT 1 FROM menuItem WHERE menuId='.$data[2].' LIMIT 1')) {
-	controller::$error='Необходимо сначала удалить все пункты меню.';
+	core::error('Необходимо сначала удалить все пункты меню.');
 	return false;
 }
 $db->query('DELETE FROM menu WHERE id='.$data[2]);

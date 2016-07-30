@@ -57,7 +57,8 @@ class sController extends controller {
 		$widget['zoom']=(int)$data['zoom'];
 		$widget['type']=$data['type'];
 		$db->query('UPDATE widget SET data='.$db->escape(serialize($widget)).' WHERE id='.$id);
-		core::redirect('?controller=map&action=marker&id='.$data['id'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=map&action=marker&id='.$data['id']);
 	}
 
 	//Рисует карту, это действие загружается во фрейме
@@ -92,7 +93,7 @@ class sController extends controller {
 //		$this->data=$data;
 //		$this->scriptAdmin('map');
 		$this->cite='Настроить карту и добавить метки можно будет после создания виджета.';
-		return 'WidgetMap';		
+		return 'WidgetMap';
 	}
 
 	public function actionWidgetMapSubmit($data) {

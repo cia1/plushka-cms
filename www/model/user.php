@@ -26,14 +26,14 @@ class modelUser extends model {
 		parent::__construct('user');
 		$this->_self=$user;
 		if($id) {
-			if(!$this->loginById($id)) controller::$error=LNGUserNotExists;
+			if(!$this->loginById($id)) core::error(LNGUserNotExists);
 		}
 	}
 
 	//Загружает данные пользователя по адресу электронной почты (без авторизации)
 	public function loadByEmail($email) {
 		if(!$this->load('email='.$this->db->escape($email),'id,groupId,status,login,email')) {
-			controller::$error=LNGUserWithEmailNotFound;
+			core::error(LNGUserWithEmailNotFound);
 			return false;
 		}
 		return true;
@@ -42,7 +42,7 @@ class modelUser extends model {
 	//Загружает данные, а также авторизует пользователя по указанному идентификатору
 	public function loginById($id) {
 		if(!$this->loadById($id)) {
-			controller::$error=LNGUserNotExists;
+			core::error(LNGUserNotExists);
 			return false;
 		}
 		if($this->_self) { //Если класс создан через core:user() или core::userCore()
@@ -58,7 +58,7 @@ class modelUser extends model {
 	//Загружает данные, а также авторизует пользователя по коду активации
 	public function loginByCode($code) {
 		if(!$this->load('status!=2 AND code='.$this->db->escape($code))) {
-			controller::$error=LNGActivationCodeIsWrong;
+			core::error(LNGActivationCodeIsWrong);
 			return false;
 		}
 		if($this->_self) { //Если класс создан через core:user() или core::userCore()
@@ -75,7 +75,7 @@ class modelUser extends model {
 	public function login($login,$password) {
 		//Когда PHP 5.6 станет использоваться повсеместно, нужно переписать на hash_equals
 		if(!$this->load('login='.$this->db->escape($login).' AND password='.$this->db->escape(self::_hash($password)).' AND status=1')) {
-			controller::$error=LNGLoginOrPasswordIsWrong;
+			core::error(LNGLoginOrPasswordIsWrong);
 			return false;
 		}
 		if($this->_self) { //Если класс создан не напрямую, а через core::user()->model(), то передать в класс user данные пользователя
@@ -94,7 +94,7 @@ class modelUser extends model {
 		core::language('user');
 		$message=trim($message);
 		if(!$message) {
-			controller::$error=LNGNothingToSend;
+			core::error(LNGNothingToSend);
 			return false;
 		}
 		$db=core::db();
@@ -103,7 +103,7 @@ class modelUser extends model {
 		elseif($user2Login) $user2=$db->fetchArrayOnceAssoc('SELECT id,login,email FROM user WHERE login='.$db->escape($user2Login));
 		else $user2=null;
 		if(!$user2) {
-			controller::$error=LNGIncorrectRecepientData;
+			core::error(LNGIncorrectRecepientData);
 			return false;
 		}
 		if(!$this->_self->id) core::redirect('user/login');
@@ -226,17 +226,17 @@ class modelUser extends model {
 	public function validateLogin($field,$value) {
 		$value=trim(str_replace(array("'",'"','/','\\'),'',strip_tags($value)));
 		if(strlen($value)<3) {
-			controller::$error=LNGLoginCannotBeShorter3Symbols;
+			core::error(LNGLoginCannotBeShorter3Symbols);
 			return false;
 		}
 		if(strlen($value)>20) {
-			controller::$error=LNGLoginCannotBeLonger20Symbols;
+			core::error(LNGLoginCannotBeLonger20Symbols);
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE login='.$this->db->escape($value);
 		if($this->_data['id']) $q.=' AND id!='.(int)$this->_data['id'];
 		if($this->db->fetchValue($q)) {
-			controller::$error=LNGThisLoginAlreadyUses;
+			core::error(LNGThisLoginAlreadyUses);
 			return false;
 		}
 		return $value;
@@ -245,13 +245,13 @@ class modelUser extends model {
 	/* Проверяет уникальность адреса электронной почты */
 	public function validateEmail($field,$value) {
 		if(!filter_var($value,FILTER_VALIDATE_EMAIL)) {
-			controller::$error=LNGEMailIsWrong;
+			core::error(LNGEMailIsWrong);
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE email='.$this->db->escape($value);
 		if($this->_data['id']) $q.=' AND id!='.$this->data['id'];
 		if($this->db->fetchValue($q)) {
-			controller::$error=LNGThisEmailAlreadyUses;
+			core::error(LNGThisEmailAlreadyUses);
 			return false;
 		}
 		return $value;
@@ -261,7 +261,7 @@ class modelUser extends model {
 	public function validatePassword($field,$value) {
 		$l=strlen($value);
 		if($l<3) {
-			controller::$error=LNGPasswordTooShort;
+			core::error(LNGPasswordTooShort);
 			return false;
 		}
 		return $value;

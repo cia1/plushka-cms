@@ -82,7 +82,7 @@ class mForm extends form {
 			$value=$data[$fldName];
 			if($item[2]=='file') {
 				if($item[4] && !$data['fld'.$item[0]]['size']) {
-					controller::$error=sprintf(LNGFieldCannotByEmpty,$item[1]);
+					core::error(sprintf(LNGFieldCannotByEmpty,$item[1]));
 					return false;
 				}
 				if($item[3]) {
@@ -90,7 +90,7 @@ class mForm extends form {
 					$ext=strtolower($data[$item[0]]['name']);
 					$ext=substr($ext,strrpos($ext,'.')+1);
 					if(!in_array($ext,$type)) {
-						controller::$error=LNGFileTypeNotSupport;
+						core::error(LNGFileTypeNotSupport);
 						return false;
 					}
 				}
@@ -99,7 +99,7 @@ class mForm extends form {
 			if($item[2]=='radio' || $item[2]=='select') {
 				$d=explode('|',$item[3]);
 				if(array_search($value,$d)===false) {
-					controller::$error=sprintf(LNGFieldIllegalValue,$item[1]);
+					core::error(sprintf(LNGFieldIllegalValue,$item[1]));
 					return false;
 				}
 			}

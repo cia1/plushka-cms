@@ -34,8 +34,8 @@ dl.form h3 {float:left;width:100%;margin-top:10px;padding-bottom:5px;font-size:1
 
 span.required {padding-left:3px;color:red;}
 span.date {float:right;margin-top:-18px;font-style:italic;}
-div.errorMessage {margin:15px 0;padding:10px;background:#a00;border:1px solid #000000;color:white;}
-div.successMessage {margin:15px 0;padding:10px;background:#0a0;border:1px solid #000000;color:white;}
+div.messageError {margin:15px 0;padding:10px;background:#a00;border:1px solid #000000;color:white;}
+div.messageSuccess {margin:15px 0;padding:10px;background:#0a0;border:1px solid #000000;color:white;}
 
 body > header {width:1000px;height:140px;margin:0 auto;padding:0px;background:url(img02.jpg) no-repeat left top;}
 body > header .widgetsearch {float:right;margin-top:30px;}

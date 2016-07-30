@@ -44,7 +44,8 @@ class sController extends controller {
 
 	public function actionCategorySubmit($data) {
 	if(!$this->_saveCategory($data)) return false; //Этот же механизм используется в меню, поэтому вынесен в отдельную функцию
-		core::redirect('?controller=article&action=category&id='.$data['id'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=article&action=category&id='.$data['id']);
 	}
 
 	//Список не опубликованных статей
@@ -96,14 +97,16 @@ class sController extends controller {
 	public function actionArticleSubmit($data) {
 		if($data['id']) $title='Изменения сохранены'; else $title='Статья создана';
 		if(!$this->_saveArticle($data)) return false; //этот же механизм используется в меню
-		core::redirect('?controller=article&action=article&id='.$data['id'],$title);
+		core::success($title);
+		core::redirect('?controller=article&action=article&id='.$data['id']);
 	}
 
 	/* Удаление статьи (форма подтверждения) */
 	public function actionArticleDelete() {
 		$db=core::db();
 		$db->query('DELETE FROM article_'._LANG.' WHERE id='.$_GET['id']);
-		core::redirect('?controller=article&acttion=article','Статья удалена');
+		core::success('Статья удалена');
+		core::redirect('?controller=article&acttion=article');
 	}
 /* --------------------------------------------------------------------------------------------- */
 
@@ -153,7 +156,7 @@ class sController extends controller {
 		if(!$data) $data=array('categoryId'=>null,'countPreview'=>0,'countLink'=>0,'linkType'=>'blog');
 		$f=core::form();
 		$newCategoryLink=core::link('article&action=category').'&backlink='.urlencode('?controller=section&action=widget&amp;section='.$_GET['section'].'&type=blog&lang='._LANG);
-		$f->listBox('categoryId','Категория','SELECT id,title FROM articleCategory',$data['categoryId'],'< создать новую категорию >','onclick="if(this.value==\'\') document.location=\''.$newCategoryLink.'\';"');
+		$f->listBox('categoryId','Категория','SELECT id,title FROM articleCategory_'._LANG,$data['categoryId'],'< создать новую категорию >','onclick="if(this.value==\'\') document.location=\''.$newCategoryLink.'\';"');
 		$f->select('linkType','Вид ссылок на статьи',array(array('blog','article/blog/...'),array('list','article/list/...')),$data['linkType']);
 		$f->text('countPreview','Количество анонсов статей',$data['countPreview']);
 		$f->text('countLink','Количество ссылок на статьи',$data['countLink']);
@@ -179,7 +182,7 @@ class sController extends controller {
 		if($data['id']) $err=$db->fetchValue('SELECT id FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($data['alias']).' AND id<>'.$data['id']);
 		else $err=$db->fetchValue('SELECT id FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($data['alias']));
 		if($err) {
-			controller::$error='Такой псевдоним уже используется для другой категории статей (блога)';
+			core::error('Такой псевдоним уже используется для другой категории статей (блога)');
 			return false;
 		}
 		$m=core::model('articleCategory_'._LANG);
@@ -206,7 +209,7 @@ class sController extends controller {
 		$db=core::db();
 		if($data['id']) $oldAlias=$db->fetchValue('SELECT alias FROM article_'._LANG.' WHERE id='.$data['id']); else $oldAlias=null;
 		if($data['alias']!==$oldAlias && $db->fetchValue('SELECT 1 FROM article_'._LANG.' WHERE categoryId='.$data['categoryId'].' AND alias='.$db->escape($data['alias']).($data['id'] ? ' AND id!='.$data['id'] : ''))) {
-			controller::$error='Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.';
+			core::error('Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.');
 			return false;
 		}
 		$m=core::model('article_'._LANG);

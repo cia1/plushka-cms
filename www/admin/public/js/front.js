@@ -1,6 +1,6 @@
 function _showError(message) {
-	jQuery('.errorMessage').remove();
-	if(message) jQuery('#content').prepend('<div class="errorMessage">'+message+'</div>');
+	jQuery('.messageError').remove();
+	if(message) jQuery('#content').prepend('<div class="messageError">'+message+'</div>');
 }
 
 /* ---------------------------------------------- */

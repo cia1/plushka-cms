@@ -198,11 +198,32 @@ class _core {
 		return new model($namespace,$db);
 	}
 
+	//Устанавливает или возвращает текст сообщения об успешно выполненной операции
+	public static function success($message=null) {
+		if($message===false) {
+			$message=$_SESSION['messageSuccess'];
+			unset($_SESSION['messageSuccess']);
+			return $message;
+		}
+		if($message!==null) $_SESSION['messageSuccess']=$message;
+		return (isset($_SESSION['messageSuccess']) ? $_SESSION['messageSuccess'] : null);
+	}
+
+	//Устанавливает и возвращает текст сообщения об ошибке
+	public static function error($message=null) {
+		if($message===false) {
+			$message=$_SESSION['messageError'];
+			unset($_SESSION['messageError']);
+			return $message;
+		}
+		if($message!==null) $_SESSION['messageError']=$message;
+		return (isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
+	}
 	/* Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес.
 	Если задан $message, то после перенаправления будет выведено указанное сообщение */
-	public static function redirect($url,$message=null) {
-		if($message) $_SESSION['successMessage']=$message;
-		header('Location: '.self::link($url));
+	public static function redirect($url,$message=null,$code=302) {
+		if($message) core::success($message);
+		header('Location: '.self::link($url),true,$code);
 		exit;
 	}
 
@@ -214,25 +235,6 @@ class _core {
 		controller::$self->pageTitle=LNGPageNotExists1;
 		controller::$self->render('404',true);
 		exit;
-	}
-
-	/* Выводит HTML-код сообщения об ошибке */
-	public static function error($error=null) {
-		if(!$error) return false;
-		echo '<div class="errorMessage">'.$error.'</div>';
-		return true;
-	}
-
-	/* Выводит HTML-код сообщения об успешно выполненной операции */
-	public static function success($message=null) {
-		if(!$message) {
-			if(isset($_SESSION['successMessage'])) {
-				$message=$_SESSION['successMessage'];
-				unset($_SESSION['successMessage']);
-			} else return false;
-		}
-		if(!$message) return;
-		echo '<div class="successMessage">'.$message.'</div>';
 	}
 
 	/* Генерирует виджет. Обрабатывает {{widget}}
@@ -376,7 +378,6 @@ class controller {
 	protected $metaDescription='';
 	public $pageTitle=''; //отображаемый заголовок, если задан, то будет выведен в теге <H1 class="pageTitle">
 	protected $view='Index'; //имя действия
-	public static $error; //для хранения сообщения об ошибке, если такая случилась
 	public static $self; //содержит ссылку на контроллер, чтобы предоставить к нему доступ всем желающим
 	private $_head=''; //содержит теги, которые должны быть подключены в секции <head>
 
@@ -441,8 +442,15 @@ class controller {
 				}
 			}
 		}
-		if(controller::$error) core::error(controller::$error); //вывести сообщение об ошибке, если она произошла
-		core::success(); //вывести сообщение об успехе, если ранее был редирект с сообщением
+		//Вывести сообщение об ошибке, если она произошла
+		if(core::error()) {
+			echo '<div class="messageError">'.core::error(false).'</div>';
+		}
+		//Вывести сообщение об успехе, если оно задано
+		if(isset($_SESSION['messageSuccess'])) {
+			echo '<div class="messageSuccess">'.$_SESSION['messageSuccess'].'</div>';
+			unset($_SESSION['messageSuccess']);
+		}
 		if(gettype($view)=='object') $view->render();
 		else include(core::path().'view/'.$this->url[0].$view.'.php');
 		if($renderTemplate) include(core::path().'cache/template/'.core::template().'Footer.php'); //нижняя часть шаблона

@@ -11,7 +11,7 @@
 
 	public function __construct($charset='UTF-8',$userAgent=null) {
 		$this->_charset=strtoupper($charset);
-		if($this->_charset=='WINDOWS-1251' || $cthis->_harset=='CP-1251') $this->_charset='CP1251';
+		if($this->_charset=='WINDOWS-1251' || $this->_charset=='CP-1251') $this->_charset='CP1251';
 		$this->_ch=curl_init();
 		curl_setopt($this->_ch,CURLOPT_SSL_VERIFYPEER,false);
 		curl_setopt($this->_ch,CURLOPT_TIMEOUT,120);
@@ -162,7 +162,7 @@
 			$i=preg_match('/Location: (.+)/',$this->_head,$s);
 			if($i) {
 				$s=trim($s[1]);
-				return $this->get($s,true);
+				if($s!=$url) return $this->get($s,true);
 			}
 		}
 		$this->_content=substr($data,curl_getinfo($this->_ch,CURLINFO_HEADER_SIZE));

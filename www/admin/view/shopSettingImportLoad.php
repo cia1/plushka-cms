@@ -1,4 +1,4 @@
-<?php if(controller::$error) { ?>
+<?php if(core::error()) { ?>
 	<link href="<?=core::url()?>admin/public/template/front.css" rel="stylesheet" type="text/css" />
 	<p>Импорт прерван.</p>
 	<?php

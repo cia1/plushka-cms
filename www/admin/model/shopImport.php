@@ -8,7 +8,7 @@ class shopImport {
 		core::import('admin/model/excel_reader2');
 		$d=new Spreadsheet_Excel_Reader(core::path().'tmp/shopImport.xls',false,'UTF8');
 		if($d->error) {
-			controller::$error='Ошибка загрузки документа';
+			core::error('Ошибка загрузки документа');
 			return false;
 		}
 		$last=$first+$count;
@@ -99,7 +99,7 @@ class shopImport {
 	public static function clear() {
 		$id=file_get_contents(core::path().'tmp/shopImportId.txt'); //список ид импортированных товаров
 		if(!$id) {
-			controller::$error='Ничего не сделано';
+			core::error('Ничего не сделано');
 			return array(0,0);
 		}
 		$id=substr($id,0,strlen($id)-1);

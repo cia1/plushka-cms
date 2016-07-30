@@ -46,11 +46,11 @@ class sController extends controller {
 
 	public function actionInstallZipSubmit($data) {
 		if(!class_exists('ZipArchive')) {
-			controller::$error='Расширение ZipArchive не установлено на вашем сервере. Самостоятельно распакуйте архив в директорий '.$_SERVER['DOCUMENT_ROOT'].'/tmp и установите модуль.';
+			core::error('Расширение ZipArchive не установлено на вашем сервере. Самостоятельно распакуйте архив в директорий '.$_SERVER['DOCUMENT_ROOT'].'/tmp и установите модуль.');
 			return false;
 		}
 		if(!$data['archive']['size']) {
-			controller::$error='Архив не загружен.';
+			core::error('Архив не загружен.');
 			return false;
 		}
 		//Очистить директорий /tmp
@@ -59,11 +59,11 @@ class sController extends controller {
 		//Извлечь содержимое архива в /tmp
 		$zip=new ZipArchive();
 		if($zip->open($data['archive']['tmpName'])!==true) {
-			controller::$error='Ошибка при попытке открыть архив';
+			core::error('Ошибка при попытке открыть архив');
 			return false;
 		}
 		if(!$zip->extractTo(core::path().'tmp')) {
-			controller::$error='Ошибка при попытке распаковать архив';
+			core::error('Ошибка при попытке распаковать архив');
 			return false;
 		}
 		$this->url[1]='InstallTmp';
@@ -75,7 +75,7 @@ class sController extends controller {
 		core::import('admin/model/module');
 		$module=module::info(); //Информация о найденном в директории /tmp модуле
 		if(!$module) {
-			controller::$error='В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?';
+			core::error('В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?');
 			return 'Message';
 		} elseif($module['status']==100) $this->moduleExists=true; //такой модуль уже установлен
 		else $this->moduleExists=false;
@@ -141,11 +141,11 @@ class sController extends controller {
 				$version1=(int)str_replace('.','',trim(substr($item,$i+3)));
 				$version2=module::version($m);
 				if(!$version2) {
-					controller::$error='Устанавливаемый модуль требует наличия зависимого модуля &laquo;'.$m.'&raquo; (версия  '.trim(substr($item,$i+3)).').';
+					core::error('Устанавливаемый модуль требует наличия зависимого модуля &laquo;'.$m.'&raquo; (версия  '.trim(substr($item,$i+3)).').');
 					return false;
 				}
 				if($version1>(int)str_replace('.','',$version2)) {
-					controller::$error='Зависимый модуль &laquo;'.$m.'&raquo; имеет версию '.$version2.', но устанавливаемый модуль требует версию '.trim(substr($item,$i+3)).'.';
+					core::error('Зависимый модуль &laquo;'.$m.'&raquo; имеет версию '.$version2.', но устанавливаемый модуль требует версию '.trim(substr($item,$i+3)).'.');
 					return false;
 				}
 			}
@@ -168,7 +168,7 @@ class sController extends controller {
 			include($s);
 			if(function_exists('installBefore')) { //"перед установкой"
 				if(!installBefore($module['currentVersion'])) {
-					if(!controller::$error) controller::$error='По неизвестной причине установка модуля невозможна';
+					if(!core::error()) core::error('По неизвестной причине установка модуля невозможна');
 					return false;
 				}
 			}
@@ -218,7 +218,7 @@ class sController extends controller {
 	private static function _install8(&$module) {
 		$exists=module::fileList($module['id'],(bool)$module['currentVersion']);
 		if(is_array($exists) && !$module['currentVersion']) {
-			controller::$error='Установка невозможна, так как некоторые файлы уже существуют. Список конфликтов:<ul><li>'.implode('</li><li>',$exists).'</li></ul>';
+			core::error('Установка невозможна, так как некоторые файлы уже существуют. Список конфликтов:<ul><li>'.implode('</li><li>',$exists).'</li></ul>');
 			return false;
 		}
 		module::status($module['id'],8);
@@ -253,7 +253,7 @@ class sController extends controller {
 		//Запретить удаление, если этот модуль необходим для работы других
 		$depend=module::dependSearch($_GET['id']);
 		if($depend) {
-			controller::$error='Этот модуль используется другими модулями: &laquo;'.implode('&raquo;,&laquo;',$depend).'&raquo;. Удаление невозможно.';
+			core::error('Этот модуль используется другими модулями: &laquo;'.implode('&raquo;,&laquo;',$depend).'&raquo;. Удаление невозможно.');
 			return false;
 		}
 		$db=core::db();
@@ -263,7 +263,7 @@ class sController extends controller {
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];
-			controller::$error='Удаление модуля невозможно: существуют ссылки в меню (пункты &laquo;'.$s.'&raquo;). Удалите эти пункты мени и повторите попытку.';
+			core::error('Удаление модуля невозможно: существуют ссылки в меню (пункты &laquo;'.$s.'&raquo;). Удалите эти пункты мени и повторите попытку.');
 			return false;
 		}
 		//Запретить удаление, если существуют виджеты этого модуля (по хорошему нужно ещё проверять .ini-файл шаблона)
@@ -276,7 +276,7 @@ class sController extends controller {
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];
-			controller::$error='Удаление модуля невозможно: существуют созданные виджеты (&laquo;'.$s.'&raquo;). Сначала удалите их.';
+			core::error('Удаление модуля невозможно: существуют созданные виджеты (&laquo;'.$s.'&raquo;). Сначала удалите их.');
 			return false;
 		}
 		module::status($_GET['id'],99);

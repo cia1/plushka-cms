@@ -38,7 +38,7 @@ class sController extends controller {
 			'captcha'=>array('captcha',LNGCaptcha)
 		))) {
 			if($inFrame) {
-				core::error(controller::$error);
+				core::error(core::error());
 				$this->_newQuestionForm(true);
 				exit;
 			}

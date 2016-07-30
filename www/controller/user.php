@@ -30,7 +30,7 @@ class sController extends controller {
 
 	public function actionIndexSubmit($data) {
 		if($data['password1']!=$data['password2']) {
-			controller::$error=LNGPasswordsAreNotEqual;
+			core::error(LNGPasswordsAreNotEqual);
 			return false;
 		}
 		//Проверка старого пароля
@@ -38,7 +38,7 @@ class sController extends controller {
 		core::import('model/user');
 		$userModel=new modelUser();
 		if(!$userModel->login($user->login,$data['passwordOld'])) {
-			controller::$error=LNGOldPasswordIsWrong;
+			core::error(LNGOldPasswordIsWrong);
 			return false;
 		}
 		//Сохранить новый пароль в базе данных
@@ -80,7 +80,7 @@ class sController extends controller {
 
 	public function actionRegisterSubmit($data) {
 		if($data['password1']!=$data['password2']) {
-			controller::$error=LNGPasswordsAreNotEqual;
+			core::error(LNGPasswordsAreNotEqual);
 			return false;
 		}
 		core::import('model/user');
@@ -127,7 +127,7 @@ class sController extends controller {
 		$user=core::user()->model();
 		if(!$user->loadByEmail($data['email'])) return 'Confirm'; //загрузка информации по e-mail
 		if($user->status==2) {
-			controller::$error=LNGSorryYourAccountBlocked;
+			core::error(LNGSorryYourAccountBlocked);
 			return false;
 		}
 		//Обновление кода подтверждения

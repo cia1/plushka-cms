@@ -21,7 +21,7 @@ class sController extends controller {
 
 	public function actionSettingSubmit($data) {
 		if(!$data['secret']) {
-			controller::$error='Секретная фразаа должна быть задана обязательно';
+			core::error('Секретная фразаа должна быть задана обязательно');
 			return false;
 		}
 		core::import('admin/core/config');

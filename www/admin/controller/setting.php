@@ -14,27 +14,22 @@ class sController extends controller {
 		$cfg=core::config();
 		if(isset($cfg['smtpHost'])) {
 			$method='smtp';
-			if(substr($cfg['smtpHost'],0,6)=='ssl://') {
-				$cfg['smtpHost']=substr($cfg['smtpHost'],6);
-				$smtpSSL=true;
-			} else $smtpSSL=false;
 		} else {
 			$method='email';
-			$cfg['smtpSSL']=false;
 			$cfg['smtpHost']=null;
+			$cfg['smtpPort']=null;
 			$cfg['smtpUser']=null;
 			$cfg['smtpPassword']=null;
 			$cfg['smtpEmail']=null;
-			$smtpSSL=false;
 		}
 		$f=core::form();
 		$f->checkbox('debug','Режим отладки',$cfg['debug']);
 		$f->text('adminEmailEmail','E-mail администрации',$cfg['adminEmailEmail']);
 		$f->text('adminEmailName','Имя администрации (e-mail)',$cfg['adminEmailName']);
 		$f->select('method','Метод отправки почты',array(array('smtp','SMTP'),array('email','PHP')),$method);
-		$f->checkbox('smtpSSL','SMTP Защита соединения SSL',$smtpSSL);
 		$f->text('smtpEmail','SMTP e-mail',$cfg['smtpEmail']);
 		$f->text('smtpHost','SMTP хост',$cfg['smtpHost']);
+		$f->text('smtpPort','SMTP порт',$cfg['smtpPort']);
 		$f->text('smtpUser','SMTP логин',$cfg['smtpUser']);
 		$f->text('smtpPassword','SMTP пароль',$cfg['smtpPassword']);
 		$f->submit('Сохранить');
@@ -45,20 +40,20 @@ class sController extends controller {
 	public function actionCoreSubmit($data) {
 		core::import('admin/core/config');
 		$cfg=new config('_core');
-		if(controller::$error) return false;
+		if(core::error()) return false;
 		if(isset($data['debug'])) $cfg->debug=true; else $cfg->debug=false;
 		$cfg->adminEmailEmail=$data['adminEmailEmail'];
 		$cfg->adminEmailName=$data['adminEmailName'];
 		if($data['method']=='smtp') {
 			$cfg->smtpEmail=$data['smtpEmail'];
-			$i=strpos($data['smtpHost'],'//');
-			if($i!==false) $cfg->smtpHost=substr($data['smtpHost'],$i+2); else $cfg->smtpHost=$data['smtpHost'];
-			if(isset($data['smtpSSL'])) $cfg->smtpHost='ssl://'.$cfg->smtpHost;
+			$cfg->smtpHost=$data['smtpHost'];
+			$cfg->smtpPort=$data['smtpPort'];
 			$cfg->smtpUser=$data['smtpUser'];
 			$cfg->smtpPassword=$data['smtpPassword'];
 		} else {
 			$cfg->delete('smtpEmail');
 			$cfg->delete('smtpHost');
+			$cfg->delete('smtpPort');
 			$cfg->delete('smtpUser');
 			$cfg->delete('smtpPassword');
 		}

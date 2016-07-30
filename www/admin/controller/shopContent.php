@@ -65,7 +65,7 @@ class sController extends controller {
 		if($data['image']['size']) {
 			core::import('core/picture');
 			$picture=new picture($data['image']);
-			if(controller::$error) return false; //Файл не является изображением?
+			if(core::error()) return false; //Файл не является изображением?
 			//Удалить существующее изображение, если таковое есть
 			if($data['id']) {
 				$fname=$db->fetchValue('SELECT image FROM shpCategory WHERE id='.$data['id']);
@@ -236,7 +236,7 @@ class sController extends controller {
 		core::import('core/picture');
 		$cfg=core::config('shop');
 		$picture=new picture($data['image']);
-		if(controller::$error) return false;
+		if(core::error()) return false;
 		$picture->resize($cfg['productFullWidth'],$cfg['productFullHeight']);
 		$fname=$data['id'].'.'.$index;
 		$fname=$picture->save('public/shop-product/'.$fname,100);
@@ -432,7 +432,7 @@ class sController extends controller {
 			core::import('core/picture');
 			$cfg=core::config('shop');
 			$picture=new picture($data['image']);
-			if(controller::$error) return false;
+			if(core::error()) return false;
 			$db=core::db();
 			//Удалить старое изображение, если загружено новое
 			if($data['id']) {

@@ -22,7 +22,8 @@ class sController extends controller {
 		$html=new html();
 		$html->html=$data['html'];
 		if(!$html->save($data['fileName'])) return false;
-		core::redirect('?controller=html&action=item&id='.$data['filename'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=html&action=item&id='.$data['filename']);
 	}
 /* ----------------------------------------------------------------------------------- */
 

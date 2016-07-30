@@ -24,7 +24,7 @@ class modelUserAdmin extends model {
 	public function validate($fields=null) {
 		if($this->password) {
 			if($this->_data['password']!=$this->_data['password2']) {
-				controller::$error='Введённые пароли не совпадают';
+				core::error('Введённые пароли не совпадают');
 				return false;
 			}
 			$this->_data['password']=self::_hash($this->_data['password']);
@@ -33,11 +33,11 @@ class modelUserAdmin extends model {
 		if(!parent::validate($fields)) return false;
 		if(!$this->id) {
 			if($this->db->fetchValue('SELECT 1 FROM user WHERE login='.$this->db->escape($this->login))) {
-				controller::$error='Пользователь с таким логином уже зарегистрирован';
+				core::error('Пользователь с таким логином уже зарегистрирован');
 				return false;
 			}
 			if($this->db->fetchValue('SELECT 1 FROM user WHERE email='.$this->db->escape($this->email))) {
-				controller::$error='Пользователь с таким адресом электронной почты уже зарегистрирован';
+				core::error('Пользователь с таким адресом электронной почты уже зарегистрирован');
 				return false;
 			}
 		}

@@ -2,7 +2,7 @@
 /* Реализует блог и список статей
 array $options: int categoryId - ИД категории статей; string linkType - тип ссылки (blog или link);
 int countPreview - количество записей с аннотацией (блог); int countLink -  количество записей без аннотации (только ссылка); */
-class widgetBlog extends widget {
+class widgetArticleBlog extends widget {
 
 	public function __invoke() {
 		if(!isset($this->options['linkType'])) $this->options['linkType']='blog';

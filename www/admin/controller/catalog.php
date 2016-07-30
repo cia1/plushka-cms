@@ -118,7 +118,7 @@ class sController extends controller {
 		$cfg=new config('catalogLayout/'.$layoutId);
 		$layoutData=$cfg->data;
 		if(!$data['title']) {
-			controller::$error='Поле &laquo;заголовок&raquo; не может быть пустым';
+			core::error('Поле &laquo;заголовок&raquo; не может быть пустым');
 			return false;
 		}
 		//Проверить уникальность и валидность идентификатора, если он был изменён
@@ -127,16 +127,16 @@ class sController extends controller {
 		if($id!=$oldId) {
 			$id=trim($id);
 			if(!preg_match('/^[a-zA-Z0-9_]+$/',$id)) {
-				controller::$error='Поле &laquoидентификатор&raquo; может содержать только латинские буквы, цифры и знак "_"';
+				core::error('Поле &laquoидентификатор&raquo; может содержать только латинские буквы, цифры и знак "_"');
 				return false;
 			}
 			$_id=strtoupper($id);
 			if(in_array($_id,array('ID','ALIAS','TITLE','METATITLE','METAKEYWORD','METADESCRIPTION','SELECT','UPDATE','ALTER','DROP','ASC','DESC','AS','LIMIT','NULL','IN','DISTINCT','FROM','BETWEEN','JOIN','LEFT','RIGHT','WHERE','ORDER','BY','HAVING','GROUP'))) {
-				controller::$error='Идентификатор не может быть '.$_id;
+				core::error('Идентификатор не может быть '.$_id);
 				return false;
 			}
 			if(isset($cfg->data[$id])) {
-				controller::$error='Поле с таким идентификатором уже существует';
+				core::error('Поле с таким идентификатором уже существует');
 				return false;
 			}
 		}
@@ -146,7 +146,7 @@ class sController extends controller {
 		if($isNew) {
 			$db->alterAdd('catalog_'.$layoutId,$id,self::_type($data['type']));
 		} else $db->alterChange('catalog_'.$layoutId,$oldId,$id,self::_type($data['type']));
-		if(controller::$error) return false;
+		if(core::error()) return false;
 		//Обновить данные о поле в конфигурации каталога
 		$fld=$cfg->data;
 		$d=array($data['title'],$data['type']);
@@ -276,7 +276,8 @@ class sController extends controller {
 			$cfg->sort=$data['sort'];
 		}
 		$cfg->save('catalogLayout/'.$_GET['lid']);
-		core::redirect('?controller=catalog&action=layoutView&lid='.$_GET['lid'].'&view='.$data['view'],'Макет сохранён');
+		core::success('Макет сохранён');
+		core::redirect('?controller=catalog&action=layoutView&lid='.$_GET['lid'].'&view='.$data['view']);
 	}
 
 	/* Редактирование вступительного текста на странице со списком элементов каталога */
@@ -298,7 +299,8 @@ class sController extends controller {
 			fwrite($f,$data['text1']);
 			fclose($f);
 		}
-		core::redirect('?controller=catalog&lid='.$data['lid'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=catalog&lid='.$data['lid']);
 	}
 
 	/* Создание или изменение элемента каталога */
@@ -405,7 +407,7 @@ class sController extends controller {
 				if(!$img['size']) continue;
 				$ext=strtolower(substr($img['name'],strrpos($img['name'],'.')+1));
 				if($ext!='gif' && $ext!='jpg' && $ext!='jpeg' && $ext!='png') {
-					controller::$error='Файл в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должен быть изображением';
+					core::error('Файл в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должен быть изображением');
 					return false;
 				}
 				$uploadImage[]=$id;
@@ -419,7 +421,7 @@ class sController extends controller {
 				for($i=0,$cnt=count($img);$i<$cnt;$i++) {
 					$ext=strtolower(substr($img[$i]['name'],strrpos($img[$i]['name'],'.')+1));
 					if($ext!='gif' && $ext!='jpg' && $ext!='jpeg' && $ext!='png') {
-						controller::$error='Файлы в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должны быть изображениями';
+						core::error('Файлы в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должны быть изображениями');
 						return false;
 					}
 					if(!in_array($id,$uploadGallery)) $uploadGallery[]=$id;
@@ -480,7 +482,8 @@ class sController extends controller {
 			$db->query($q);
 		}
 		core::hook('modify','catalog/'.$data['lid'].'/'.$m->alias); //Обновить дату изменения страницы
-		core::redirect('?controller=catalog&action=item&lid='.$data['lid'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=catalog&action=item&lid='.$data['lid']);
 	}
 
 	/* Удаление изображения из галереи элемента каталога */
@@ -542,7 +545,8 @@ class sController extends controller {
 			}
 		}
 		$db->query('DELETE FROM catalog_'.$lid.' WHERE id='.$id);
-		core::redirect('?controller=catalog&lid='.$lid,'Элемент каталога удалён');
+		core::success('Элемент каталога удалён');
+		core::redirect('?controller=catalog&lid='.$lid);
 	}
 
 	/* Выводит HTML-форму со списком полей для настройки фильтра.
@@ -590,7 +594,7 @@ class sController extends controller {
 		}
 		$this->f=core::form();
 		if(!count($catalogList)) {
-			controller::$error='На сайте нет ни одного каталога.';
+			core::error('На сайте нет ни одного каталога.');
 			return 'WidgetSearch';
 		}
 		$this->f->select('id','Каталог',$catalogList,$data['id']);

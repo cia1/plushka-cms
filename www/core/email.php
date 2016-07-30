@@ -1,5 +1,4 @@
 <?php
-define('SMTP_PORT',465);
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 /* Служит для отправки электронных писем */
 class email {
@@ -10,6 +9,7 @@ class email {
 	private $_replyTo;
 	private $_message;
 	private $_smtpHost;
+	private $_smtpPort;
 	private $_smtpUser;
 	private $_smtpPassword;
 	private $_smtpEmail;
@@ -20,6 +20,7 @@ class email {
 		$cfg=core::config();
 		if(isset($cfg['smtpHost'])) {
 			$this->_smtpHost=$cfg['smtpHost'];
+			$this->_smtpPort=$cfg['smtpPort'];
 			$this->_smtpUser=$cfg['smtpUser'];
 			$this->_smtpPassword=$cfg['smtpPassword'];
 			$this->_smtpEmail=$cfg['smtpEmail'];
@@ -103,7 +104,7 @@ class email {
 		if($this->_returnPath) $mime.='Return-path: '.$this->_returnPath."\n";
 		$mime.="MIME-Version: 1.0\n".$this->_buildMultipart();
 		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=','',$mime)) {
-			controller::$error=LNGCouldnotSendLetter;
+			core::error(LNGCouldnotSendLetter);
 			return false;
 		}
 		return true;
@@ -118,55 +119,55 @@ class email {
 		if($this->_replyTo) $s.=$this->_replyTo;
 		if($this->_returnPath) $s.='Return-path: '.$this->_returnPath."\n";
 		$s.="MIME-Version: 1.0\r\n".$this->_buildMultipart();
-		if(!$socket=fsockopen($this->_smtpHost,SMTP_PORT,$errno,$errstr,30)) {
-			controller::$error=$errno."&lt;br&gt;".$errstr;
+		if(!$socket=fsockopen($this->_smtpHost,$this->_smtpPort,$errno,$errstr,30)) {
+			core::error($errno."&lt;br&gt;".$errstr);
 			return false;
 		}
 		if(!$this->_parseAnswer($socket,'220')) return false;
 		fputs($socket,'HELO '.$this->_smtpHost."\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error=LNGSMTPError.' #250';
+			core::error(LNGSMTPError.' #250');
 			return false;
 		}
 		fputs($socket,"AUTH LOGIN\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			controller::$error=LNGSMTPError.' #334-1';
+			core::error(LNGSMTPError.' #334-1');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpUser)."\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			controller::$error=LNGSMTPError.' #334-2';
+			core::error(LNGSMTPError.' #334-2');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpPassword)."\r\n");
 		if(!$this->_parseAnswer($socket,'235')) {
-			controller::$error=LNGSMTPError.' #235';
+			core::error(LNGSMTPError.' #235');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'MAIL FROM: <'.$this->_smtpEmail.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error=LNGSMTPError.' #250-1';
+			core::error(LNGSMTPError.' #250-1');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'RCPT TO: <'.$email.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error=LNGSMTPError.' #250-2';
+			core::error(LNGSMTPError.' #250-2');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,"DATA\r\n");
 		if(!$this->_parseAnswer($socket,'354')) {
-			controller::$error=LNGSMTPError.' #354';
+			core::error(LNGSMTPError.' #354');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,$s."\r\n.\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			controller::$error=LNGSMTPError.' #250-3';
+			core::error(LNGSMTPError.' #250-3');
 			fclose($socket);
 			return false;
 		}

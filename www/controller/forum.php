@@ -46,7 +46,7 @@ class sController extends controller {
 		if($data['avatar']) {
 			core::import('core/picture');
 			$p=new picture($data['avatar']);
-			if(controller::$error) return false;
+			if(core::error()) return false;
 			$cfg=core::config('forum');
 			$p->resize($cfg['avatarWidth'],$cfg['avatarHeight']);
 			$fname=$p->save('public/avatar/'.$userId);
@@ -143,7 +143,7 @@ class sController extends controller {
 		if(!core::userGroup()) core::redirect('user/login');
 		$db=core::db();
 		if(!$db->fetchValue('SELECT newTopic FROM forumCategory WHERE id='.$this->categoryId)) {
-			controller::$error=LNGNewTopicsForbiddenThisCategory;
+			core::error(LNGNewTopicsForbiddenThisCategory);
 			return false;
 		}
 		core::import('core/model');
@@ -256,7 +256,7 @@ class sController extends controller {
 	public function actionNewPostSubmit($data) {
 		$db=core::db();
 		if(!$db->fetchValue('SELECT newPost FROM forumCategory WHERE id='.$this->categoryId)) {
-			controller::$error=LNGThisTopcWrittingForbidden;
+			core::error(LNGThisTopcWrittingForbidden);
 			return false;
 		}
 		if(!core::userGroup()) core::redirect('user/login'); //писать сообщения могут только зарегистрированные пользователи

@@ -289,7 +289,7 @@ class form {
 	}
 
 	/* Возвращает HTML-код submit-кнопки */
-	public function getSubmit($label='Продолжить',$name=null,$html='') {
+	public function getSubmit($label=LNGContinue,$name=null,$html='') {
 		$s='<input type="submit" value="'.$label.'"';
 		if($name) $s.=' name="'.$this->_namespace.'['.$name.']"';
 		$s.=' class="button submit" '.$html.' />';

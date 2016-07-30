@@ -34,7 +34,8 @@ class sController extends controller {
 		$f=fopen(core::path().'admin/data/email/faqAnswer.html','w');
 		fwrite($f,$data['htmlAnswer']);
 		fclose($f);
-		core::redirect('?controller=faq&action=setting','Настройки сохранены');
+		core::success('Настройки сохранены');
+		core::redirect('?controller=faq&action=setting');
 	}
 
 	/* Список вопросов и ответов. Почти дублирует тот список, что в общедоступной части. */
@@ -97,8 +98,8 @@ class sController extends controller {
 			$e->send($m->email);
 			$message='Изменения сохранены. Ответ отправлен на адрес '.$m->email;
 		} else $message='Изменения сохранены';
-
-		core::redirect('?controller=faq&action=list',$message);
+		core::success($message);
+		core::redirect('?controller=faq&action=list');
 	}
 
 	/* Удаление вопроса */

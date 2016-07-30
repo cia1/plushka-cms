@@ -75,7 +75,8 @@ class sController extends controller {
 		$cfg->dropTable=explode("\n",$data['dropTable']);
 		$cfg->unlinkFile=explode("\n",$data['unlinkFile']);
 		$cfg->save('admin/devTool');
-		core::redirect('devTool','Настройки сохранены');
+		core::success('Настройки сохранены');
+		core::redirect('devTool');
 	}
 
 
@@ -293,8 +294,6 @@ class sController extends controller {
 		fwrite($f,$right);
 		fwrite($f,$menu);
 		fwrite($f,$widget);
-		if($m['hook1']) fwrite($f,'hook1: '.implode(',',$m['hook1'])."\n");
-		if($m['hook2']) fwrite($f,'hook2: '.implode(',',$m['hook2'])."\n");
 		fclose($f);
 		echo '<p>Модуль экспортирован в директорий /tmp.</p>';
 	}
@@ -319,7 +318,8 @@ class sController extends controller {
 		while($item=$db->fetch()) $tmp[]=$item[0];
 		$cfg->userRight=$tmp;
 		$cfg->save('../admin/data/devTool-image');
-		core::redirect('devTool','Снимок создан');
+		core::success('Снимок создан');
+		core::redirect('devTool');
 	}
 
 	/* Сравнение состояния сайта со сделанным ранее снимком */

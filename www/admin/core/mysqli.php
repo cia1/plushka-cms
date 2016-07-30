@@ -77,7 +77,7 @@ class mysqlExt extends _mysql {
 
 	private function _rollback() {
 		$this->query('ROLLBACK');
-		controller::$error='MySQLi: не удалось изменить структуру таблицы';
+		core::error('MySQLi: не удалось изменить структуру таблицы');
 		return false;
 	}
 

@@ -140,7 +140,7 @@ class model {
 	protected function _validateField(&$value,$name,$options) {
 		if(!isset($options[2])) $options[2]=false;
 		if($options[0]!='primary' && ($value===null || $value==='') && $options[2]) {
-			controller::$error=sprintf(LNGFieldCannotByEmpty,$options[1]);
+			core::error(sprintf(LNGFieldCannotByEmpty,$options[1]));
 			return false;
 		}
 		//Валидация в зависимости от типа поля
@@ -156,11 +156,11 @@ class model {
 			if($value==='') $value=null; else $value=(int)$value;
 			if($value) {
 				if(isset($options['min']) && $options['min']>$value) {
-					controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+					core::error(sprintf(LNGFieldIllegalValue,$options[1]));
 					return false;
 				}
 				if(isset($options['max']) && $options['max']<$value) {
-					controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+					core::error(sprintf(LNGFieldIllegalValue,$options[1]));
 					return false;
 				}
 			}
@@ -169,11 +169,11 @@ class model {
 			if($value==='') $value=null; else $value=(float)$value;
 			if($value) {
 				if(isset($options['min']) && $options['min']>$value) {
-					controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+					core::error(sprintf(LNGFieldIllegalValue,$options[1]));
 					return false;
 				}
 				if(isset($options['max']) && $options['max']<$value) {
-					controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+					core::error(sprintf(LNGFieldIllegalValue,$options[1]));
 					return false;
 				}
 			}
@@ -188,7 +188,7 @@ class model {
 			}
 			if(!is_numeric($value)) $value=strtotime($value);
 			if(!$value) {
-				controller::$error=sprintf(LNGFieldHasBeDate,$options[1]);
+				core::error(sprintf(LNGFieldHasBeDate,$options[1]));
 				return false;
 			}
 			break;
@@ -197,11 +197,11 @@ class model {
 			if(!isset($options['trim']) || $options['trim']) $value=trim($value);
 			if($value) {
 				if(isset($options['min']) && $options['min']>strlen($value)) {
-					controller::$error=sprintf(LNGFieldTextTooShort,$options[1]);
+					core::error(sprintf(LNGFieldTextTooShort,$options[1]));
 					return false;
 				}
 				if(isset($options['max']) && $options['max']<mb_strlen($value,'UTF-8')) {
-					controller::$error=sprintf(LNGFieldTextTooLong,$options[1]);
+					core::error(sprintf(LNGFieldTextTooLong,$options[1]));
 					return false;
 				}
 			}
@@ -211,11 +211,11 @@ class model {
 		case 'latin':
 			$i=preg_match('/^[a-zA-Z0-9\-_]*?$/',$value);
 			if(!$i) {
-				controller::$error=sprintf(LNGFieldCanByLatin,$options[1]);
+				core::error(sprintf(LNGFieldCanByLatin,$options[1]));
 				return false;
 			}
 			if(isset($options['max']) && strlen($value)>$options['max']) {
-				controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+				core::error(sprintf(LNGFieldIllegalValue,$options[1]));
 				return false;
 			}
 			break;
@@ -223,7 +223,7 @@ class model {
 			if($value) {
 				$i=preg_match('/^[-a-z0-9!#$%&\'*+\/=?^_`{|}~]+(?:\.[-a-z0-9!#$%&\'*+\/=?^_`{|}~]+)*@(?:[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?\.)*(?:aero|arpa|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-z][a-z])$/',$value);
 				if(!$i) {
-					controller::$error=sprintf(LNGFieldHasBeEMail,$options[1]);
+					core::error(sprintf(LNGFieldHasBeEMail,$options[1]));
 					return false;
 				}
 			}
@@ -232,20 +232,20 @@ class model {
 			if($value) {
 				$i=preg_match('%'.$options[3].'%',$value);
 				if(!$i) {
-					controller::$error=sprintf(LNGFieldIllegalValue,$options[1]);
+					core::error(sprintf(LNGFieldIllegalValue,$options[1]));
 					return false;
 				}
 			}
 			break;
 		case 'captcha':
 			if($value!==$_SESSION['captcha']) {
-				controller::$error=$options[1].' '.LNGwroteWrong;
+				core::error($options[1].' '.LNGwroteWrong);
 				return;
 			}
 			break;
 		case 'callback':
 			$value=call_user_func_array($options[3],array($name,$value));
-			if(controller::$error) return false;
+			if(core::error()) return false;
 			break;
 		}
 		return true;

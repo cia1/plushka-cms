@@ -40,7 +40,8 @@ class sController extends controller {
 		$cfg=new config();
 		$cfg->status=(int)$data['status'];
 		$cfg->save('comment');
-		core::redirect('?controller=comment&action=moderate','Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=comment&action=moderate');
 	}
 
 	/* Редактирование комментария (в том числе модерация) */
@@ -66,7 +67,8 @@ class sController extends controller {
 			'status'=>array('boolean'),
 			'text'=>array('html')
 		))) return false;
-		core::redirect('?controller=comment&action=moderate','Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=comment&action=moderate');
 	}
 
 	/* Удаление комментария */
@@ -92,7 +94,8 @@ class sController extends controller {
 			if(!core::hook('commentDelete',$comment[1],$comment[2],$id)) return false;
 		}
 		$db->query('DELETE FROM comment WHERE id='.$id);
-		core::redirect('?controller=comment','Комментарий удалён');
+		core::success('Комментарий удалён');
+		core::redirect('?controller=comment');
 	}
 /* ----------------------------------------------------------------------------------- */
 

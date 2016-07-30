@@ -219,24 +219,25 @@ class core {
 
 	/* Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес.
 	Если задан $message, то после перенаправления будет выведено указанное сообщение */
-	public static function redirect($url,$message=null) {
+	public static function redirect($url,$message=null,$code=302) {
 		if(isset($_GET['backlink'])) {
 			$url=$_GET['backlink'];
 			unset($_GET['backlink']);
 			$message='';
 		}
-		if($message) {
+		if($message) core::success($message);
+		if($message || core::success()) {
 			if(isset($_GET['_front'])) {
 				echo '<div id="content">';
-				self::success($message);
+				echo '<div class="messageSuccess">'.core::success(false).'</div>';
 				echo '</div>';
 				echo '<link href="'.core::url().'admin/public/template/front.css" rel="stylesheet" type="text/css" media="screen" /><script type="text/javascript" src="'.core::url().'public/js/jquery.min.js"></script>
 				<script type="text/javascript" src="'.core::url().'admin/public/js/front.js"></script>
 				<script>setTimeout(function() { top.window.location=top.window.location.href; },2000);</script>';
 				exit;
-			} else $_SESSION['successMessage']=$message;
+			}
 		}
-		header('Location: '.core::link($url));
+		header('Location: '.core::link($url),true,$code);
 		exit;
 	}
 
@@ -253,7 +254,7 @@ class core {
 
 	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
 	public static function error404() {
-		if(isset($_GET['_front'])) core::error('Запрошенная страница не существует :(');
+		if(isset($_GET['_front'])) echo '<div class="messageError">Запрошенная страница не существует :(</div>';
 		else {
 			header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
 			controller::$self->url[0]='error';
@@ -264,23 +265,22 @@ class core {
 		exit;
 	}
 
-	/* Выводит HTML-код сообщения об ошибке */
+	//Устанавливает или возвращает сообщение об ошибке
 	public static function error($error=null) {
 		if(!$error) return false;
-		echo '<div class="errorMessage">'.$error.'</div>';
+		echo '<div class="messageError">'.$error.'</div>';
 		return true;
 	}
 
-	/* Выводит HTML-код сообщения об успешно выполненной операции */
+	//Устанавливает или возвращает сообщение об успехе
 	public static function success($message=null) {
-		if(!$message) {
-			if(isset($_SESSION['successMessage'])) {
-				$message=$_SESSION['successMessage'];
-				unset($_SESSION['successMessage']);
-			} else return false;
+		if($message===false) {
+			$message=$_SESSION['messageSuccess'];
+			unset($_SESSION['messageSuccess']);
+			return $message;
 		}
-		if(!$message) return;
-		echo '<div class="successMessage">'.$message.'</div>';
+		if($message!==null) $_SESSION['messageSuccess']=$message;
+		return (isset($_SESSION['messageSuccess']) ? $_SESSION['messageSuccess'] : null);
 	}
 
 	/* Возвращает HTML-тег <script src...> или пустую строку, если скрипт уже подключен. Используется чтобы избежать повторного подключение JavaScript.
@@ -339,7 +339,6 @@ class controller {
 	protected $metaTitle='';
 	public $pageTitle=''; //отображаемый заголовок, если задан, то будет выведен в теге <H1 class="pageTitle">
 	protected $view='Index'; //имя действия
-	public static $error; //для хранения сообщения об ошибке, если такая случилась
 	public static $self; //содержит ссылку на контроллер, чтобы предоставить к нему доступ всем желающим
 	protected $cite=''; //краткий комментарий
 	private $_button=''; //HTML код кнопок
@@ -393,8 +392,15 @@ class controller {
 			if($this->pageTitle) echo '<h1 class="pageTitle">'.$this->pageTitle.'</h1>';
 		} else echo $this->_head;
 		if($this->_button) echo '<div class="_operation">'.$this->_button.'</div>'; //Кнопки
-		if(controller::$error) core::error(controller::$error); //Сообщение об ошибке (если есть)
-		core::success(); //Сообщение об успехе (если был редирект с сообщением)
+		//Сообщение об ошибке (если есть)
+		if(isset($_SESSION['messageError'])) {
+			echo '<div class="messageError">'.core::error(false).'</div>';
+		}
+
+		//Сообщение об успехе (если был редирект с сообщением)
+		if(isset($_SESSION['messageSuccess'])) {
+			echo '<div class="messageSuccess">'.core::success(false).'</div>';
+		}
 		if(is_object($view)) $view->render('?controller='.$this->url[0].'&action='.$this->url[1]);
 		else include(core::path().'admin/view/'.$this->url[0].$view.'.php');
 		if($this->cite) echo '<cite>'.$this->cite.'</cite>'; //Поясняющий текст
@@ -508,7 +514,7 @@ function runApplication($renderTemplate=true) {
 		@$data=&controller::$self->$s($post);
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
 		if(isset($_GET['_serialize'])) {
-			if(controller::$error) die(controller::$error);
+			if(core::error()) die(core::error(false));
 			echo "OK\n";
 			if(isset($post['cacheTime']) || (is_array($data) && isset($data['cacheTime']))) {
 				echo $post['cacheTime'];

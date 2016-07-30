@@ -142,7 +142,7 @@ class scontroller extends controller {
 				if($s=='/' || $s=='.') $a=array(1=>true); else $a=array();
 				if($s=='/' || $s=='*') $a[2]=true;
 				if($s!='/' && $s!='.' && $s!='*') {
-					controller::$error='Все ссылки в списке <b>другие URL</b> должны заканчиваться символами &laquo;/&raquo;,&laquo;.&raquo; или &laquo;*&raquo;';
+					core::error('Все ссылки в списке <b>другие URL</b> должны заканчиваться символами &laquo;/&raquo;,&laquo;.&raquo; или &laquo;*&raquo;');
 					return false;
 				}
 				$s=substr($item,0,$i2);

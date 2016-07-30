@@ -140,7 +140,7 @@ class sqliteExt extends _sqlite {
 
 	private function _rollback() {
 		$this->query('ROLLBACK');
-		controller::$error='SQLite: не удалось изменить структуру таблицы';
+		core::error('SQLite: не удалось изменить структуру таблицы');
 		return false;
 	}
 

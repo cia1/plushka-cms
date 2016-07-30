@@ -125,7 +125,7 @@ class sController extends controller {
 	public function actionSettingSubmit($data) {
 		core::import('admin/core/config');
 		$cfg=new config('shop');
-		if(controller::$error) return false;
+		if(core::error()) return false;
 		if($data['productFullWidthType']=='') $cfg->productFullWidth=null;
 		elseif($data['productFullWidthType']=='<') $cfg->productFullWidth='<'.$data['productFullWidth'];
 		else $cfg->productFullWidth=(int)$data['productFullWidth'];
@@ -367,7 +367,7 @@ class sController extends controller {
 	public function actionImportSubmit($data) {
 		//Переместить загруженный файл во временный директорий (/tmp/shopImport.xls)
 		if(!move_uploaded_file($data['file']['tmpName'],core::path().'tmp/shopImport.xls')) {
-			controller::$error='Не удалось загрузить excel-файл';
+			core::error('Не удалось загрузить excel-файл');
 			return false;
 		}
 		//Сохранить настройки импорта в файл конфигурации

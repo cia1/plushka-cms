@@ -92,7 +92,7 @@
 		$data=$db->parseStructure($db->getCreateTableQuery($table));
 		$fieldDefault=$field.'_'.$cfg['languageDefault'];
 		if(!isset($data[$fieldDefault])) {
-			controller::$error='Не могу разобрать структуру таблицы '.$table.' для поля '.$fieldDefault;
+			core::error('Не могу разобрать структуру таблицы '.$table.' для поля '.$fieldDefault);
 			return false;
 		}
 		$description=$data[$fieldDefault];

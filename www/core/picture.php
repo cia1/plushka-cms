@@ -35,11 +35,11 @@ class picture {
 			$this->_src=imagecreatefrompng($file);
 			break;
 		default:
-			controller::$error=LNGFileIsNotImage;
+			core::error(LNGFileIsNotImage);
 			return false;
 		}
 		if(!$this->_src) {
-			controller::$error=LNGFileTypeNotSupport;
+			core::error(LNGFileTypeNotSupport);
 			return;
 		}
 		$this->_x1=$this->_y1=0;
@@ -120,7 +120,7 @@ class picture {
 			imagealphablending($this->_w,true);
 			break;
 		default:
-			controller::$error=LNGFileIsNotImage;
+			core::error(LNGFileIsNotImage);
 			return false;
 		}
 		$this->_wW=imagesx($this->_w);

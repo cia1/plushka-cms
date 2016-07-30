@@ -52,7 +52,7 @@ class sController extends controller {
 		$lst=$cfg->languageList;
 		if(!$lst) $lst=array($cfg->languageDefault);
 		if(in_array($model->alias,$lst)) {
-			controller::$error='Этот язык уже используется';
+			core::error('Этот язык уже используется');
 			return false;
 		}
 		$lst[]=$model->alias;
@@ -65,7 +65,7 @@ class sController extends controller {
 	public function actionDelete() {
 		$cfg=core::config();
 		if($cfg['languageDefault']==$_GET['id']) {
-			controller::$error='Это основной язык сайта, его удалить нельзя';
+			core::error('Это основной язык сайта, его удалить нельзя');
 			return 'Message';
 		}
 		//Модифицировать СУБД

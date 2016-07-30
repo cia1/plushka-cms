@@ -14,7 +14,8 @@ class sController extends controller {
 
 	public function actionFormSubmit($data) {
 		if(!$this->_formSubmit($data)) return false;
-		core::redirect('?controller=form&action=form&id='.$data['id'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=form&action=form&id='.$data['id']);
 	}
 
 	/* Список полей формы */

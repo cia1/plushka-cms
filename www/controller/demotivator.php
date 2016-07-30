@@ -147,7 +147,7 @@ class sController extends controller {
 		closedir($d);
 		core::import('core/picture');
 		$p=new picture($data['image']);
-		if(controller::$error) return false;
+		if(core::error()) return false;
 		$this->cfg=core::config('demotivator');
 		$p->resize('<'.$this->cfg['imageWidthMax'],null);
 		$f=mktime();

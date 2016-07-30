@@ -310,7 +310,7 @@ class module {
 				if(!$quote) $quote=$sql[$i]; else $quote=null;
 			} elseif($sql[$i]==';' && !$quote) { //конец очередного sql-запроса
 				if(!self::_executeLanguage(trim(substr($sql,$i0,($i-$i0))))) {
-					controller::$error='Ошибка выполнения SQL-запросов';
+					core::error('Ошибка выполнения SQL-запросов');
 					return false;
 				}
 				$i0=$i+1;
@@ -458,7 +458,7 @@ class module {
 				if(!self::clearDirectory($s)) return false;
 			} elseif(file_exists($s)) {
 				if(!unlink($s)) {
-					controller::$error='Не удаётся удалить файл &laquo;'.$s.'&raquo;';
+					core::error('Не удаётся удалить файл &laquo;'.$s.'&raquo;');
 					return false;
 				}
 			}
@@ -533,7 +533,7 @@ class module {
 				if(!self::clearDirectory($f)) return false;
 			} else {
 				if(!unlink($f)) {
-					controller::$error='Не удаётся удалить файл &laquo;'.$f.'&raquo;';
+					core::error('Не удаётся удалить файл &laquo;'.$f.'&raquo;');
 					return false;
 				}
 			}
@@ -541,7 +541,7 @@ class module {
 		closedir($d);
 		if($self) {
 			if(!rmdir($path)) {
-				controller::$error='Не удаётся удалить директорий &laquo;'.$path.'&raquo;';
+				core::error('Не удаётся удалить директорий &laquo;'.$path.'&raquo;');
 				return false;
 			}
 		}

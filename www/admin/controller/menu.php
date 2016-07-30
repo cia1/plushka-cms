@@ -117,7 +117,8 @@ class sController extends controller {
 		}
 		$model->set($data);
 		if(!$model->save($validate)) return false;
-		core::redirect('?controller=menu&action=items&menuId='.$data['menuId'],'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=menu&action=items&menuId='.$data['menuId']);
 	}
 
 	/* Порядок пунктов меню (выше) */
@@ -154,7 +155,7 @@ class sController extends controller {
 		$id=$_GET['id'];
 		$db=core::db();
 		if($db->fetchValue('SELECT 1 FROM menuItem WHERE parentId='.$id)) {
-			controller::$error='Меню содержит вложенные пункты меню. Удаление невозможно.';
+			core::error('Меню содержит вложенные пункты меню. Удаление невозможно.');
 			return false;
 		}
 		$data=$db->fetchArrayOnce('SELECT menuId,link,sort FROM menuItem WHERE id='.$id);
@@ -162,7 +163,8 @@ class sController extends controller {
 		$db->query('UPDATE menuItem SET sort=sort-1 WHERE menuId='.$data[0].' AND sort>'.$data[2]); //Чтобы числа сортировки были "ровными"
 		$db->query('DELETE FROM menuItem WHERE id='.$id);
 		if($data[0]) $menuId='&menuId='.$data[0]; else $menuId='';
-		core::redirect('?controller=menu&action=items'.$menuId,'Пункт меню удалён');
+		core::success('Пункт меню удалён');
+		core::redirect('?controller=menu&action=items'.$menuId);
 	}
 
 	/* Выводит пункты скрытого меню */

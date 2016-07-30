@@ -12,7 +12,7 @@ class config {
 	public function load($fname) {
 		if(substr($fname,0,6)=='admin/') $f=core::path().'admin/config/'.substr($fname,6).'.php'; else $f=core::path().'config/'.$fname.'.php';
 		if(!file_exists($f)) {
-			controller::$error='Конфигурации '.$fname.' не существует';
+			core::error('Конфигурации '.$fname.' не существует');
 			return false;
 		}
 		$this->_data=include($f);
@@ -49,7 +49,7 @@ class config {
 		if(substr($fname,0,6)=='admin/') $fname=core::path().'admin/config/'.substr($fname,6).'.php'; else $fname=core::path().'config/'.$fname.'.php';
 		$f=fopen($fname,'w');
 		if(!$f) {
-			controller::$error='Ошибка записи конфигурации '.$fname;
+			core::error('Ошибка записи конфигурации '.$fname);
 			return false;
 		}
 		fwrite($f,'<?php return '.$this->_implode($this->_data).'; ?>');

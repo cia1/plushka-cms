@@ -34,7 +34,7 @@ class sController extends controller {
 	public function actionSettingSubmit($data) {
 		$f='data/'.strtolower(str_replace(' ','-',$data['fontFamily'])).'.ttf';
 		if(!file_exists(core::path().$f)) {
-			controller::$error='Не найден файл /'.$f;
+			core::error('Не найден файл /'.$f);
 			return false;
 		}
 		core::import('admin/core/config');
@@ -51,7 +51,8 @@ class sController extends controller {
 		$cfg->watermarkText=$data['watermarkText'];
 		$cfg->watermarkColor=$data['watermarkColor'];
 		$cfg->save('demotivator');
-		core::redirect('?controller=demotivator&action=setting','Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=demotivator&action=setting');
 	}
 
 	/* Ожидающие модерации или скрытые админом демотиваторы */
@@ -97,7 +98,8 @@ class sController extends controller {
 			'metaDescription'=>array('string'),
 			'status'=>array('boolean')
 		))) return false;
-		core::redirect('?controller=demotivator&action=edit&id='.$m->id,'Изменения сохранены');
+		core::success('Изменения сохранены');
+		core::redirect('?controller=demotivator&action=edit&id='.$m->id);
 	}
 
 	/* Удаление демотиватора */
@@ -106,7 +108,8 @@ class sController extends controller {
 		$f=core::path().'public/demotivator/'.$db->fetchValue('SELECT image FROM demotivator WHERE id='.(int)$_GET['id']);
 		if(file_exists($f)) unlink($f);
 		$db->query('DELETE FROM demotivator WHERE id='.(int)$_GET['id']);
-		core::redirect('?controller=demotivator&action=hidden','Демотиватор удалён');
+		core::success('Демотиватор удалён');
+		core::redirect('?controller=demotivator&action=hidden');
 	}
 /* ----------------------------------------------------------------------------------- */
 
