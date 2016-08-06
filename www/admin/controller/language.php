@@ -66,7 +66,7 @@ class sController extends controller {
 		$cfg=core::config();
 		if($cfg['languageDefault']==$_GET['id']) {
 			core::error('Это основной язык сайта, его удалить нельзя');
-			return 'Message';
+			return '_empty';
 		}
 		//Модифицировать СУБД
 		core::import('admin/model/language');

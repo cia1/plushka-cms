@@ -377,7 +377,6 @@ class controller {
 	protected $metaKeyword='';
 	protected $metaDescription='';
 	public $pageTitle=''; //отображаемый заголовок, если задан, то будет выведен в теге <H1 class="pageTitle">
-	protected $view='Index'; //имя действия
 	public static $self; //содержит ссылку на контроллер, чтобы предоставить к нему доступ всем желающим
 	private $_head=''; //содержит теги, которые должны быть подключены в секции <head>
 
@@ -452,6 +451,7 @@ class controller {
 			unset($_SESSION['messageSuccess']);
 		}
 		if(gettype($view)=='object') $view->render();
+		elseif($view=='_empty') include(core::path().'view/_empty.php');
 		else include(core::path().'view/'.$this->url[0].$view.'.php');
 		if($renderTemplate) include(core::path().'cache/template/'.core::template().'Footer.php'); //нижняя часть шаблона
 	}

@@ -3,27 +3,24 @@
 class shop {
 
 	private static $_foundRows;
-	/* Возвращает древовидный массив, содержащий структуру категорий (лучше использовать cacheCategoryTree) */
-	public static function categoryTree() {
-		$db=core::db();
-		$db->query('SELECT id,alias,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
-		$data=array(0=>array('child'=>array()));
-		while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'alias'=>$item[1],'title'=>$item[3],'parentId'=>$item[2],'image'=>$item[4],'child'=>array());
-		foreach($data as $id=>&$item) {
-			if($id==0) continue;
-			$item['id']=(int)$item['id'];
-			$parentId=(int)$item['parentId'];
-//			unset($item['parent']);
-			$data[$parentId]['child'][]=&$item;
-		}
-		$data['ROOT']=$data[0]['child'];
-		unset($data[0]['child']);
-		return $data;
-	}
 
 	/* Для кеширования дерева каталогов */
 	public static function cacheCategoryTree() {
-		$data=core::cache('shopCategoryList','shop::categoryTree',10);
+		$data=core::cache('shopCategoryList',function() {
+			$db=core::db();
+			$db->query('SELECT id,alias,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
+			$data=array(0=>array('child'=>array()));
+			while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'alias'=>$item[1],'title'=>$item[3],'parentId'=>$item[2],'image'=>$item[4],'child'=>array());
+			foreach($data as $id=>&$item) {
+				if($id==0) continue;
+				$item['id']=(int)$item['id'];
+				$parentId=(int)$item['parentId'];
+				$data[$parentId]['child'][]=&$item;
+			}
+			$data['ROOT']=$data[0]['child'];
+			unset($data[0]['child']);
+			return $data;
+		},10);
 		return $data;
 	}
 

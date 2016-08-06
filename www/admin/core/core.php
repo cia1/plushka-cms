@@ -338,7 +338,6 @@ class controller {
 	public $url; //предназначен для сохранения запрошенного URL (в виде массива, содержащего два элемента)
 	protected $metaTitle='';
 	public $pageTitle=''; //отображаемый заголовок, если задан, то будет выведен в теге <H1 class="pageTitle">
-	protected $view='Index'; //имя действия
 	public static $self; //содержит ссылку на контроллер, чтобы предоставить к нему доступ всем желающим
 	protected $cite=''; //краткий комментарий
 	private $_button=''; //HTML код кнопок
@@ -402,6 +401,7 @@ class controller {
 			echo '<div class="messageSuccess">'.core::success(false).'</div>';
 		}
 		if(is_object($view)) $view->render('?controller='.$this->url[0].'&action='.$this->url[1]);
+		elseif($view=='_empty') include(core::path().'admin/view/_empty.php');
 		else include(core::path().'admin/view/'.$this->url[0].$view.'.php');
 		if($this->cite) echo '<cite>'.$this->cite.'</cite>'; //Поясняющий текст
 		if($renderTemplate) include(core::path().'admin/cache/template/'.core::template().'Footer.php'); //Нижняя часть шаблона

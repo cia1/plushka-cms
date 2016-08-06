@@ -76,7 +76,7 @@ class sController extends controller {
 		$module=module::info(); //Информация о найденном в директории /tmp модуле
 		if(!$module) {
 			core::error('В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?');
-			return 'Message';
+			return '_empty';
 		} elseif($module['status']==100) $this->moduleExists=true; //такой модуль уже установлен
 		else $this->moduleExists=false;
 		$this->pageTitle='Установка модуля';
