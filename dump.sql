@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `adminNote` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.adminNote: ~1 rows (приблизительно)
+DELETE FROM `adminNote`;
 /*!40000 ALTER TABLE `adminNote` DISABLE KEYS */;
 INSERT INTO `adminNote` (`id`, `groupView`, `groupEdit`, `title`, `html`) VALUES
 	(2, 255, 255, 'Рекомендации по редактированию статей (редактор CKEditor)', 'В админке вашего сайта для редактирования текста используется популярный редактор CKEditor (<a href="http://ckeditor.com/">http://ckeditor.com</a>), внешне он похож на популярную программы Word. К сожалению визуальные редакторы далеки от совершенства и ниже представлены несколько замечаний, которые позволят избежать ошибок.\r\n1. На страницах вашего сайта, для любого текста задано определённое форматирование (название шрифта, цвет, размер, отступы от краёв, выравнивание и т.д.), однако в админке, при редактировании текста, это форматирование не действует, поэтому стиль текста может отличаться. Не нужно специально настраивать стиль текста в админке, за исключением случаев, когда вы сознательно хотите выделить стиль текста.\r\n2. Клавиша <b>Enter</b> - новый абзац, а сочетание клавиш <b>Ctrl + Enter</b> - переход на новую строку. Как правило каждый абзац текста выделяется бОльшими отступами, чем отдельные строки текста.\r\n3. Если вы загружаете на сайт фотографии через визуальный редактор, то помните, что в имени файла не должно быть пробелов и русских букв.\r\n4. Если вы с другого сайта копируете текст, содержащий картинки, то сами картинки не копируются, они физически остаются на том сайте, с которого копируется текст. Чтобы картинка находилась на вашем сайте, необходимо сначала сохранить изображение на свой компьютер, затем загрузить на сайт и вставить в текст.\r\n5. Старайтесь избегать копирования текста из Word или с других сайтов через буфер обмена. Это приводит к тому, что копируется также и форматирование текста, которое, конечно же, отличается от принятого на вашем сайте, поэтому текст может выглядеть неуклюже. Кроме того, вы также копируете много скрытого кода - его не видно на сайте, однако он может в пять раз превышать размер самого текста - это увеличивает скорость загрузки страницы, а также осложняет работу роботам поисковых систем. Используйте кнопку "вставить из Word" (форматирование не удаляется полностью, однако из него удаляется много явно ненужного), а ещё лучше - "вставить только текст".\r\n6. При написании достаточно большого текста используйте кнопку "развернуть", чтобы растянуть область редактора на весь экран. Однако <b>обязательно</b> периодически сохраняйте набранный текст, т.к. его легко потерять случайным нажатием не той клавиши или случайным закрытием окна браузера.\r\n7. Чтобы вставить какой-либо HTML-код (например счётчик или комментарии ВКонтакте) или если вы хотите увидеть HTML-разметку страницы, используйте кнопку "источник".');
@@ -45,7 +46,8 @@ CREATE TABLE IF NOT EXISTS `articleCategory_en` (
   KEY `parentId` (`parentId`)
 ) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.articleCategory_en: 3 rows
+-- Дамп данных таблицы cms.articleCategory_en: 2 rows
+DELETE FROM `articleCategory_en`;
 /*!40000 ALTER TABLE `articleCategory_en` DISABLE KEYS */;
 INSERT INTO `articleCategory_en` (`id`, `parentId`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `alias`, `text1`, `text2`, `onPage`) VALUES
 	(1, 0, 'News', '', '', '', 'news', '<p>\r\n	Dear readers, we offer you a series of photographs taken in RP Buturlino Nizhny Novgorod region, where there was a collapse of the soil...</p>\r\n<p>\r\n	 </p>\r\n', NULL, 20),
@@ -70,7 +72,8 @@ CREATE TABLE IF NOT EXISTS `articleCategory_ru` (
   KEY `parentId` (`parentId`)
 ) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.articleCategory_ru: 3 rows
+-- Дамп данных таблицы cms.articleCategory_ru: 2 rows
+DELETE FROM `articleCategory_ru`;
 /*!40000 ALTER TABLE `articleCategory_ru` DISABLE KEYS */;
 INSERT INTO `articleCategory_ru` (`id`, `parentId`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `alias`, `text1`, `text2`, `onPage`) VALUES
 	(1, 0, 'Новости', '', '', '', 'news', '<p>\r\n	Уважаемые читатели, предлагаем вашему вниманию серию фотографий, сделанных в р.п. Бутурлино Нижегородской области, где произошёл обвал грунта.…</p>\r\n<p>\r\n	 </p>\r\n<p>\r\n	 </p>\r\n', NULL, 20),
@@ -97,6 +100,7 @@ CREATE TABLE IF NOT EXISTS `article_en` (
 ) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.article_en: 9 rows
+DELETE FROM `article_en`;
 /*!40000 ALTER TABLE `article_en` DISABLE KEYS */;
 INSERT INTO `article_en` (`id`, `categoryId`, `alias`, `title`, `text1`, `text2`, `sort`, `metaTitle`, `metaKeyword`, `metaDescription`, `date`) VALUES
 	(1, 0, 'index', 'Main page article', NULL, '<p>\r\n	Main page is the information that appears to the user when moving it to the address of the site. In other words, the home page - this is the first thing a visitor encounters, appearing on the site. This rule are subject to all of the sites on the Internet - content providers, fashionable online shopping portals and powerful crowded forums. Purpose of the main page of any site - is the provision of such "acceptance" visitor that, ideally, he became a customer. Or at least to delay the site for a long time.</p>\r\n', 0, 'meta Main page', 'meta Keywords', 'meta Description', NULL),
@@ -130,6 +134,7 @@ CREATE TABLE IF NOT EXISTS `article_ru` (
 ) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.article_ru: 10 rows
+DELETE FROM `article_ru`;
 /*!40000 ALTER TABLE `article_ru` DISABLE KEYS */;
 INSERT INTO `article_ru` (`id`, `categoryId`, `alias`, `title`, `text1`, `text2`, `sort`, `metaTitle`, `metaKeyword`, `metaDescription`, `date`) VALUES
 	(1, 0, 'index', 'Статья на главной странице', NULL, '<p>\r\n	Главная страница&nbsp;– это информация, которая предстаёт перед пользователем при переходе его по адресу сайта. Другими словами, главная страница – это первое, с чем сталкивается посетитель, оказываясь на сайте. Правилу этому подчиняются все сайты в Интернете – контент-провайдеры, модные интернет-магазины, мощные порталы и многолюдные форумы. Предназначение главной страницы любого сайта – это обеспечение такого «приёма» посетителя, чтобы, в идеале, он стал пользователем. Или, по крайней мере, чтобы задержался на сайте в течение длительного времени.</p>\r\n', 0, 'meta Главная страница', 'meta Ключевые слова', 'meta Описание', NULL),
@@ -168,6 +173,7 @@ CREATE TABLE IF NOT EXISTS `catalog_1` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.catalog_1: ~3 rows (приблизительно)
+DELETE FROM `catalog_1`;
 /*!40000 ALTER TABLE `catalog_1` DISABLE KEYS */;
 INSERT INTO `catalog_1` (`id`, `alias`, `title`, `metaTitle`, `metaKeyword`, `metaDescription`, `genry`, `year`, `director`, `country`, `actor`, `description1`, `description2`, `mainPicture`, `translate`, `picture`) VALUES
 	(4, 'colleague', 'Коллеги', '', '', '', 'драмма', 1962, 'Алексей Сахаров', 'СССР', 'Олег Анофриев, Эдуард Бредун, Владимир Кашпур, Василий Лановой, Василий Ливанов, Иван Любезнов, Владимир Марута, Евгения Мельникова, Ростислав Плятт, Лев Поляков', '<p>\r\n	Советская др</p>\r\n', '<p>\r\n	Саша, Владька и Алеша — друзья со времен учебы в Ленинградском медицинском институте. После окончания учебного заведения все трое получают распределения на работу. Саша решает отправится в сельскую больницу, где два года не было врачей. Алексей трудится в карантинной службе международного врача. Несмотря на то, что судьба разбросала друзей по разным городам, нить их дружбы не прервется, а станет только крепче. Драма «Коллеги» основана на одноименной повести Василия Аксенова. Из-за обвинения писателя в диссидентстве, фильм долгое время пролежал на полке, запрещенный цензурой.</p>\r\n', '1.4-fld8.jpg', 'одноголосый любительский', '1.4-fld10-1.jpg|1.4-fld10-2.gif|1.4-fld10-3.jpg|1.4-fld10-4.gif|1.4-fld10-5.jpg|1.4-fld10-6.jpg|1.4-fld10-7.jpg|1.4-fld10-8.jpg|1.4-fld10-9.jpg|1.4-fld10-10.jpg'),
@@ -184,6 +190,7 @@ CREATE TABLE IF NOT EXISTS `chatBan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.chatBan: ~0 rows (приблизительно)
+DELETE FROM `chatBan`;
 /*!40000 ALTER TABLE `chatBan` DISABLE KEYS */;
 /*!40000 ALTER TABLE `chatBan` ENABLE KEYS */;
 
@@ -204,6 +211,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
 ) ENGINE=MyISAM AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.comment: 4 rows
+DELETE FROM `comment`;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
 INSERT INTO `comment` (`id`, `groupId`, `userId`, `date`, `name`, `text`, `status`, `ip`) VALUES
 	(36, 14, 1, 1391801260, 'Администратор', '12345', 1, '127.0.0.1'),
@@ -223,6 +231,7 @@ CREATE TABLE IF NOT EXISTS `commentGroup` (
 ) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.commentGroup: 3 rows
+DELETE FROM `commentGroup`;
 /*!40000 ALTER TABLE `commentGroup` DISABLE KEYS */;
 INSERT INTO `commentGroup` (`link`, `id`) VALUES
 	('article/view/about', 13),
@@ -246,6 +255,7 @@ CREATE TABLE IF NOT EXISTS `demotivator` (
 ) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.demotivator: 4 rows
+DELETE FROM `demotivator`;
 /*!40000 ALTER TABLE `demotivator` DISABLE KEYS */;
 INSERT INTO `demotivator` (`id`, `title`, `image`, `author`, `date`, `metaKeyword`, `metaDescription`, `status`) VALUES
 	(2, 'Алкоголь утончает восприятие', '1365782151.jpg', 'root', 1365782151, NULL, NULL, 1),
@@ -268,6 +278,7 @@ CREATE TABLE IF NOT EXISTS `faq` (
 ) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.faq: 4 rows
+DELETE FROM `faq`;
 /*!40000 ALTER TABLE `faq` DISABLE KEYS */;
 INSERT INTO `faq` (`id`, `name`, `question`, `answer`, `email`, `date`) VALUES
 	(1, 'Константин', 'Я хочу добавить в меню ссылку на уже существующую статью, но система всегда предлагает мне создать новую статью.', 'Для добавления ссылки на уже существующую статью, или любую другую страницу, просто выберите в блоке "тип создаваемой страницы:" значение "произвольная ссылка", затем в поле "ссылка" впишите адрес уже созданной страницы. Ссылку нужно указывать без "http" и имени домена, то есть примерно так: "article/view/about"', 'user1@example.com', 1365710400),
@@ -292,6 +303,7 @@ CREATE TABLE IF NOT EXISTS `forumCategory` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.forumCategory: ~2 rows (приблизительно)
+DELETE FROM `forumCategory`;
 /*!40000 ALTER TABLE `forumCategory` DISABLE KEYS */;
 INSERT INTO `forumCategory` (`id`, `title`, `sort`, `metaTitle`, `metaKeyword`, `metaDescription`, `newTopic`, `newPost`) VALUES
 	(1, 'Category 1', 1, '', '', '', 1, 1),
@@ -312,6 +324,7 @@ CREATE TABLE IF NOT EXISTS `forumPost` (
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.forumPost: ~8 rows (приблизительно)
+DELETE FROM `forumPost`;
 /*!40000 ALTER TABLE `forumPost` DISABLE KEYS */;
 INSERT INTO `forumPost` (`id`, `topicId`, `userId`, `date`, `message`) VALUES
 	(23, 8, 1, 1408986613, 'Message 1.'),
@@ -342,6 +355,7 @@ CREATE TABLE IF NOT EXISTS `forumTopic` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.forumTopic: ~3 rows (приблизительно)
+DELETE FROM `forumTopic`;
 /*!40000 ALTER TABLE `forumTopic` DISABLE KEYS */;
 INSERT INTO `forumTopic` (`id`, `categoryId`, `userId`, `title`, `date`, `lastDate`, `postCount`, `message`, `status`) VALUES
 	(8, 1, 1, 'Topic 1', 1408985261, 1409174304, 8, 'p oijp oqewiv jeoriuvhui hvoiu hoiuh ', 1),
@@ -364,6 +378,7 @@ CREATE TABLE IF NOT EXISTS `forumUser` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Дамп данных таблицы cms.forumUser: ~1 rows (приблизительно)
+DELETE FROM `forumUser`;
 /*!40000 ALTER TABLE `forumUser` DISABLE KEYS */;
 INSERT INTO `forumUser` (`id`, `login`, `date`, `ip`, `avatar`, `postCount`, `status`) VALUES
 	(1, 'root', 1408729824, '127.0.0.1', '5.jpeg', 11, 0);
@@ -387,6 +402,7 @@ CREATE TABLE IF NOT EXISTS `frmField` (
 ) ENGINE=MyISAM AUTO_INCREMENT=80 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.frmField: 14 rows
+DELETE FROM `frmField`;
 /*!40000 ALTER TABLE `frmField` DISABLE KEYS */;
 INSERT INTO `frmField` (`id`, `formId`, `title_ru`, `htmlType`, `data_ru`, `defaultValue`, `required`, `sort`, `title_en`, `data_en`) VALUES
 	(6, 1000, 'Ваше имя', 'text', '', '', 1, 1, 'Your name', ''),
@@ -424,6 +440,7 @@ CREATE TABLE IF NOT EXISTS `frmForm` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1021 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.frmForm: 4 rows
+DELETE FROM `frmForm`;
 /*!40000 ALTER TABLE `frmForm` DISABLE KEYS */;
 INSERT INTO `frmForm` (`id`, `title_ru`, `email`, `subject_ru`, `successMessage_ru`, `redirect`, `formView`, `script`, `title_en`, `subject_en`, `successMessage_en`) VALUES
 	(1000, 'Контакты', 'cfg', 'cms0: сообщение с сайта', '<p>\r\n	Сообщение получено, большое спасибо.</p>\r\n', '', '', '', 'Contacts', 'cms0: message from the site', '<p>\r\n	The message was got. Thank you.</p>\r\n'),
@@ -442,6 +459,7 @@ CREATE TABLE IF NOT EXISTS `menu` (
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.menu: 2 rows
+DELETE FROM `menu`;
 /*!40000 ALTER TABLE `menu` DISABLE KEYS */;
 INSERT INTO `menu` (`id`, `title`) VALUES
 	(1, 'Верхнее'),
@@ -464,7 +482,8 @@ CREATE TABLE IF NOT EXISTS `menuItem` (
   KEY `menuId` (`menuId`)
 ) ENGINE=MyISAM AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.menuItem: 14 rows
+-- Дамп данных таблицы cms.menuItem: 13 rows
+DELETE FROM `menuItem`;
 /*!40000 ALTER TABLE `menuItem` DISABLE KEYS */;
 INSERT INTO `menuItem` (`id`, `parentId`, `menuId`, `typeId`, `link`, `title_ru`, `sort`, `title_en`) VALUES
 	(1, 0, 1, 1, 'article/view/index', 'Главная', 1, 'Main'),
@@ -494,6 +513,7 @@ CREATE TABLE IF NOT EXISTS `menuType` (
 ) ENGINE=MyISAM AUTO_INCREMENT=520 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.menuType: 12 rows
+DELETE FROM `menuType`;
 /*!40000 ALTER TABLE `menuType` DISABLE KEYS */;
 INSERT INTO `menuType` (`id`, `title`, `controller`, `action`) VALUES
 	(1, 'Простая статья', 'article', 'menuArticle'),
@@ -520,6 +540,7 @@ CREATE TABLE IF NOT EXISTS `modified` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.modified: 42 rows
+DELETE FROM `modified`;
 /*!40000 ALTER TABLE `modified` DISABLE KEYS */;
 INSERT INTO `modified` (`link`, `time`) VALUES
 	('article/view/222', 1461069025),
@@ -553,7 +574,7 @@ INSERT INTO `modified` (`link`, `time`) VALUES
 	('en/article/list/article', 1461064721),
 	('en/article/blog/article', 1461064721),
 	('en/article/view/index', 1461064716),
-	('article/view/index', 1461064360),
+	('article/view/index', 1469705518),
 	('article/view/about', 1462789962),
 	('en/article/view/about', 1462790023),
 	('article/blog/test', 1462824013),
@@ -576,6 +597,7 @@ CREATE TABLE IF NOT EXISTS `oauth` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.oauth: 0 rows
+DELETE FROM `oauth`;
 /*!40000 ALTER TABLE `oauth` DISABLE KEYS */;
 /*!40000 ALTER TABLE `oauth` ENABLE KEYS */;
 
@@ -591,6 +613,7 @@ CREATE TABLE IF NOT EXISTS `section` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.section: 36 rows
+DELETE FROM `section`;
 /*!40000 ALTER TABLE `section` DISABLE KEYS */;
 INSERT INTO `section` (`name`, `url`, `widgetId`, `sort`) VALUES
 	('bottom', 'article/blog/news*', 9, 1),
@@ -643,6 +666,7 @@ CREATE TABLE IF NOT EXISTS `shpBrand` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpBrand: ~5 rows (приблизительно)
+DELETE FROM `shpBrand`;
 /*!40000 ALTER TABLE `shpBrand` DISABLE KEYS */;
 INSERT INTO `shpBrand` (`id`, `title`, `image`, `text1`) VALUES
 	(2, 'FLO', '2.jpeg', ''),
@@ -671,6 +695,7 @@ CREATE TABLE IF NOT EXISTS `shpCategory` (
 ) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpCategory: ~5 rows (приблизительно)
+DELETE FROM `shpCategory`;
 /*!40000 ALTER TABLE `shpCategory` DISABLE KEYS */;
 INSERT INTO `shpCategory` (`id`, `parentId`, `alias`, `title`, `text1`, `sort`, `image`, `feature`, `metaTitle`, `metaKeyword`, `metaDescription`) VALUES
 	(35, 0, 'tools', 'Инстументы', '', 0, '35.jpg', '12,13,14,16,17,18,21,21', '', '', ''),
@@ -695,6 +720,7 @@ CREATE TABLE IF NOT EXISTS `shpFeature` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpFeature: ~8 rows (приблизительно)
+DELETE FROM `shpFeature`;
 /*!40000 ALTER TABLE `shpFeature` DISABLE KEYS */;
 INSERT INTO `shpFeature` (`id`, `type`, `groupId`, `title`, `unit`, `variant`, `data`) VALUES
 	(12, 'text', 4, 'Длина шины', 'мм', 1, ''),
@@ -717,6 +743,7 @@ CREATE TABLE IF NOT EXISTS `shpFeatureGroup` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpFeatureGroup: ~4 rows (приблизительно)
+DELETE FROM `shpFeatureGroup`;
 /*!40000 ALTER TABLE `shpFeatureGroup` DISABLE KEYS */;
 INSERT INTO `shpFeatureGroup` (`id`, `title`) VALUES
 	(4, 'Бензопилы'),
@@ -748,6 +775,7 @@ CREATE TABLE IF NOT EXISTS `shpProduct` (
 ) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpProduct: ~8 rows (приблизительно)
+DELETE FROM `shpProduct`;
 /*!40000 ALTER TABLE `shpProduct` DISABLE KEYS */;
 INSERT INTO `shpProduct` (`id`, `categoryId`, `brandId`, `alias`, `title`, `text1`, `text2`, `price`, `mainImage`, `image`, `metaTitle`, `metaKeyword`, `metaDescription`, `variant`, `quantity`) VALUES
 	(58, 37, 4, 'germaflex-yd-kw02-45', 'Бензопила GERMAFLEX YD-KW02-45', '<p>\r\n	Пила цепная бензиновая (бензопила) GermaFlex</p>\r\n', '<p>\r\n	Пила цепная бензиновая (бензопила) GermaFlex - это мощный и высокотехнологичный бензоинструмент, снабженный карбюратором производства фирмы Walbro, который отличается низким уровнем токсичности выхлопных газов. Данная модель работает на специальной смеси, состоящей из масла для двухтактных двигателей и бензина марки АИ 92. Хромированный цилиндр мотора и кованый коленвал обеспечивают значительный моторесурс. Цепная бензопила GermaFlex оснащена декомпрессионным клапаном, рукояткой эргономичной формы для надежного удержания инструмента и системой автоматической смазки цепи, которая заправляется специальным адгезионным маслом. Благодаря антивибрационной системе, значительно уменьшена нагрузка на оператора. Мотопила укомплектована шиной и цепью GermaFlex.</p>\r\n', 3298, '58.1.jpeg', '58.1.jpeg', '', '', '', 0, 0),
@@ -770,6 +798,7 @@ CREATE TABLE IF NOT EXISTS `shpProductFeature` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpProductFeature: ~23 rows (приблизительно)
+DELETE FROM `shpProductFeature`;
 /*!40000 ALTER TABLE `shpProductFeature` DISABLE KEYS */;
 INSERT INTO `shpProductFeature` (`productId`, `featureId`, `value`) VALUES
 	(61, 16, '0-900 об/мин'),
@@ -807,6 +836,7 @@ CREATE TABLE IF NOT EXISTS `shpProductGroup` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpProductGroup: ~1 rows (приблизительно)
+DELETE FROM `shpProductGroup`;
 /*!40000 ALTER TABLE `shpProductGroup` DISABLE KEYS */;
 INSERT INTO `shpProductGroup` (`id`, `title`) VALUES
 	(1, 'Избранные товары');
@@ -821,6 +851,7 @@ CREATE TABLE IF NOT EXISTS `shpProductGroupItem` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpProductGroupItem: ~1 rows (приблизительно)
+DELETE FROM `shpProductGroupItem`;
 /*!40000 ALTER TABLE `shpProductGroupItem` DISABLE KEYS */;
 INSERT INTO `shpProductGroupItem` (`groupId`, `productId`) VALUES
 	(1, 61);
@@ -838,6 +869,7 @@ CREATE TABLE IF NOT EXISTS `shpVariant` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.shpVariant: ~1 rows (приблизительно)
+DELETE FROM `shpVariant`;
 /*!40000 ALTER TABLE `shpVariant` DISABLE KEYS */;
 INSERT INTO `shpVariant` (`id`, `productId`, `title`, `feature`) VALUES
 	(1, 59, 'HUTER BS-45M', 'a:1:{i:12;s:8:"400 мм";}');
@@ -858,6 +890,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.user: 3 rows
+DELETE FROM `user`;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` (`id`, `groupId`, `login`, `password`, `status`, `email`, `code`) VALUES
 	(2, 250, 'admin', '2fVRwDsHuyNI6', 1, 'admin@mail.com', ''),
@@ -875,6 +908,7 @@ CREATE TABLE IF NOT EXISTS `userGroup` (
 ) ENGINE=MyISAM AUTO_INCREMENT=256 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.userGroup: 4 rows
+DELETE FROM `userGroup`;
 /*!40000 ALTER TABLE `userGroup` DISABLE KEYS */;
 INSERT INTO `userGroup` (`id`, `name`) VALUES
 	(255, 'суперпользователь'),
@@ -899,6 +933,7 @@ CREATE TABLE IF NOT EXISTS `userMessage` (
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.userMessage: 2 rows
+DELETE FROM `userMessage`;
 /*!40000 ALTER TABLE `userMessage` DISABLE KEYS */;
 INSERT INTO `userMessage` (`id`, `user1Id`, `user1Login`, `user2Id`, `user2Login`, `date`, `isNew`, `message`) VALUES
 	(5, 2, 'test-user', 1, 'root', 1365537600, 0, 'Привет, мир!'),
@@ -917,6 +952,7 @@ CREATE TABLE IF NOT EXISTS `userRight` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.userRight: 35 rows
+DELETE FROM `userRight`;
 /*!40000 ALTER TABLE `userRight` DISABLE KEYS */;
 INSERT INTO `userRight` (`module`, `groupId`, `description`, `picture`) VALUES
 	('menu.*', '250', 'Управление меню', NULL),
@@ -969,6 +1005,7 @@ CREATE TABLE IF NOT EXISTS `vote` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.vote: ~1 rows (приблизительно)
+DELETE FROM `vote`;
 /*!40000 ALTER TABLE `vote` DISABLE KEYS */;
 INSERT INTO `vote` (`id`, `question`, `answer`, `result`, `ip`) VALUES
 	(3, 'Знаете ли вы что такое медитация?', 'почти ничего не знаю\r|что-то слышал об этом\r|да, знаю, но не практикую\r|иногда практикую\r|медитация занимает значительную часть моей жизни', '0|0|0|0|0', '');
@@ -979,6 +1016,7 @@ INSERT INTO `vote` (`id`, `question`, `answer`, `result`, `ip`) VALUES
 DROP TABLE IF EXISTS `widget`;
 CREATE TABLE IF NOT EXISTS `widget` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `groupId` tinyint(3) unsigned DEFAULT NULL,
   `name` char(25) DEFAULT NULL,
   `data` varchar(2000) DEFAULT NULL,
   `cache` int(10) unsigned NOT NULL DEFAULT '0',
@@ -991,25 +1029,26 @@ CREATE TABLE IF NOT EXISTS `widget` (
 ) ENGINE=MyISAM AUTO_INCREMENT=80 DEFAULT CHARSET=utf8;
 
 -- Дамп данных таблицы cms.widget: 17 rows
+DELETE FROM `widget`;
 /*!40000 ALTER TABLE `widget` DISABLE KEYS */;
-INSERT INTO `widget` (`id`, `name`, `data`, `cache`, `title_ru`, `publicTitle`, `section`, `title_en`) VALUES
-	(6, 'shopProductGroup', '1', 30, 'Избранные товары', 1, 'bottom', 'Favorite Products'),
-	(14, 'shopCart', 'a:3:{s:7:"product";b:1;s:5:"total";b:1;s:8:"checkout";b:1;}', 0, 'Корзина', 1, 'right', 'Cart'),
-	(15, 'shopCategory', '', 0, 'Категории', 1, 'right', 'Categories'),
-	(9, 'comment', '', 0, 'Комментарии', 1, 'bottom', 'Comments'),
-	(10, 'demotivatorLast', '', 10, 'Последний демотиватор', 1, 'right', 'Last Demotivator'),
-	(11, 'html', 'right.2', 0, 'Демотиватор (текст)', 0, 'right', 'Демотиватор (текст)'),
-	(51, 'html', 'footer.1', 0, 'Копирайты', 0, 'footer', 'Копирайты'),
-	(13, 'blog', 'a:4:{s:10:"categoryId";s:1:"2";s:8:"linkType";s:4:"list";s:12:"countPreview";i:0;s:9:"countLink";i:100;}', 0, 'Статьи', 1, 'right', 'Articles'),
-	(16, 'chat', 'a:2:{s:2:"id";i:1;s:5:"count";i:5;}', 0, 'Тем временем в чате...', 1, 'right', 'This time in the chat...'),
-	(17, 'form', '1002', 30, 'Обратный звонок', 1, 'right', 'Callback'),
-	(58, 'blog', 'a:4:{s:10:"categoryId";s:1:"1";s:8:"linkType";s:4:"blog";s:12:"countPreview";i:3;s:9:"countLink";i:0;}', 0, 'Новости', 1, 'right', 'News'),
-	(53, 'html', 'bottom.1', 0, 'С праздником!!!!', 1, 'bottom', 'Happy Holidays!!!'),
-	(54, 'vote', '3', 10, 'Голосование', 1, 'right', 'Poll'),
-	(68, 'catalogSearch', 'a:2:{s:2:"id";s:1:"1";s:3:"fld";a:2:{s:5:"title";b:1;s:4:"year";a:4:{s:3:"min";d:1900;s:3:"max";d:2015;s:4:"step";d:1;s:5:"range";b:1;}}}', 0, 'Поиск', 1, 'top', 'Search'),
-	(63, 'oauth', 'a:2:{s:8:"register";b:0;s:2:"vk";a:2:{i:0;s:3:"111";i:1;s:3:"222";}}', 0, 'Войти через...', 0, 'top', 'Войти через...'),
-	(66, 'html', 'right.3', 0, 'Произвольный текст', 0, 'right', 'Произвольный текст'),
-	(77, 'map', 'a:6:{s:2:"id";i:68;s:14:"centerLatitude";d:43.133643865585;s:15:"centerLongitude";d:55.958936550308998;s:4:"zoom";i:10;s:4:"type";s:7:"ROADMAP";s:6:"marker";a:1:{i:0;a:3:{s:5:"title";s:18:"Я живу тут";s:8:"latitude";d:43.084396439491002;s:9:"longitude";d:55.973300787063003;}}}', 0, 'Как проехать', 1, 'bottom', 'How Can I Get To');
+INSERT INTO `widget` (`id`, `groupId`, `name`, `data`, `cache`, `title_ru`, `publicTitle`, `section`, `title_en`) VALUES
+	(6, NULL, 'shopProductGroup', '1', 30, 'Избранные товары', 1, 'bottom', 'Favorite Products'),
+	(14, NULL, 'shopCart', 'a:3:{s:7:"product";b:1;s:5:"total";b:1;s:8:"checkout";b:1;}', 0, 'Корзина', 1, 'right', 'Cart'),
+	(15, NULL, 'shopCategory', '', 0, 'Категории', 1, 'right', 'Categories'),
+	(9, NULL, 'comment', '', 0, 'Комментарии', 1, 'bottom', 'Comments'),
+	(10, NULL, 'demotivatorLast', '', 10, 'Последний демотиватор', 1, 'right', 'Last Demotivator'),
+	(11, NULL, 'html', 'right.2', 0, 'Демотиватор (текст)', 0, 'right', 'Демотиватор (текст)'),
+	(51, NULL, 'html', 'footer.1', 0, 'Копирайты', 0, 'footer', 'Копирайты'),
+	(13, NULL, 'articleBlog', 'a:4:{s:10:"categoryId";s:1:"2";s:8:"linkType";s:4:"list";s:12:"countPreview";i:0;s:9:"countLink";i:100;}', 0, 'Статьи', 1, 'right', 'Articles'),
+	(16, NULL, 'chat', 'a:2:{s:2:"id";i:1;s:5:"count";i:5;}', 0, 'Тем временем в чате...', 1, 'right', 'This time in the chat...'),
+	(17, NULL, 'form', '1002', 30, 'Обратный звонок', 1, 'right', 'Callback'),
+	(58, NULL, 'articleBlog', 'a:4:{s:10:"categoryId";s:1:"1";s:8:"linkType";s:4:"blog";s:12:"countPreview";i:3;s:9:"countLink";i:0;}', 0, 'Новости', 1, 'right', 'News'),
+	(53, NULL, 'html', 'bottom.1', 0, 'С праздником!!!!', 1, 'bottom', 'Happy Holidays!!!'),
+	(54, NULL, 'vote', '3', 10, 'Голосование', 1, 'right', 'Poll'),
+	(68, NULL, 'catalogSearch', 'a:2:{s:2:"id";s:1:"1";s:3:"fld";a:2:{s:5:"title";b:1;s:4:"year";a:4:{s:3:"min";d:1900;s:3:"max";d:2015;s:4:"step";d:1;s:5:"range";b:1;}}}', 0, 'Поиск', 1, 'top', 'Search'),
+	(63, NULL, 'oauth', 'a:2:{s:8:"register";b:0;s:2:"vk";a:2:{i:0;s:3:"111";i:1;s:3:"222";}}', 0, 'Войти через...', 0, 'top', 'Войти через...'),
+	(66, NULL, 'html', 'right.3', 0, 'Произвольный текст', 0, 'right', 'Произвольный текст'),
+	(77, NULL, 'map', 'a:6:{s:2:"id";i:68;s:14:"centerLatitude";d:43.133643865585;s:15:"centerLongitude";d:55.958936550308998;s:4:"zoom";i:10;s:4:"type";s:7:"ROADMAP";s:6:"marker";a:1:{i:0;a:3:{s:5:"title";s:18:"Я живу тут";s:8:"latitude";d:43.084396439491002;s:9:"longitude";d:55.973300787063003;}}}', 0, 'Как проехать', 1, 'bottom', 'How Can I Get To');
 /*!40000 ALTER TABLE `widget` ENABLE KEYS */;
 
 
@@ -1023,11 +1062,12 @@ CREATE TABLE IF NOT EXISTS `widgetType` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.widgetType: 17 rows
+-- Дамп данных таблицы cms.widgetType: 18 rows
+DELETE FROM `widgetType`;
 /*!40000 ALTER TABLE `widgetType` DISABLE KEYS */;
 INSERT INTO `widgetType` (`name`, `title`, `controller`, `action`) VALUES
 	('html', 'Произвольный текст', 'html', 'widgetHtml'),
-	('blog', 'Блог (анонс статей в категории)', 'article', 'widgetBlog'),
+	('articleBlog', 'Блог (анонс статей в категории)', 'article', 'widgetBlog'),
 	('menu', 'Меню', 'menu', 'widgetList'),
 	('shopFeatureSearch', 'Магазин: поиск по характеристикам', 'shopSetting', 'widgetFeatureSearch'),
 	('shopCategory', 'Магазин: категории', 'shopSetting', 'widgetCategory'),
@@ -1042,7 +1082,8 @@ INSERT INTO `widgetType` (`name`, `title`, `controller`, `action`) VALUES
 	('catalogSearch', 'Каталог: поиск', 'catalog', 'widgetSearch'),
 	('oauth', 'Регистрация и авторизация OAuth 2.0', 'oauth', 'widget'),
 	('shopProductGroup', 'Магазин: группа товаров', 'shopSetting', 'widgetProductGroup'),
-	('map', 'Карта Google', 'map', 'widgetMap');
+	('map', 'Карта Google', 'map', 'widgetMap'),
+	('articleList', 'Список статей в категории', 'article', 'widgetList');
 /*!40000 ALTER TABLE `widgetType` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

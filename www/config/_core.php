@@ -2,7 +2,6 @@
 'debug'=>true,
 'adminEmailEmail'=>'admin@example.com',
 'adminEmailName'=>'CMS',
-'languageDefault'=>'ru',
 'dbDriver'=>'mysql',
 'mysqlHost'=>'localhost',
 'mysqlUser'=>'root',
@@ -19,6 +18,7 @@
 'template'=>array(
 'article/blog/news'=>'red'
 ),
+'languageDefault'=>'ru',
 'languageList'=>array(
 'ru',
 'en'

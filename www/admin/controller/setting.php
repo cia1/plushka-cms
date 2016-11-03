@@ -20,14 +20,12 @@ class sController extends controller {
 			$cfg['smtpPort']=null;
 			$cfg['smtpUser']=null;
 			$cfg['smtpPassword']=null;
-			$cfg['smtpEmail']=null;
 		}
 		$f=core::form();
 		$f->checkbox('debug','Режим отладки',$cfg['debug']);
 		$f->text('adminEmailEmail','E-mail администрации',$cfg['adminEmailEmail']);
 		$f->text('adminEmailName','Имя администрации (e-mail)',$cfg['adminEmailName']);
 		$f->select('method','Метод отправки почты',array(array('smtp','SMTP'),array('email','PHP')),$method);
-		$f->text('smtpEmail','SMTP e-mail',$cfg['smtpEmail']);
 		$f->text('smtpHost','SMTP хост',$cfg['smtpHost']);
 		$f->text('smtpPort','SMTP порт',$cfg['smtpPort']);
 		$f->text('smtpUser','SMTP логин',$cfg['smtpUser']);
@@ -45,13 +43,11 @@ class sController extends controller {
 		$cfg->adminEmailEmail=$data['adminEmailEmail'];
 		$cfg->adminEmailName=$data['adminEmailName'];
 		if($data['method']=='smtp') {
-			$cfg->smtpEmail=$data['smtpEmail'];
 			$cfg->smtpHost=$data['smtpHost'];
 			$cfg->smtpPort=$data['smtpPort'];
 			$cfg->smtpUser=$data['smtpUser'];
 			$cfg->smtpPassword=$data['smtpPassword'];
 		} else {
-			$cfg->delete('smtpEmail');
 			$cfg->delete('smtpHost');
 			$cfg->delete('smtpPort');
 			$cfg->delete('smtpUser');

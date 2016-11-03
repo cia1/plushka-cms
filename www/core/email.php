@@ -12,7 +12,6 @@ class email {
 	private $_smtpPort;
 	private $_smtpUser;
 	private $_smtpPassword;
-	private $_smtpEmail;
 	public $_returnPath;
 
 	/* Инициализирует SMTP, если используется режим SMTP */
@@ -23,7 +22,6 @@ class email {
 			$this->_smtpPort=$cfg['smtpPort'];
 			$this->_smtpUser=$cfg['smtpUser'];
 			$this->_smtpPassword=$cfg['smtpPassword'];
-			$this->_smtpEmail=$cfg['smtpEmail'];
 		}
 	}
 
@@ -124,7 +122,8 @@ class email {
 			return false;
 		}
 		if(!$this->_parseAnswer($socket,'220')) return false;
-		fputs($socket,'HELO '.$this->_smtpHost."\r\n");
+		if(substr($this->_smtpHost,0,6)=='ssl://') $this->_smtpHost=substr($this->_smtpHost,6);
+		fputs($socket,'EHLO '.$this->_smtpHost."\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
 			core::error(LNGSMTPError.' #250');
 			return false;
@@ -147,7 +146,7 @@ class email {
 			fclose($socket);
 			return false;
 		}
-		fputs($socket,'MAIL FROM: <'.$this->_smtpEmail.">\r\n");
+		fputs($socket,'MAIL FROM: <'.$this->_smtpUser.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
 			core::error(LNGSMTPError.' #250-1');
 			fclose($socket);
@@ -186,9 +185,19 @@ class email {
 	}
 
 	private function _buildMessage($part) {
+		if($part['encoding']=='base64') {
+			$i=0;
+			$content='';
+			do {
+				if($content) $content.="\n";
+				$_s=substr($part['message'],$i,76);
+				$i+=76;
+				$content.=$_s;
+			} while(strlen($_s)==76);
+		} else $content=$part['message'];
 		$s='Content-Type: '.$part['ctype'].($part['name'] ? '; name="'.$part['name'].'"' : '')."\r\n".($part['name'] ? 'Content-ID: <'.$part['name'].">\r\n" : '')."Content-Transfer-Encoding: ".(isset($part['encoding']) ? $part['encoding'] : '8bit')."\r\n";
 		if(isset($part['filename'])) $s.='Content-Disposition: attachment; filename="'.$part['filename'].'"'."\r\n";
-		$s.="\r\n".$part['message']."\r\n\r\n";
+		$s.="\r\n".$content."\r\n\r\n";
 		return $s;
 	}
 

@@ -273,7 +273,7 @@ class model {
 							$s1.=',`'.$name.'_'.$lang.'`';
 							$s2.=','.$value;
 						} else {
-							$s1='`'.$name.'`';
+							$s1='`'.$name.'_'.$lang.'`';
 							$s2=$value;
 						}
 					}
