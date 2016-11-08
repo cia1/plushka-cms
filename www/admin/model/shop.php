@@ -5,6 +5,9 @@ class shop {
 	/* Рекурсивно удаляет категорию товаров с ИД $id со всеми товарами */
 	public static function deleteCategory($id) {
 		$db=core::db();
+		$id=(int)$id;
+		$alias=$db->fetchValue('SELECT alias FROM shpCategory WHERE id='.$id);
+		if(!$alias) return false;
 		$items=$db->fetchArray('SELECT id FROM shpCategory WHERE parentId='.$id);
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			shop::deleteCategory($items[$i][0]); //Удалить вложенные категории
@@ -21,7 +24,7 @@ class shop {
 			if(file_exists($f)) unlink($f);
 		}
 		$db->query('DELETE FROM shpCategory WHERE id='.$id);
-
+		core::hook('pageDelete','shop/'.$alias);
 		return true;
 	}
 
@@ -49,10 +52,12 @@ class shop {
 				if(file_exists($f)) unlink($f);
 			}
 		}
+		$data=$db->fetchArrayOnce('SELECT c.alias,p.alias FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId WHERE id='.$id);
 		$db->query('DELETE FROM shpVariant WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shpProductFeature WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shpProductGroupItem WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shpProduct WHERE id IN('.$id.')');
+		core::hook('pageDelete','shop/'.$data[0].'/'.$data[1]);
 		return true;
 	}
 

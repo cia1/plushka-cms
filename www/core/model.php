@@ -7,7 +7,7 @@ class model {
 	protected $_primary; //имя первичного ключа
 	protected $db; //экземпляр класса базы данных (может быть отличным от заданного по умолчанию)
 	protected $_multiLanguage=false; //если true, то будут выполнены запросы для всех языков
-	protected $_languageDb=false; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
+	protected $_languageDb; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
 
 	public function __construct($namespace=null,$db='db') {
 		if($namespace) $this->_table=$namespace; else $this->_table=$_GET['corePath'][0];
@@ -43,15 +43,15 @@ class model {
 	}
 
 	/* Загружает данные из БД по указанному условию */
-	public function &load($where,$fields=null) {
+	public function load($where,$fields=null) {
 		if(!$fields) $fields=$this->fields;
-		$this->_data=$this->db->fetchArrayOnceAssoc('SELECT '.$fields.' FROM `'.$this->_table.'` WHERE '.$where);
+		$this->_data=$this->db->fetchArrayOnceAssoc('SELECT '.$fields.' FROM `'.$this->_table.($this->_multiLanguage ? '_'._LANG : '').'` WHERE '.$where);
 		if(!$this->_data) return false;
-		return $this->_data;
+		return true;
 	}
 
 	/* Загружает данные записи по первичному ключу */
-	public function &loadById($id,$fields=null) {
+	public function loadById($id,$fields=null) {
 		$this->_data['id']=(int)$id;
 		return $this->load('id='.$this->_data['id'],$fields);
 	}
@@ -93,16 +93,7 @@ class model {
 		//Триггер "до INSERT/UPDATE"
 		if(method_exists($this,'beforeInsertUpdate')) if(!$this->beforeInsertUpdate($id,$fields)) return false;
 
-		//Подготовить данные о мультиязычности
-		$f=core::path().'cache/language-database.php';
-		if(!file_exists($f)) {
-			core::import('core/cache');
-			cache::languageDatabase();
-		}
-		$this->_languageDb=core::config('../cache/language-database');
-		if(isset($this->_languageDb[$this->_table])) {
-			$this->_languageDb=$this->_languageDb[$this->_table];
-		} else $this->_languageDb=false;
+		$this->setLanguageDb(); //Подготовить данные о мультиязычности
 
 		//А вот и сам SQL-запрос...
 		if($primary && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE
@@ -115,7 +106,17 @@ class model {
 	/* Удаляет запись по первичному ключу */
 	public function delete($id=null,$affected=false) {
 		if(!$id) $id=$this->id; else $id=(int)$id;
-		$this->db->query('DELETE FROM '.$this->_table.' WHERE id='.$id);
+		if($this->_multiLanguage) {
+			if($this->_languageDb===null) $this->_languageDb=$this->_setLanguageDb();
+			if($this->_languageDb===true) $multiLanguage=true; else $multiLanguage=false;
+		} else $multiLanguage=false;
+		if($multiLanguage) {
+			$lang=core::config();
+			if(isset($lang['languageList'])) $lang=$lang['languageList']; else $lang=$lang['languageDefault'];
+			foreach($lang as $item) {
+				$this->db->query('DELETE FROM '.$this->_table.'_'.$item.' WHERE id='.$id);
+			}
+		} else $this->db->query('DELETE FROM '.$this->_table.' WHERE id='.$id);
 		if($id==$this->id) $this->_data=array();
 		if(!$affected) return true;
 		if($this->db->affected()) return true; else return false;
@@ -249,6 +250,20 @@ class model {
 			break;
 		}
 		return true;
+	}
+
+	//Возвращает информацию о мультиязычных таблицах
+	private function _setLanguageDb() {
+		$f=core::path().'cache/language-database.php';
+		if(!file_exists($f)) {
+			core::import('core/cache');
+			cache::languageDatabase();
+		}
+		$lang=core::config('../cache/language-database');
+		if(isset($lang[$this->_table])) {
+			$this->_languageDb=$lang[$this->_table];
+		} else $this->_languageDb=false;
+		return $this->_languageDb;
 	}
 
 	//Собирает и выполняет SQL-запрос INSERT

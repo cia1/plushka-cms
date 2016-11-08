@@ -155,8 +155,8 @@ class sController extends controller {
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
-			'categoryId'=>array('id','',true),
-			'brandId'=>array('id',''),
+			'categoryId'=>array('integer','категория',true),
+			'brandId'=>array('integer'),
 			'title'=>array('string','Заголовок',true),
 			'alias'=>array('latin','max'=>25),
 			'text1'=>array('html','Описание 1 (краткое)'),
@@ -196,7 +196,8 @@ class sController extends controller {
 				$db->query('INSERT INTO shpProductFeature (productId,featureId,value) VALUES ('.$model->id.','.$id.','.$db->escape($value).')');
 			}
 		}
-		core::hook('modify','shop/category/'.$model->categoryId.'/'.$model->alias);
+		$alias=$db->fetchValue('SELECT alias FROM shpCategory WHERE id='.$model->categoryId);
+		core::hook('modify','shop/'.$alias.'/'.$model->alias);
 		core::redirect('?controller=shopContent&action=product&id='.$model->id,'Изменения сохранены');
 	}
 
@@ -446,6 +447,7 @@ class sController extends controller {
 			$fname=$picture->save('public/shop-brand/'.$model->id);
 			$db->query('UPDATE shpBrand SET image='.$db->escape($fname).' WHERE id='.$model->id);
 		}
+		
 		core::redirect('?controller=shopContent&action=brand');
 	}
 

@@ -64,48 +64,41 @@ class sController extends controller {
 
 	/* Создание или редактирование статьи (отдельной или в составе блога) */
 	public function actionArticle() {
+		core::import('admin/model/article');
+		$article=new article();
 		if(isset($_GET['id'])) {
-			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM article_'._LANG.' WHERE id='.(int)$_GET['id']);
+			if(!$article->loadById($_GET['id'])) core::error404();
 		} elseif(isset($_GET['alias'])) {
-			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM article_'._LANG.' WHERE alias='.$db->escape($_GET['alias']));
-		} elseif($_POST) $data=$_POST['article']; //просто чтобы избежать повторного обращения к базе данных
-		else { //Это новая статья - заполнить данными по умолчанию
-			$data=array('id'=>'','text1'=>'','text2'=>'','sort'=>0,'categoryId'=>'0','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'','title'=>'','alias'=>'','date'=>time());
-			if(isset($_GET['categoryId'])) $data['categoryId']=(int)$_GET['categoryId'];
-		}
-		if(!$data) core::error404();
-		if($data['date'] && is_numeric($data['date'])) $data['date']=date('d.m.Y',$data['date']);
-		$f=core::form();
-		$f->hidden('categoryId',$data['categoryId']);
-		$f->hidden('id',$data['id']);
-		$f->text('title','Название (заголовок)',$data['title']);
-		$f->text('alias','URL (псевдоним)',$data['alias']);
-		$f->text('metaTitle','meta Заголовок',$data['metaTitle']);
-		$f->text('metaKeyword','meta Ключевые слова',$data['metaKeyword']);
-		$f->text('metaDescription','meta Описание',$data['metaDescription']);
-		$f->date('date','Дата публикации',$data['date']);
-		if($data['categoryId'] && !isset($_GET['list'])) $f->editor('text1','Краткое описание (вступление)',$data['text1']);
-		$f->editor('text2','Текст статьи',$data['text2']);
-		$f->submit('Сохранить');
+			if(!$article->loadByAlias($_GET['alias'])) core::error404();
+		} elseif($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
+		$form=core::form();
+		$form->hidden('id',$article->id);
+		$form->hidden('categoryId',$article->categoryId);
+		$form->text('title','Название (заголовок)',$article->title);
+		$form->text('alias','URL (псевдоним)',$article->alias);
+		$form->text('metaTitle','meta Заголовок',$article->metaTitle);
+		$form->text('metaKeyword','meta Ключевые слова',$article->metaKeyword);
+		$form->text('metaDescription','meta Описание',$article->metaDescription);
+		$form->date('date','Дата публикации',$article->date);
+		if($article->categoryId && !isset($_GET['list'])) $form->editor('text1','Краткое описание (вступление)',$article->text1);
+		$form->editor('text2','Текст статьи',$article->text2);
+		$form->submit('Сохранить');
 
 		$this->cite='<b>Enter</b> - новый абзац. <b>Shift + Enter</b> - новая строка, вставить пустую строку.';
-		return $f;
+		return $form;
 	}
 
 	public function actionArticleSubmit($data) {
-		if($data['id']) $title='Изменения сохранены'; else $title='Статья создана';
-		if(!$this->_saveArticle($data)) return false; //этот же механизм используется в меню
-		core::success($title);
+		if(!self::_saveArticle($data)) return false; //этот же механизм используется в меню
+		core::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));
 		core::redirect('?controller=article&action=article&id='.$data['id']);
 	}
 
 	/* Удаление статьи (форма подтверждения) */
 	public function actionArticleDelete() {
-		$db=core::db();
-		$db->query('DELETE FROM article_'._LANG.' WHERE id='.$_GET['id']);
-		core::success('Статья удалена');
+		core::import('admin/model/article');
+		$article=new article();
+		$article->delete($_GET['id']);
 		core::redirect('?controller=article&acttion=article');
 	}
 /* --------------------------------------------------------------------------------------------- */
@@ -121,7 +114,7 @@ class sController extends controller {
 
 	public function actionMenuArticleSubmit($data) {
 		if($data['id']) $title='Изменения сохранены'; else $title='Статья создана';
-		if(!$this->_saveArticle($data)) return false; //этот же механизм при простом создании/редактировании статьи
+		if(!self::_saveArticle($data)) return false; //этот же механизм при простом создании/редактировании статьи
 		return 'article/view/'.$data['alias'];
 	}
 
@@ -204,69 +197,11 @@ class sController extends controller {
 	}
 
 	/* Выполняет валидацию и сохранение статьи в базе данных */
-	private function _saveArticle($data) {
-		//Проверить уникальность псевдонима
-		$db=core::db();
-		if($data['id']) $oldAlias=$db->fetchValue('SELECT alias FROM article_'._LANG.' WHERE id='.$data['id']); else $oldAlias=null;
-		if($data['alias']!==$oldAlias && $db->fetchValue('SELECT 1 FROM article_'._LANG.' WHERE categoryId='.$data['categoryId'].' AND alias='.$db->escape($data['alias']).($data['id'] ? ' AND id!='.$data['id'] : ''))) {
-			core::error('Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.');
-			return false;
-		}
-		$m=core::model('article_'._LANG);
-		$m->set($data);
-		if(!$m->save(array(
-			'id'=>array('primary'),
-			'alias'=>array('latin','URL (псевдоним)',true),
-			'title'=>array('string','Заголовок',true,'max'=>150),
-			'text1'=>array('html','Краткий текст (введение)'),
-			'text2'=>array('html','Текст статььи'),
-			'categoryId'=>array('id','Категория'),
-			'metaTitle'=>array('string','meta Заголовок'),
-			'metaKeyword'=>array('string','meta Ключевые слова'),
-			'metaDescription'=>array('string','meta Описание'),
-			'date'=>array('date','Дата публикации',false)
-		))) return false;
-		if(!$data['id'] && !$data['categoryId']) {
-			$data['id']=$m->id;
-			$cfg=core::config();
-			if(isset($cfg['languageList'])) foreach($cfg['languageList'] as $item) {
-				if($item==_LANG) continue;
-				$m=core::model('article_'.$item);
-				$m->set($data);
-				if(!$m->save(array(
-					'id'=>array('integer'),
-					'alias'=>array('latin','URL (псевдоним)',true),
-					'title'=>array('string','Заголовок',true,'max'=>150),
-					'text1'=>array('html','Краткий текст (введение)'),
-					'text2'=>array('html','Текст статььи'),
-					'categoryId'=>array('id','Категория'),
-					'metaTitle'=>array('string','meta Заголовок'),
-					'metaKeyword'=>array('string','meta Ключевые слова'),
-					'metaDescription'=>array('string','meta Описание'),
-					'date'=>array('date','Дата публикации',false)
-				))) return false;
-			}
-		}
-		//Если псевдоним был изменён, то проверить адрес главной страницы, а также изменить все ссылки во всех меню
-		if($oldAlias && $oldAlias!=$data['alias']) {
-			$cfg1=core::config();
-			$s='article/view/'.$oldAlias;
-			if($cfg1['mainPath']==$s || isset($cfg1['link'][$s])) {
-				core::import('admin/core/config');
-				$cfg2=new config('_core');
-				if($cfg1['mainPath']==$s) $cfg2->mainPath='article/view/'.$data['alias'];
-				if(isset($cfg1['link'][$s])) {
-					$alias=$cfg1['link'][$s];
-					$link=$cfg2->link;
-					unset($link[$s]);
-					$link['article/view/'.$data['alias']]=$alias;
-					$cfg2->link=$link;
-				}
-				$cfg2->save('_core');
-			}
-			$db->query('UPDATE menuItem SET link='.$db->escape('article/view/'.$data['alias']).' WHERE link='.$db->escape($s));
-		}
-		core::hook('modify','article/view/'.$m->alias); //Обновить дату изменения статьи
+	private static function _saveArticle($data) {
+		core::import('admin/model/article');
+		$article=new article();
+		$article->set($data);
+		if(!$article->save()) return false;
 		return true;
 	}
 /* ----------------------------------------------------------------------------------- */
