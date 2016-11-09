@@ -1,7 +1,7 @@
 readme.txt
 cms.sublime-project
 cms.sublime-workspace
-/cache/template/*.*
-/cache/widget/*.*
-/cache/custom/*.*
+www/cache/template/*.*
+www/cache/widget/*.*
+www/cache/custom/*.*
 генератор форм

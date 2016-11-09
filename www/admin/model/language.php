@@ -33,46 +33,28 @@
 
 	//Возвращает список мультиязычных таблиц
 	private static function _tableList() {
-		$path=core::path().'admin/module/';
-		$table=array();
-		$d=opendir($path);
-		while($f=readdir($d)) {
-			if($f=='.' || $f=='..') continue;
-			if(substr($f,strlen($f)-12)=='.install.php') continue;
-			$data=include($path.$f);
-			if(!isset($data['table'])) continue;
-			$data=explode(',',$data['table']);
-			foreach($data as $item) {
-				if(!strpos($item,'_LANG')) continue;
-				$item=explode('(',$item);
-				$table[]=substr($item[0],0,strlen($item[0])-5);
-			}
+		$f=core::path().'cache/language-database.php';
+		if(!file_exists($f)) {
+			core::import('core/cache');
+			cache::languageDatabase();
 		}
-		closedir($d);
-		return $table;
+		$lang=core::config('../cache/language-database');
+		foreach($lang as $table=>$null) {
+			if($null!==true) unset($lang[$table]);
+		}
+		$lang=array_keys($lang);
+		return $lang;
 	}
 
 	//Возвращает список мультиязычных полей
 	private static function _fieldList() {
-		$path=core::path().'admin/module/';
+		$lang=core::config('../cache/language-database');
 		$field=array();
-		$d=opendir($path);
-		while($f=readdir($d)) {
-			if($f=='.' || $f=='..') continue;
-			if(substr($f,strlen($f)-12)=='.install.php') continue;
-			$data=include($path.$f);
-			if(!isset($data['table'])) continue;
-			$data=explode(',',$data['table']);
-			foreach($data as $item) {
-				$i1=strpos($item,'(');
-				if(!$i1) continue;
-				$i2=strpos($item,')');
-				$table=substr($item,0,$i1);
-				$item=explode(' ',substr($item,$i1+1,$i2-$i1-1));
-				foreach($item as $fld) $field[]=array($table,$fld);
-			}
+		foreach($lang as $table=>$item) {
+			if($item===true) continue;
+			for($i=0,$cnt=count($item);$i<$cnt;$i++) $item[$i]=array($table,$item[$i]);
+			$field=array_merge($field,$item);
 		}
-		closedir($d);
 		return $field;
 	}
 

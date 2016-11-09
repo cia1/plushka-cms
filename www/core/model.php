@@ -93,7 +93,7 @@ class model {
 		//Триггер "до INSERT/UPDATE"
 		if(method_exists($this,'beforeInsertUpdate')) if(!$this->beforeInsertUpdate($id,$fields)) return false;
 
-		$this->setLanguageDb(); //Подготовить данные о мультиязычности
+		$this->_setLanguageDb(); //Подготовить данные о мультиязычности
 
 		//А вот и сам SQL-запрос...
 		if($primary && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE

@@ -2,7 +2,7 @@
 'right'=>'form.*',
 'widget'=>'form',
 'menu'=>'7',
-'table'=>'frmForm(title subject successMessage),frmField(title data)',
+'table'=>'frmForm(title asdf),frmField',
 'file'=>array(
 	'admin/controller/form.php',
 	'admin/hook/menuItemDelete.form.php',

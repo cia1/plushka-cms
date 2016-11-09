@@ -1,8 +1,8 @@
 <?php
-//Âíèìàíèå! Ýòîò ôàéë ÿâëÿåòñÿ ÷àñòüþ ôðåéìâîðêà. Âíîñèòü èçìåíåíèÿ íå ðåêîìåíäóåòñÿ.
+//Ð­Ñ‚Ð¾Ñ‚ Ñ„Ð°Ð¹Ð» ÑÐ²Ð»ÑÐµÑ‚ÑÑ Ñ‡Ð°ÑÑ‚ÑŒÑŽ Ñ„Ñ€ÐµÐ¹Ð¼Ð²Ð¾Ñ€ÐºÐ°. Ð’Ð½Ð¾ÑÐ¸Ñ‚ÑŒ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ð½Ðµ Ñ€ÐµÐºÐ¾Ð¼ÐµÐ½Ð´ÑƒÐµÑ‚ÑÑ.
 class cache {
 
-	/* Ñîçäà¸ò êåø øàáëîíà ñ èìåíåì $name */
+	//ÐšÐµÑˆÐ¸Ñ€ÑƒÐµÑ‚ ÑˆÐ°Ð±Ð»Ð¾Ð½ Ñ Ð¸Ð¼ÐµÐ½ÐµÐ¼ $name
 	public static function template($name) {
 		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
 		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
@@ -12,7 +12,7 @@ class cache {
 		$template=str_replace('{{head}}','<?=$this->_head?>',$template);
 		$template=str_replace('{{pageTitle}}','<?php if($this->pageTitle) echo \'<h1 class="pageTitle">\'.$this->pageTitle.\'</h1>\'; ?>',$template);
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);
-		$section=$widget=array(); //Ñïèñîê ñåêöèé è âèäæåòîâ â øàáëîíå - ýòà èíôîðìàöèÿ ìîæåò êîìó-òî ïîíàäîáèòüñÿ â ïîñëåäñòâèè
+		$section=$widget=array(); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		$template=preg_replace_callback('/{{section\[([^\]]+)\]}}/',function($data) use(&$section) {
 			if(!isset($data[1])) return;
 			$section[]=$data[1];
@@ -68,8 +68,42 @@ class cache {
 		fwrite($f,$s);
 	}
 
-	//Êåøèðóåò ìóëüòèÿçû÷íûå òàáëèöû
+	//ÐšÐµÑˆÐ¸Ñ€ÑƒÐµÑ‚ Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸ÑŽ Ð¾ Ð¼ÑƒÐ»ÑŒÑ‚Ð¸ÑÐ·Ñ‹Ñ‡Ð½Ñ‹Ñ… Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ð°Ñ…
 	static function languageDatabase() {
+		$cfg=core::config();
+		if($cfg['dbDriver']=='mysql') {
+			core::import('admin/core/mysqli');
+			$dbStructure=self::_structureMySQL();
+		} else {
+			core::import('admin/core/sqlite');
+			$dbStructure=self::_structureSQLite();
+		}
+		if(isset($cfg['languageList'])) $languageList=$cfg['languageList']; else $languageList=array($cfg['languageDefault']);
+		$lang=array();
+		foreach($dbStructure as $table=>$fieldList) {
+			if(substr($table,-3,1)=='_') {
+				if(in_array(substr($table,-2),$languageList)) {
+					$table=substr($table,0,strlen($table)-3);
+					if(!isset($lang[$table])) $lang[$table]=true;
+					continue;
+				}
+			}
+			$field=array();
+			foreach($fieldList as $item) {
+				if(substr($item,-3,1)=='_') {
+					if(in_array(substr($item,-2),$languageList)) {
+						$item=substr($item,0,strlen($item)-3);
+						if(!in_array($item,$field)) $field[]=$item;
+					}
+				}
+			}
+			if($field) $lang[$table]=$field;
+		}
+		core::import('admin/core/config');
+		$cfg=new config();
+		$cfg->setData($lang);
+		$cfg->save('../cache/language-database');
+/*
 		$path=core::path().'admin/module/';
 		$d=opendir($path);
 		$language=array();
@@ -95,7 +129,41 @@ class cache {
 		$cfg=new config();
 		$cfg->setData($language);
 		$cfg->save('../cache/language-database');
+*/
 		return true;
+	}
+
+	private static function _structureMySQL($field=true) {
+		$data=array();
+		$db=core::mysql();
+		$db->query('SHOW TABLES');
+		if(!$field) {
+			while($item=$db->fetch()) $data[]=$item[0];
+			return $data;
+		}
+		while($item=$db->fetch()) $data[$item[0]]=array();
+		foreach($data as $table=>$value) {
+			$db->query('SHOW FIELDS FROM `'.$table.'`');
+			while($item=$db->fetch()) $data[$table][]=$item[0];
+		}
+		return $data;
+	}
+
+	/* Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð¼Ð°ÑÑÐ¸Ð², ÑÐ¾Ð´ÐµÑ€Ð¶Ð°Ñ‰Ð¸Ð¹ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñƒ Ð±Ð°Ð·Ñ‹ Ð´Ð°Ð½Ð½Ñ‹Ñ… SQLite */
+	private static function _structureSQLite($field=true) {
+		$data=array();
+		$db=core::sqlite();
+		$db->query('SELECT name FROM sqlite_master WHERE type="table"');
+		if(!$field) {
+			while($item=$db->fetch()) $data[]=$item[0];
+			return $data;
+		}
+		while($item=$db->fetch()) $data[$item[0]]=array();
+		foreach($data as $table=>$value) {
+			$db->query('PRAGMA table_info('.$table.')');
+			while($item=$db->fetch()) $data[$table][]=$item[1];
+		}
+		return $data;
 	}
 
 }

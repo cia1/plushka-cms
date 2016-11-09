@@ -1,19 +1,19 @@
 <?php return array(
 'article'=>true,
-'articleCategory'=>true,
-'menuItem'=>array(
-'title'
+'articlecategory'=>true,
+'frmfield'=>array(
+'title',
+'data'
 ),
-'widget'=>array(
-'title'
-),
-'frmForm'=>array(
+'frmform'=>array(
 'title',
 'subject',
 'successMessage'
 ),
-'frmField'=>array(
-'title',
-'data'
+'menuitem'=>array(
+'title'
+),
+'widget'=>array(
+'title'
 )
 ); ?>

@@ -1,5 +1,5 @@
 <?php return array(
-'debug'=>true,
+'debug'=>false,
 'adminEmailEmail'=>'admin@example.com',
 'adminEmailName'=>'CMS',
 'dbDriver'=>'mysql',
