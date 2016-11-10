@@ -20,10 +20,10 @@ dl.form dd {width:70%;}
 dl.form input,dl.form select,dl.form textarea {width:99%;height:20px;padding-left:4px;border:1px solid #aaa;background:#efefef;}
 dl.form dd.list {height:100px;}
 dl.form dd.list select {height:90px;}
-dl.form textarea {height:300px;}
+dl.form textarea {height:420px;}
 dl.form .button {float:right;margin-right:10px;}
-dl.form dt.textarea {margin-bottom:0;}
-dl.form dd.textarea {height:auto;}
+dl.form dt.textarea {width:100%;margin-bottom:0;}
+dl.form dd.textarea {width:100%;height:auto;}
 dl.form dd.label {color:#999;}
 dl.form input.checkbox,dl.form dd.checkbox input {width:auto;height:auto;}
 dl.form .radio input {width:auto;height:auto;margin-right:5px;}

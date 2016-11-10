@@ -424,7 +424,7 @@ class controller {
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">
-				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><b>',_LANG,'</b></div>
+				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><a href="#" onclick="return toggleFullScreen();">&#9643;</a><b>',_LANG,'</b></div>
 				<img id="_adminDialogBoxLoading" src="'.core::url().'admin/public/icon/loadingBig.gif" alt="Загрузка..." />
 				<iframe class="container"></iframe>
 				</div>';

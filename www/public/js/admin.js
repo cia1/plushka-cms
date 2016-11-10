@@ -107,3 +107,9 @@ function _debug(o,sp,indexTop,from,to) {
 	o.css('border','1px solid red');
 }
 */
+
+function toggleFullScreen() {
+	if(toggleFullScreen.width==100) toggleFullScreen.width=95; else toggleFullScreen.width=100;
+	$.adminDialog.self.byScreenWidth(toggleFullScreen.width);
+}
+toggleFullScreen.width=95;
