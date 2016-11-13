@@ -113,34 +113,37 @@ class sController extends controller {
 	/* Создание или изменение пользователя */
 	public function actionUserItem() {
 		core::import('model/user');
-		$model=new modelUser();
-		if(isset($_GET['id'])) $data=$model->loadById($_GET['id'],'*'); //Если редактирование, то загрузить данные пользователя
-		else $data=array('id'=>null,'login'=>'','password'=>'','groupId'=>1,'status'=>true,'email'=>'');
+		$user=new modelUser();
+		if(isset($_GET['id'])) $user->loadById($_GET['id'],'*'); //Если редактирование, то загрузить данные пользователя
 		$f=core::form();
-		$f->hidden('id',$data['id']);
-		$f->text('login','Логин',$data['login']);
+		$f->hidden('id',$user->id);
+		$f->text('login','Логин',$user->login);
 		$f->password('password','Пароль');
 		$f->password('password2','Пароль ещё раз');
-		$f->text('email','E-mail',$data['email']);
-		$f->select('groupId','Группа','SELECT id,name FROM userGroup ORDER BY id',$data['groupId']);
-		$f->checkbox('status','Активен',$data['status']);
+		$f->text('email','E-mail',$user->email);
+		$f->select('groupId','Группа','SELECT id,name FROM userGroup ORDER BY id',$user->groupId);
+		$f->checkbox('status','Активен',$user->status);
 		$f->submit('Сохранить');
 		$f->checkbox('sendMessage','Отправить уведомление');
 
-		if($data['id']) $this->cite='Для смены пароля заполните поля &laquo;Пароль&raquo; и &laquo;Пароль ещё раз&raquo;. Если пароль менять не нужно, то оставьте эти поля пустыми.<br />';
+		if($user->id) $this->cite='Для смены пароля заполните поля &laquo;Пароль&raquo; и &laquo;Пароль ещё раз&raquo;. Если пароль менять не нужно, то оставьте эти поля пустыми.<br />';
 		$this->cite.=' Если признак &laquo;Отправить уведомление&raquo; отмечен, то на указанный e-mail будет отправлено сообщение, содержащее регистрационные данные (включая пароль).';
 		return $f;
 	}
 
 	public function actionUserItemSubmit($data) {
+		if($data['password'] && $data['password']!=$data['password2']) {
+			core::error('Введённые пароли не совпадают');
+			return false;
+		}
 		core::import('admin/model/user');
-		$model=new modelUserAdmin();
-		$model->set($data);
-		if(!$model->save()) return false;
+		$user=new modelUserAdmin();
+		$user->set($data);
+		if(!$user->save()) return false;
 		$s='Изменения сохранены';
 			//Если отмечен чекбокс "отправить регистрационные данные", то выслать пользователю его регистрационные данные
 		if(isset($data['sendMessage'])) {
-			$model->sendMail('info');
+			$user->sendMail('info');
 			$s.='<br />Регистрационные данные отправлены на адрес '.$data['email'];
 		}
 		core::redirect('?controller=user&action=user',$s);
