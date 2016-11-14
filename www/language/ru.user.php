@@ -52,4 +52,5 @@ define('LNGYouHaveNotMessages','Сообщений нет.');
 define('LNGYourMessages','Личные сообщения');
 define('LNGYourProfile','Личный кабинет');
 define('LNGYouWriteTo','Вы пишете');
-?>
+define('LNGlogin','логин');
+define('LNGpassword','пароль');

@@ -130,7 +130,7 @@ class mForm extends form {
 			for($i=0;$i<count($this->field);$i++) {
 				if($this->field[$i]['htmlType']=='textarea') $s.='<tr><td colspan="2"><b>'.$this->field[$i]['title'].'</b></td></tr><tr><td colspan="2"><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';
 				elseif($this->field[$i]['htmlType']=='file') {
-					$s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.($data[$this->field[$i]['id']]['size'] ? $data[$this->field[$i]['id']]['name'] : '(не загружен)').'</i></td></tr>';
+					$s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.($data[$this->field[$i]['id']]['size'] ? $data[$this->field[$i]['id']]['name'] : '('.LNGnotLoaded.')').'</i></td></tr>';
 					$e->attach($data[$this->field[$i]['id']]['tmpName'],core::translit($data[$this->field[$i]['id']]['name']));
 				}
 				else $s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';

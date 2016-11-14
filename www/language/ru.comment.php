@@ -7,4 +7,4 @@ define('LNGCommentTextCannotBeEmpty','Текст комментария не м�
 define('LNGCommentUserNameIsWrong','Имя указано неправильно');
 define('LNGCommentWillBePublicAfterAprove','Комментарий будет опубликован после проверки администратором');
 define('LNGUserNameNecessary','Обязательно укажите ваше имя');
-?>
+define('LNGComment','Комментарий');

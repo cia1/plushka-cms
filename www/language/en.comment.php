@@ -7,4 +7,4 @@ define('LNGCommentTextCannotBeEmpty','The text of the comment cannot by empty');
 define('LNGCommentUserNameIsWrong','The name provided incorrect');
 define('LNGCommentWillBePublicAfterAprove','The comment will be public after administration aprove');
 define('LNGUserNameNecessary','Be sure to include your name');
-?>
+define('LNGComment','Comment');

@@ -52,4 +52,5 @@ define('LNGYouHaveNotMessages','No messages.');
 define('LNGYourMessages','Private messages');
 define('LNGYourProfile','Account');
 define('LNGYouWriteTo','You write to');
-?>
+define('LNGlogin','username');
+define('LNGpassword','password');

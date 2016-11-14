@@ -400,7 +400,8 @@ class controller {
 		if(isset($_SESSION['messageSuccess'])) {
 			echo '<div class="messageSuccess">'.core::success(false).'</div>';
 		}
-		if(is_object($view)) $view->render('?controller='.$this->url[0].'&action='.$this->url[1]);
+//		if(is_object($view)) $view->render('?controller='.$this->url[0].'&action='.$this->url[1]);
+		if(is_object($view)) $view->render();
 		elseif($view=='_empty') include(core::path().'admin/view/_empty.php');
 		else include(core::path().'admin/view/'.$this->url[0].$view.'.php');
 		if($this->cite) echo '<cite>'.$this->cite.'</cite>'; //Поясняющий текст

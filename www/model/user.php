@@ -11,8 +11,8 @@ class modelUser extends model {
 	protected function validateRule() {
 		$data=array(
 			'id'=>array('primary'),
-			'login'=>array('callback','логин',true,array($this,'validateLogin')),
-			'password'=>array('callback','пароль',true,array($this,'validatePassword')),
+			'login'=>array('callback',LNGlogin,true,array($this,'validateLogin')),
+			'password'=>array('callback',LNGpassword,true,array($this,'validatePassword')),
 			'email'=>array('callback','e-mail',true,array($this,'validateEmail')),
 			'code'=>array('string')
 		);
@@ -193,6 +193,7 @@ class modelUser extends model {
 			$template['password']=$this->_data['password'];
 			break;
 		case 'info': //информация пользователю
+			core::import('language/'._LANG.'.user');
 			$e->subject(sprintf(LNGYouAreRegisteredOnSite,$_SERVER['HTTP_HOST']));
 			if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='('.LNGknownOnlyYou.')';
 			$template['status']=($this->_data['status'] ? LNGaccountActive : LNGaccountBlocked);
