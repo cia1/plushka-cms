@@ -48,16 +48,22 @@ class article extends model {
 			core::error('Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.');
 			return false;
 		}
-		if($this->_data['categoryId']) $this->$_multiLanguage=false; //копии записей создавать только если статья не находится в категории
+		if($this->_data['categoryId']) {
+			$this->_multiLanguage=false; //копии записей создавать только если статья не находится в категории
+			$this->_table='article_'._LANG;
+		}
 		return true;
 	}
 
 	protected function afterInsert($id=null) {
+		$this->_table='article';
 		core::hook('modify','article/view/'.$this->alias); //Обновить дату изменения статьи
+		return true;
 	}
 
 	//Обновляет меню, а также проверять URI главной страницы. Вообще это нужно вынести в отдельный класс.
 	protected function afterUpdate($id=null) {
+		$this->_table='article';
 		if($this->_oldAlias!=$this->_data['alias']) {
 			$cfg1=core::config();
 			$s='article/view/'.$this->_oldAlias;
