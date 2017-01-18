@@ -8,10 +8,11 @@ class sController extends controller {
 
 	public function __construct($action) {
 		parent::__construct();
+		core::language('shop');
+		if($this->url[1]=='AddToCart') return;
 		if($this->url[1]=='Index') $this->categoryAlias=null;
 		else $this->categoryAlias=$_GET['corePath'][1];
 		if(count($this->url)==2) $this->url[1]='Category'; else $this->url[1]='Product';
-		core::language('shop');
 	}
 
 	public function actionIndex() { core::error404(); }
@@ -110,11 +111,11 @@ class sController extends controller {
 	public function actionAddToCartSubmit($data) {
 		$db=core::db();
 		$data['quantity']=(int)$data['quantity'];
-		$product=$db->fetchArrayOnce('SELECT title,price,categoryId,alias FROM shpProduct WHERE id='.(int)$data['id']);
+		$product=$db->fetchArrayOnce('SELECT p.title,p.price,p.alias,c.alias link FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId WHERE p.id='.(int)$data['id']);
 		if(!$product || !$data['quantity']) die(LNGProductDoesntExists);
 		if(!isset($_SESSION['cart'])) $_SESSION['cart']=array();
 		if(isset($_SESSION['cart'][$data['id']])) $_SESSION['cart'][$data['id']]['quantity']+=$data['quantity'];
-		else $_SESSION['cart'][$data['id']]=array('alias'=>$product[3],'title'=>$product[0],'categoryId'=>$product[2],'quantity'=>$data['quantity'],'price'=>$product[1]);
+		else $_SESSION['cart'][$data['id']]=array('title'=>$product[0],'price'=>$product[1],'quantity'=>$data['quantity'],'link'=>core::link('shop/'.$product[3].'/'.$product[2]));
 		die(LNGProductAddedToCart);
 	}
 

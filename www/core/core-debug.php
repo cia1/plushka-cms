@@ -2,10 +2,10 @@
 
 class core extends _core {
 
-	public static function redirect($url,$message=null) {
+	public static function redirect($url,$message=null,$code=302) {
 		log::add('REDIRECT',$url.($message ? '; Message: '.$message : ''));
 		$cfg=core::config('../admin/config/debug');
-		if($cfg['redirect']) parent::redirect($url,$message);
+		if($cfg['redirect']) parent::redirect($url,$message,$code);
 		else {
 			log::render();
 			exit;
@@ -21,7 +21,9 @@ class core extends _core {
 		$s=$name.'[';
 		if(is_string($options) && isset($options[1]) && $options[1]==':') {
 			$options=unserialize($options);
-			foreach($options as $key=>$value) $s.='['.$key.':'.$value.']';
+		}
+		if(is_array($options)) {
+			$s.=self::_implode($options);
 		} else $s.=$options;
 		$s.=']';
 		if($link) $s.='; link: '.$link;
@@ -29,6 +31,19 @@ class core extends _core {
 		parent::widget($name,$options,$cacheTime,$title,$link);
 	}
 
+	private static function _implode($array) {
+		$s='';
+		$cnt=count($array);
+		$index=0;
+		foreach($array as $key=>$value) {
+			$index++;
+			$s.=$key.': ';
+			if(is_array($value)) $s.='['.self::_implode($value).'] ';
+			else $s.=$value;
+			if($index<$cnt)	$s.='; ';
+		}
+		return $s;
+	}
 }
 
 class log {
@@ -36,7 +51,7 @@ class log {
 	private static $_log;
 	private static $_redirect=false;
 
-	public function add($type,$data,$point=1) {
+	public static function add($type,$data,$point=1) {
 		if($type=='REDIRECT') {
 			self::$_redirect=true;
 		}
@@ -47,7 +62,7 @@ class log {
 		self::$_log[]=array($type,$data,$point);
 	}
 
-	public function render() {
+	public static function render() {
 		$cfg=core::config('../admin/config/debug');
 		?>
 		<link href="<?=core::url()?>public/css/debug.css" rel="stylesheet" type="text/css" />

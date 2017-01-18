@@ -1,6 +1,6 @@
 <?php
-/* Реализует пагинацию (строку с цифрами). Номер текущей страницы берёт из $_GET['page'].
-array $options: int limit - количество элементов на странице; int count - полное количество элементов */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ). пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ $_GET['page'].
+array $options: int limit - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ; int count - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 class widgetPagination extends widget {
 
 	public function __invoke() {
@@ -8,7 +8,7 @@ class widgetPagination extends widget {
 		return true;
 	}
 
-	public function render() {
+	public function render($view) {
 		if(isset($_GET['page'])) $page=(int)$_GET['page']; else $page=1;
 		if(!isset($this->options['link'])) {
 			$uri=array();

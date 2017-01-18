@@ -71,6 +71,7 @@ class sController extends controller {
 		} elseif(isset($_GET['alias'])) {
 			if(!$article->loadByAlias($_GET['alias'])) core::error404();
 		} elseif($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
+		elseif(isset($_GET['categoryId'])) $article->categoryId=$_GET['categoryId'];
 		$form=core::form();
 		$form->hidden('id',$article->id);
 		$form->hidden('categoryId',$article->categoryId);

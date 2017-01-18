@@ -31,7 +31,7 @@ class widgetCatalogSearch extends widget {
 	/* Выводит HTML-представление поля */
 	public function renderField($data) {
 		$f='_render'.ucfirst($data['type']);
-		self::$f($data,$value);
+		self::$f($data);
 	}
 
 	private static function _renderString($data) {

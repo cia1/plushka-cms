@@ -15,7 +15,7 @@
 		return true;
 	}
 
-	public function render() {
+	public function render($view=null) {
 		foreach($this->language as $item) { ?>
 			<a href="<?=$item['link']?>"><img src="<?=core::url()?>public/flag/<?=$item['alias']?>.png" alt="<?=$item['title']?>" title="<?=$item['title']?>" /></a>
 		<?php }

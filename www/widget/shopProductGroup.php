@@ -8,7 +8,7 @@ class widgetShopProductGroup extends widget {
 		return true;
 	}
 
-	public function render() {
+	public function render($view=null) {
 		core::import('model/shop');
 		$items=shop::productGroup($this->options);
 		foreach($items as $item) {
@@ -22,4 +22,3 @@ class widgetShopProductGroup extends widget {
 	}
 
 }
-?>

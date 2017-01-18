@@ -1,7 +1,7 @@
 <div class="product">
 
 <div class="description"><?=$this->product['text2']?></div>
-<div class="price"><?=LNGPrice?>: <span><?=$this->product['price']?></span> <?=LNGcurrenct?></div>
+<div class="price"><?=LNGPrice?>: <span><?=$this->product['price']?></span> <?=LNGcurrency?></div>
 <?php if($this->product['variantCount']) {
 	echo '<div id="variant">'.LNGProductModifications.': ';
 	foreach($this->product['variant'] as $item) {

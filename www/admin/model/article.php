@@ -15,7 +15,7 @@ class article extends model {
 	}
 
 	//Удаляет из всех мультиязычных таблиц только в том случае, если статья не находится в категории
-	public function delete($id) {
+	public function delete($id=null,$affected=false) {
 		$id=(int)$id;
 		$data=$this->db->fetchArrayOnce('SELECT categoryId,alias FROM article_'._LANG.' WHERE id='.$id);
 		if($data[0]) $this->_multiLanguage=false;
@@ -52,12 +52,12 @@ class article extends model {
 		return true;
 	}
 
-	protected function afterInsert($id) {
+	protected function afterInsert($id=null) {
 		core::hook('modify','article/view/'.$this->alias); //Обновить дату изменения статьи
 	}
 
 	//Обновляет меню, а также проверять URI главной страницы. Вообще это нужно вынести в отдельный класс.
-	protected function afterUpdate($id) {
+	protected function afterUpdate($id=null) {
 		if($this->_oldAlias!=$this->_data['alias']) {
 			$cfg1=core::config();
 			$s='article/view/'.$this->_oldAlias;

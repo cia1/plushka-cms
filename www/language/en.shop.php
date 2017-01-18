@@ -1,5 +1,6 @@
 <?php
 define('LNGBrand','Brand');
+define('LNGCart','Cart');
 define('LNGCartEmpty','Your cart is empty.');
 define('LNGChangeQuantity','Change quantity');
 define('LNGCheckout','Checkout');

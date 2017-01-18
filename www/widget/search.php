@@ -7,7 +7,7 @@ class widgetSearch extends widget {
 		return true;
 	}
 
-	public function render() {
+	public function render($view=null) {
 		if(isset($_GET['keyword'])) $keyword=$_GET['keyword']; else $keyword='';
 		?>
 		<form action="<?=core::link('search')?>">
@@ -18,4 +18,3 @@ class widgetSearch extends widget {
 	}
 
 }
-?>

@@ -42,7 +42,7 @@ class widgetMenu extends widget {
 		return true;
 	}
 
-	public function render($d,$child=false) {
+	public function render($d=null,$child=false) {
 		if(!$child) echo '<nav>';
 		if($d===true) $d=$this->data[0];
 		echo '<ul>';
@@ -77,4 +77,3 @@ class widgetMenu extends widget {
 	}
 
 }
-?>

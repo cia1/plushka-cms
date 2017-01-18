@@ -3,7 +3,7 @@ class widgetShopCategory extends widget {
 
 	public function __invoke() { return true; }
 
-	public function render() {
+	public function render($view) {
 		if(isset($_GET['corePath'][1]) && $_GET['corePath'][0]=='shop') {
 			if(isset(controller::$self->category)) $id=controller::$self->category['id'];
 			else {

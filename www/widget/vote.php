@@ -17,7 +17,7 @@ class widgetVote extends widget {
 		return true;
 	}
 
-	public function render() { ?>
+	public function render($view) { ?>
 		<h3><?=$this->question?></h3>
 		<?php $this->form->render('vote/'.$this->options); ?>
 		<div style="clear:both;"></div>

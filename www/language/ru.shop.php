@@ -1,5 +1,6 @@
 <?php
 define('LNGBrand','Производитель');
+define('LNGCart','Корзина');
 define('LNGCartEmpty','Ваша корзина пуста.');
 define('LNGChangeQuantity','Изменить количество');
 define('LNGCheckout','Оформить заказ');

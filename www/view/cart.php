@@ -11,7 +11,7 @@ if(!count($_SESSION['cart'])) {
 <?php
 $link=core::link('checkout?delete=');
 foreach($_SESSION['cart'] as $id=>$item) {
-	echo '<tr><td><a href="'.core::link('shop/category/'.$item['categoryId'].'/'.$item['alias']).'">'.$item['title'].'</a></td>
+	echo '<tr><td><a href="'.$item['link'].'">'.$item['title'].'</a></td>
 	<td><input type="text" name="checkout[quantity]['.$id.']" value="'.$item['quantity'].'" /></td>
 	<td>'.$item['price'].'</td>
 	<td>'.($item['quantity']*$item['price']).'</td>

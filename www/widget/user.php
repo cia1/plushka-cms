@@ -9,7 +9,7 @@ class widgetUser extends widget {
 		return true;
 	}
 
-	public function render() {
+	public function render($view) {
 		//Значения по умолчанию
 		if(is_array($this->options)) $this->options=array_merge(array('form'=>true,'link'=>true,'message'=>true),$this->options);
 		else $this->options=array('form'=>true,'link'=>true,'message'=>true);
