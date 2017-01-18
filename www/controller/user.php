@@ -52,6 +52,7 @@ class sController extends controller {
 		$f=core::form();
 		$f->text('login',LNGLogin);
 		$f->password('password',LNGPassword);
+		if(isset($_SESSION['wrongPassword'])) $f->captcha('captcha',LNGCaptcha);
 		$f->submit(LNGEnter);
 		$f->html('<a href="'.core::link('user/restore').'">'.LNGForgotPassword.'</a>');
 		$this->metaTitle=LNGAuthorization;
@@ -61,7 +62,15 @@ class sController extends controller {
 	}
 
 	public function actionLoginSubmit($data) {
-		if(!core::user()->model()->login($data['login'],$data['password'])) return;
+		if(isset($_SESSION['wrongPassword']) && (!isset($data['captcha']) || !$data['captcha'] || (int)$data['captcha']!==$_SESSION['captcha'])) {
+			core::error(LNGCaptcha.' '.LNGwroteWrong);
+			return;
+		}
+		if(!core::user()->model()->login($data['login'],$data['password'])) {
+			if(isset($_SESSION['wrongPassword'])) $_SESSION['wrongPassword']++; else $_SESSION['wrongPassword']=1;
+			return;
+		}
+		if(isset($_SESSION['wrongPassword'])) unset($_SESSION['wrongPassword']);
 		core::redirect('');
 	}
 
@@ -73,6 +82,7 @@ class sController extends controller {
 		$f->password('password1',LNGPassword);
 		$f->password('password2',LNGPasswordAgain);
 		$f->text('email','E-mail');
+		$f->captcha('captcha',LNGCaptcha);
 		$f->submit();
 		$this->metaTitle=$this->pageTitle=LNGRegistration;
 		return $f;
@@ -82,6 +92,9 @@ class sController extends controller {
 		if($data['password1']!=$data['password2']) {
 			core::error(LNGPasswordsAreNotEqual);
 			return false;
+		}
+		if(!$data['captcha'] || (int)$data['captcha']!==$_SESSION['captcha']) {
+			core::error(LNGCaptcha.' '.LNGwroteWrong);
 		}
 		core::import('model/user');
 		$user=new modelUser();
@@ -186,4 +199,3 @@ class sController extends controller {
 	}
 
 }
-?>

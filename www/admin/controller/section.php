@@ -111,7 +111,7 @@ class scontroller extends controller {
 		array_unshift($this->userGroupList,array('0','не авторизованные'));
 		$this->pageMenu=$this->pageMenu[0]['child']; //Теперь уже лишний "обвес" не нужен
 		$this->pageOther=self::_pageOther($url,$this->pageMenu); //Обработка $this->pageMenu и создание $this->pageOther
-		$this->script('jquery.form');
+		$this->js('jquery.form');
 		return 'Widget';
 	}
 

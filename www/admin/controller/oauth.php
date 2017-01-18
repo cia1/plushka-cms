@@ -39,7 +39,10 @@ class sController extends controller {
 		core::import('/admin/core/config');
 		$cfg=new config('oauth');
 		if($data['appId']) $cfg->$data['id']=array($data['appId'],$data['secret']);
-		else $cfg->delete($data['id']);
+		else {
+			$s=$data['id'];
+			unset($cfg->$s);
+		}
 		$cfg->save('oauth');
 		core::redirect('?controller=oauth&action=server');
 	}

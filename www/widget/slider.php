@@ -6,8 +6,8 @@ class widgetSlider extends widget {
 
 	public function __invoke() {
 		$this->index++;
-		echo core::script('jquery.min');
-		echo core::script('slider');
+		echo core::js('jquery.min');
+		echo core::js('slider');
 		echo '<link href="'.core::url().'public/css/slider.css" rel="stylesheet" type="text/css" media="all" />';
 		$this->cfg=core::config('slider-'.$this->options['id']);
 		return 'Slider'.$this->options['view'];

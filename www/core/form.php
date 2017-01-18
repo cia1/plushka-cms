@@ -28,6 +28,12 @@ class form {
 		$this->_data.='<dt class="text '.$name.'">'.$label.'</dt><dd class="text '.$name.'">'.$this->getText($name,$value,$html).'</dd>';
 	}
 
+	/* Поле ввода e-mail адреса
+	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, ктороый нужно добавить к тегу <input> */
+	public function email($name,$label,$value='',$html='') {
+		$this->_data.='<dt class="text email '.$name.'">'.$label.'</dt><dd class="text email '.$name.'">'.$this->getEmail($name,$value,$html).'</dd>';
+	}
+
 	/* Выпадающий список
 	$name - имя поля формы, $label - заголовок рядом со списком, $items - массив значений, $value - значение по умолчанию, $nullTitle - заголовок "пустого значения", $html - произвольный текст, который будет добавлен к тегу <select> */
 	public function select($name,$label,$items,$value=null,$nullTitle=null,$html='') {
@@ -68,7 +74,7 @@ class form {
 
 	/* Поле выбора даты */
 	public function date($name,$label,$value,$html='') {
-		$this->_data.='<dt class="text '.$name.'">'.$label.'</dt><dd class="text '.$name.'">'.$this->getDate($name,$value,$html).'</dd>';
+		$this->_data.='<dt class="text date '.$name.'">'.$label.'</dt><dd class="text date '.$name.'">'.$this->getDate($name,$value,$html).'</dd>';
 	}
 
 	/* Поле для загрузки файла (<input type="file")
@@ -101,6 +107,8 @@ class form {
 		case 'label':
 			return $this->label($f1,$f2);
 		case 'text':
+			return $this->text($f1,$f2,$f3,$f4);
+		case 'email':
 			return $this->text($f1,$f2,$f3,$f4);
 		case 'select':
 			return $this->select($f1,$f2,$f4,$f3);
@@ -156,6 +164,15 @@ class form {
 		}
 		$value=str_replace('"','&quot;',$value);
 		return '<input type="text" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' />';
+	}
+
+	//Возвращает HTML-код поля ввода адреса электронной почты
+	public function getEmail($name,$value='',$html='') {
+		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+			$value=$_POST[$this->_namespace][$name];
+		}
+		$value=str_replace('"','&quot;',$value);
+		return '<input type="email" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' />';
 	}
 
 	/* Возвращает HTML-код выпадающего списка */
@@ -237,7 +254,12 @@ class form {
 	/* Возвращает HTML-код чекбокса */
 	public function getCheckbox($name,$value=null,$html='') {
 		if(isset($_POST[$this->_namespace])) {
-			if(isset($_POST[$this->_namespace][$name])) $value=true; else $value=false;
+			$i=strpos($name,'][');
+			$value=false;
+			if($i) {
+				$subname=explode('][',$name);
+				if(isset($_POST[$this->_namespace][$subname[0]]) && isset($_POST[$this->_namespace][$subname[0]][$subname[1]])) $value=true;
+			} elseif(isset($_POST[$this->_namespace][$name])) $value=true;
 		}
 		return '<input type="checkbox" name="'.$this->_namespace.'['.$name.']"'.($value ? ' checked="checked"' : '').' '.$html.' />';
 	}
@@ -262,7 +284,7 @@ class form {
 		}
 		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
 		return '<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'" '.$html.'>'.$value.'</textarea>'.
-		(isset($_GET['_lang']) ? '' : core::script('ckeditor/ckeditor')).'
+		(isset($_GET['_lang']) ? '' : core::js('ckeditor/ckeditor')).'
 		<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();
 		if(document.ckeditor["'.$name.'"]!=undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
@@ -275,8 +297,8 @@ class form {
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
 			$value=$_POST[$this->_namespace][$name];
 		}
-		if($value && is_numeric($value)) $value=date('d.m.Y',$value);
-		return core::script('calendar').'<input type="text" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' onfocus="this.select();lcs(this)" onclick="event.cancelBubble=true;this.select();lcs(this)" />';
+		if($value && is_numeric($value)) $value=date('Y-m-d',$value);
+		return '<input type="date" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').($html ? ' '.$html : '').' />';
 	}
 
 	/* Возвращает HTML-код поля для загрузки файла */

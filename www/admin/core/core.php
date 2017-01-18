@@ -285,11 +285,11 @@ class core {
 
 	/* Возвращает HTML-тег <script src...> или пустую строку, если скрипт уже подключен. Используется чтобы избежать повторного подключение JavaScript.
 	$name - имя скрипта, если скрипт находится на сайте, то указывать относительный путь от /public/js, имя должно быть без ".js" */
-	public static function script($name) {
-		static $_script;
-		if(!$_script) $_script=array();
-		if(in_array($name,$_script)) return '';
-		$_script[]=$name;
+	public static function js($name) {
+		static $_js;
+		if(!$_js) $_js=array();
+		if(in_array($name,$_js)) return '';
+		$_js[]=$name;
 		if(substr($name,0,5)!='http:') $name=core::url().'public/js/'.$name.'.js';
 		return '<script type="text/javascript" src="'.$name.'"></script>';
 	}
@@ -350,8 +350,8 @@ class controller {
 	}
 
 	/* Служит для подключения JavaScript или других тегов в область <head> */
-	public function script($text) {
-		if($text[0]!='<') $text=core::script($text);
+	public function js($text) {
+		if($text[0]!='<') $text=core::js($text);
 		$this->_head.=$text;
 	}
 

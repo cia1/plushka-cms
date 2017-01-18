@@ -29,11 +29,6 @@ class config {
 		return $value;
 	}
 
-	/* Удаляет параметр $name */
-	public function delete($name) {
-		unset($this->_data[$name]);
-	}
-
 	/* Возвращает значение параметра $name */
 	public function __get($name) {
 		if(isset($this->_data[$name])) return $this->_data[$name]; else return null;
@@ -42,6 +37,11 @@ class config {
 	/* Устанавливает значение $value для параметра $name */
 	public function __set($name,$value) {
 		$this->_data[$name]=$value;
+	}
+
+	/* Удаляет параметр $name */
+	public function __unset($name) {
+		unset($this->_data[$name]);
 	}
 
 	/* Сохраняет конфигурацию в php-файл */
@@ -93,4 +93,3 @@ class config {
 	}
 
 }
-?>

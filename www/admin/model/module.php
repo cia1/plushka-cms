@@ -209,74 +209,6 @@ class module {
 		return true;
 	}
 
-	/* Добавляет в конфигугацию модуля информацию об обработчиках событий.
-	Информацию берёт из найденных в директориях /hook и /admin/hook файлов */
-/*
-	public static function hook(&$module) {
-		core::import('admin/core/config');
-		//Общедоступная часть сайта
-		$d=core::path().'tmp/hook/';
-		$hook1=$hook2='';
-		if(is_dir($d)) {
-			$d=opendir($d);
-			$cfg=null;
-			while($f=readdir($d)) {
-				if($f=='.' || $f=='..') continue;
-				$f=explode('.',$f);
-				if($f[2]!='php') continue;
-				//Обновить информацию о собитиях в файле _hook.php
-				if(!$cfg) $cfg=new config('_hook');
-				$name=$f[0]; //имя события
-				$h=$cfg->get($name); //Получить массив
-				if(!$h) $h=array();
-				if(!in_array($f[1],$h)) { //если по каким-то причинам обработчик уже назначен
-					$h[]=$f[1];
-					$cfg->set($name,$h); //Установить массив
-				}
-				if($hook1) $hook1.=','.$name; else $hook1=$name;
-			}
-			if($cfg) {
-				$cfg->save('_hook');
-				$module['hook1']=$hook1;
-			}
-			closedir($d);
-		}
-
-		//Админка
-		$d=core::path().'tmp/admin/hook/';
-		if(is_dir($d)) {
-			$d=opendir($d);
-			$cfg=null;
-			while($f=readdir($d)) {
-				if($f=='.' || $f=='..') continue;
-				$f=explode('.',$f);
-				if($f[2]!='php') continue;
-				//Обновить информацию о собитиях в файле _hook.php
-				if(!$cfg) $cfg=new config('admin/_hook');
-				$name=$f[0]; //имя события
-				$h=$cfg->get($name); //Получить массив
-				if(!$h) $h=array();
-				if(in_array($f[1],$h)) { //если по каким-то причинам обработчик уже назначен
-					$h[]=$f[1];
-					$cfg->set($name,$h); //Установить массив
-				}
-				if($hook2) $hook2.=','.$name; else $hook2=$name;
-			}
-			if($cfg) {
-				$cfg->save('admin/_hook');
-				$module['hook2']=$hook2;
-			}
-			closedir($d);
-		}
-		if($hook1 || $hook2) {
-			$cfg=new config('../admin/module/'.$module['id']);
-			$cfg->hook1=$hook1;
-			$cfg->hook2=$hook2;
-			$cfg->save('../admin/module/'.$module['id']);
-		}
-		return true;
-	}
-*/
 	/* Выполняет SQL-запросы установки модуля (/tmp/instal.СУБД.sql) и сохраняет информацию о созданных таблицах */
 	public static function sql($id) {
 		$cfg0=core::configAdmin();
@@ -380,42 +312,6 @@ class module {
 		return true;
 	}
 
-	/* Удаляет информацию о обработчиках событий */
-/*
-	public static function dropHook($module,$front=true) {
-		if($front) {
-			$folder='hook/';
-			$cfgFile='_hook';
-			$moduleHook=$module['hook1'];
-		} else {
-			$folder='admin/hook/';
-			$cfgFile='../admin/config/_hook';
-			$moduleHook=$module['hook2'];
-		}
-		$l=strlen($folder);
-		$hook=array();
-		foreach($moduleHook as $item) $hook[]=array($item,'*');
-		foreach($module['file'] as $item) {
-			if(substr($item,0,$l)!=$folder) continue;
-			$item=explode('.',substr($item,$l));
-			if(in_array($item[0],$moduleHook)) continue;
-			$hook[]=array($item[0],$item[1]);
-		}
-		if(!$hook) return;
-		core::import('admin/core/config');
-		$cfg=new config($cfgFile);
-		foreach($hook as $item) {
-			if($item[1]=='*') $cfg->delete($item[0]);
-			else {
-				$c=$cfg->get($item[0]);
-				unset($c[@array_search($item[1],$c)]);
-				if(!$c) $cfg->delete($item[0]); else $cfg->set($item[0],array_values($c));
-			}
-		}
-		$cfg->save($cfgFile);
-		return true;
-	}
-*/
 	/* Разрушает все таблицы, созданные модулем, а также удаляет информцию о типах меню и виджетах */
 	public static function dropDb($module) {
 		$db=core::db();
@@ -470,7 +366,7 @@ class module {
 	public static function delete($id) {
 		unlink(core::path().'admin/module/'.$id.'.php');
 		$cfg=new config('admin/_module');
-		$cfg->delete($id);
+		unset($cfg->$id);
 		$cfg->save('admin/_module');
 		return true;
 	}
@@ -513,7 +409,6 @@ class module {
 				if(!is_dir($path1.$f)) $data[]=$f.'/';
 				$data=array_merge($data,self::_scanDirectory($f.'/',$exists));
 			} else {
-//			if($path=='config/' || $path=='admin/config/') if($f=='_hook.php') continue;
 				if(file_exists($path1.$path.$f)) $exists[]=$path.$f;
 				$data[]=$path.$f;
 			}

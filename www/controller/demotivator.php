@@ -24,7 +24,7 @@ class sController extends controller {
 		}
 		$this->pageTitle=$this->metaTitle='Демотиваторы';
 		$this->style('demotivator');
-		$this->script('shadowbox/shadowbox');
+		$this->js('shadowbox/shadowbox');
 		$this->style('../js/shadowbox/shadowbox');
 		return 'Index';
 	}
@@ -62,7 +62,7 @@ class sController extends controller {
 			$this->imageWidth=$s[0];
 			$this->defaultInputStyle='font-family:'.$this->cfg['fontFamily'].';font-size:'.$this->cfg['fontSize'].'px;color:#'.$this->cfg['textColor'].';';
 			$view='Construct2';
-			$this->script('jquery.min');
+			$this->js('jquery.min');
 		}
 
 		$this->pageTitle=$this->metaTitle=LNGDesigner;

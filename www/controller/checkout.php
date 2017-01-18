@@ -18,8 +18,8 @@ class sController extends controller {
 		$cfg=core::config('shop');
 		$this->form=new mForm($cfg['formId']);
 
-		$this->script('jquery.min');
-		$this->script('jquery.form');
+		$this->js('jquery.min');
+		$this->js('jquery.form');
 		$this->pageTitle=$this->metaTitle=LNGCart;
 		return 'Index';
 	}

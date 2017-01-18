@@ -9,11 +9,6 @@ function uninstallAfter() {
 		if(substr($f,0,15)=='languageCreate.' || substr($f,0,15)=='languageDelete.') unlink($path.$f);
 	}
 	closedir($d);
-
-	core::import('admin/core/config');
-	$cfg=new config('admin/_hook');
-	$cfg->delete('languageCreate');
-	$cfg->delete('languageDelete');
-	return $cfg->save('admin/_hook');
+	return true;
 }
 ?>

@@ -77,7 +77,7 @@ class sController extends controller {
 		$lst=$cfg->languageList;
 		unset($lst[array_search($_GET['id'],$lst)]);
 		$lst=array_values($lst);
-		if(count($lst)==1) $cfg->delete('languageList'); else $cfg->languageList=$lst;
+		if(count($lst)==1) unset($cfg->languageList); else $cfg->languageList=$lst;
 		$cfg->save('_core');
 		core::redirect('?controller=language');
 	}

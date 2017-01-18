@@ -79,8 +79,8 @@ class sController extends controller {
 		$this->product=shop::productByAlias($this->url[2],true); //полная информация о товаре, $this->url[3] - идентификатор товара
 		if(!$this->product) core::error404();
 
-		$this->script('jquery.min');
-		$this->script('shadowbox/shadowbox');
+		$this->js('jquery.min');
+		$this->js('shadowbox/shadowbox');
 		$this->style('../js/shadowbox/shadowbox');
 		if($this->product['metaTitle']) $this->metaTitle=$this->product['metaTitle']; else $this->metaTitle=$this->product['title'];
 		$this->pageTitle=$this->product['title'];

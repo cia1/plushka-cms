@@ -48,10 +48,10 @@ class sController extends controller {
 			$cfg->smtpUser=$data['smtpUser'];
 			$cfg->smtpPassword=$data['smtpPassword'];
 		} else {
-			$cfg->delete('smtpHost');
-			$cfg->delete('smtpPort');
-			$cfg->delete('smtpUser');
-			$cfg->delete('smtpPassword');
+			unset($cfg->smtpHost);
+			unset($cfg->smtpPort);
+			unset($cfg->smtpUser);
+			unset($cfg->smtpPassword);
 		}
 		if(!$cfg->save('_core')) return false;
 		core::redirect('?controller=setting','Изменения сохранены');

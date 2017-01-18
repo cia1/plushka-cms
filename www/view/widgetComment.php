@@ -11,8 +11,8 @@
 	</dl>
 </form>
 <?php
-echo core::script('jquery.min');
-echo core::script('jquery.form');
+echo core::js('jquery.min');
+echo core::js('jquery.form');
 ?>
 <script>
 $('form#comment').ajaxForm({success:function(data) {

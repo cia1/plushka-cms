@@ -17,8 +17,8 @@ class sController extends controller {
 	/* Основное окно чата (без сообщений) */
 	public function actionIndex() {
 		if(!file_exists(core::path().'data/chat.'.$this->id.'.txt')) core::error404(); //содержит сообещния чата
-		$this->script('jquery.min');
-		$this->script('jquery.form');
+		$this->js('jquery.min');
+		$this->js('jquery.form');
 		$this->login=$this->_login();
 
 		$this->pageTitle=$this->metaTitle=LNGChat;

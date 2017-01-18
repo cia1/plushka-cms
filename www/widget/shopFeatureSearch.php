@@ -59,8 +59,6 @@ class widgetShopFeatureSearch extends widget {
 	public function render() {
 		echo '<form action="'.core::link('shop/category'.($this->categoryId ? '/'.$this->categoryId : '')).'" method="get" onsubmit="return submitMe();">';
 		echo '<link href="'.core::url().'public/css/shop.css" rel="stylesheet" type="text/css" />';
-//		echo core::script('jquery.min');
-//		echo core::script('shop');
 		$db=core::db();
 		foreach($this->data as $item) {
 			$s='_render'.ucfirst($item['type']);

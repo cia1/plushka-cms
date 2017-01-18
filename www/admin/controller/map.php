@@ -63,7 +63,7 @@ class sController extends controller {
 
 	//Рисует карту, это действие загружается во фрейме
 	public function actionMap() {
-		$this->script('http://maps.google.com/maps/api/js?sensor=false');
+		$this->js('http://maps.google.com/maps/api/js?sensor=false');
 		return 'Map';
 	}
 

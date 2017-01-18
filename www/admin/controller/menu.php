@@ -81,7 +81,7 @@ class sController extends controller {
 		}
 		//Загрузить список всех типов меню, чтобы предоставить пользователю выбрать
 		$this->type=$db->fetchArrayAssoc('SELECT * FROM menuType ORDER BY controller,id');
-		$this->script('jquery.form');
+		$this->js('jquery.form');
 		return 'Item';
 	}
 

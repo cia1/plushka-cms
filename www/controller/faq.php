@@ -18,8 +18,8 @@ class sController extends controller {
 		$this->items=$db->fetchArrayAssoc('SELECT name,question,answer,date FROM faq WHERE answer IS NOT NULL ORDER BY date DESC');
 		$this->_newQuestionForm(); //Присоединяет к контроллеру ($this->newQuestion) форму добавления вопроса
 
-		$this->script('jquery.min');
-		$this->script('jquery.form');
+		$this->js('jquery.min');
+		$this->js('jquery.form');
 		$this->style('faq');
 		$this->pageTitle=$this->metaTitle=LNGFAQ;
 		return 'Index';

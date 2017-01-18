@@ -10,7 +10,7 @@ function installAfter($version) {
 function uninstallBefore() {
 	core::import('admin/core/config');
 	$cfg=new config('_core');
-	$cfg->delete('template');
+	unset($cfg->template);
 	$cfg->save('_core');
 	return true;
 }
