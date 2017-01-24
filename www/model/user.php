@@ -139,13 +139,15 @@ class modelUser extends model {
 			$this->_self->login=null;
 			$this->_self->email=null;
 		}
+		unset($_SESSION['newMessageCount']);
+		unset($_SESSION['newMessageTimeout']);
 		return true;
 	}
 
 	//Создаёт пользователя
 	public function create($login,$password,$email,$status=0,$groupId=1) {
 		$this->id=null; //чтобы гарантированно был выполнен запрос INSERT, а не UPDATE
-		$this->code=md5(mktime().'regIster'); //код подтверждения e-mail
+		$this->code=md5(time().'regIster'); //код подтверждения e-mail
 		$this->login=$login;
 		$this->password=$password;
 		$this->email=$email;

@@ -179,9 +179,8 @@ class sController extends controller {
 		}
 		if($this->newCount) {
 			$db->query('UPDATE userMessage SET isNew=0 WHERE user2Id='.$uid);
-			$f=fopen(core::path().'cache/custom/message/'.$uid.'.txt','w');
-			fwrite($f,'i:0;');
-			fclose($f);
+			$_SESSION['newMessageCount']=0;
+			$_SESSION['newMessageTimeout']=time();
 		}
 
 		$this->pageTitle=$this->metaTitle=LNGYourMessages;

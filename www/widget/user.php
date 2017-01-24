@@ -16,7 +16,14 @@ class widgetUser extends widget {
 		$u=core::user();
 		if($u->id) { //Пользователь авторизован
 			echo LNGHello.', <a href="'.core::link('user').'">'.$u->login.'</a> (<a href="'.core::link('user/logout').'">'.LNGexit.'</a>)<br />';
-			if($this->options['message']) echo '<span class="link"><a href="'.core::link('user/message').'">'.LNGMessages.'</a></span>';
+			if($this->options['message']) {
+				if(!isset($_SESSION['newMessageCount']) || $_SESSION['newMessageTimeout']<time()) {
+					$db=core::db();
+					$_SESSION['newMessageCount']=(int)$db->fetchValue('SELECT COUNT(user2Id) FROM userMessage WHERE user2Id='.$u->id.' AND isNew=1');
+					$_SESSION['newMessageTimeout']=time()+120;
+				}
+				echo '<span class="link"><a href="'.core::link('user/message').'">'.LNGMessages.'('.$_SESSION['newMessageCount'].')</a></span>';
+			}
 			$this->view=null;
 		} else { //Пользователь не авторизован
 			if($this->options['form']) {
