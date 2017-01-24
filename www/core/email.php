@@ -35,7 +35,7 @@ class email {
 	public function subject($value) { $this->_subject=$value; }
 
 	/* Задаёт текст письма (HTML) */
-	public function message($value) { $this->_message=$value; }
+	public function message($value) { $this->_message=trim($value); }
 
 	/* Задаёт текс письма (HTML), используя HTML-шаблон. $data - ассоциативный массив, содержащий данные, которые должны быть подставлены в письмо */
 	public function messageTemplate($fileName,$data) {
@@ -47,6 +47,7 @@ class email {
 			$this->_message
 		);
 		foreach($data as $tag=>$value) $this->_message=str_replace('{{'.$tag.'}}',$value,$this->_message);
+		$this->_message=trim($this->_message);
 	}
 
 	/* Задаёт адрес возврата письма */
@@ -95,13 +96,15 @@ class email {
 
 	/* Отправляет письмо на указанный адрес $email */
 	public function send($email) {
-		if($this->_smtpHost) return $this->sendSmtp($email);
-		$mime='';
-		if($this->_from) $mime.=$this->_from;
-		if($this->_replyTo) $mime.=$this->_replyTo;
-		if($this->_returnPath) $mime.='Return-path: '.$this->_returnPath."\n";
-		$mime.="MIME-Version: 1.0\n".$this->_buildMultipart();
-		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=','',$mime)) {
+		$boundary=md5(uniqid(time()));
+		$header='';
+		if($this->_from) $header.=$this->_from;
+		if($this->_replyTo) $header.=$this->_replyTo;
+		if($this->_returnPath) $header.='Return-path: '.$this->_returnPath."\n";
+		$header.='MIME-Version: 1.0'.PHP_EOL.'Content-Type: multipart/related; boundary="'.$boundary.'"';
+		$message=$this->_buildMultipart($boundary);
+		if($this->_smtpHost) return $this->sendSmtp($email,$message,$header);
+		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=',$message,$header)) {
 			core::error(LNGCouldnotSendLetter);
 			return false;
 		}
@@ -109,14 +112,11 @@ class email {
 	}
 
 	/* Выполняет отправку письма средствами SMTP */
-	private function sendSmtp($email) {
+	private function sendSmtp($email,$message,$header) {
 		$s='Date: '.date('D, d M Y H:i:s')." UT\r\n"
 		.'Subject: =?UTF-8?B?'.base64_encode($this->_subject)."?=\r\n"
 		.'To: '.$email."\r\n";
-		if($this->_from) $s.=$this->_from;
-		if($this->_replyTo) $s.=$this->_replyTo;
-		if($this->_returnPath) $s.='Return-path: '.$this->_returnPath."\n";
-		$s.="MIME-Version: 1.0\r\n".$this->_buildMultipart();
+		$s.=$header.PHP_EOL.PHP_EOL.$message;
 		if(!$socket=fsockopen($this->_smtpHost,$this->_smtpPort,$errno,$errstr,30)) {
 			core::error($errno."&lt;br&gt;".$errstr);
 			return false;
@@ -175,17 +175,16 @@ class email {
 		return true;
 	}
 
-	private function _buildMultipart() {
-		$boundary=md5(uniqid(time()));
-		$multipart="Content-Type: multipart/related;\r\n\tboundary=\"".$boundary."\"\r\n\r\nThis is a MIME encoded message.\r\n\r\n--".$boundary;
+	private function _buildMultipart($boundary) {
+		$multipart='This is a MIME encoded message.'.PHP_EOL.PHP_EOL.'--'.$boundary;
 		$part=array('ctype'=>'text/html; charset="UTF-8"','message'=>$this->_message,'name'=>'');
-		$multipart.="\n".$this->_buildMessage($part).'--'.$boundary;
+		$multipart.=PHP_EOL.$this->_buildMessage($part).'--'.$boundary;
 		for($i=count($this->_parts)-1;$i>=0;$i--) $multipart.="\n".$this->_buildMessage($this->_parts[$i]).'--'.$boundary;
-		return $multipart.="--\n";
+		return $multipart.="--".PHP_EOL;
 	}
 
 	private function _buildMessage($part) {
-		if($part['encoding']=='base64') {
+		if(isset($part['encoding']) && $part['encoding']=='base64') {
 			$i=0;
 			$content='';
 			do {
@@ -195,9 +194,9 @@ class email {
 				$content.=$_s;
 			} while(strlen($_s)==76);
 		} else $content=$part['message'];
-		$s='Content-Type: '.$part['ctype'].($part['name'] ? '; name="'.$part['name'].'"' : '')."\r\n".($part['name'] ? 'Content-ID: <'.$part['name'].">\r\n" : '')."Content-Transfer-Encoding: ".(isset($part['encoding']) ? $part['encoding'] : '8bit')."\r\n";
-		if(isset($part['filename'])) $s.='Content-Disposition: attachment; filename="'.$part['filename'].'"'."\r\n";
-		$s.="\r\n".$content."\r\n\r\n";
+		$s='Content-Type: '.$part['ctype'].($part['name'] ? '; name="'.$part['name'].'"' : '')."\r\n".($part['name'] ? 'Content-ID: <'.$part['name'].">\r\n" : '')."Content-Transfer-Encoding: ".(isset($part['encoding']) ? $part['encoding'] : '8bit').PHP_EOL;
+		if(isset($part['filename'])) $s.='Content-Disposition: attachment; filename="'.$part['filename'].'"'.PHP_EOL;
+		$s.=PHP_EOL.$content.PHP_EOL.PHP_EOL;
 		return $s;
 	}
 
@@ -209,4 +208,3 @@ class email {
 	}
 
 }
-?>

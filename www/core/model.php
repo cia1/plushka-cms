@@ -239,7 +239,7 @@ class model {
 			}
 			break;
 		case 'captcha':
-			if($value!==$_SESSION['captcha']) {
+			if((int)$value!==$_SESSION['captcha']) {
 				core::error($options[1].' '.LNGwroteWrong);
 				return;
 			}
