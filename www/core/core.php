@@ -96,7 +96,7 @@ class _core {
 		}
 		$f=self::path().'cache/custom/'.$id.'.txt';
 		if(file_exists($f)) {
-			if($timeout===-1) return unserialize(file_get_contents($f));
+			if($timeout===-1 || !$callback) return unserialize(file_get_contents($f));
 			if(time()-filemtime($f)<$timeout) return unserialize(file_get_contents($f));
 		}
 		$data=call_user_func($callback);
@@ -212,7 +212,7 @@ class _core {
 	//Устанавливает и возвращает текст сообщения об ошибке
 	public static function error($message=null) {
 		if($message===false) {
-			$message=$_SESSION['messageError'];
+			$message=(isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
 			unset($_SESSION['messageError']);
 			return $message;
 		}
@@ -562,7 +562,7 @@ function runApplication($renderTemplate=true) {
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
 	$alias=controller::$self->url[0];
-	if(core::debug()) {
+	if($renderTemplate && core::debug()) {
 		log::add('Requested URI',implode('/',$_GET['corePath']),false);
 		log::add('Controller.Action',$_GET['corePath'][0].'.action'.controller::$self->url[1].(isset($_POST[$alias]) ? 'Submit()' : '()'),false);
 	}
@@ -599,7 +599,7 @@ function runApplication($renderTemplate=true) {
 		} elseif(is_string($view)) log::add('view','view/'.$alias.$view.'.php',false);
 	}
 	controller::$self->render($view,$renderTemplate);
-	if(core::debug()) log::render();
+	if($renderTemplate && core::debug()) log::render();
 }
 
 /* --- INITIALIZE --- */

@@ -4,8 +4,10 @@
 class picture {
 	private $_src;
 	private $_type;
-	private $_x1;
-	private $_y2;
+	private $_srcX=0;
+	private $_srcY=0;
+	private $_dstX;
+	private $_dstY;
 	private $_srcW;
 	private $_srcH;
 	private $_dstW;
@@ -35,20 +37,23 @@ class picture {
 			$this->_src=imagecreatefrompng($file);
 			break;
 		default:
-			core::error(LNGFileIsNotImage);
+			core::error(LNGFileIsNotImage.'('.$file.')');
 			return false;
 		}
 		if(!$this->_src) {
-			core::error(LNGFileTypeNotSupport);
+			core::error(LNGFileTypeNotSupport.' ('.$file.')');
 			return;
 		}
-		$this->_x1=$this->_y1=0;
+		$this->_dstX=$this->_dstY=0;
 		$this->_srcW=imagesx($this->_src);
 		$this->_srcH=imagesy($this->_src);
 		$this->_dstW=$this->_srcW;
 		$this->_dstH=$this->_srcH;
 	}
 
+	public function __destruct() {
+		if($this->_src) unset($this->_src);
+	}
 	//Возвращает высоту исходного изображения
 	public function height() {
 		return $this->_srcH;
@@ -61,9 +66,21 @@ class picture {
 
 /*
 	public function cropByCoord($x1,$y1,$x2=null,$y2=null) { die('crop function not emplemented'); }
-
-	public function cropBySize($x1,$y1,$width=null,$heigh=null) { die('crop function noe emplemented'); }
 */
+
+	//Обрезает фотографию по краям до указанных размеров. Вызовы width(), height() и resize() должы проводить до вызова crop().
+	public function crop($width=null,$height=null) {
+		if($width && $width<$this->_srcW) {
+			$this->_dstX=($this->_dstW-$width)/2;
+			$this->_dstW=$this->_srcW=$width;
+		}
+		if($height && $height<$this->_dstH) {
+			$this->_dstY=($this->_dstH-$height)/2;
+			$this->_dstH=$this->_srcH=$height;
+		}
+		return true;
+	}
+
 	/* Сжимает или растягивает изображение до указанных размеров */
 	public function resize($width=null,$height=null) {
 		if(!$width && !$height) {
@@ -156,14 +173,17 @@ class picture {
 		}
 		$dst=imagecreatetruecolor($this->_dstW,$this->_dstH);
 		if($type=='png') {
-			$transparent=imagecolorallocatealpha($dst,0,0,0,127);
-			imagefill($dst,0,0,$transparent);
-			imagecolortransparent($dst,$transparent);
+//			$transparent=imagecolorallocatealpha($dst,0,0,0,127);
+//			imagefill($dst,0,0,$transparent);
+//			imagecolortransparent($dst,$transparent);
+//			imagesavealpha($dst,true);
+//		}
+			if(!$this->_w) imagealphablending($dst,false);
 			imagesavealpha($dst,true);
 		}
-		imagecopyresampled($dst,$this->_src,0,0,$this->_x1,$this->_y1,$this->_dstW,$this->_dstH,$this->_srcW,$this->_srcH);
-		if($this->_x1!=0 || $this->_y1!=0 || $this->_srcW!=$this->_dstW || $this->_srcH!=$this->_dstH) {
-			$this->_x1=$this->_y1=0;
+		imagecopyresampled($dst,$this->_src,$this->_srcX,$this->_srcY,$this->_dstX,$this->_dstY,$this->_dstW,$this->_dstH,$this->_srcW,$this->_srcH);
+		if($this->_dstX!=0 || $this->_dstY!=0 || $this->_srcW!=$this->_dstW || $this->_srcH!=$this->_dstH) {
+			$this->_dstX=$this->_dstY=0;
 			$this->_dstW=$this->_srcW;
 			$this->_dstH=$this->_srcH;
 		}
@@ -187,4 +207,3 @@ class picture {
 	}
 
 }
-?>

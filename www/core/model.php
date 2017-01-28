@@ -150,9 +150,9 @@ class model {
 			$this->_primary=$name;
 			if(!$value) $value=null;
 			break;
-		case 'id':
-			if(!$value) $value=(int)$value;
-			break;
+//		case 'id':
+//			if(!$value) $value=(int)$value;
+//			break;
 		case 'integer':
 			if($value==='') $value=null; else $value=(int)$value;
 			if($value) {

@@ -18,7 +18,6 @@ class _mysql {
 		@self::$_connectId=new mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
 		if(self::$_connectId->connect_errno) {
 			header('HTTP/1.1 500 Internal Server Error');
-//			controller::$error='Не могу подключиться к базе данных';
 			die('Cannot connect to database.');
 			return;
 		}
