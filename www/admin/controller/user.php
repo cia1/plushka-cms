@@ -2,15 +2,19 @@
 /* Управление пользователями и группами */
 class sController extends controller {
 
-	public function right($right) {
-		switch($this->url[1]) {
-		case 'Group': case 'GroupItem': case 'GroupDelete':
-			if(isset($right['user.group'])) return true; else return false;
-			break;
-		case 'User': case 'UserItem': case 'userDelete': case 'Status': case 'Replace':  case 'Return':
-			if(isset($right['user.user'])) return true; else return false;
-		}
-		return false;
+	public function right() {
+		return array(
+			'Group'=>'user.group',
+			'GroupItem'=>'user.group',
+			'GroupDelete'=>'user.group',
+			'User'=>'user.user',
+			'UserItem'=>'user.user',
+			'Status'=>'user.user',
+			'UserDelete'=>'user.user',
+			'Replace'=>'user.replace',
+			'Return'=>'user.replace',
+			'Message'=>'*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

@@ -2,9 +2,12 @@
 /* Общие настройки сайта */
 class sController extends controller {
 
-	public function right($right,$action) {
-		if($action=='Url') if(isset($right['setting.url'])) return true; else return false;
-		if(isset($right['setting.core'])) return true; else return false;
+	public function right() {
+		return array(
+			'Core'=>'setting.core',
+			'Url'=>'setting.url',
+			'Cache'=>'*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

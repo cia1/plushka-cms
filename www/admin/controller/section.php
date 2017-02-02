@@ -2,8 +2,14 @@
 /* Управление секциями */
 class scontroller extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['section.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Index'=>'section.*',
+			'Up'=>'section.*',
+			'Down'=>'section.*',
+			'Delete'=>'section.*',
+			'Widget'=>'section.*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
@@ -15,7 +21,7 @@ class scontroller extends controller {
 		$t->rowTh('Пользователи|Виджет|Тип||');
 		$db=core::db();
 		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
-		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
+		if($items) for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
 			$t->text(($items[$i][5] ? $items[$i][5] : 'все'));
 			$t->link($items[$i][1],'?controller=section&action=widget&id='.$items[$i][0].'&section='.$_GET['name']);

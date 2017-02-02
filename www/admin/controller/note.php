@@ -2,8 +2,13 @@
 /* Заметки для администрации */
 class sController extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['note.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Index'=>'note.*',
+			'Item'=>'note.*',
+			'Delete'=>'note.*',
+			'View'=>'note.*'
+		);
 	}
 
 	/* Список доступных пользователю заметок */

@@ -41,7 +41,7 @@ function loadForm(id,controller,action) {
 			f.attr('action',action);
 			f.ajaxForm(function(data) { //После нажатия submit формы модуля
 				if(!$('#menuTitle').val()) {
-					_showError('Обязательно укажите заголвок пункта меню');
+					_showError('Обязательно укажите заголовок пункта меню');
 					$('#menuTitle').focus();
 					return;
 				}

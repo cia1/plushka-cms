@@ -2,8 +2,10 @@
 /* Индивидуальные шаблоны для разных страниц сайта */
 class sController extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['template.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Index'=>'template.*'
+		);
 	}
 
 	/* Соответствие шаблонов страницам сайта */

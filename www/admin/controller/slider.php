@@ -2,9 +2,13 @@
 /* Слайдер. Настройки хранит в конфигурационном файле */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['slider.*'])) return true;
-		return false;
+	public function right() {
+		return array(
+			'Image'=>'slider.*',
+			'Item'=>'slider.*',
+			'Delete'=>'slider.*',
+			'Widget'=>'slider.*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

@@ -2,18 +2,24 @@
 /* Управление интернет-магазином (настройка магазина, импорт) */
 class sController extends controller {
 
-	public function right($right,$action) {
-		switch($action) {
-		case 'Setting': case 'ProductGroup': case 'ProductGroupDelete':
-			if(isset($right['shopSetting.setting'])) return true; else return false;
-		case 'FeatureList': case 'FeatureGroupItem': case 'FeatureGroupDelete': case 'FeatureItem': case 'FeatureDelete': case 'CategoryFeature':
-			if(isset($right['shopSetting.feature'])) return true; else return false;
-		case 'Import': case 'ImportStart': case 'ImportProcess':
-			if(isset($right['shopSetting.import'])) return true; else return false;
-		case 'MenuCategory': case 'MenuIndex': case 'WidgetCategory': case 'WidgetProductGroup': case 'WidgetCart': case 'WidgetFeatureSearch':
-			return true;
-		}
-		return false;
+	public function right() {
+		return array(
+			'Setting'=>'shopSetting.setting',
+			'ProductGroupDelete'=>'shopSetting.setting',
+			'FeatureList'=>'shopSetting.feature',
+			'FeatureItem'=>'shopSetting.feature',
+			'FeatureDelete'=>'shopSetting.feature',
+			'CategoryFeature'=>'shopSetting.feature',
+			'Import'=>'shopSetting.import',
+			'ImportStart'=>'shopSetting.import',
+			'ImportProcess'=>'shopSetting.import',
+			'MenuCategory'=>'*',
+			'MenuIndex'=>'*',
+			'WidgetCategory'=>'*',
+			'WidgetProductGroup'=>'*',
+			'WidgetCart'=>'*',
+			'WidgetFeatureSearch'=>'*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
@@ -101,7 +107,7 @@ class sController extends controller {
 		$this->form1->html('</fieldset><fieldset><legend>Шаблоны писем</legend>');
 
 		//Шаблоны писем
-		$html=file_get_contents(core::path().'data/email/shopOrderAdmin.html');
+		$html=file_get_contents(core::path().'data/email/shopOrder.html');
 		$this->form1->editor('htmlAdmin','Сообщение администратору',$html);
 		$this->form1->submit('Сохранить');
 		$this->form1->html('<cite>Вы можете использовать следующие теги:<br /><b>{{siteName}}</b> - имя домена сайта, <b>{{siteLink}}</b> - ссылка на главную страницу сайта, <b>{{form}}</b> - информация о заказе, <b>{{cart}}</b> - список (таблица) товаров, <b>{{totalQuantity}}</b> - общее количество товарных позиций, <b>{{totalCost}}</b> - сумма заказа.');
@@ -155,7 +161,7 @@ class sController extends controller {
 
 		$cfg->productOnPage=(int)$data['productOnPage'];
 		if(!$cfg->save('shop')) return false;
-		$f=fopen(core::path().'data/email/shopOrderAdmin.html','w');
+		$f=fopen(core::path().'data/email/shopOrder.html','w');
 		fwrite($f,$data['htmlAdmin']);
 		fclose($f);
 

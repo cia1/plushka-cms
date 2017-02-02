@@ -2,14 +2,20 @@
 /* Универсальный каталог */
 class sController extends controller {
 
-	public function right($right,$action) {
-		switch($action) {
-		case 'LayoutData': case 'LayoutDataItem': case 'LayoutDataDelete': case 'LayoutView':
-			if(isset($right['catalog.layout'])) return true; else return false;
-		case 'Text': case 'Item': case 'Delete':
-			if(isset($right['catalog.layout'])) return true; else return false;
-		}
-		return false;
+	public function right() {
+		return array(
+			'LayoutData'=>'catalog.layout',
+			'LayoutDataItem'=>'catalog.layout',
+			'LayoutDataDelete'=>'catalog.layout',
+			'LayoutView'=>'catalog.layout',
+			'Text'=>'catalog.content',
+			'Item'=>'catalog.content',
+			'GalleryDelete'=>'catalog.content',
+			'Delete'=>'catalog.content',
+			'Field'=>'*',
+			'WidgetSearch'=>'*',
+			'MenuCatalog'=>'*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

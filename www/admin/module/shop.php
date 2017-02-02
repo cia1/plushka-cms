@@ -1,6 +1,6 @@
 <?php return array(
 'depend'=>'form ver 1.1',
-'right'=>'shopContent.brand,shopContent.category,shopSetting.feature,shopSetting.setting',
+'right'=>'shopContent.brand,shopContent.category,shopSetting.feature,shopContent.variant,shopSetting.setting,shopSetting.import',
 'widget'=>'shopProductGroup,shopCart,shopCategory,shopFeatureSearch',
 'menu'=>'5',
 'table'=>'shpCategory,shpBrand,shpFeature,shpFeatureGroup,shpProduct,shpProductFeature,shpProductGroup,shpProductGroupItem,shpVariant',

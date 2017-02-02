@@ -2,10 +2,6 @@
 /* Инструменты разработчика */
 class sController extends controller {
 
-	public function right($action) {
-		return false;
-	}
-
 	/* Запрос выбора нужной операции */
 	public function actionIndex() {
 		$this->config=core::config();
@@ -38,7 +34,7 @@ class sController extends controller {
 		} else $this->imageDate=null;
 		$this->formImageMake=core::form(); //создание снимка состояния системы
 		$this->formImageMake->submit('Сделать снимок');
-		//Форма генератора кода
+		//Форма генератора кода модели
 		$form=core::form();
 		$form->select('dbDriver','СУБД',array(array('mysql','MySQLi'),array('sqlite','SQLite')),$this->config['dbDriver'],null,'id="dbDriver"');
 		$form->select('table','Таблица',array());
@@ -46,6 +42,20 @@ class sController extends controller {
 		$form->checkbox('save','Сохранить в файл',false);
 		$form->submit();
 		$this->formCodeModel=$form;
+		//Форма генератора кода прав доступа
+		$d=opendir(core::path().'admin/controller');
+		$controller=array();
+		while($f=readdir($d)) {
+			if($f=='.' || $f=='..') continue;
+			$f=substr($f,0,strlen($f)-4);
+			$controller[]=array($f,$f);
+		}
+		unset($f);
+		unset($d);
+		$form=core::form();
+		$form->select('controller','Контроллер',$controller);
+		$form->submit();
+		$this->formCodeRight=$form;
 		return 'Index';
 	}
 
@@ -480,6 +490,30 @@ class sController extends controller {
 		}
 		$this->template=$template;
 		$this->table=$data['table'];
+	}
+
+	public function actionCodeRight() {
+		if(!$this->data) return '_empty';
+		$f=core::form();
+		$code="\tpublic function right() {\n\t\treturn array(\n\t\t\t'".
+		implode($this->data,"'=>'',\n\t\t\t'").
+		"'=>''\n\t\t);\n\t}";
+		$f->textarea('code','',$code);
+		return $f;
+	}
+	public function actionCodeRightSubmit($data) {
+		$f=file_get_contents(core::path().'admin/controller/'.$data['controller'].'.php');
+		if(!$f) {
+			core::error('Не могу прочитать файл /admin/controller/'.$data['controller'].'.php');
+			return;
+		}
+		preg_match_all('~function\s+action([a-zA-Z0-9_]+)~',$f,$f);
+		$data=array();
+		foreach($f[1] as $item) {
+			if(substr($item,-6)=='Submit') continue;
+			$data[]=$item;
+		}
+		$this->data=$data;
 	}
 
 

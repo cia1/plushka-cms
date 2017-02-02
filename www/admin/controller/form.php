@@ -2,8 +2,17 @@
 /* Контактные формы */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['form.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Form'=>'form.*',
+			'Field'=>'form.*',
+			'FieldItem'=>'form.*',
+			'Up'=>'form.*',
+			'Down'=>'form.*',
+			'FieldDelete'=>'form.*',
+			'MenuForm'=>'form.*',
+			'WidgetForm'=>'form.*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

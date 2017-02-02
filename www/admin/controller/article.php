@@ -4,17 +4,18 @@
 Несомненно это неправильно и нужно использовать внешнюю ссылку в меню. Но что делать с виджетом, если нужен блог уже существующей категории? */
 class sController extends controller {
 
-	public function right($right,$action) {
-		switch($action) {
-		case 'MenuBlog':
-			return true;
-		case 'Article': case 'ArticleDelete': case 'MenuArticle':
-			if(isset($right['article.article'])) return true; else return false;
-		case 'Category':
-			if(isset($right['article.category'])) return true; else return false;
-		}
+	public function right() {
+		return array(
+			'Category'=>'article.category',
+			'Feature'=>'*',
+			'Article'=>'article.article',
+			'ArticleDelete'=>'article.article',
+			'MenuArticle'=>'article.article',
+			'MenuBlog'=>'article.category',
+			'WidgetBlog'=>'article.category',
+			'MenuList'=>'*'
+		);
 	}
-
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 

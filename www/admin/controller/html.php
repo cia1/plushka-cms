@@ -2,8 +2,11 @@
 /* Управление произвольным HTML-кодом на сайте */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['html.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Item'=>'html.*',
+			'WidgetHtml'=>'html.*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

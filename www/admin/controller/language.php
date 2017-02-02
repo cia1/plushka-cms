@@ -2,9 +2,12 @@
 //Управление языками сайта. Модуль multilanguage
 class sController extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['language.*'])) return true;
-		return false;
+	public function right() {
+		return array(
+			'Index'=>'language.*',
+			'Add'=>'language.*',
+			'Delete'=>'language.*'
+		);
 	}
 
 	//Список языков

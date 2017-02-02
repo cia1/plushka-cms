@@ -2,16 +2,22 @@
 /* Управление форумом */
 class sController extends controller {
 
-	public function right($right,$action) {
-		switch($action) {
-		case 'Setting': case 'Category': case 'CategoryUp': case 'CategoryDown': case 'CategoryDelete':
-			if(isset($right['forum.category'])) return true; else return false;
-		case 'Topic': case 'TopicDelete': case 'TopicStatus': case 'PostEdit': case 'PostDelete': case 'UserStatus':
-			if(isset($right['forum.moderate'])) return true; else return false;
-		case 'MenuProfile': case 'MenuCategory':
-			return true;
-		}
-		return false;
+	public function right() {
+		return array(
+			'Setting'=>'forum.category',
+			'Category'=>'forum.category',
+			'CategoryUp'=>'forum.category',
+			'CategoryDown'=>'forum.category',
+			'CategoryDelete'=>'forum.category',
+			'Topic'=>'forum.moderate',
+			'TopicDelete'=>'forum.moderate',
+			'TopicStatus'=>'forum.moderate',
+			'PostEdit'=>'forum.moderate',
+			'PostDelete'=>'forum.moderate',
+			'UserStatus'=>'forum.moderate',
+			'MenuProfile'=>'*',
+			'MenuCategory'=>'*'
+		);
 	}
 
 	/* Настройки форума */

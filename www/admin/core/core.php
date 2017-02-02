@@ -492,7 +492,23 @@ function runApplication($renderTemplate=true) {
 	if($alias!='user' || controller::$self->url[1]!='Login') {
 		if($user->group<200) core::redirect('user/login');
 		if($user->group!=255) {
-			if(!controller::$self->right($user->right,controller::$self->url[1])) core::redirect('user/login');
+			if(!method_exists(controller::$self,'right')) {
+				core::error('Недостаточно прав для доступа к разделу');
+				core::redirect('user/login');
+			}
+			$right=controller::$self->right();
+			if(!isset($right[controller::$self->url[1]])) {
+				core::error('Недостаточно прав для доступа к разделу');
+				core::redirect('user/login');
+			}
+			$right=explode(',',$right[controller::$self->url[1]]);
+			foreach($right as $item) {
+				if($item=='*') continue;
+				if(!isset($user->right[$item])) {
+					core::error('Недостаточно прав для доступа к разделу');
+					core::redirect('user/login');
+				}
+			}
 		}
 	}
 	//Запуск submit-действия

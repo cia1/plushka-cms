@@ -2,18 +2,24 @@
 /* Управление интернет-магазином (контент) */
 class sController extends controller {
 
-	public function right($right,$action) {
-		switch($action) {
-		case 'Category': case 'CategoryDelete':
-			if(isset($right['shopContent.category'])) return true; else return false;
-		case 'ProductList': case 'Product': case 'ProductDelete': case 'ProductImage': case 'ProductImageMain': case 'ProductImageDelete': case 'ProductMove':
-			if(isset($right['shopContent.product'])) return true; else return false;
-		case 'Variant': case 'VariantItem': case 'VariantDelete':
-			if(isset($right['shopContent.variant'])) return true; else return false;
-		case 'Brand': case 'BrandItem': case 'BrandDelete':
-			if(isset($right['shopContent.brand'])) return true; else return false;
-		}
-		return false;
+	public function right() {
+		return array(
+			'Category'=>'shopContent.category',
+			'CategoryDelete'=>'shopContent.category',
+			'ProductList'=>'shopContent.product',
+			'Product'=>'shopContent.product',
+			'ProductDelete'=>'shopContent.product',
+			'ProductImage'=>'shopContent.product',
+			'ProductImageMain'=>'shopContent.product',
+			'ProductImageDelete'=>'shopContent.product',
+			'ProductMove'=>'shopContent.product',
+			'Variant'=>'shopContent.variant',
+			'VariantItem'=>'shopContent.variant',
+			'VariantDelete'=>'shopContent.variant',
+			'Brand'=>'shopContent.brand',
+			'BrandItem'=>'shopContent.brand',
+			'BrandDelete'=>'shopContent.brand'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
@@ -447,7 +453,7 @@ class sController extends controller {
 			$fname=$picture->save('public/shop-brand/'.$model->id);
 			$db->query('UPDATE shpBrand SET image='.$db->escape($fname).' WHERE id='.$model->id);
 		}
-		
+
 		core::redirect('?controller=shopContent&action=brand');
 	}
 

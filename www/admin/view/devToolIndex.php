@@ -46,9 +46,13 @@
 		<div style="clear:both;"></div><br /><br />
 	</fieldset>
 	<fieldset>
-		<legend>Генератор кода модели</legend>
+		<legend>Генератор кода</legend>
+		<h2>Генератор модели</h2>
 		<?php $this->formCodeModel->render('devTool/codeModel'); ?>
 		<cite>Шаблон модели находится в файле /admin/data/devTool-model.php.txt</cite>
+		<div style="clear:both;"></div>
+		<h2>Генератор функции прав доступа</h2>
+		<?php $this->formCodeRight->render('devTool/codeRight'); ?>
 	</fieldset>
 </div>
 <script>

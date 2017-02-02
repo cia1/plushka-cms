@@ -2,8 +2,10 @@
 /* Для виджета Shadowbox */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['shadowbox.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'WidgetShadowbox'=>'*'
+		);
 	}
 
 	public function actionWidgetShadowbox() {

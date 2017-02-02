@@ -2,10 +2,14 @@
 /* Управление комментариями */
 class sController extends controller {
 
-	public function right($right,$action) {
-		if($action=='WidgetComment') return true;
-		if(isset($right['comment.moderate'])) return true;
-		return false;
+	public function right() {
+		return array(
+			'Moderate'=>'comment.moderate',
+			'Setting'=>'comment.setting',
+			'Edit'=>'comment.moderate',
+			'Delete'=>'comment.moderate',
+			'WidgetComment'=>'comment.setting'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

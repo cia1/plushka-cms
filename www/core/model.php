@@ -137,7 +137,7 @@ class model {
 	protected function afterUpdate($id=null) { return true; } //триггер, может быть перегружен
 
 	/* Выполняет валидацию одного поля
-	$value - содержимое поля (значение), $name - имя поля, $options - параметры валидации ([0]=>тип,[1]=>заголвок,[2]=>может ли быть null,[min]=>минимальное,[max]=>максимальное */
+	$value - содержимое поля (значение), $name - имя поля, $options - параметры валидации ([0]=>тип,[1]=>заголовок,[2]=>может ли быть null,[min]=>минимальное,[max]=>максимальное */
 	protected function _validateField(&$value,$name,$options) {
 		if(!isset($options[2])) $options[2]=false;
 		if($options[0]!='primary' && ($value===null || $value==='') && $options[2]) {

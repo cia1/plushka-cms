@@ -2,12 +2,16 @@
 /* Управление демотиваторами */
 class sController extends controller {
 
-	public function right($right) {
-		if($this->url[1]=='Edit' || $this->url[1]=='Delete' || $this->url[1]=='Hidden') {
-			if(isset($right['demotivator.moderate'])) return true; else return false; //модерация
-		} else {
-			if(isset($right['demotivator.setting'])) return true; else return false; //настройки
-		}
+	public function right() {
+		return array(
+			'Setting'=>'domotivator.setting',
+			'Hidden'=>'demotivator.moderate',
+			'Edit'=>'demotivator.moderate',
+			'Delete'=>'demotivator.moderate',
+			'MenuConstructor'=>'domotivator.setting',
+			'MenuGallery'=>'domotivator.setting',
+			'WidgetLast'=>'domotivator.setting'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

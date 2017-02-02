@@ -2,9 +2,12 @@
 /* Управление чатами */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['chat.moderate'])) return true;
-		return false;
+	public function right() {
+		return array(
+			'Index'=>'chat.moderate',
+			'Ban'=>'chat.moderate',
+			'WidgetChat'=>'*'
+		);
 	}
 
 	public function __construct() {
@@ -77,7 +80,7 @@ class sController extends controller {
 			$data['id']=$id;
 			closedir($d);
 		}
-		//Создать пустой файл для сообщений чата		
+		//Создать пустой файл для сообщений чата
 		$f=fopen(core::path().'data/chat.'.$data['id'].'.txt','w');
 		fclose($f);
 		unset($data['submit']);

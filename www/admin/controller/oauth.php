@@ -2,8 +2,12 @@
 /* Реализует модуль регистрации и авторизации OAuth */
 class sController extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['oauth.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Server'=>'oauth.*',
+			'Item'=>'oauth.*',
+			'Widget'=>'*'
+		);
 	}
 
 	/* Подключение серверов OAuth (социальных сетей) */

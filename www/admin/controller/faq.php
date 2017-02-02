@@ -2,8 +2,14 @@
 /* Управление часто задаваемыми вопросами. На сайте может быть только один раздел ЧаВо. */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['faq.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Setting'=>'faq.setting',
+			'List'=>'faq.content',
+			'Edit'=>'faq.content',
+			'Delete'=>'faq.content',
+			'MenuList'=>'faq.setting'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

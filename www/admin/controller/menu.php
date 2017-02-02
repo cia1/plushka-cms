@@ -2,8 +2,17 @@
 /* Управление меню, скрытым меню и пунктами меню. Виджеты не имеют жёсткой привязки к меню - чтобы дать возможность размещать несколько виджетов одного и того же меню */
 class sController extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['menu.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'ItemMenu'=>'menu.*',
+			'Items'=>'menu.*',
+			'Item'=>'menu.*',
+			'Up'=>'menu.*',
+			'Down'=>'menu.*',
+			'Delete'=>'menu.*',
+			'Hidden'=>'menu.*',
+			'WidgetList'=>'menu.*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

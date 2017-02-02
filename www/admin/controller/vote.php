@@ -2,8 +2,13 @@
 /* Социальный опрос */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['vote.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Index'=>'vote.*',
+			'Reset'=>'vote.*',
+			'Result'=>'vote.*',
+			'WidgetVote'=>'vote.*'
+		);
 	}
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */

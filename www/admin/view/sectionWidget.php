@@ -24,7 +24,6 @@ $f->checkbox('publicTitle','Публиковать название виджет
 $f->html('<dt>Страницы</dt><dd id="_admPageCheck" style="height:auto;">'.getHTMLMenu($this->pageMenu).'</dd>');
 $f->text('url2','другие URL (через запятую)',implode($this->pageOther,', '),'id="url2"');
 $f->select('groupId','Группа пользователей',$this->userGroupList,$this->data['groupId'],'все');
-var_dump($this->data['groupId']);
 $f->render('section/widget&section='.$_GET['section']);
 ?>
 <div id="_type"><h3>Выберите тип виджета:</h3>

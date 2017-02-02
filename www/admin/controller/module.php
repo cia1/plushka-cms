@@ -2,10 +2,6 @@
 /* Установка и удаление модулей. Выполняется по шагам, чтобы при возникновении ошибок в любой момент можно было сделать откат */
 class sController extends controller {
 
-	public function right($right) {
-		if(isset($right['module.*'])) return true; else return false;
-	}
-
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Список установленных модулей */
 	public function actionIndex() {

@@ -2,8 +2,12 @@
 //Управление виджетами интерактивных карт Google
 class sController extends controller {
 
-	public function right($right,$action) {
-		if(isset($right['map.*'])) return true; else return false;
+	public function right() {
+		return array(
+			'Marker'=>'map.*',
+			'Map'=>'map.*',
+			'WidgetMap'=>'map.*'
+		);
 	}
 
 	//Список меток на карте; добавление, редактирование и удаление меток.
