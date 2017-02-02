@@ -137,12 +137,6 @@
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
-'remotePublic'=>array(
-	'name'=>'Удалённая публикация статей',
-	'version'=>'1.0',
-	'status'=>100,
-	'url'=>'http://plushka-cms.ru'
-),
 'search'=>array(
 	'name'=>'Поиск по сайту',
 	'version'=>'1.0',
