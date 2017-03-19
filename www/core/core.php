@@ -353,12 +353,12 @@ class _core {
 			if($f=='.' || $f=='..') continue;
 			if(substr($f,0,$len)!=$name) continue;
 			$tmp=self::_hook($f,$data);
-			if($tmp===false || $tmp===null) {
+			if($tmp===false) {
 				closedir($d);
 				return false;
-			}
-			$result[]=$tmp;
+			} elseif($tmp!==null) $result[]=$tmp;
 		}
+		closedir($d);
 		return $result;
 	}
 
@@ -371,7 +371,8 @@ class _core {
 	}
 
 	private static function _hook($name,$data) {
-		if(!include(self::path().'hook/'.$name)) return false; else return true;
+		$result=include(self::path().'hook/'.$name);
+		return $result;
 	}
 }
 /* --- --- */
@@ -563,8 +564,8 @@ function runApplication($renderTemplate=true) {
 	controller::$self=new sController($_GET['corePath'][1]);
 	$alias=controller::$self->url[0];
 	if($renderTemplate && core::debug()) {
-		log::add('Requested URI',implode('/',$_GET['corePath']),false);
-		log::add('Controller.Action',$_GET['corePath'][0].'.action'.controller::$self->url[1].(isset($_POST[$alias]) ? 'Submit()' : '()'),false);
+		coreLog::add('Requested URI',implode('/',$_GET['corePath']),false);
+		coreLog::add('Controller.Action',$_GET['corePath'][0].'.action'.controller::$self->url[1].(isset($_POST[$alias]) ? 'Submit()' : '()'),false);
 	}
 	if(!isset($_POST[$alias])) { //в _POST нет данных, относящихся к запрошенному контроллеру
 		if(!method_exists('sController','action'.controller::$self->url[1])) core::error404();
@@ -594,12 +595,12 @@ function runApplication($renderTemplate=true) {
 	if(core::debug()) {
 		if(is_object($view)) {
 			$r=new ReflectionClass($view);
-			log::add('view',get_class($view).' ('.$r->getFileName().')',false);
+			coreLog::add('view',get_class($view).' ('.$r->getFileName().')',false);
 			unset($r);
-		} elseif(is_string($view)) log::add('view','view/'.$alias.$view.'.php',false);
+		} elseif(is_string($view)) coreLog::add('view','view/'.$alias.$view.'.php',false);
 	}
 	controller::$self->render($view,$renderTemplate);
-	if($renderTemplate && core::debug()) log::render();
+	if($renderTemplate && core::debug()) coreLog::render();
 }
 
 /* --- INITIALIZE --- */

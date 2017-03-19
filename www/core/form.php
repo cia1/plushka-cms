@@ -77,6 +77,11 @@ class form {
 		$this->_data.='<dt class="text date '.$name.'">'.$label.'</dt><dd class="text date '.$name.'">'.$this->getDate($name,$value,$html).'</dd>';
 	}
 
+	//Поле выбора даты и времени
+	public function dateTime($name,$label,$value,$html='') {
+		$this->_data.='<dt class="text date time '.$name.'">'.$label.'</dt><dd class="text date '.$name.'">'.$this->getDateTime($name,$value,$html).'</dd>';
+	}
+
 	/* Поле для загрузки файла (<input type="file")
 	$name - имя поля формы, $label - отображаемый заголовок, $multiple - разрешить выбирать несколько файлов, $html - произвольный текст, который будет присоединён к тегу <input> */
 	public function file($name,$label,$multiple=false,$html='') {
@@ -126,6 +131,8 @@ class form {
 			return $this->editor($f1,$f2,$f3,$f4);
 		case 'date':
 			return $this->date($f1,$f2,$f3,$f4);
+		case 'dateTime':
+			return $this->dateTime($f1,$f2,$f3,$f4);
 		case 'file':
 			return $this->file($f1,$f2,$f3,$f4);
 		case 'captcha':
@@ -299,6 +306,15 @@ class form {
 		}
 		if($value && is_numeric($value)) $value=date('Y-m-d',$value);
 		return '<input type="date" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').($html ? ' '.$html : '').' />';
+	}
+
+	//Возвращает HTML-код поля для выбора даты и времени
+	public function getDateTime($name,$value,$html='') {
+		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+			$value=$_POST[$this->_namespace][$name];
+		}
+		if($value && is_numeric($value)) $value=date('Y-m-d H:i:s',$value);
+		return '<input type="datetime-local" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').($html ? ' '.$html : '').' />';
 	}
 
 	/* Возвращает HTML-код поля для загрузки файла */

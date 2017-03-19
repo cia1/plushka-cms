@@ -1,11 +1,15 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 /* Служит для создания и изменения конфигурационных файлов */
-class config {
+class config implements IteratorAggregate {
 	private $_data=array(); //тут содержатся все данные
 
 	public function __construct($fname=null) {
 		if($fname) $this->load($fname);
+	}
+
+	public function getIterator() {
+		return new ArrayIterator($this->_data);
 	}
 
 	/* Загружает в $this->_data конфигурацию из указанного файла */

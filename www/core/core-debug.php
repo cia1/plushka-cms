@@ -3,17 +3,17 @@
 class core extends _core {
 
 	public static function redirect($url,$message=null,$code=302) {
-		log::add('REDIRECT',$url.($message ? '; Message: '.$message : ''));
+		coreLog::add('REDIRECT',$url.($message ? '; Message: '.$message : ''));
 		$cfg=core::config('../admin/config/debug');
 		if($cfg['redirect']) parent::redirect($url,$message,$code);
 		else {
-			log::render();
+			coreLog::render();
 			exit;
 		}
 	}
 
 	public static function section($name) {
-		log::add('section',$name,false);
+		coreLog::add('section',$name,false);
 		parent::section($name);
 	}
 
@@ -27,7 +27,7 @@ class core extends _core {
 		} else $s.=$options;
 		$s.=']';
 		if($link) $s.='; link: '.$link;
-		log::add('widget',$s,false);
+		coreLog::add('widget',$s,false);
 		parent::widget($name,$options,$cacheTime,$title,$link);
 	}
 
@@ -46,7 +46,7 @@ class core extends _core {
 	}
 }
 
-class log {
+class coreLog {
 
 	private static $_log;
 	private static $_redirect=false;

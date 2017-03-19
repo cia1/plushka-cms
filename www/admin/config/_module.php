@@ -107,6 +107,12 @@
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
+'log'=>array(
+	'name'=>'Лог',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
 'map'=>array(
 	'name'=>'Интерактивные карты (виджет)',
 	'version'=>'1.0',
@@ -133,6 +139,36 @@
 ),
 'oauth.lang_ru'=>array(
 	'name'=>'Регистрация и авторизация OAuth 2.0. Языковой пакет RU',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'payment'=>array(
+	'name'=>'Приём платежей',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'payment_en'=>array(
+	'name'=>'Приём платежей. Языковой пакет EN',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'payment_ru'=>array(
+	'name'=>'Приём платежей. Языковой пакет RU',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'payment-perfectmoney'=>array(
+	'name'=>'Платёжный модуль Perfect Money',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'payment-robokassa'=>array(
+	'name'=>'Платёжный модуль Робокасса',
 	'version'=>'1.0',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
@@ -199,7 +235,7 @@
 ),
 'vote.lang_ru'=>array(
 	'name'=>'Голосование. Языковой пакет RU',
-	'version'=>'.',
+	'version'=>'1.0',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 )

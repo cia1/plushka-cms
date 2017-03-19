@@ -266,10 +266,14 @@ class core {
 	}
 
 	//Устанавливает или возвращает сообщение об ошибке
-	public static function error($error=null) {
-		if(!$error) return false;
-		echo '<div class="messageError">'.$error.'</div>';
-		return true;
+	public static function error($message=null) {
+		if($message===false) {
+			$message=(isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
+			unset($_SESSION['messageError']);
+			return $message;
+		}
+		if($message!==null) $_SESSION['messageError']=$message;
+		return (isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
 	}
 
 	//Устанавливает или возвращает сообщение об успехе
