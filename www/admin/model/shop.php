@@ -24,7 +24,7 @@ class shop {
 			if(file_exists($f)) unlink($f);
 		}
 		$db->query('DELETE FROM shpCategory WHERE id='.$id);
-		core::hook('pageDelete','shop/'.$alias);
+		core::hook('pageDelete','shop/'.$alias,true);
 		return true;
 	}
 
@@ -57,7 +57,7 @@ class shop {
 		$db->query('DELETE FROM shpProductFeature WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shpProductGroupItem WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shpProduct WHERE id IN('.$id.')');
-		core::hook('pageDelete','shop/'.$data[0].'/'.$data[1]);
+		core::hook('pageDelete','shop/'.$data[0].'/'.$data[1],true);
 		return true;
 	}
 

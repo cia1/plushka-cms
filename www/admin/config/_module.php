@@ -1,7 +1,7 @@
 <?php return array(
 'core'=>array(
 	'name'=>'Ядро',
-	'version'=>'3.11',
+	'version'=>'3.12',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
@@ -103,7 +103,7 @@
 ),
 'language'=>array(
 	'name'=>'Управление языками',
-	'version'=>'1.0',
+	'version'=>'1.1',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
@@ -145,7 +145,7 @@
 ),
 'payment'=>array(
 	'name'=>'Приём платежей',
-	'version'=>'1.0',
+	'version'=>'1.1',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),

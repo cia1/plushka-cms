@@ -38,4 +38,3 @@ class widgetUser extends widget {
 	}
 
 }
-?>

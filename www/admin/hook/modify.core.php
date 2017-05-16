@@ -1,9 +1,18 @@
 <?php
-/* Ñîáûòèå: îáíîâëåíèå Last modified
-Ïàðàìåòðû: string $data[0] - àäðåñ ñòðàíèöû, êîòîðàÿ áûëà èçìåíåíà */
+/* ÐžÐ±Ð½Ð¾Ð²Ð»ÑÐµÑ‚ Last modified
+ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹: string $data[0] - Ð¾Ñ‚Ð½Ð¾ÑÐ¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¹ URL ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñ‹ (Ð±ÐµÐ· ÑƒÐºÐ°Ð·Ð°Ð½Ð¸Ñ ÑÐ·Ñ‹ÐºÐ°);
+bool $data[1] - ÐµÑÐ»Ð¸ true, Ñ‚Ð¾ Ð¾Ð±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð´Ð»Ñ Ð²ÑÐµÑ… ÑÐ·Ñ‹ÐºÐ¾Ð² */
 $db=core::db();
 $cfg=core::config();
-if($cfg['languageDefault']==_LANG) $link=$data[0]; else $link=_LANG.'/'.$data[0];
-$db->query('REPLACE INTO modified (link,time) VALUES ('.$db->escape($link).','.time().')');
+if(isset($data[1]) && $data[1]) {
+	$link=array();
+	foreach($cfg['languageList'] as $item) {
+		if($item==_LANG) $link[]=$data[0]; else $link[]=$item.'/'.$data[0];
+	}
+} else {
+	if($cfg['languageDefault']==_LANG) $link=array($data[0]); else $link=array(_LANG.'/'.$data[0]);
+}
+foreach($link as $item) {
+	$db->query('REPLACE INTO modified (link,time) VALUES ('.$db->escape($item).','.time().')');
+}
 return true;
-?>

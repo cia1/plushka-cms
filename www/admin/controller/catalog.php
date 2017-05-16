@@ -552,7 +552,7 @@ class sController extends controller {
 		}
 		$alias=$db->fetchValue('SELECT alias FROM catalog_'.$lid.' WHERE id='.$id);
 		$db->query('DELETE FROM catalog_'.$lid.' WHERE id='.$id);
-		core::hook('pageDelete','catalog/'.$lid.'/'.$alias);
+		core::hook('pageDelete','catalog/'.$lid.'/'.$alias,true);
 		core::success('Элемент каталога удалён');
 		core::redirect('?controller=catalog&lid='.$lid);
 	}

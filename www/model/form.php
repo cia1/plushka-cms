@@ -41,8 +41,9 @@ class mForm extends form {
 	public function render($action=null,$html=null) {
 		if($action) $this->action=$action;
 		if($this->formView) {
+			$view=$this->formView;
 			$this->formView=null; //render() может быть вызван дважды: один раз из контроллера и один раз из представления, поэтому убрать, чтобы небыло зацикливания
-			include(core::path().'view/form'.ucfirst($this->formView).'.php');
+			include(core::path().'view/form'.ucfirst($view).'.php');
 		} else { //представление не задано, использовать стандартный рендер базового класса
 			//Добавить поля в базовый класс формы
 			for($i=0,$cnt=count($this->field);$i<$cnt;$i++) {

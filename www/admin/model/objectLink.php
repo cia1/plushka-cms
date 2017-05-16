@@ -29,9 +29,9 @@ class modelObjectLink {
 		$cnt=0;
 		foreach($template as $item) {
 			$cfg=include($basedir.$item);
-			foreach($cfg['widget'] as $item) {
+			foreach($cfg['widget'] as $widget) {
 				if($item[0]!=$name) continue;
-				$cnt+=modelObjectLink::_compareData($data,$item[1]);
+				$cnt+=modelObjectLink::_compareData($data,$widget[1]);
 			}
 		}
 		return $cnt;

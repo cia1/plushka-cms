@@ -103,33 +103,6 @@ class cache {
 		$cfg=new config();
 		$cfg->setData($lang);
 		$cfg->save('../cache/language-database');
-/*
-		$path=core::path().'admin/module/';
-		$d=opendir($path);
-		$language=array();
-		while($f=readdir($d)) {
-			if($f=='.' || $f=='..') continue;
-			if(strpos($f,'.lang_') || substr($f,strlen($f)-12)=='.install.php') continue;
-			$cfg=include($path.$f);
-			if(!isset($cfg['table'])) continue;
-			$cfg=explode(',',$cfg['table']);
-			foreach($cfg as $table) {
-				if(substr($table,strlen($table)-5)=='_LANG') $language[substr($table,0,strlen($table)-5)]=true;
-				else {
-					$i=strpos($table,'(');
-					if(!$i) continue;
-					$field=substr($table,$i+1,strlen($table)-$i-2);
-					$field=explode(' ',$field);
-					$language[substr($table,0,$i)]=$field;
-				}
-			}
-		}
-		closedir($d);
-		core::import('admin/core/config');
-		$cfg=new config();
-		$cfg->setData($language);
-		$cfg->save('../cache/language-database');
-*/
 		return true;
 	}
 
@@ -167,4 +140,3 @@ class cache {
 	}
 
 }
-?>

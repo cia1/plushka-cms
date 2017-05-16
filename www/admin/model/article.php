@@ -21,7 +21,7 @@ class article extends model {
 		if($data[0]) $this->_multiLanguage=false;
 		if(!$this->delete($id)) return false;
 		$this->_multiLanguage=true;
-		core::hook('pageDelete','article/view/'.$data[1]);
+		core::hook('pageDelete','article/view/'.$data[1],!$this->_multiLanguage);
 		return true;
 	}
 

@@ -15,8 +15,8 @@ foreach($data[2] as $item) {
 	else $s=' LIKE '.$db->escape($s.'/%');
 	$id=$db->fetchArray('SELECT id FROM commentGroup WHERE link'.$s);
 	if(!$id) continue;
-	foreach($id as $item) {
-		if($ids) $ids.=','.$item[0]; else $ids=$item[0];
+	foreach($id as $_id) {
+		if($ids) $ids.=','.$_id[0]; else $ids=$_id[0];
 	}
 }
 if(!$ids) return true;

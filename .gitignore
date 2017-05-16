@@ -1,7 +1,10 @@
 readme.txt
 cms.sublime-project
 cms.sublime-workspace
+генератор форм
+cms_clcs.csprj
+cms.clpprj
 www/cache/template/*.*
 www/cache/widget/*.*
 www/cache/custom/*.*
-генератор форм
+www/sftp-config.json

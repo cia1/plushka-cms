@@ -13,15 +13,15 @@ class email {
 	private $_smtpUser;
 	private $_smtpPassword;
 	public $_returnPath;
+	public $error;
 
 	/* Инициализирует SMTP, если используется режим SMTP */
-	public function __construct() {
-		$cfg=core::config();
-		if(isset($cfg['smtpHost'])) {
-			$this->_smtpHost=$cfg['smtpHost'];
-			$this->_smtpPort=$cfg['smtpPort'];
-			$this->_smtpUser=$cfg['smtpUser'];
-			$this->_smtpPassword=$cfg['smtpPassword'];
+	public function __construct($host=null,$port=null,$user=null,$password=null) {
+		if($host) {
+			$this->_smtpHost=$host;
+			$this->_smtpPort=$port;
+			$this->_smtpUser=$user;
+			$this->_smtpPassword=$password;
 		}
 	}
 
@@ -38,6 +38,7 @@ class email {
 	public function message($value) { $this->_message=trim($value); }
 
 	/* Задаёт текс письма (HTML), используя HTML-шаблон. $data - ассоциативный массив, содержащий данные, которые должны быть подставлены в письмо */
+/*
 	public function messageTemplate($fileName,$data) {
 		if(substr($fileName,0,6)=='admin/') $fileName=core::path().'admin/data/email/'.substr($fileName,6).'.html';
 		else $fileName=core::path().'data/email/'.$fileName.'.'._LANG.'.html';
@@ -49,7 +50,7 @@ class email {
 		foreach($data as $tag=>$value) $this->_message=str_replace('{{'.$tag.'}}',$value,$this->_message);
 		$this->_message=trim($this->_message);
 	}
-
+*/
 	/* Задаёт адрес возврата письма */
 	public function returnPath($email) { $this->_returnPath=$email; }
 
@@ -71,15 +72,15 @@ class email {
 		if(!$type) $type=substr($filename,strrpos($filename,'.')+1);
 		$type=strtolower($type);
 		switch($type) {
-		case 'jpg': case 'jpeg': case 'image/jpeg':
+		case 'jpg': case 'jpeg':
 			$type='image/jpeg';
 			$ext='jpg';
 			break;
-		case 'gif': case 'image/gif':
+		case 'gif':
 			$type='image/gif';
 			$ext='gif';
 			break;
-		case 'png': case 'image/png':
+		case 'png':
 			$type='image/png';
 			$ext='png';
 			break;
@@ -105,7 +106,7 @@ class email {
 		$message=$this->_buildMultipart($boundary);
 		if($this->_smtpHost) return $this->sendSmtp($email,$message,$header);
 		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=',$message,$header)) {
-			core::error(LNGCouldnotSendLetter);
+			$this->error=LNGCouldnotSendLetter;
 			return false;
 		}
 		return true;
@@ -118,55 +119,55 @@ class email {
 		.'To: '.$email."\r\n";
 		$s.=$header.PHP_EOL.PHP_EOL.$message;
 		if(!$socket=fsockopen($this->_smtpHost,$this->_smtpPort,$errno,$errstr,30)) {
-			core::error($errno."&lt;br&gt;".$errstr);
+			$this->error=$errno."&lt;br&gt;".$errstr;
 			return false;
 		}
 		if(!$this->_parseAnswer($socket,'220')) return false;
 		if(substr($this->_smtpHost,0,6)=='ssl://') $this->_smtpHost=substr($this->_smtpHost,6);
 		fputs($socket,'EHLO '.$this->_smtpHost."\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250');
+			$this->error=LNGSMTPError.' #250';
 			return false;
 		}
 		fputs($socket,"AUTH LOGIN\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			core::error(LNGSMTPError.' #334-1');
+			$this->error=LNGSMTPError.' #334-1';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpUser)."\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			core::error(LNGSMTPError.' #334-2');
+			$this->error=LNGSMTPError.' #334-2';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpPassword)."\r\n");
 		if(!$this->_parseAnswer($socket,'235')) {
-			core::error(LNGSMTPError.' #235');
+			$this->error=LNGSMTPError.' #235';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'MAIL FROM: <'.$this->_smtpUser.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250-1');
+			$this->error=LNGSMTPError.' #250-1';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'RCPT TO: <'.$email.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250-2');
+			$this->error=LNGSMTPError.' #250-2';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,"DATA\r\n");
 		if(!$this->_parseAnswer($socket,'354')) {
-			core::error(LNGSMTPError.' #354');
+			$this->error=LNGSMTPError.' #354';
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,$s."\r\n.\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250-3');
+			$this->error=LNGSMTPError.' #250-3';
 			fclose($socket);
 			return false;
 		}

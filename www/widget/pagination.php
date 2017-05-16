@@ -1,35 +1,38 @@
 <?php
-/* Ðåàëèçóåò ïàãèíàöèþ (ñòðîêó ñ öèôðàìè). Íîìåð òåêóùåé ñòðàíèöû áåð¸ò èç $_GET['page'].
-array $options: int limit - êîëè÷åñòâî ýëåìåíòîâ íà ñòðàíèöå; int count - ïîëíîå êîëè÷åñòâî ýëåìåíòîâ */
+/* Ð’Ð¸Ð´Ð¶Ð¸Ñ‚ Ð¿Ð°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ð¸
+$this->options: string link - Ñ†ÐµÐ»ÐµÐ²Ð°Ñ ÑÑÑ‹Ð»ÐºÐ° (ÐµÑÐ»Ð¸ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½Ð¾, Ñ‚Ð¾ Ð³ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸);
+string pageName - Ð¸Ð¼Ñ GET-Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð° Ð½Ð¾Ð¼ÐµÑ€Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñ‹, Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ "page";
+int limit - ÐºÐ¾Ð»-Ð²Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð½Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ðµ;
+int count - Ð¾Ð±Ñ‰ÐµÐµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð²;
+*/
 class widgetPagination extends widget {
 
 	public function __invoke() {
 		if($this->options['limit']>=$this->options['count'] || !$this->options['count']) return false;
+		if(!isset($this->options['pageName'])) $this->options['pageName']='page';
+		if(!isset($this->options['link'])) {
+			$link=$_SERVER['REQUEST_URI'];
+			$i=strpos($link,'?');
+			if($i) $link=substr($link,0,$i);
+			$uri=array();
+			foreach($_GET as $key=>$value) {
+			if($key=='corePath' || $key=='page') continue;
+				$uri[$key]=$value;
+			}
+			if(count($uri)) $link.='?'.http_build_query($uri).'&';
+			$this->options['link']=$link;
+		} else $this->options['link']=core::link($this->options['link']);
+		$i=strpos($this->options['link'],'?');
+		if($i!==false) $this->options['link'].='&'; else $this->options['link'].='?';
+		$this->options['link'].=$this->options['pageName'].'=';
 		return true;
 	}
 
 	public function render($view) {
-		if(isset($_GET['page'])) $page=(int)$_GET['page']; else $page=1;
-		if(!isset($this->options['link'])) {
-			$uri=array();
-			foreach($_GET as $key=>$value) {
-				if($key=='corePath' || $key=='page') continue;
-				$uri[$key]=$value;
-			}
-			if(count($uri)) {
-				$link='?'.http_build_query($uri);
-				$separator='&';
-			} else {
-				$link='';
-				$separator='?';
-		}
-			$link=core::url().implode('/',$_GET['corePath']).$link;
-			$this->options['link']=$link;
-			$link.=$separator.'page=';
-		} elseif(strrpos($this->options['link'],'?')!==false) $link=$this->options['link'].'&page=';
-		else $link=$this->options['link'].'?page=';
+		if(isset($_GET[$this->options['pageName']])) $page=(int)$_GET[$this->options['pageName']]; else $page=1;
 		$lastPage=ceil($this->options['count']/$this->options['limit']);
-		if($page!=1) echo '<a href="'.$this->options['link'].'">1</a>';
+		$link=$this->options['link'];
+		if($page!=1) echo '<a href="'.substr($link,0,strlen($link)-strlen($this->options['pageName'])-2).'">1</a>';
 		if($page>5) echo '<span>...</span>';
 		if($page>3 && $page!=4) echo '<a href="'.$link.($page-3).'">'.($page-3).'</a>';
 		if($page>2 && $page!=3) echo '<a href="'.$link.($page-2).'">'.($page-2).'</a>';
@@ -42,4 +45,4 @@ class widgetPagination extends widget {
 		if($page!=$lastPage) echo '<a href="'.$link.$lastPage.'">'.$lastPage.'</a>';
 	}
 
-} ?>
+}

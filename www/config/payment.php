@@ -1,0 +1,19 @@
+<?php return array(
+	'sandbox'=>true,
+	'perfectmoney'=>array(
+		'id'=>'123456',
+		'wallet'=>'U1234567',
+		'title'=>'plushka-cms.ru',
+		'secret'=>'secret',
+		'password'=>'password',
+		'rate'=>0.0166
+	),
+	'robokassa'=>array(
+		'id'=>'plushka-cms.ru',
+		'password1'=>'password1',
+		'password2'=>'password2',
+		'password1Debug'=>'testpassword1',
+		'password2Debug'=>'testpassword2',
+		'rate'=>1.05
+	)
+);

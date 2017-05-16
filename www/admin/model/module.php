@@ -446,8 +446,8 @@ class module {
 	//Удаляет мультиязычные файлы (шаблоны писем и файлы локализации)
 	private static function _unlinkLanguage($f) {
 		$i=strrpos($f,'/')+1;
-		$name=preg_replace('|^[a-z][a-z]\.|','',substr($f,$i));
-		$f=substr($f,0,$i).'??.'.$name;
+		$name=preg_replace('|\.[a-z][a-z]\.|','.??.',substr($f,$i));
+		$f=substr($f,0,$i).$name;
 		$f=glob(core::path().$f,GLOB_NOSORT);
 		foreach($f as $item) unlink($item);
 	}
