@@ -28,7 +28,6 @@
 		
 	require_once(INCLUDE_PATH.'Manager.php');
 		
-		
 	//Р·Р°РіСЂСѓР¶Р°РµРј РЅР°СЃСЂРѕР№РєРё
 	require_once(CONF_PATH.'config'.EXT);
 	Manager::$conf = $conf;

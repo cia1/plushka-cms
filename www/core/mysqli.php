@@ -104,4 +104,3 @@ class _mysql {
 		return self::$_connectId->affected_rows;
 	}
 }
-?>

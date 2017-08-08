@@ -106,7 +106,7 @@ class sController extends controller {
 	/* Подтверждение адреса электронной почты */
 	public function actionConfirm() {
 		$user=core::user()->model();
-		if(!$user->loginByCode($_GET['code'])) return 'Confirm'; //поиск пользователя по коду и авторизация, если найден
+		if(!$user->loginByCode($_GET['code'])) return '_empty'; //поиск пользователя по коду и авторизация, если найден
 		//Обновить статус пользователя
 		$user->status=1;
 		$this->code=null;

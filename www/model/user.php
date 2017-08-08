@@ -5,10 +5,14 @@ core::import('core/model');
 class modelUser extends model {
 
 	private $_self; //Указатель на класс, находящийся в сессии (содержит информацию о пользователе)
-	protected $fields='id,groupId,login,email';
+
+	protected function fieldList($action) {
+		if($action=='save') return '*';
+		return 'id,groupId,login,email';
+	}
 
 	//Возвращает массив правил валидиции
-	protected function validateRule() {
+	protected function rule() {
 		$data=array(
 			'id'=>array('primary'),
 			'login'=>array('callback',LNGlogin,true,array($this,'validateLogin')),
@@ -195,7 +199,7 @@ class modelUser extends model {
 			$template['password']=$this->_data['password'];
 			break;
 		case 'info': //информация пользователю
-			core::import('language/'._LANG.'.user');
+			core::import('language/user.'._LANG);
 			$e->subject(sprintf(LNGYouAreRegisteredOnSite,$_SERVER['HTTP_HOST']));
 			if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='('.LNGknownOnlyYou.')';
 			$template['status']=($this->_data['status'] ? LNGaccountActive : LNGaccountBlocked);
@@ -208,10 +212,10 @@ class modelUser extends model {
 	}
 
 	//Выполняет сохранение информации в базе данных
-	public function save($validate=true,$fields=null,$id=null) {
+	public function save($validate=true,$id=null) {
 		if($id || $this->_data['id']) $isNew=false; else $isNew=true;
 		//Сохранить в БД зашифрованный пароль, однако, в классе хранить НЕ зашифрованный
-		if(!isset($this->_data['password'])) return parent::save($validate,$fields,$id);
+		if(!isset($this->_data['password'])) return parent::save($validate,$id);
 		$_password=$this->_data['password'];
 		$this->_data['password']=self::_hash($_password);
 		$result=parent::save($validate,$fields,$id);
@@ -226,7 +230,7 @@ class modelUser extends model {
 
 	/* --- PRIVATE --------------------------------------------------------------------------------- */
 	/* Проверяет уникальность логина */
-	public function validateLogin($field,$value) {
+	public function validateLogin($value,$field) {
 		$value=trim(str_replace(array("'",'"','/','\\'),'',strip_tags($value)));
 		if(strlen($value)<3) {
 			core::error(LNGLoginCannotBeShorter3Symbols);
@@ -246,7 +250,7 @@ class modelUser extends model {
 	}
 
 	/* Проверяет уникальность адреса электронной почты */
-	public function validateEmail($field,$value) {
+	public function validateEmail($value,$field) {
 		if(!filter_var($value,FILTER_VALIDATE_EMAIL)) {
 			core::error(LNGEMailIsWrong);
 			return false;
@@ -261,7 +265,7 @@ class modelUser extends model {
 	}
 
 	// Проверяет и шифрует пароль перед сохранением
-	public function validatePassword($field,$value) {
+	public function validatePassword($value,$field) {
 		$l=strlen($value);
 		if($l<3) {
 			core::error(LNGPasswordTooShort);
@@ -298,4 +302,3 @@ class modelUser extends model {
 	}
 
 }
-?>

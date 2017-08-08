@@ -24,4 +24,3 @@ class sController extends controller {
 	public function actionIndexSubmit($data) {}
 
 }
-?>

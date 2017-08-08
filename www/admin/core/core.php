@@ -85,6 +85,14 @@ class core {
 		return $_url;
 	}
 
+	//Подключает файл локализации (из общедоступной части сайта)
+	public static function language($name) {
+		$f=self::path().'language/'.$name.'.'._LANG.'.php';
+		if(!file_exists($f)) return false;
+		include_once($f);
+		return true;
+	}
+
 	/* Возвращает класс, олицетворяющий пользователя (экземпляр 'user"). */
 	public static function &user() {
 		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
@@ -372,7 +380,7 @@ class controller {
 
 	/* Добавляет кнопку в специально отведённую область
 	Параметры: string $link - ссылка на страницу админки; string $image - условное имя файла изображения кнопки; string $title - всплывающая подсказка; $alt - текст тега ALT; $html - любой другой HTML-код, который будет добавлен к тегу <a> */
-	protected function button($link,$image,$title='',$alt='',$html='') {
+	public function button($link,$image,$title='',$alt='',$html='') {
 		if($link=='html') $this->_button.=$image;
 		else {
 			if(strpos($link,'controller=')===false) $link='?controller='.$this->url[0].'&'.$link;
@@ -532,7 +540,7 @@ function runApplication($renderTemplate=true) {
 			}
 		}
 		$post=$_POST[controller::$self->url[0]];
-		@$data=&controller::$self->$s($post);
+		@$data=controller::$self->$s($post);
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
 		if(isset($_GET['_serialize'])) {
 			if(core::error()) die(core::error(false));
@@ -577,5 +585,4 @@ if(isset($_GET['_lang'])) define('_LANG',$_GET['_lang']); else {
 	define('_LANG',$cfg['languageDefault']);
 	unset($cfg);
 }
-core::import('language/'._LANG.'.global');
-?>
+core::import('language/global.'._LANG);

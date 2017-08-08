@@ -89,7 +89,7 @@ class _core {
 
 	/* Возвращает произвольные данные из кеша.
 	$id - идентификатор данных (строка), $callback - функция, возвращающая свежие данные, $timeout - время в секундах актуальности кеша */
-	public static function cache($id,$callback,$timeout=-1) {
+	public static function cache($id,$callback=null,$timeout=-1) {
 		if($timeout) {
 			$cfg=self::config();
 			if($cfg['debug']) $timeout=0;
@@ -219,6 +219,7 @@ class _core {
 		if($message!==null) $_SESSION['messageError']=$message;
 		return (isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
 	}
+
 	/* Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес.
 	Если задан $message, то после перенаправления будет выведено указанное сообщение */
 	public static function redirect($url,$message=null,$code=302) {
@@ -325,20 +326,20 @@ class _core {
 
 	/* Возвращает HTML-тег <script src...> или пустую строку, если скрипт уже подключен. Используется чтобы избежать повторного подключение JavaScript, а также устанавливает языковые константы JavaScript.
 	$name - имя скрипта или константы, если скрипт находится на сайте, то указывать относительный путь от /public/js, имя должно быть без ".js". */
-	public static function js($name) {
+	public static function js($name,$attribute=null) {
 		static $_js;
 		static $_lang=false;
 		if(!$_js) $_js=array();
 		if(isset($_js[$name])) return '';
 		$_js[$name]=true;
-		if(substr($name,0,7)=='http://') return '<script type="text/javascript" src="'.$name.'"></script>';
+		if(substr($name,0,7)=='http://') return '<script type="text/javascript" src="'.$name.'" '.$attribute.'></script>';
 		if(substr($name,0,3)==='LNG') {
 			return '<script type="text/javascript">'.
 			($_lang ? '' : 'document._lang=new Array();').
 			'document._lang["'.$name.'"]="'.constant($name).'";</script>';
 			$_lang=true;
 		}
-		return '<script type="text/javascript" src="'.self::url().'public/js/'.$name.'.js"></script>';
+		return '<script type="text/javascript" src="'.self::url().'public/js/'.$name.'.js" '.$attribute.'></script>';
 	}
 
 	/* Генерирует событие (прерывание).
@@ -364,7 +365,7 @@ class _core {
 
 	//Подключает файл локализации
 	public static function language($name) {
-		$f=self::path().'language/'._LANG.'.'.$name.'.php';
+		$f=self::path().'language/'.$name.'.'._LANG.'.php';
 		if(!file_exists($f)) return false;
 		include_once($f);
 		return true;
@@ -391,8 +392,14 @@ class controller {
 
 	public function __construct() {
 		$cfg=core::config();
-		if(isset($cfg['languageList'])) foreach($cfg['languageList'] as $item) {
-			$this->_head.='<link rel="alternate" hreflang="'.$item.'" href="'.core::url().($cfg['languageDefault']==$item ? '' : $item).'">';
+		if(count($cfg['languageList'])>1) {
+			if(_LANG==$cfg['languageDefault']) $link=$_SERVER['REQUEST_URI']; else {
+				$link=substr($_SERVER['REQUEST_URI'],3);
+				if(!$link) $link=core::url();
+			}
+			foreach($cfg['languageList'] as $item) {
+				$this->_head.='<link rel="alternate" hreflang="'.$item.'" href="'.($cfg['languageDefault']==$item ? $link : core::url().$item.$link).'">';
+			}
 		}
 		$this->url=$_GET['corePath'];
 		if($this->url[1]) $this->url[1]=ucfirst($this->url[1]); else $this->url[1]='Index';
@@ -400,8 +407,8 @@ class controller {
 	}
 
 	/* Служит для подключения JavaScript или других тегов в область <head> */
-	protected function js($text) {
-		if($text[0]!='<') $text=core::js($text);
+	protected function js($text,$attribute=null) {
+		if($text[0]!='<') $text=core::js($text,$attribute);
 		$this->_head.=$text;
 	}
 
@@ -558,7 +565,7 @@ class user {
 /* С этой функции начинается вся основная работа */
 function runApplication($renderTemplate=true) {
 	session_start();
-	include(core::path().'language/'._LANG.'.global.php');
+	include(core::path().'language/global.'._LANG.'.php');
 	$user=core::userCore();
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
@@ -583,7 +590,9 @@ function runApplication($renderTemplate=true) {
 						if(!$size) continue;
 						$_POST[$alias][$name][]=array('name'=>$f1['name'][$name][$i],'tmpName'=>$f1['tmp_name'][$name][$i],'type'=>$f1['type'][$name][$i],'size'=>$size);
 					}
-				} else $_POST[$alias][$name]=array('name'=>$f1['name'],'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$value);
+				} else {
+					$_POST[$alias][$name]=array('name'=>$f1['name'][$name],'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$value);
+				}
 			}
 		}
 		$s='action'.controller::$self->url[1].'Submit';
@@ -613,6 +622,17 @@ if(_core::debug()) {
 if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
 
 $cfg=core::config();
+
+//Поиск языка в URL-адресе
+if(isset($_GET['corePath'])) {
+	$lang=substr($_GET['corePath'],0,2);
+	if(in_array($lang,$cfg['languageList'])) {
+		define('_LANG',$lang);
+		$_GET['corePath']=substr($_GET['corePath'],3);
+	} else define('_LANG',$cfg['languageDefault']);
+	unset($lang);
+} else define('_LANG',$cfg['languageDefault']);
+
 //Обработать запрошенный URL и положить его в $_GET['corePath']
 if(!isset($_GET['corePath']) || !$_GET['corePath']) $_GET['corePath']=$cfg['mainPath'];
 else {
@@ -632,19 +652,8 @@ else {
 		$len2=strlen($s);
 		if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 	}
+	unset($link);
 }
-
-//Поиск языка в URL-адресе
-$lang=strpos($_GET['corePath'],'/');
-if(!$lang || !isset($cfg['languageList'])) define('_LANG',$cfg['languageDefault']);
-else {
-	$lang=substr($_GET['corePath'],0,$lang);
-	if(in_array($lang,$cfg['languageList'])) {
-		define('_LANG',$lang);
-		$_GET['corePath']=substr($_GET['corePath'],strlen($lang)+1);
-	} else define('_LANG',$cfg['languageDefault']);
-}
-unset($lang);
 
 //Перехват if-modified-since (работает без учёта мультиязычности)
 if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (не для CGI)
@@ -652,7 +661,6 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 	if($cfg['languageDefault']==_LANG) $s=$_GET['corePath']; else $s=_LANG.'/'.$_GET['corePath'];
 	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($s));
 	unset($s);
-
 	if($lastModified) {
 		header('Last-Modified: '.gmdate('D, d M Y H:i:s \G\M\T',$lastModified));
 		if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
@@ -666,7 +674,6 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 }
 
 unset($cfg);
-
 $_GET['corePath']=explode('/',$_GET['corePath']);
 if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]=null; //чтобы транслятор не выдавал предупреждений (Warning)
 header('Content-type:text/html; Charset=UTF-8');

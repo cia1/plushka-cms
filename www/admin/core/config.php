@@ -56,7 +56,7 @@ class config implements IteratorAggregate {
 			core::error('Ошибка записи конфигурации '.$fname);
 			return false;
 		}
-		fwrite($f,'<?php return '.$this->_implode($this->_data).'; ?>');
+		fwrite($f,'<?php return '.$this->_implode($this->_data).';');
 		fclose($f);
 		return true;
 	}

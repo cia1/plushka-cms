@@ -49,16 +49,17 @@
 	//Лог последних платежей
 	public function actionLog() {
 		$db=core::db();
-		$db->query('SELECT id,date,amount,method,status,data FROM payment ORDER BY date DESC',200);
+		$db->query('SELECT p.id,p.userId,p.date,p.amount,p.method,p.status,u.login,p.data FROM payment p LEFT JOIN user u ON u.id=p.userId ORDER BY p.date DESC',200);
 		$table=core::table();
-		$table->rowTh('ID|Дата|Сумма|Способ оплаты|Статус|');
+		$table->rowTh('ID|Дата|Сумма|Способ оплаты||Пользователь|');
 		while($item=$db->fetch()) {
 			$table->text($item[0]);
-			$table->text(date('d.m.Y H:i:s',$item[1]));
-			$table->text($item[2]);
+			$table->text(date('d.m.Y H:i:s',$item[2]));
 			$table->text($item[3]);
 			$table->text($item[4]);
 			$table->text($item[5]);
+			$table->link($item[6],'user/userItem&id='.$item[1]);
+			$table->text($item[7]);
 		}
 		return $table;
 	}

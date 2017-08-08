@@ -7,8 +7,12 @@ class modelUserGroup extends model {
 		parent::__construct('userGroup');
 	}
 
+	protected function fieldList($action) {
+		return '*';
+	}
+
 	//Возвращает правила валидации
-	protected function validateRule() {
+	protected function rule() {
 		return array(
 			'id'=>array('integer','Группа',true,'min'=>1,'max'=>255),
 			'name'=>array('string','Описание',true)
@@ -68,4 +72,3 @@ class modelUserGroup extends model {
 		return true;
 	}
 }
-?>

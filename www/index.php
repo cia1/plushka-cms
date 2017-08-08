@@ -10,4 +10,3 @@ if(!file_exists($name)) {
 include_once($name);
 
 runApplication();
-?>

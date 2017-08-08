@@ -1,16 +1,16 @@
 <?php return array(
+'articleCategory'=>true,
 'article'=>true,
-'articlecategory'=>true,
-'frmfield'=>array(
+'frmField'=>array(
 'title',
 'data'
 ),
-'frmform'=>array(
+'frmForm'=>array(
 'title',
 'subject',
 'successMessage'
 ),
-'menuitem'=>array(
+'menuItem'=>array(
 'title'
 ),
 'widget'=>array(

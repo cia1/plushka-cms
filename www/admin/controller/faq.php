@@ -79,7 +79,7 @@ class sController extends controller {
 	}
 
 	public function actionEditSubmit($data) {
-		$m=core::model();
+		$m=core::model('faq');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),

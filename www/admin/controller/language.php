@@ -14,10 +14,9 @@ class sController extends controller {
 	public function actionIndex() {
 		$this->button('?controller=language&action=add','new','Добавить язык');
 		$cfg=core::config();
-		if(!isset($cfg['languageList'])) $lst=array($cfg['languageDefault']); else $lst=$cfg['languageList'];
 		$table=core::table();
 		$table->rowTh('Язык|');
-		foreach($lst as $item) {
+		foreach($cfg['languageList'] as $item) {
 			if($item==$cfg['languageDefault']) {
 				$table->text('<b>'.$item.' (основной)</b>');
 				$table->text('');
@@ -53,7 +52,6 @@ class sController extends controller {
 		core::import('admin/core/config');
 		$cfg=new config('_core');
 		$lst=$cfg->languageList;
-		if(!$lst) $lst=array($cfg->languageDefault);
 		if(in_array($model->alias,$lst)) {
 			core::error('Этот язык уже используется');
 			return false;
@@ -80,9 +78,9 @@ class sController extends controller {
 		$lst=$cfg->languageList;
 		unset($lst[array_search($_GET['id'],$lst)]);
 		$lst=array_values($lst);
-		if(count($lst)==1) unset($cfg->languageList); else $cfg->languageList=$lst;
+		$cfg->languageList=$lst;
 		$cfg->save('_core');
 		core::redirect('?controller=language');
 	}
 
-} ?>
+}

@@ -452,4 +452,3 @@ class module {
 		foreach($f as $item) unlink($item);
 	}
 }
-?>

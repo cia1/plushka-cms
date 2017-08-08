@@ -23,4 +23,3 @@ if(!$ids) return true;
 $db->query('DELETE FROM comment WHERE groupId IN('.$ids.')');
 $db->query('DELETE FROM commentGroup WHERE id IN('.$ids.')');
 return true;
-?>

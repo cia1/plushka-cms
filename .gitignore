@@ -8,3 +8,4 @@ www/cache/template/*.*
 www/cache/widget/*.*
 www/cache/custom/*.*
 www/sftp-config.json
+_thumb

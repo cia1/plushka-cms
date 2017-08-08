@@ -180,7 +180,8 @@ class sController extends controller {
 			core::error('Такой псевдоним уже используется для другой категории статей (блога)');
 			return false;
 		}
-		$m=core::model('articleCategory_'._LANG);
+		$m=core::model('articleCategory');
+		$m->multiLanguage();
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),

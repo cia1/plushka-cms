@@ -9,8 +9,8 @@ class model {
 	protected $_multiLanguage=false; //если true, то будут выполнены запросы для всех языков
 	protected $_languageDb; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
 
-	public function __construct($namespace=null,$db='db') {
-		if($namespace) $this->_table=$namespace; else $this->_table=$_GET['corePath'][0];
+	public function __construct($table=null,$db='db') {
+		if($table) $this->_table=$table; else $this->_table=$_GET['corePath'][0];
 		if($db==='db') $this->db=core::db();
 		elseif($db==='sqlite') $this->db=core::sqlite();
 		elseif($db==='mysql') $this->db=core::mysql();
@@ -42,10 +42,21 @@ class model {
 		return $this->_data;
 	}
 
-	/* Загружает данные из БД по указанному условию */
-	public function load($where,$fields=null) {
-		if(!$fields) $fields=$this->fields;
-		$this->_data=$this->db->fetchArrayOnceAssoc('SELECT '.$fields.' FROM `'.$this->_table.($this->_multiLanguage ? '_'._LANG : '').'` WHERE '.$where);
+	//Очищает данные
+	public function init() {
+		$this->_data=array();
+	}
+
+	/* Загружает данные из БД по указанному условию
+	$where - часть SQL-запроса после WHERE;
+	$fieldList - список загружаемых полей: null - берётся из self::fieldList(), строка или массив - список полей
+	ВАЖНО! В целом нужно анализировать _languageDb и добавлять суффикс языка к именам полей, но оставлю это для следующих версий.
+	*/
+	public function load($where,$fieldList=null) {
+		if(!$fieldList) $fieldList=$this->fieldList('load');
+		if(is_array($fieldList)) $fieldList=implde(',',$fieldList);
+		if($this->_languageDb===null) $this->_setLanguageDb();
+		$this->_data=$this->db->fetchArrayOnceAssoc('SELECT '.$fieldList.' FROM `'.$this->_table.($this->_languageDb===true ? '_'._LANG : '').'` WHERE '.$where);
 		if(!$this->_data) return false;
 		return true;
 	}
@@ -57,49 +68,70 @@ class model {
 	}
 
 	/* Выполняет валидацию всех данных
-	$validate - правила валидации */
+	$validate - правила валидации: null - используется fieldList()+rule(), строка - используется только rule(), массив - fieldList() и rule() НЕ используются */
 	public function validate($validate=null) {
-		if(!$validate && method_exists($this,'validateRule')) $validate=$this->validateRule();
-		foreach($validate as $name=>$options) {
-			if(!$this->_validateField($this->_data[$name],$name,$options)) return false;
+		if($validate===null || is_string($validate)) {
+			if($validate===null) {
+				$validate=$this->fieldList('validate');
+				if(is_string($validate)) $validate=explode(',',$validate);
+			} else $validate=explode(',',$validate);
+			$validate=array_intersect_key($this->rule(),array_combine($validate,$validate));
+		}
+		foreach($validate as $name=>$option) {
+			if(!$this->_validateField($this->_data[$name],$name,$option)) return false;
 		}
 		return true;
 	}
 
 	/* Выполняет запрос INSERT или UPDATE (если есть значение первичного ключа)
-	$validate - отвечает за предварительную валидацию, $fields - список полей для обновления (если нет валидации), $id - значение первичного ключа (если нет валидации)
-	ВНИМАНИЕ! Если передан список полей в первом параметре, то среди этого списка должен быть первичный ключ */
-	public function save($validate=true,$fields=null,$id=null) {
-		if($validate===true) $validate=$this->validateRule();
-		elseif(is_string($validate)) { //если строка, значит содержит список полей
-			$fields=explode(',',$validate);
-			//в правила валидации взять только указанные поля
-			$tmpRule=$this->validateRule();
-			$validate=array();
-			foreach($fields as $item) $validate[$item]=$tmpRule[$item];
-			unset($tmpRule);
+	$validate - отвечает за предварительную валидацию: null или true - будет вызван self::validate(), array - содержит правила валидации, string - валидация не проводится, поле содержит список полей для INSERT/UPDATE;
+	$primaryKeyName - имя первичного ключа (если не заданы правила валидации) - позволяет определить операцию INSERT/UPDATE: null - определяется автоматически, false - ключа нет, выполнить INSERT вместо UPDATE */
+	public function save($validate=null,$primaryKeyName=null) {
+		//Валидация
+		if($validate===null || $validate===true || is_string($validate)) {
+			if($validate===null || $validate===true) $validate=$this->fieldList('save');
+			if(is_string($validate)) $validate=explode(',',$validate);
+			if($validate[0]=='*') $validate=$this->rule();
+			else $validate=array_intersect_key($this->rule(),array_combine($validate,$validate));
+			if(!$this->validate($validate)) return false;
+			foreach($validate as $key=>$null) {
+				if($null[0]=='captcha') unset($validate[$key]);
+			}
+			$validate=array_keys($validate);
+		} elseif(is_array($validate)) {
+			if(!$this->validate($validate)) return false;
+			foreach($validate as $key=>$null) {
+				if($null[0]=='captcha') unset($validate[$key]);
+				elseif($null[0]=='primary') $this->_primary=$key;
+			}
+			$validate=array_keys($validate);
 		}
-		if($validate!==false) { //может содержать false, true или массив с правилами валидации
-			if(!$this->validate($validate,$fields)) return false;
-		} else $this->searchPrimary($this->validateRule()); //поиск первичного ключа и установка его имени в $this->_primary
-		if(!$fields) { //Если список полей не задан явно, то извлечь его из правил валидации
-			if(is_array($validate)) $fields=array_keys($validate);
-			elseif($validate===false) $fields=array_keys($this->validateRule());
-			else $fields=$validate;
-		} elseif(is_string($fields)) $fields=explode(',',$fields);
-		$primary=$this->_primary; //название первичного ключа (просто синоним для удобства).
-		//Если ID задан явно (не NULL), то восспринимать его как ключ возможно существующей записи, однако, в INSERT и UPDATE использовать ключ, заданный коссвенно (в списке полей).
-		if($id===null) $id=$this->_data[$primary];
-		//Триггер "до INSERT/UPDATE"
-		if(method_exists($this,'beforeInsertUpdate')) if(!$this->beforeInsertUpdate($id,$fields)) return false;
-
+		//Поиск первичного ключа (если не был определён в методе validate() )
+		if($primaryKeyName!==null) $this->_primary=$primaryKeyName;
+		if(is_string($validate)) $validate=explode(',',$validate);
+		if(!$this->_primary && $primaryKeyName!==false && method_exists($this,'rule')) { //ситация: первичный ключ указан явно, но валидация не требуется
+			$validate=$this->rule('save');
+			foreach($validate as $id=>$null) {
+				if($null[0]=='primary') {
+					$this->_primary=$id;
+					break;
+				}
+			}
+			unset($null);
+		}
+		if($this->_primary && isset($this->_data[$this->_primary])) $id=$this->_data[$this->_primary];
+		else $id=null;
+		if($primaryKeyName!==false) { //Удалить первичный ключ из списка полей, за исключением случая, когда нужно выполнить INSERT с заранее определённым значением первичного ключа
+			$i=array_search($this->_primary,$validate);
+			if($i!==false) unset($validate[$i]);
+		}
+		if(method_exists($this,'beforeInsertUpdate')) if(!$this->beforeInsertUpdate($id,$validate)) return false;
 		$this->_setLanguageDb(); //Подготовить данные о мультиязычности
-
 		//А вот и сам SQL-запрос...
-		if($primary && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE
-			return $this->_update($fields,$validate,$primary,$id);
+		if($this->_primary && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE
+			return $this->_update($validate,$this->_primary,$id);
 		} else { //Среди полей нет первичного ключа или он не задан явно или коссвено, значит выполнить INSERT
-			return $this->_insert($fields,$validate,$primary);
+			return $this->_insert($validate,$this->_primary,$id);
 		}
 	}
 
@@ -122,28 +154,20 @@ class model {
 		if($this->db->affected()) return true; else return false;
 	}
 
-	/* Возвращает имя поля, являющегося первичным ключом в правилах валидации $data */
-	protected function searchPrimary($data) {
-		foreach($data as $index=>$options) {
-			if($options[0]=='primary') {
-				$this->_primary=$index;
-				return true;
-			}
-		}
-		return false;
-	}
-
 	protected function afterInsert($id=null) { return true; } //триггер, может быть перегружен
 	protected function afterUpdate($id=null) { return true; } //триггер, может быть перегружен
 
 	/* Выполняет валидацию одного поля
-	$value - содержимое поля (значение), $name - имя поля, $options - параметры валидации ([0]=>тип,[1]=>заголовок,[2]=>может ли быть null,[min]=>минимальное,[max]=>максимальное */
+	$value - содержимое поля (по ссылке, т.к. _validateField также проводит фильтрацию);
+	$name - имя поля;
+	$options - параметры валидации ([0]=>тип,[1]=>заголовок,[2]=>может ли быть null,[min]=>минимальное,[max]=>максимальное */
 	protected function _validateField(&$value,$name,$options) {
 		if(!isset($options[2])) $options[2]=false;
-		if($options[0]!='primary' && ($value===null || $value==='') && $options[2]) {
+		if($options[0]!='primary' && ($value===null || $value==='' || ($options[0]=='image' && !$value)) && $options[2]) {
 			core::error(sprintf(LNGFieldCannotByEmpty,$options[1]));
 			return false;
 		}
+		if($value===null && $options[0]!='primary') return true;
 		//Валидация в зависимости от типа поля
 		switch($options[0]) {
 		case 'primary':
@@ -197,7 +221,7 @@ class model {
 			$value=strip_tags($value);
 			if(!isset($options['trim']) || $options['trim']) $value=trim($value);
 			if($value) {
-				if(isset($options['min']) && $options['min']>strlen($value)) {
+				if(isset($options['min']) && $options['min']>mb_strlen($value,'UTF-8')) {
 					core::error(sprintf(LNGFieldTextTooShort,$options[1]));
 					return false;
 				}
@@ -245,11 +269,47 @@ class model {
 			}
 			break;
 		case 'callback':
-			$value=call_user_func_array($options[3],array($name,$value));
+			$value=call_user_func_array($options[3],array($value,$name));
 			if(core::error()) return false;
 			break;
+		case 'image': //options[]: 'minWidth','minHeight','maxWidth','maxHeight'
+			core::import('core/picture');
+			if(is_array($value) && isset($value[0])) foreach($value as $i=>$item) {
+				$item=self::_picture($item,$options);
+				if(!$item) return false;
+				$value[$i]=$item;
+			} else {
+				$value=self::_picture($value,$options);
+				if(!$value) return false;
+			}
 		}
 		return true;
+	}
+
+	private function _picture($image,$option) {
+		$picture=new picture($image);
+		if(core::error()) return false;
+		if(isset($option['minWidth']) || isset($option['maxWidth'])) {
+			$w=$picture->width();
+			$h=$picture->height();
+			if(isset($option['minWidth']) && $w<$option['minWidth']) {
+				core::error(sprintf(LNGImageWidthCannotBeLessPixels,$option['minWidth']));
+				return false;
+			}
+			if(isset($option['maxWidth']) && $w>$option['maxWidth']) {
+				core::error(sprintf(LNGImageWidthCannotBeMorePixels,$option['maxWidth']));
+				return false;
+			}
+			if(isset($option['minHeight']) && $h<$option['minHeight']) {
+				core::error(sprintf(LNGImageHeightCannotBeLessPixels,$option['minHeight']));
+				return false;
+			}
+			if(isset($option['maxHeight']) && $h>$option['maxHeight']) {
+				core::error(sprintf(LNGImageHeightCannotBeMorePixels,$option['maxHeight']));
+				return false;
+			}
+		}
+		return $picture;
 	}
 
 	//Возвращает информацию о мультиязычных таблицах
@@ -267,39 +327,36 @@ class model {
 	}
 
 	//Собирает и выполняет SQL-запрос INSERT
-	private function _insert($fields,$validate,$primary) {
+	private function _insert($fieldList,$primary) {
 		if($this->_languageDb) {
 			$languageList=core::config();
-			if(isset($languageList['languageList'])) $languageList=$languageList['languageList']; else $languageList=array($cfg['languageDefault']);
+			$languageList=$languageList['languageList'];
 		}
-
 		$s1=$s2='';
-		foreach($fields as $name) {
-			if(isset($validate[$name])) $options=$validate[$name]; else $options=null;
-			if(($options[0]=='primary' && !$this->_data[$primary]) || $options[0]=='captcha') continue; //Пропустить каптчу, а также первичный ключ, если он не задан (должен быть сформирован автоматически).
-			if($options[0]=='boolean') if(!$this->_data[$name]) $this->_data[$name]='0'; else $this->_data[$name]='1';
-			if($this->_data[$name]===null) if(isset($options['default'])) $this->_data[$name]=$options['default']; else continue;
-			$value=($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
-			if(is_array($this->_languageDb) && in_array($name,$this->_languageDb)) { //это поле является мультиязычным
+		foreach($fieldList as $field) {
+			if($this->_data[$field]===null) continue;
+//			$value=($this->_data[$field]===null ? 'null' : $this->db->escape($this->_data[$field]));
+			$value=$this->db->escape($this->_data[$field]);
+			if(is_array($this->_languageDb) && in_array($field,$this->_languageDb)) { //это поле является мультиязычным
 				if($this->_multiLanguage) {
 					foreach($languageList as $lang) { //добавить поля для каждого языка
 						if($lang==_LANG) continue;
 						if($s1) {
-							$s1.=',`'.$name.'_'.$lang.'`';
+							$s1.=',`'.$field.'_'.$lang.'`';
 							$s2.=','.$value;
 						} else {
-							$s1='`'.$name.'_'.$lang.'`';
+							$s1='`'.$field.'_'.$lang.'`';
 							$s2=$value;
 						}
 					}
 				}
-				$name.='_'._LANG;
+				$field.='_'._LANG;
 			}
 			if($s1) {
-				$s1.=',`'.$name.'`';
+				$s1.=',`'.$field.'`';
 				$s2.=','.$value;
 			} else {
-				$s1='`'.$name.'`';
+				$s1='`'.$field.'`';
 				$s2=$value;
 			}
 		}
@@ -314,11 +371,13 @@ class model {
 					$s1.=',`'.$primary.'`';
 					$s2.=','.$this->db->escape($this->_data[$primary]);
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
+//var_dump($query);exit;
 					if(!$this->db->query($query)) return false;
 				}
 			}
 		} else {
 			$query='INSERT INTO `'.$this->_table.'` ('.$s1.') VALUES ('.$s2.')';
+//var_dump($query);exit;
 			if(!$this->db->query($query)) return false;
 			if($primary) {
 				$this->_data[$primary]=$this->db->insertId(); //обновить значение первичного ключа
@@ -329,12 +388,9 @@ class model {
 	}
 
 	//Собирает и выполняет SQL-запрос UPDATE
-	private function _update($fields,$validate,$primary,$id) {
+	private function _update($fieldList,$primary,$id) {
 		$s='';
-		foreach($fields as $name) {
-			if(isset($validate[$name])) $options=$validate[$name]; else $options=null;
-			if(($options[0]=='primary' && $id==$this->_data[$primary]) || $options[0]=='captcha') continue; //Пропустить каптчу, а также первичный ключ, если он совпадает с явно заданным (нет необходимости обновлять первичный ключ).
-			if($options[0]=='boolean') if(!$this->_data[$name]) $this->_data[$name]='0'; else $this->_data[$name]='1';
+		foreach($fieldList as $name) {
 			if($s) $s.=',';
 			$s.='`'.$name;
 			if($this->_multiLanguage && is_array($this->_languageDb) && in_array($name,$this->_languageDb)) $s.='_'._LANG;
@@ -342,6 +398,7 @@ class model {
 		}
 		if($this->_languageDb===true) $s='UPDATE `'.$this->_table.'_'._LANG.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
 		else $s='UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
+//var_dumP($s);exit;
 		if(!$this->db->query($s)) return false;
 		return $this->afterUpdate($this->$primary); //триггер "после UPDATE"
 	}

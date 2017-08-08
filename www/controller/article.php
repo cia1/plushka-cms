@@ -98,4 +98,4 @@ class sController extends controller {
 		);
 	}
 
-} ?>
+}

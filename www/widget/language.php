@@ -2,9 +2,8 @@
 
 	public function __invoke() {
 		$cfg=core::config();
-		if(!isset($cfg['languageList'])) return false;
 		$link=substr($_SERVER['REQUEST_URI'],strlen(core::url()));
-		if(_LANG!=$cfg['languageDefault']) $link=substr($link,3);
+		if(_LANG!=$cfg['languageDefault']) $link=substr($link,($link[2]=='?' ? 2 : 3));
 		$this->language=$cfg['languageList'];
 		foreach($this->language as $i=>$item) {
 			if($item==$cfg['languageDefault']) $lang=''; else $lang=$item.'/';
@@ -21,4 +20,4 @@
 		<?php }
 	}
 
-} ?>
+}

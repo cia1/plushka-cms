@@ -1,73 +1,32 @@
-<div id="chatPage">
-<div class="online"><p><b><?=LNGWhoInChat?>:</b></p><div id="online"><?=LNGLoading?></div></div>
-<div id="console"></div>
-<?php
-$f=core::form('chat');
-$f->hidden('time',0,'id="time"');
-if($this->login) $f->label(LNGName.':',$this->login); else $f->text('login',LNGName.':',$this->login,'id="login"');
-$f->text('message',LNGMessage.':','','id="message"');
-$f->submit(LNGAsk);
-$f->render('index2.php?controller=chat&amp;action=post&amp;id='.$this->id);
-?>
+<div id="chatConsole"><?php foreach($this->content as $item) { ?>
+	<p>
+		<span class="time"><?=date('d.m.Y H:i:s',$item['time'])?></span>
+		<span class="from"><?=$item['fromLogin']?></span>:
+		<span class="message">
+			<?php if($item['toLogin']) { ?>
+				<span class="to"><?=$item['toLogin']?></span>,
+			<?php } ?>
+			<?=$item['message']?>
+		</span>
+	</p>
+<?php } ?></div>
+
+<form action="<?=core::link('chat')?>" class="chatMessage" method="post" name="chatMessage">
+<?php if($this->fromLogin) { ?>
+<?php } else { ?>
+	<p><?=LNGEnterYourName?>: <input type="text" name="chat[login]" placeholder="<?=LNGLogin?>" /></p>
+	<p><?=LNGCaptcha?>:<br />
+	<img src="<?=core::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" />
+	<p>Или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
+<?php } ?>
+<input type="text" name="chat[message]" class="message" />
+<input type="submit" value="<?=LNGSay?>" class="button" />
+</form>
+
 <script>
-jQuery(function() {
-	var isName=false;
-	var chatBtn=$('form.chat input.button');
-	$('form.chat').submit(function() {
-		var status=true;
-		$('input[type=text]',this).each(function() {
-			if(this.name=='chat[login]') isName=true;
-			if(!$(this).val().trim()) { status=false; }
-		});
-		if(status) return true;
-		return false;
-	});
-	$('form.chat').ajaxForm({success:function(data) {
-		if(isName) {
-			if(data.substr(data.indexOf('|||',13)+3,3)!='<i>') $('dd.login').append($('input#login').remove().val());
-		}
-		loadChatData.timestamp=parseInt(new Date().valueOf()/1000);
-		appendChatData(data);
-		$('#message').val('').focus();
-		chatBtn.timeout=30;
-		chatBtn.attr('disabled','disabled').attr('value','( '+chatBtn.timeout+' )');
-		var chatPause=setInterval(function() {
-			if(!--chatBtn.timeout) {
-				clearInterval(chatPause);
-				chatBtn.removeAttr('disabled').val('<?=LNGAsk?>');
-			} else chatBtn.attr('value','( '+chatBtn.timeout+' )');
-		},1000);
-	}});
-
-	function loadChatData() {
-		$.get('<?=core::link('index2.php?controller=chat&action=load&id='.$this->id)?>&t='+loadChatData.timestamp,appendChatData);
-		loadChatData.timestamp=parseInt(new Date().valueOf()/1000);
-	}
-	loadChatData.timestamp=0;
-
-	function appendChatData(data) {
-		data=data.split("\n");
-		if(data[data.length-1]) $('#online').html('<ul><li>'+data[data.length-1].split('|||').sort().join('</li><li>')+'</li></ul>');
-		else $('#online').html('<?=ThereIsNoActivityInChat?>');
-		$('#online li').click(function() {
-			var o=$('#message');
-			o.val(this.innerHTML+': '+o.val());
-		});
-		var s='';
-		for(i=data.length-2;i>=0;i--) {
-			data[i]=data[i].split('|||');
-			var date=new Date(data[i][0]*1000);
-			s+='<p><span class="time">'+date.getDate()+'.'+date.getMonth()+' '+date.getHours()+':'+date.getMinutes()+'</span><span class="name">'+data[i][1]+'</span>: '+data[i][2]+'</p>';
-		}
-		if(s) $('#time').val(data[0][0]);
-		$('#console').append(s);
-		$("#console").animate({scrollTop:$("#console").prop("scrollHeight")});
-	}
-
-	loadChatData();
-	setInterval(loadChatData,10000);
-});
+$('#chatConsole').chat(
+	'<?=core::url()?>',
+	<?=microtime(true)?>,
+	document.forms.chatMessage
+);
 </script>
-</div>
-<div style="clear:both;"></div>
-<?php if(!core::userGroup()) echo '<p><br />'.sprintf(LNGRegisterChat,'<a href="'.core::link('user/register').'" rel="nofollow">процедуру регистрации</a>').'</p>'; ?>

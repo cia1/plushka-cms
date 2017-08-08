@@ -1,13 +1,16 @@
 <?php
 /* Объект "пользователь". */
 core::import('model/user');
-core::import('language/'._LANG.'.user');
+core::import('language/user.'._LANG);
 
 class modelUserAdmin extends modelUser {
-	protected $fields='*';
+
+	protected function fieldList($action) {
+		return '*';
+	}
 
 	//Возвращает массив с правилами валидации
-	public function validateRule() {
+	protected function rule() {
 		$data=parent::validateRule();
 		unset($data['code']);
 		if(!$this->_data['password']) unset($data['password']);
@@ -43,4 +46,3 @@ class modelUserAdmin extends modelUser {
 	}
 
 }
-?>

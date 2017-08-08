@@ -28,4 +28,3 @@ define('LNGToMain','To main page');
 define('LNGUser','User');
 define('LNGwroteWrong','entered incorrectly');
 define('LNGyes','yes');
-?>

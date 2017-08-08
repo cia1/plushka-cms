@@ -11,6 +11,12 @@
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
+'catalog.lang_en'=>array(
+	'name'=>'Универсальный каталог. Языковой пакет EN',
+	'version'=>'1.2',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
 'catalog.lang_ru'=>array(
 	'name'=>'Универсальный каталог. Языковой пакет RU',
 	'version'=>'1.2',
@@ -19,6 +25,12 @@
 ),
 'chat'=>array(
 	'name'=>'Чат',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'chat.lang_en'=>array(
+	'name'=>'Чат. Языковой пакет EN',
 	'version'=>'1.0',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'

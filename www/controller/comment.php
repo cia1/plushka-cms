@@ -53,4 +53,4 @@ class sController extends controller {
 		return $_SERVER['REMOTE_ADDR'];
 	}
 
-} ?>
+}

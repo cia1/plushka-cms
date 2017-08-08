@@ -3,11 +3,14 @@ core::import('core/model');
 class article extends model {
 
 	private $_oldAlias;
-	protected $fields='*';
 
 	function __construct($db=null) {
 		parent::__construct('article');
 		$this->_multiLanguage=true;
+	}
+
+	protected function fieldList($action) {
+		return '*';
 	}
 
 	public function loadbyAlias($alias) {
@@ -25,7 +28,7 @@ class article extends model {
 		return true;
 	}
 
-	protected function validateRule() {
+	protected function rule() {
 		return array(
 			'id'=>array('primary'),
 			'categoryId'=>array('integer','Категория'),
