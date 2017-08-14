@@ -9,6 +9,7 @@
 	'data/chat.txt',
 	'model/chat.php',
 	'public/css/chat.css',
+	'public/chat-smile/',
 	'public/js/jquery.chat.js',
 	'view/chatIndex.php',
 	'view/widgetChat.php',

@@ -7,6 +7,8 @@
 		if($user->id) $this->fromLogin=$user->login;
 		elseif(isset($_SESSION['chatLogin'])) $this->fromLogin=$_SESSION['chatLogin'];
 		else $this->fromLogin=null;
+		$this->smile=chat::smile();
+
 		core::language('chat');
 		$this->js('jquery.min');
 		$this->js('jquery.form');
@@ -34,7 +36,8 @@
 
 	public function adminIndexLink() {
 		return array(
-			array('chat.setting','?controller=chat&action=setting','setting','Настройки чата')
+			array('chat.setting','?controller=chat&action=setting','setting','Настройки чата'),
+			array('chat.moderate','?controller=chat&action=message','edit','Модерирование сообщений')
 		);
 	}
 

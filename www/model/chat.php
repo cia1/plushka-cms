@@ -23,6 +23,19 @@ class chat {
 		return $data;
 	}
 
+	//Возвращает список смайлов
+	public static function smile() {
+		$d=opendir(core::path().'public/chat-smile');
+		$smile=array();
+		$url=core::url().'public/chat-smile/';
+		while($f=readdir($d)) {
+			if($f=='.' || $f=='..' || substr($f,-4)!='.gif') continue;
+			$smile[substr($f,0,strlen($f)-4)]=$url.$f;
+		}
+		closedir($d);
+		return $smile;
+	}
+
 	//Проверяет и фильтрует логин (вводится посетителем вручную)
 	public static function filterLogin($login,$captcha) {
 		core::language('chat');
@@ -59,9 +72,19 @@ class chat {
 		return $login;
 	}
 
-	//Проверяет и фильтрует текст сообщения
+	//Проверяет и фильтрует текст сообщения, добавляет смайлы
 	public static function filterMessage($message) {
 		$message=trim(str_replace("\t",' ',strip_tags($message)));
+		$smile1=self::smile();
+		$smile2=array();
+		foreach($smile1 as $id=>$item) {
+			$smile1[$id]='[['.$id.']]';
+			$smile2[]='<img src="'.$item.'" alt="'.$id.'" />';
+		}
+		$smile1=array_values($smile1);
+		$message=str_replace($smile1,$smile2,$message);
+		unset($smile1);
+		unset($smile2);
 		if(mb_strlen($message,'UTF-8')<2) {
 			core::error(LNGMessageTooShort);
 			return false;
@@ -88,4 +111,5 @@ class chat {
 		fclose($f);
 		return $s;
 	}
+
 }

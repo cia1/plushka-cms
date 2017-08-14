@@ -1,9 +1,6 @@
-/*
-setInterval(function() {
-},2000);
-*/
 $.fn.chat=function(urlRoot,serverTime,form) {
 	var console=$(this.get(0)); //HTML-контейнер для сообщений
+	var hideMe=false;
 
 	//Генерирует HTML сообщения и обновляет дату последнего сообщения
 	var _html=function(data) {
@@ -42,6 +39,10 @@ $.fn.chat=function(urlRoot,serverTime,form) {
 	$(form).ajaxForm(function(data) {
 		$('.message',form).val('').focus();
 		if(!data) return;
+		if(hideMe==false) {
+			$('.hideMe',form).remove();
+			hideMe=true;			
+		}
 		console.append(_html(data));
 	});
 	$('.message',form).focus();
@@ -59,5 +60,36 @@ $.fn.chat=function(urlRoot,serverTime,form) {
 			console.append(html);
 		});
 	},2500);
+
+	//Форма вставляет смайл в чат
+	var smile=$('.smile',form);
+	if(smile.length==1) {
+		$('img',smile).click(function() {
+			$('.message',form).insertAtCaret(' [['+this.alt+']] ');
+		});
+	}
+
 	return this;
-}
+};
+
+
+jQuery.fn.insertAtCaret=function(value) {
+	return this.each(function(i) {
+		if(document.selection) {
+			this.focus();
+			var sel=document.selection.createRange();
+			sel.text=myValue;
+			this.focus();
+		} else if(this.selectionStart || this.selectionStart=='0') {
+			var startPos=this.selectionStart;
+			var endPos=this.selectionEnd;
+			this.value=this.value.substring(0, startPos)+value+this.value.substring(endPos,this.value.length);
+			this.focus();
+			this.selectionStart=startPos+myValue.length;
+			this.selectionEnd=startPos+myValue.length;
+		} else {
+			this.value+=myValue;
+			this.focus();
+		}
+	});
+};

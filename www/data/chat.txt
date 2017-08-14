@@ -1,1 +1,3 @@
-1502209539.6535	Admin|1	|	Привет, мир!	
+1502733941.9274	Admin|1	|	<img src="/public/chat-smile/1.gif" alt="1" />  <img src="/public/chat-smile/27.gif" alt="27" />  <img src="/public/chat-smile/12.gif" alt="12" />	
+1502733662.5884	Admin|1	|	[[1]]  [[1]]  [[1]]	
+1502731306.5477	Admin|1	|	Привет, мир!	

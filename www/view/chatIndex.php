@@ -20,6 +20,12 @@
 	<p>Или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
 <?php } ?>
 <input type="text" name="chat[message]" class="message" />
+<?php if($this->smile) { ?>
+	<p class="smile"><?php foreach($this->smile as $id=>$item) { ?>
+		<img src="<?=$item?>" alt="<?=$id?>" />
+	<?php } ?>
+	</p>
+<?php } ?>
 <input type="submit" value="<?=LNGSay?>" class="button" />
 </form>
 
