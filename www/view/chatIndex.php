@@ -14,10 +14,11 @@
 <form action="<?=core::link('chat')?>" class="chatMessage" method="post" name="chatMessage">
 <?php if($this->fromLogin) { ?>
 <?php } else { ?>
-	<p><?=LNGEnterYourName?>: <input type="text" name="chat[login]" placeholder="<?=LNGLogin?>" /></p>
-	<p><?=LNGCaptcha?>:<br />
-	<img src="<?=core::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" />
-	<p>Или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
+	<p class="hideMe"><?=LNGEnterYourName?>: <input type="text" name="chat[login]" placeholder="<?=LNGLogin?>" /></p>
+	<p class="hideMe"><?=LNGCaptcha?>:<br />
+	<img src="<?=core::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" /></p>
+	<p class="hideMe">Или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
+	<p class="hideMe">&nbsp;</p>
 <?php } ?>
 <input type="text" name="chat[message]" class="message" />
 <?php if($this->smile) { ?>

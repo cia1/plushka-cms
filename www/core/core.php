@@ -99,6 +99,7 @@ class _core {
 			if($timeout===-1 || !$callback) return unserialize(file_get_contents($f));
 			if(time()-filemtime($f)<$timeout) return unserialize(file_get_contents($f));
 		}
+		if(!$callback) return null;
 		$data=call_user_func($callback);
 		$f=fopen($f,'w');
 		fwrite($f,serialize($data));
@@ -107,38 +108,42 @@ class _core {
 	}
 
 	/* Возвращает экземпляр класса для работы с базой данных SQLite
-	Если задан $nc, то будет открыто новое подключение */
-	public static function sqlite($nc=false) {
+	Если задан $newQuery, то будет открыто новое подключение */
+	public static function sqlite($newQuery=false) {
 		static $_sqlite;
 		if(!$_sqlite) {
 			self::import('core/sqlite3');
 			if(self::debug()) self::import('core/sqlite3-debug'); else class_alias('_sqlite','sqlite');
 		}
-		if($nc) return new sqlite();
+		if($newQuery) return new sqlite();
 		if(!$_sqlite) $_sqlite=new sqlite();
 		return $_sqlite;
 	}
 
 	/* Возвращает экземпляр класса для работы с базой данных MySQL
-	Если задан $nc, то будет открыто новое подключение */
-	public static function mysql($nc=false) {
+	Если задан $newQuery, то будет открыто новое подключение */
+	public static function mysql($newQuery=false) {
 		static $_mysql;
 		if(!$_mysql) {
 			self::import('core/mysqli');
 			if(self::debug()) self::import('core/mysqli-debug'); else class_alias('_mysql','mysql');
 		}
-		if($nc) return new mysql();
+		if($newQuery) return new mysql();
 		if(!$_mysql) $_mysql=new mysql();
 		return $_mysql;
 	}
 
 	/* Возвращает экземпляр класса для работы СУБД, указанной в настройках
-	Если задан $nc, то будет открыто новое подключение */
-	public static function db($nc=false) {
+	Если задан $newQuery, то будет открыто новое подключение */
+	public static function db($newQuery=false) {
 		static $_db;
+		if($newQuery) {
+			$cfg=self::config();
+			return self::{$cfg['dbDriver']}($newQuery);
+		}
 		if(!$_db) {
 			$cfg=self::config();
-			if($cfg['dbDriver']=='mysql') $_db=self::mysql($nc); else $_db=self::sqlite($nc);
+			$_db=self::{$cfg['dbDriver']}($newQuery);
 		}
 		return $_db;
 	}

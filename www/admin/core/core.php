@@ -9,6 +9,13 @@ class core {
 
 	private static $_template='default'; //Имя используемого шаблона
 
+	//Удаляет файл кеша
+	public static function cacheCustomClear($id) {
+		$f=self::path().'cache/custom/'.$id.'.txt';
+		if(file_exists($f)) return unlink($f);
+		else return false;
+	}
+
 	//Переводит строку в транслит, пригодный для использования в URL
 	public static function translit($string,$max=60) {
 		$string=mb_strtolower($string,'UTF-8');
@@ -102,6 +109,13 @@ class core {
 	/* Возвращает "истинного" пользователя несмотря на режим подмены пользователя */
 	public static function userCore() { return self::user(); }
 
+	/* Возвращает идентификатор текущего пользователя и "0" если пользователь не авторизован */
+	public static function userId() {
+		if(isset($_SESSION['userCore'])) return $_SESSION['userCore']->id;
+		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
+		return $_SESSION['user']->id;
+	}
+
 	/* Возвращает экземпляр класса для работы с базой данных SQLite
 	Если задан $newQuery, то будет открыто новое подключение */
 	public static function sqlite($newQuery=false) {
@@ -126,9 +140,13 @@ class core {
 	Если задан $newQuery, то будет открыто новое подключение */
 	public static function db($newQuery=false) {
 		static $_db;
+		if($newQuery) {
+			$cfg=self::config();
+			return self::{$cfg['dbDriver']}($newQuery);
+		}
 		if(!$_db) {
-			$cfg=core::config();
-			if($cfg['dbDriver']=='mysql') $_db=core::mysql($newQuery); else $_db=core::sqlite($newQuery);
+			$cfg=self::config();
+			$_db=self::{$cfg['dbDriver']}($newQuery);
 		}
 		return $_db;
 	}
