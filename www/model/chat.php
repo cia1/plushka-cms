@@ -6,17 +6,20 @@ define('CHAT_LOGIN_FILTER','root,admin,fuck');
 */
 class chat {
 
-	//Возвращает массив сообщений, начиная с $timeFrom (если не указано, то возвращает все сообщения)
-	public static function content($timeFrom=0) {
+	//Возвращает массив сообщений: если $limit<1000, то последние $limit сообщений, иначе начиная с $limit (если не указано, то возвращает все сообщения)
+	public static function content($limit=0) {
 		$f=fopen(core::path().'/data/chat.txt','r');
 		$data=array();
+		$cnt=0;
 		while($item=fgets($f)) {
+			$cnt++;
 			$item=explode("\t",$item);
-			if($item[0]<=$timeFrom) break;
+			if($limit>1000 && $item[0]<=$limit) break;
 			$from=explode('|',$item[1]);
 			$to=explode('|',$item[2]);
 			$item=array('time'=>$item[0],'fromLogin'=>$from[0],'fromId'=>$from[1],'toLogin'=>$to[0],'toId'=>$to[1],'message'=>$item[3],'attribute'=>rtrim($item[4]));
 			$data[]=$item;
+			if($limit<=1000 && $cnt==$limit) break;
 		}
 		fclose($f);
 		$data=array_reverse($data);
@@ -74,7 +77,40 @@ class chat {
 
 	//Проверяет и фильтрует текст сообщения, добавляет смайлы
 	public static function filterMessage($message) {
-		$message=trim(str_replace("\t",' ',strip_tags($message)));
+		core::language('chat');
+		$message=trim(str_replace(array("\n","\t",'|'),array(' ',' ','/'),strip_tags($message)));
+		//Проверка длины сообщения
+		if(mb_strlen($message,'UTF-8')<2) {
+			core::error(LNGMessageTooShort);
+			return false;
+		}
+		if(mb_strlen($message,'UTF-8')>420) {
+			core::error(LNGMessageTooLong);
+			return false;
+		}
+		//Чёрный список (стоп-слова)
+		$blacklist=core::config('chat-blacklist');
+		foreach($blacklist as $item) {
+			$i=mb_stripos($message,$item,0);
+			if($i!==false) {
+				core::error(LNGChatBlacklist);
+				return false;
+			}
+		}
+		//Фильтр адресов сайтов
+//		if(core::userGroup()<200) {
+			$cfg=core::config('chat');
+			if($cfg['linkFilter']) {
+				$cnt=preg_match_all('~[^\s]+[a-z0-9_\.-]+\.(?:ru|com|net|org|name|su|biz|info|us|cc)\b~i',$message,$tmp);
+				for($i=0;$i<$cnt;$i++) {
+					if($tmp[0][$i]!=$_SERVER['HTTP_HOST']) {
+						core::error(LNGDontWriteAnyLinks);
+						return false;
+					}
+				}
+			}
+//		}
+		//Добавить смайлы
 		$smile1=self::smile();
 		$smile2=array();
 		foreach($smile1 as $id=>$item) {
@@ -85,13 +121,6 @@ class chat {
 		$message=str_replace($smile1,$smile2,$message);
 		unset($smile1);
 		unset($smile2);
-		if(mb_strlen($message,'UTF-8')<2) {
-			core::error(LNGMessageTooShort);
-			return false;
-		}
-		if(mb_strlen($message,'UTF-8')>300) {
-			core::error(LNGMessageTooLong);
-		}
 		return $message;
 	}
 

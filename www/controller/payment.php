@@ -14,7 +14,7 @@ class sController extends controller {
 	//Обновление статуса платежа. Вызывается сервером платёжной системы.
 	public function actionStatus() {
 		$paymentInfo=$this->payment->getPaymentId('status');
-		if($paymentInfo) $paymentInfo=$this->payment::getInfo($paymentInfo);
+		if($paymentInfo) $paymentInfo=$this->payment->getInfo($paymentInfo);
 		if(!$paymentInfo) {
 			core::language('payment');
 			die(LNGPaymentDataIsWrong);
@@ -43,7 +43,7 @@ class sController extends controller {
 	public function actionSuccess() {
 		core::language('payment');
 		$paymentInfo=$this->payment->getPaymentId('success');
-		if($paymentInfo) $paymentInfo=$this->payment::getInfo($paymentInfo);
+		if($paymentInfo) $paymentInfo=$this->payment->getInfo($paymentInfo);
 		if(!$paymentInfo) {
 			core::error(LNGPaymentDataIsWrong);
 			return '_empty';
@@ -52,7 +52,6 @@ class sController extends controller {
 			core::error(LNGPaymentDataIsWrong);
 			return '_empty';
 		}
-
 		$paymentInfo['method']=$_GET['corePath'][1];
 		$rate=core::config('payment');
 		$rate=$rate[$paymentInfo['method']]['rate'];
@@ -115,5 +114,4 @@ class sController extends controller {
 		if(!method_exists($this->payment,$action)) return false;
 		return $this->payment->$action($data);
 	}
-
 }

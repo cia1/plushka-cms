@@ -6,4 +6,3 @@ if($this->data['filename']) $f->label('Имя файла','/data/widgetHtml/'.$t
 $f->editor('html','Текст блока',$this->data['text']);
 $f->submit('Продолжить');
 $f->render();
-?>

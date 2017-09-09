@@ -8,4 +8,4 @@
 	'public/flag/',
 	'widget/language.php'
 )
-); ?>
+);

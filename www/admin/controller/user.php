@@ -202,7 +202,8 @@ class sController extends controller {
 
 	public function actionMessageSubmit($data) {
 		core::import('model/user');
-		if(!modelUser::message($data['user2Id'],$data['user2Login'],$data['message'],(isset($data['email']) ? true : false))) return false;
+		$user=core::user();
+		if(!$user->model()->message($data['user2Id'],$data['user2Login'],$data['message'],(isset($data['email']) ? true : false))) return false;
 		core::redirect('?controller=user','Сообщение отправлено');
 	}
 /* ----------------------------------------------------------------------------------- */

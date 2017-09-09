@@ -3,4 +3,4 @@
 	'admin/hook/sitemap.php',
 	'controller/smap.php'
 )
-); ?>
+);

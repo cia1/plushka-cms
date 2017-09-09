@@ -13,6 +13,10 @@ define('LNGFieldHasBeEMail','Поле &laquo;%s&raquo; должно быть к�
 define('LNGFieldIllegalValue','Поле &laquo;%s&raquo; содержит недопустимое значение');
 define('LNGFieldTextTooLong','Текст в поле &laquo;%s&raquo; слишком длинный');
 define('LNGFieldTextTooShort','Текст в поле &laquo;%s&raquo; слишком короткий');
+define('LNGImageWidthCannotBeLessPixels','Ширина изображения не может быть меньше %s пикселей');
+define('LNGImageWidthCannotBeMorePixels','Ширина изображения не может быть больше %s пикселей');
+define('LNGImageHeightCannotBeLessPixels','Высота изображения не может быть меньше %s пикселей');
+define('LNGImageHeightCannotBeMorePixels','Высота изображения не может быть больше %s пикселей');
 define('LNGFileIsNotImage','Файл не является изображением');
 define('LNGFileTypeNotSupport','Данный тип файла не поддерживается');
 define('LNGLogin','Логин');

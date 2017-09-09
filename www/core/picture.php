@@ -54,6 +54,7 @@ class picture {
 	public function __destruct() {
 		if($this->_src) unset($this->_src);
 	}
+
 	//Возвращает высоту исходного изображения
 	public function height() {
 		return $this->_srcH;

@@ -6,4 +6,4 @@
 	'admin/public/icon/info16.png',
 	'admin/view/noteView.php',
 )
-); ?>
+);

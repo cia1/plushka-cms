@@ -9,6 +9,11 @@
 		else $this->fromLogin=null;
 		$this->smile=chat::smile();
 
+		$cfg=core::config('chat');
+		$this->pageTitle=$cfg['pageTitle_'._LANG];
+		$this->metaTitle=$cfg['metaTitle_'._LANG];
+		$this->metaDescription=$cfg['metaDescription_'._LANG];
+		$this->metaKeyword=$cfg['metaKeyword_'._LANG];
 		core::language('chat');
 		$this->js('jquery.min');
 		$this->js('jquery.form');
@@ -25,12 +30,12 @@
 		if($user->id) $login=$user->login;
 		elseif(isset($_SESSION['chatLogin'])) $login=$_SESSION['chatLogin'];
 		else $login=chat::filterLogin($data['login'],$data['captcha']);
-		if(!$login) return;
+		if(!$login) die(strip_tags(core::error(false)));
 
 		$message=chat::filterMessage($data['message']);
-		if(!$message) return false;
+		if(!$message) die(strip_tags(core::error(false)));
 		$line=chat::post($login,$message);
-		if(!$line) die(core::error());
+		if(!$line) die(strip_tags(core::error(false)));
 		die($line);
 	}
 

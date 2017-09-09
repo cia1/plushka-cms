@@ -13,4 +13,3 @@ while($item=$db->fetch()) {
 	echo '<li><p>'.$link.$item[1].'</a></p>'.$item[2].'</li>';
 }
 return true;
-?>

@@ -27,4 +27,3 @@ class widgetAdmin extends widget {
 		return $link;
 	}
 }
-?>

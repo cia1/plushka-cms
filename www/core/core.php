@@ -24,8 +24,8 @@ class _core {
 	/* Меняет имя шаблона (по умолчанию "default" - /template/(pc/pda).default.html). Возвращает имя шаблона с указанием типа клиента ("pc" или "pda").
 	Разумеетя должна вызываться до начала вывода контента */
 	public static function template($set=null) {
-		if($set) self::$_template=$set;
-		return _CLIENT_TYPE.'.'.self::$_template;
+		if($set!==null) self::$_template=$set;
+		return (self::$_template ? _CLIENT_TYPE.'.'.self::$_template : false);
 	}
 
 	/* Возвращает путь к корню сайта */
@@ -60,12 +60,16 @@ class _core {
 	}
 
 	/* Возвращает относительный URL до корня сайта */
-	public static function url($lang=false) {
+	public static function url($lang=false,$domain=false) {
 		static $_url;
 		if(!$_url) {
-			if(isset($_SERVER)) {
+			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
 				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')+1);
-			} else $_url=null;
+			} else { //CGI-запрос
+				$cfg=core::config('cgi');
+				$_url=$cfg['url'];
+				if($domain) $_url=$cfg['host'].$_url;
+			}
 		}
 		if($lang) {
 			$cfg=core::config();
@@ -138,12 +142,14 @@ class _core {
 	public static function db($newQuery=false) {
 		static $_db;
 		if($newQuery) {
-			$cfg=self::config();
-			return self::{$cfg['dbDriver']}($newQuery);
+			$driver=self::config();
+			$driver=$driver['dbDriver'];
+			return self::$driver($newQuery);
 		}
 		if(!$_db) {
-			$cfg=self::config();
-			$_db=self::{$cfg['dbDriver']}($newQuery);
+			$driver=self::config();
+			$driver=$driver['dbDriver'];
+			$_db=self::$driver($newQuery);
 		}
 		return $_db;
 	}
@@ -436,7 +442,8 @@ class controller {
 			$this->style('admin');
 		}
 		//Вывести верхнюю часть шаблона (до "{{content}}")
-		if($renderTemplate) {
+		$s=core::template();
+		if($renderTemplate && $s) {
 			$s=core::path().'cache/template/'.core::template().'Head.php';
 			if(!file_exists($s) || core::debug()) { //если кеша нет или отладочный режим, то кешировать шаблон
 				core::import('core/cache');
@@ -451,14 +458,16 @@ class controller {
 				</div>';
 			}
 		}
-		//Вывести "общие" кнопки административного интерфейса
-		if($user->group>=200) {
-			$link='admin'.$this->url[1].'Link';
-			if(method_exists($this,$link)) {
-				$admin=new admin();
-				$link=$this->$link();
-				foreach($link as $item) {
-					if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
+		if($s) {
+			//Вывести "общие" кнопки административного интерфейса
+			if($user->group>=200) {
+				$link='admin'.$this->url[1].'Link';
+				if(method_exists($this,$link)) {
+					$admin=new admin();
+					$link=$this->$link();
+					foreach($link as $item) {
+						if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
+					}
 				}
 			}
 		}
@@ -474,7 +483,7 @@ class controller {
 		if(gettype($view)=='object') $view->render();
 		elseif($view=='_empty') include(core::path().'view/_empty.php');
 		else include(core::path().'view/'.$this->url[0].$view.'.php');
-		if($renderTemplate) include(core::path().'cache/template/'.core::template().'Footer.php'); //нижняя часть шаблона
+		if($renderTemplate && $s) include(core::path().'cache/template/'.core::template().'Footer.php'); //нижняя часть шаблона
 	}
 
 	/* Выводит HTML-код хлебных крошек */

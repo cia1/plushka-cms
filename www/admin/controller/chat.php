@@ -2,17 +2,27 @@
 
 	protected function right() {
 		return array(
-			'Setting'=>'chat.setting'
+			'Setting'=>'chat.setting',
+			'Message'=>'chat.moderate',
+			'Delete'=>'chat.moderate'
 		);
 	}
 
+	//Настройки чата
 	public function actionSetting() {
 		$cfg=core::config('chat');
 		$form=core::form();
 		$form->text('messageCount','Количество сообщений в истории',$cfg['messageCount']);
 		$alias='';
 		foreach($cfg['loginAlias'] as $real=>$virtual) $alias.=$real.'='.$virtual."\n";
+		$blacklist=implode("\n",core::config('chat-blacklist'));
+		$form->checkbox('linkFilter','Запрещать внешние ссылки',$cfg['linkFilter']);
+		$form->textarea('blacklist','Чёрный список (стоп-фразы)',$blacklist);
 		$form->textarea('loginAlias','Псевдонимы логинов зарегистрированных пользователей',$alias);
+		$form->text('pageTitle','Заголовок страницы',$cfg['pageTitle_'._LANG]);
+		$form->text('metaTitle','META Заголовок',$cfg['metaTitle_'._LANG]);
+		$form->text('metaDescription','META Описание',$cfg['metaDescription_'._LANG]);
+		$form->text('metaKeyword','META Ключевые слова',$cfg['metaKeyword_'._LANG]);
 		$form->submit();
 		$this->cite='<b>Псевдонимы</b> позволяют заменить в чате имя зарегистрированного пользователя. Укажите строки вида:<br />реальный_логин=псевдоним<br />например:<br />root=Админ';
 		return $form;
@@ -20,8 +30,9 @@
 
 	public function actionSettingSubmit($data) {
 		core::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new config('chat');
 		$cfg->messageCount=(int)$data['messageCount'];
+		$cfg->linkFilter=isset($data['linkFilter']);
 		$alias=array();
 		$tmp=explode("\n",$data['loginAlias']);
 		foreach($tmp as $item) {
@@ -31,7 +42,16 @@
 			$alias[trim($item[0])]=trim($item[1]);
 		}
 		$cfg->loginAlias=$alias;
-		if(!$cfg->save('chat')) return;
+		$cfg->{'pageTitle_'._LANG}=trim($data['pageTitle']);
+		$cfg->{'metaTitle_'._LANG}=trim($data['metaTitle']);
+		$cfg->{'metaDescription_'._LANG}=trim($data['metaDescription']);
+		$cfg->{'metaKeyword_'._LANG}=trim($data['metaKeyword']);
+		$cfg->save('chat');
+		$cfg=new config();
+		if($data['blacklist']) $blacklist=explode("\n",$data['blacklist']); else $blacklist=array();
+		for($i=0,$cnt=count($blacklist);$i<$cnt;$i++) $blacklist[$i]=trim($blacklist[$i]);
+		$cfg->setData($blacklist);
+		$cfg->save('chat-blacklist');
 		core::redirect('?controller=chat&action=setting','Настройки обновлены');
 	}
 

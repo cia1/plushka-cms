@@ -12,28 +12,31 @@
 <?php } ?></div>
 
 <form action="<?=core::link('chat')?>" class="chatMessage" method="post" name="chatMessage">
-<?php if($this->fromLogin) { ?>
-<?php } else { ?>
-	<p class="hideMe"><?=LNGEnterYourName?>: <input type="text" name="chat[login]" placeholder="<?=LNGLogin?>" /></p>
-	<p class="hideMe"><?=LNGCaptcha?>:<br />
-	<img src="<?=core::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" /></p>
-	<p class="hideMe">Или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
-	<p class="hideMe">&nbsp;</p>
+<?php if(!$this->fromLogin) { ?>
+	<p class="hideMe"><input type="text" name="chat[login]" placeholder="<?=LNGEnterYourName?>...	" style="width:98px;" />
+	&nbsp;&nbsp;&nbsp;
+	<img src="<?=core::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" placeholder="<?=LNGCaptcha?>" style="width:112px;" />
+	&nbsp;&nbsp;
+	или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
 <?php } ?>
-<input type="text" name="chat[message]" class="message" />
+<div class="messageLine">
+	<input type="text" name="chat[message]" class="message" />
+	<input type="button" value="" class="button smile" onclick="document.getElementById('smile').style.display='block';" />
+	<input type="submit" value="<?=LNGSay?>" class="button" />
+</div>
 <?php if($this->smile) { ?>
-	<p class="smile"><?php foreach($this->smile as $id=>$item) { ?>
+	<div id="smile" class="smile" style="display:none;" onclick="document.getElementById('smile').style.display='none';"><?php foreach($this->smile as $id=>$item) { ?>
 		<img src="<?=$item?>" alt="<?=$id?>" />
 	<?php } ?>
-	</p>
+	</div>
 <?php } ?>
-<input type="submit" value="<?=LNGSay?>" class="button" />
 </form>
 
 <script>
 $('#chatConsole').chat(
 	'<?=core::url()?>',
 	<?=microtime(true)?>,
-	document.forms.chatMessage
+	document.forms.chatMessage,
+	setHeight
 );
 </script>

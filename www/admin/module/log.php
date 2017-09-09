@@ -5,4 +5,4 @@
 		'admin/model/linkReplace.php',
 		'admin/public/icon/log16.png'
 	)
-); ?>
+);

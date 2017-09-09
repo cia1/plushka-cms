@@ -82,12 +82,19 @@ class core {
 	}
 
 	/* Возвращает относительный URL до директория админки */
-	public static function url() {
+	public static function url($lang=false) {
 		static $_url;
 		if(!$_url) {
-			if(isset($_SERVER)) {
+			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
 				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')-5);
-			} else $_url='/';
+			} else { //CGI-запрос
+				$_url=core::config('cgi');
+				$_url=$_url['URLBase'];
+			}
+		}
+		if($lang) {
+			$cfg=core::config();
+			if($cfg['languageDefault']!=_LANG) return $_url._LANG.'/';
 		}
 		return $_url;
 	}
@@ -141,12 +148,14 @@ class core {
 	public static function db($newQuery=false) {
 		static $_db;
 		if($newQuery) {
-			$cfg=self::config();
-			return self::{$cfg['dbDriver']}($newQuery);
+			$driver=self::config();
+			$driver=$driver['dbDriver'];
+			return self::$driver($newQuery);
 		}
 		if(!$_db) {
-			$cfg=self::config();
-			$_db=self::{$cfg['dbDriver']}($newQuery);
+			$driver=self::config();
+			$driver=$driver['dbDriver'];
+			$_db=self::$driver($newQuery);
 		}
 		return $_db;
 	}

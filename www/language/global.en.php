@@ -13,6 +13,10 @@ define('LNGFieldHasBeEMail','The field &laquo;%s&raquo; has to be correct e-mail
 define('LNGFieldIllegalValue','The field &laquo;%s&raquo; contains invalid value');
 define('LNGFieldTextTooLong','Text in the field &laquo;%s&raquo; is too long');
 define('LNGFieldTextTooShort','Text in the field &laquo;%s&raquo; is too short');
+define('LNGImageWidthCannotBeLessPixels','Image width cannot by less %s pixels');
+define('LNGImageWidthCannotBeMorePixels','Image width cannot by more %s pixels');
+define('LNGImageHeightCannotBeLessPixels','Image height cannot by less %s pixels');
+define('LNGImageHeightCannotBeMorePixels','Image height cannot by more %s pixels');
 define('LNGFileIsNotImage','A file is not image');
 define('LNGFileTypeNotSupport','This file type does not support');
 define('LNGLogin','Login');
