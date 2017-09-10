@@ -22,7 +22,7 @@ class article extends model {
 		$id=(int)$id;
 		$data=$this->db->fetchArrayOnce('SELECT categoryId,alias FROM article_'._LANG.' WHERE id='.$id);
 		if($data[0]) $this->_multiLanguage=false;
-		if(!$this->delete($id)) return false;
+		if(!parent::delete($id)) return false;
 		$this->_multiLanguage=true;
 		core::hook('pageDelete','article/view/'.$data[1],!$this->_multiLanguage);
 		return true;

@@ -20,4 +20,4 @@
 ),
 'languageDefault'=>'ru',
 'languageList'=>array('ru','en')
-); ?>
+);

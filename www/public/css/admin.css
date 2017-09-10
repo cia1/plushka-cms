@@ -1,5 +1,5 @@
-a._adminItem {margin:0;padding:0;top:0;display:block;}
-a._adminItem img {position:absolute;width:16px;padding:0;border:1px solid red;z-index:998;}
+a._adminItem {top:0;display:block;width:auto;height:auto;margin:0 !important;padding:0;}
+a._adminItem img {position:absolute;width:16px;margin:0 !important;padding:0;border:1px solid red;z-index:998;}
 #_adminDialogBox {position:absolute;z-index:999;width:90%;border:1px solid #337;background:white;font:normal 13px Tahoma;text-align:left;
 	-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
 	box-shadow:0 0 5px black;

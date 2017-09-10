@@ -16,6 +16,7 @@ class sController extends controller {
 		if($this->data['metaKeyword']) $this->metaKeyword=$this->data['metaKeyword'];
 		if($this->data['metaDescription']) $this->metaDescription=$this->data['metaDescription'];
 		$this->pageTitle=$this->data['title'];
+
 		return 'View';
 	}
 

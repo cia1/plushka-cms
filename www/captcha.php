@@ -70,6 +70,7 @@ $matrix=array(
 $r=rand('1'.str_repeat('0',LETTER_COUNT-1),str_repeat('9',LETTER_COUNT));
 session_start();
 $_SESSION['captcha']=$r;
+
 for($i=0;$i<LETTER_COUNT;$i++) $string[$i]=substr($r,$i,1);
 $letterWidth=(int)(WIDTH/LETTER_COUNT);
 $_letterWidth=$letterWidth/100;

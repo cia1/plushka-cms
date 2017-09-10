@@ -1,1 +1,1 @@
-<?php class sController extends controller { }
+<?php class sController extends controller {}

@@ -35,6 +35,7 @@ class sController extends controller {
 		}
 		$cfg=core::config('comment');
 		$db->query('INSERT INTO comment (groupId,userId,date,name,text,status,ip) VALUES ('.$groupId.','.(int)$u->id.','.time().','.$db->escape($name).','.$db->escape($text).','.$cfg['status'].','.$db->escape($this->_ip()).')');
+		if($cfg['status']>0) core::hook('commentPost',$data['link'],$groupId);
 		echo 'OK';
 		exit;
 	}

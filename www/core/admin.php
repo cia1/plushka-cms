@@ -25,4 +25,4 @@ class admin {
 			echo '" title="',str_replace('"','',$item[3]),'" index="',($this->_index++),'" style="width:16px;height:16px;" id="_adminButton',$_count,'" /></a>';
 		}
 	}
-} ?>
+}

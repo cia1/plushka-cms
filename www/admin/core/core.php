@@ -210,9 +210,9 @@ class core {
 		$f='widget'.$name;
 		include_once(core::path().'widget/'.$name.'.php');
 		$w=new $f($options,$link);
-		$view=$w->action();
-		if($view!==null && $view!==false) { //Если widget::action() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
-			echo '<div class="widget widget'.$name.'">';
+		$view=$w();
+		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
+			echo '<section class="widget'.$name.'">';
 			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
 //			$user=core::userCore();
 //			if($user->group>=200) {
@@ -224,7 +224,7 @@ class core {
 //			}
 			if($title) $w->title($title); //Вывод заголовка
 			if(is_object($view)) $view->render(); else $w->render($view);
-			echo '<div style="clear:both;"></div></div>';
+			echo '<div style="clear:both;"></div></section>';
 		}
 		if($cacheTime && !$debug) {
 			$f=fopen($cacheFile,'w');

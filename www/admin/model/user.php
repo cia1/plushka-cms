@@ -4,6 +4,7 @@ core::import('model/user');
 core::import('language/user.'._LANG);
 
 class modelUserAdmin extends modelUser {
+
 	protected function fieldList($action) {
 		return '*';
 	}

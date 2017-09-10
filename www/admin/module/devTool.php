@@ -10,4 +10,4 @@
 	'admin/view/devToolIndex.php',
 	'admin/view/devToolCompare.php'
 )
-);
+); ?>

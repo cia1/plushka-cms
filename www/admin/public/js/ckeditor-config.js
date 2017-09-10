@@ -13,4 +13,5 @@ CKEDITOR.editorConfig = function( config ) {
 	];
 	config.height = '312px';
 	config.extraPlugins="cyberim";
+	config.language='ru';
 };

@@ -2,13 +2,15 @@ ErrorDocument	404	/404
 php_value default_charset utf-8
 
 RewriteEngine on
+
+RewriteCond %{HTTP_HOST} ^www\.(.*)$
+RewriteRule ^(.*)$ http://%1/$1 [L,R=301]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{QUERY_STRING} (.*)
 RewriteRule ^([\(\)\[\]/a-zA-Z0-9_-]*)$ /index.php?corePath=$1&%1
 RewriteRule ^sitemap.xml$ /index2.php?controller=smap [L]
-
-#dnwr_host pda.cms
 
 php_value error_reporting 7
 php_flag display_errors on

@@ -28,7 +28,6 @@ function _blogDelete($link) {
 	$param=array('categoryId'=>$id);
 	$cnt=modelObjectLink::fromSectionWidget('blog',$param)+modelObjectLink::fromTemplateWidget('blog',$param);
 	if($cnt) return true;
-
 	$cfg=core::config();
 	if(isset($cfg['languageList'])) $languageList=$cfg['languageList']; else $languageList=array($cfg['languageDefault']);
 	foreach($languageList as $item) {

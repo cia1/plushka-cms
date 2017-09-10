@@ -67,11 +67,12 @@ class sController extends controller {
 	public function actionArticle() {
 		core::import('admin/model/article');
 		$article=new article();
-		if(isset($_GET['id'])) {
+		if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
+		elseif(isset($_GET['id'])) {
 			if(!$article->loadById($_GET['id'])) core::error404();
 		} elseif(isset($_GET['alias'])) {
 			if(!$article->loadByAlias($_GET['alias'])) core::error404();
-		} elseif($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
+		}
 		elseif(isset($_GET['categoryId'])) $article->categoryId=$_GET['categoryId'];
 		$form=core::form();
 		$form->hidden('id',$article->id);

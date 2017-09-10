@@ -64,52 +64,65 @@ $.adminDialog.afterLoad=function(h) {
 /* Рисует кнопки административного интерфейса */
 function _adminElement() { jQuery(function() {
 	$('._adminItem img').each(function() {
-		var o=$(this); //<img>
-		var container=o.parent(); //<a>
-		var positionContainer=container.position(); //позици контейнера кнопки
-//		container=container.parent(); //контейнер, содержащий кнопку
-		var s=positionContainer.left+'.'+positionContainer.top;
+		var img=$(this); //<img>
+		var a=img.parent(); //<a>
+		var aPosition=a.position(); //позици <a>
+		var aOffset=a.offset();
+		var savedPosition=aOffset.left+'.'+aOffset.top;
+//		var savedPosition=aPosition.left+'.'+aPosition.top;
 		//"Сдвигает" кнопку вправо, если в этой точке есть другие кнопки
-		if(isNaN(_adminElement.itemByPoint[s])) indexLeft=0; else {
-			indexLeft=_adminElement.itemByPoint[s]+20;
+		if(isNaN(_adminElement.itemByPoint[savedPosition])) indexLeft=0; else {
+			indexLeft=_adminElement.itemByPoint[savedPosition]+20;
 		}
-		if(indexLeft && !parseInt(o.attr('index'))) { //если это следующая группа в строке, то нужно её немного сдвинуть визуально
+		if(indexLeft && !parseInt(img.attr('index'))) { //если это следующая группа в строке, то нужно её немного сдвинуть визуально
 			indexLeft+=6;
 		}
-		_adminElement.itemByPoint[s]=indexLeft;
-		o.css({
+//_debug(img,savedPosition,indexLeft,15,15);
+		_adminElement.itemByPoint[savedPosition]=indexLeft;
+		img.css({
 			'position':'absolute',
-			'left':positionContainer.left+indexLeft,
-			'top':positionContainer.top
+			'left':aPosition.left+indexLeft,
+			'top':aPosition.top
 		});
-//_debug(o,s,indexTop,19,22);
 	});
 }); }
 _adminElement.itemByPoint=[]; //содержит кол-во кнопок в одной точке (чтобы они не накладывались друг на друга)
 setTimeout(_adminElement,300);
-delete _adminElement;
+//delete _adminElement;
 /*
-function _debug(o,sp,indexTop,from,to) {
+function _debug(img,savedPosition,indexLeft,from,to) {
 	if(!_debug.index) _debug.index=1; else _debug.index++;
 	if(!from) from=1;
 	if(!to) to=9999;
 	if(_debug.index<from || _debug.index>to) return;
-	var parent=o.parent();
-	var position=parent.position();
-	parent=parent.parent();
-	var offset=parent.offset();
-	var s='#'+_debug.index+' ICON: '+o[0].src.substr(29,o[0].src.length-35)+"\nLINK: "+o.parent()[0].href.substr(27);
-	s+="\nParent Class: "+parent[0].className;
-	s+="\nIndex TOP: "+indexTop;
-	s+="\nParent position: "+String(position.left)+' x '+String(position.top)+"\noffset: "+String(offset.left)+' x '+String(offset.top)+"\nparrent padding: "+String(parseInt(parent.css('padding-left')))+" x "+String(parseInt(parent.css('padding-top')))+"\nsave position: "+sp;
-	o.css('border','1px solid green');
+	var a=img.parent();
+	var aPosition=a.position();
+	var aOffset=a.offset();
+	var container=a.parent();
+	var offset=container.offset();
+	var s='#'+_debug.index+' ICON: '+img.attr('title')+' ('+img[0].src.substr(40,img[0].src.length-27)+")\nLINK: "+img.parent()[0].href.substr(27);
+	s+="\nParent Class: "+container[0].className;
+//	s+="\nIndex TOP: "+indexTop;
+	s+="\n<A> position: "+String(aPosition.left)+' x '+String(aPosition.top)+"\nContainer offset: "+String(offset.left)+' x '+String(offset.top)+"\nContainer padding: "+String(parseInt(container.css('padding-left')))+" x "+String(parseInt(container.css('padding-top')))+"\nSaved position: "+savedPosition+"\nIndex Left: "+indexLeft;
+	img.css('border','1px solid green');
 	alert(s);
-	o.css('border','1px solid red');
+	img.css('border','1px solid red');
 }
 */
-
 function toggleFullScreen() {
 	if(toggleFullScreen.width==100) toggleFullScreen.width=95; else toggleFullScreen.width=100;
 	$.adminDialog.self.byScreenWidth(toggleFullScreen.width);
 }
 toggleFullScreen.width=95;
+
+
+setTimeout(function() {
+	$('.widgetfilter legend').click(function() {
+		var form=false;
+		$('form',this.parentNode).each(function() {
+			if(this.style.display!=='none') form=this;
+		});
+		document.forms.adminSort.action=document.forms.adminSort.action.replace('event',form.name.substr(6).toLowerCase());
+		document.forms.adminSort.action=document.forms.adminSort.action.replace('object',form.name.substr(6).toLowerCase());
+	});
+},1000);

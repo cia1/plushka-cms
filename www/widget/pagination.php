@@ -16,7 +16,7 @@ class widgetPagination extends widget {
 			if($i) $link=substr($link,0,$i);
 			$uri=array();
 			foreach($_GET as $key=>$value) {
-			if($key=='corePath' || $key=='page') continue;
+			if($key=='corePath' || $key==$this->options['pageName']) continue;
 				$uri[$key]=$value;
 			}
 			if(count($uri)) $link.='?'.http_build_query($uri).'&';
