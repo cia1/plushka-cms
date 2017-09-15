@@ -28,6 +28,12 @@ class form {
 		$this->_data.='<dt class="text '.$name.'">'.$label.':</dt><dd class="text '.$name.'">'.$this->getText($name,$value,$html).'</dd>';
 	}
 
+	/* Поле ввода числа
+	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, который нужно добавить к тегу <input> */
+	public function number($name,$label,$value='',$html='') {
+		$this->_data.='<dt class="text number '.$name.'">'.$label.':</dt><dd class="text number '.$name.'">'.$this->getText($name,$value,$html).'</dd>';
+	}
+
 	/* Поле ввода e-mail адреса
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, ктороый нужно добавить к тегу <input> */
 	public function email($name,$label,$value='',$html='') {
@@ -113,6 +119,8 @@ class form {
 			return $this->label($f1,$f2);
 		case 'text':
 			return $this->text($f1,$f2,$f3,$f4);
+		case 'number':
+			return $this->number($f1,$f2,$f3,$f4);
 		case 'email':
 			return $this->text($f1,$f2,$f3,$f4);
 		case 'select':
@@ -171,6 +179,15 @@ class form {
 		}
 		$value=str_replace('"','&quot;',$value);
 		return '<input type="text" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' />';
+	}
+
+	/* Возвращает HTML-код поля ввода числа */
+	public function getNumber($name,$value='',$html='') {
+		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+			$value=$_POST[$this->_namespace][$name];
+		}
+		$value=str_replace('"','&quot;',$value);
+		return '<input type="number" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' />';
 	}
 
 	//Возвращает HTML-код поля ввода адреса электронной почты
