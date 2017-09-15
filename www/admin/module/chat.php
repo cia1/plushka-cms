@@ -7,11 +7,12 @@
 	'config/chat.php',
 	'config/chat-blacklist.php',
 	'controller/chat.php',
-	'data/chat.txt',
+	'data/chat/',
 	'model/chat.php',
 	'public/css/chat.css',
 	'public/chat-smile/',
 	'public/js/jquery.chat.js',
+	'public/smile.png',
 	'view/chatIndex.php',
 	'view/widgetChat.php',
 	'widget/chat.php'

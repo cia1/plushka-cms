@@ -1,14 +1,15 @@
 <?php
 define('CHAT_LOGIN_FILTER','root,admin,fuck');
 /*
-Формат файла /data/chat.txt:
+Формат файла /data/chat/{ID}.txt:
 ВРЕМЯ \t ЛОГИН|ИД_ПОЛЬЗОВАТЕЛЯ \t ЛОГИН_КОМУ|ИД_КОМУ \t ТЕКСТ_СООБЩЕНИЯ \t АТРИБУТЫ_ТЕКСТА
 */
 class chat {
 
 	//Возвращает массив сообщений: если $limit<1000, то последние $limit сообщений, иначе начиная с $limit (если не указано, то возвращает все сообщения)
-	public static function content($limit=0) {
-		$f=fopen(core::path().'/data/chat.txt','r');
+	public static function content($chatId,$limit=0) {
+		$chatId=core::translit($chatId);
+		$f=fopen(core::path().'/data/chat/'.$chatId.'.txt','r');
 		$data=array();
 		$cnt=0;
 		while($item=fgets($f)) {
@@ -125,14 +126,15 @@ class chat {
 	}
 
 	//Добавляет сообщение в чат и возвращает строку сообщения
-	public static function post($fromLogin,$message,$toLogin=null,$toId=null) {
+	public static function post($chatId,$fromLogin,$message,$toLogin=null,$toId=null) {
+		$chatId=core::translit($chatId);
 		$userId=core::userId();
 		$cfg=core::config('chat');
 		if(!$userId) $_SESSION['chatLogin']=$fromLogin;
 		elseif(isset($cfg['loginAlias'][$fromLogin])) $fromLogin=$cfg['loginAlias'][$fromLogin];
 		$s=microtime(true)."\t".$fromLogin."|".$userId."\t".$toLogin.'|'.$toId."\t".$message."\t";
-		$data=file(core::path().'data/chat.txt');
-		$f=fopen(core::path().'data/chat.txt','w');
+		$data=file(core::path().'data/chat/'.$chatId.'.txt');
+		$f=fopen(core::path().'data/chat/'.$chatId.'.txt','w');
 		fwrite($f,$s."\n");
 		for($i=0,$cnt=count($data);$i<$cnt && $i<$cfg['messageCount'];$i++) {
 			fwrite($f,$data[$i]);

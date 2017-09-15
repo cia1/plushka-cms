@@ -57,8 +57,9 @@
 
 	//Модерирование сообщений, выводит список сообщений с кнопками управления
 	public function actionMessage() {
+		$chatId=$_GET['chatId'];
 		core::import('model/chat');
-		$content=chat::content();
+		$content=chat::content($chatId);
 		$table=core::table();
 		$table->rowTh('Время|Кто, кому|Сообщение|');
 		foreach($content as $item) {
@@ -75,7 +76,7 @@
 			}
 			$table->text($who);
 			$table->text($item['message']);
-			$table->delete('?controller=chat&action=delete&time='.$item['time'],'Подтвердите удаление сообщения');
+			$table->delete('?controller=chat&action=delete&chatId='.$chatId.'&time='.$item['time'],'Подтвердите удаление сообщения');
 		}
 		return $table;
 	}
@@ -83,8 +84,8 @@
 	//Удаление сообщение (сразу действие, без формы)
 	public function actionDelete() {
 		core::import('admin/model/chat');
-		if(!chat::delete($_GET['time'])) return '_empty';
-		core::redirect('?controller=chat&action=message');
+		if(!chat::delete($_GET['chatId'],$_GET['time'])) return '_empty';
+		core::redirect('?controller=chat&action=message&chatId='.$_GET['chatId']);
 	}
 
 	public function actionMenu() {

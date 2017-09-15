@@ -1,2 +1,12 @@
-.widgetchat .time,#chatConsole .time {color:gray;font-size:0.8em;}
-.widgetchat .from,#chatConsole .from {font-weight:bold;}
+#chatConsole {height:250px;padding:2px 4px;overflow-y:scroll;}
+#chatConsole .from {font-weight:bold;}
+#chatConsole .time {color:gray;font-size:0.8em;}
+
+.chatMessage {margin-top:10px;padding:10px;}
+.chatMessage .hideMe img {height:30px;vertical-align:bottom;}
+.messageLine {display:flex;}
+.messageLine .message {flex-grow:1;margin-right:1px;}
+.messageLine .button {width:60px;}
+.messageLine input.smile {width:32px;margin-right:1px;background-image:url(../smile.png);background-repeat:no-repeat;background-position:center center;}
+div.smile {position:fixed;bottom:2px;left:0;padding:0 10px;text-align:center;background:rgba(255,255,255,0.9);}
+div.smile img {cursor:pointer;}
