@@ -9,9 +9,9 @@ class sController extends controller {
 
 	/* Добавляет комментарий в базу данных. Вызывается AJAX-запросом. */
 	public function actionIndexSubmit($data) {
-		if(core::userGroup()) { //Если пользователь авторизован, то в качестве имени использовать его логин
-			$u=core::user();
-			if($u->group<200) $name=$u->login; else $name=LNGAdministrator;
+		$user=core::user();
+		if($user->group) { //Если пользователь авторизован, то в качестве имени использовать его логин
+			if($user->group<200) $name=$user->login; else $name=LNGAdministrator;
 		} else $name=$data['name'];
 		$link=$data['link']; //Олицетворяет страницу, для которой добавляется комментарий
 		$db=core::db();
@@ -22,7 +22,7 @@ class sController extends controller {
 		}
 		$text=nl2br($data['text']);
 		$text=$data['text'];
-		if($u->group<200) {
+		if($user->group<200) {
 			$name=strip_tags($name);
 			if(strpos($name,'www.')!==false || strpos($name,'http://')!==false) die(LNGCommentUserNameIsWrong);
 			$text=strip_tags($text);
@@ -34,7 +34,7 @@ class sController extends controller {
 			if($data['captcha']!==$_SESSION['captcha']) die(LNGCaptchaIsWrong);
 		}
 		$cfg=core::config('comment');
-		$db->query('INSERT INTO comment (groupId,userId,date,name,text,status,ip) VALUES ('.$groupId.','.(int)$u->id.','.time().','.$db->escape($name).','.$db->escape($text).','.$cfg['status'].','.$db->escape($this->_ip()).')');
+		$db->query('INSERT INTO comment (groupId,userId,date,name,text,status,ip) VALUES ('.$groupId.','.(int)$user->id.','.time().','.$db->escape($name).','.$db->escape($text).','.$cfg['status'].','.$db->escape($this->_ip()).')');
 		if($cfg['status']>0) core::hook('commentPost',$data['link'],$groupId);
 		echo 'OK';
 		exit;

@@ -10,18 +10,11 @@
 		<dd class="submit"><input type="submit" value="<?=LNGSend?>" class="button" /></dd>
 	</dl>
 </form>
+<script>
+	if(document._lang==undefined) document._lang=new Array();
+	document._lang['commentMessage']='<?=($this->status ? LNGCommentAdded : LNGCommentWillBePublicAfterAprove)?>';
+</script>
 <?php
 echo core::js('jquery.min','defer');
 echo core::js('jquery.form','defer');
-?>
-<script>
-$('form#comment').ajaxForm({success:function(data) {
-	if(data!='OK') {
-		alert(data);
-		return;
-	}
-	$('form#comment').remove();
-	alert('<?=($this->status ? LNGCommentAdded : LNGCommentWillBePublicAfterAprove)?>');
-	$("#commentList").load('<?=core::url()?>index2.php?controller=comment&action=list&link=<?=$this->link?>');
-} });
-</script>
+echo core::js('comment','defer');
