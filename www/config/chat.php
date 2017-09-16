@@ -1,7 +1,7 @@
 <?php return array(
 'messageCount'=>20,
 'loginAlias'=>array(
-	'root'=>'Admin',
+	'root'=>'Admin'
 ),
 'linkFilter'=>true,
 'pageTitle_en'=>'Communication. Chat.',

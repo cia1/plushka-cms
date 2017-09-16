@@ -159,8 +159,7 @@ class form {
 	$action - параметр "action" тега <form>, $html - произвольный код, который будет присоединён к тегу <form> */
 	public function render($action=null,$html=null) {
 		if($action) $this->action=$action;
-		if(!$this->action) $this->action=$_GET['corePath'][0].'/'.$_GET['corePath'][1];
-		echo '<form action="'.($this->action ? core::link($this->action) : '').'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
+		echo '<form action="'.($this->action ? core::link($this->action) : $_SERVER['REQUEST_URI']).'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
 		<dl class="form">';
 		echo $this->_data;
 		unset($this->_data);
