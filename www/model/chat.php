@@ -9,7 +9,7 @@ class chat {
 	//Возвращает массив сообщений: если $limit<1000, то последние $limit сообщений, иначе начиная с $limit (если не указано, то возвращает все сообщения)
 	public static function content($chatId,$limit=0) {
 		$chatId=core::translit($chatId);
-		$f=fopen(core::path().'/data/chat/'.$chatId.'.txt','r');
+		$f=fopen(core::path().'data/chat/'.$chatId.'.txt','r');
 		$data=array();
 		$cnt=0;
 		while($item=fgets($f)) {
