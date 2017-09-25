@@ -3,7 +3,7 @@
 core::import('model/user');
 core::import('language/user.'._LANG);
 
-class modelUserAdmin extends modelUser {
+class userAdmin extends modelUser {
 
 	protected function fieldList($action) {
 		return '*';
@@ -11,7 +11,7 @@ class modelUserAdmin extends modelUser {
 
 	//Возвращает массив с правилами валидации
 	protected function rule() {
-		$data=parent::validateRule();
+		$data=parent::rule();
 		unset($data['code']);
 		if(!$this->_data['password']) unset($data['password']);
 		$data['status']=array('boolean');
@@ -38,11 +38,6 @@ class modelUserAdmin extends modelUser {
 		$db->query('DELETE FROM userMessage WHERE user1Id='.$id.' OR user2Id='.$id);
 		$db->query('DELETE FROM user WHERE id='.$id);
 		return true;
-	}
-
-	private static function _hash($password) {
-		core::import('model/user');
-		return crypt($password,_SALT);
 	}
 
 }

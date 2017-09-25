@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -20,14 +20,14 @@ class FileManager {
     private static $instance;
 	
 	/*
-	  РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєР»Р°СЃСЃР° FileManager
+	  Конструктор класса FileManager
 	*/
 	public function __construct(){
 		FileManager::$instance = & $this;	
 	}
 	
 	/*
-	  РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ СЃСЃС‹Р»РєСѓ РЅР° РѕР±СЊРµРєС‚ РёР»Рё СЃРѕР·РґР°РµС‚ РµРіРѕ
+	  Метод возвращает ссылку на обьект или создает его
 	*/
 	public static function & instance(){
 		empty(FileManager::$instance) and new FileManager;
@@ -35,21 +35,21 @@ class FileManager {
 	}
 	
 	/*
-	  РџРµСЂРµРІРѕРґРёРј Рє РєРѕРґРёСЂРѕРІРєРµ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹  
+	  Переводим к кодировке файловой системы  
 	*/
 	public static function convertToFileSystem($string = ''){
 		return FileManager::__convertToCharSet($string, Manager::$conf['general.char_set'], Manager::$conf['filesystem.char_set']);
     }
 	
 	/*
-	  РџРµСЂРµРІРѕРґРё РєРѕРґРёСЂРѕРІРєСѓ Рє РєРѕРґРёСЂРѕРІРєРµ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
+	  Переводи кодировку к кодировке файловой системы
 	*/
 	public static function convertToGeniral($string = ''){
 		return FileManager::__convertToCharSet($string, Manager::$conf['filesystem.char_set'], Manager::$conf['general.char_set']);
 	}
 	
 	/*
-	  РџРµСЂРµРІРѕРґРёРј РєРѕРґРёСЂРѕРІРєСѓ 
+	  Переводим кодировку 
 	*/
 	public static function __convertToCharSet($string = '', $in_char_set = '', $out_char_set = ''){				
 		if (empty($in_char_set) || empty($out_char_set) || strcasecmp($in_char_set, $out_char_set) == 0) {
@@ -67,7 +67,7 @@ class FileManager {
 	
 	
 	/*
-	  РњРµС‚РѕРґ РїРѕР»СѓС‡Р°РµС‚ СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ Рё РїР°РїРѕРє
+	  Метод получает список файлов и папок
 	*/
 	public static function get_path_list($path = '', $f = false, $d = false){
 		$list = array();
@@ -76,13 +76,13 @@ class FileManager {
 			while (($el = readdir($dp)) !== false){
 				if ($el != '.' && $el != '..' && !preg_match(Manager::$conf['filesystem.exclude_directory_pattern'], $el)){
 					/*
-					  СЂР°Р·РґРµР»РµРЅРёРµ РґРёСЂРµРєС‚РѕСЂРёРё Рё С„Р°Р№Р»Р°
+					  разделение директории и файла
 					*/
 					$el = FileManager::convertToGeniral($el);					
 					$obj = array ('name' => $el, 'path' => $path.$el.'/');
 					if (is_file(FileManager::convertToFileSystem(Manager::$conf['filesystem.files_path'].$path.$el)) && $f) {
 					    /*
-					  	  РїСЂРѕРІРµСЂРєР° СЂР°СЃС€РёСЂРµРЅСЏ С„Р°Р№Р»Р°
+					  	  проверка расширеня файла
 						*/
 						preg_match('/\.([a-z]{3,})$/i', $el, $ext);
 						if (!in_array(strtolower($ext[1]), explode('|', Manager::$conf['filesystem.allowed_extensions']))) continue;
@@ -95,7 +95,7 @@ class FileManager {
 		} 
 		
 		/*
-		  СЃРѕСЂС‚РёСЂРѕРІРєР° СЃРїРёСЃРєР°
+		  сортировка списка
 		*/
 		Manager::$conf['filesystem.sort'] ? sort($list) : rsort($list);	
 		
@@ -103,7 +103,7 @@ class FileManager {
 	}
 	
 	/*
-	  РњРµС‚РѕРґ СЃРѕР·РґР°РµС‚ РєР°С‚РѕР»РѕРі
+	  Метод создает католог
 	*/
     public static function create_dir($path = ''){
    		if ($path == '') return false;		
@@ -126,7 +126,7 @@ class FileManager {
 	}
    
     /*
-	  РњРµС‚РѕРґ СѓРґР°Р»СЏРµС‚ РєР°С‚Р°Р»РѕРі
+	  Метод удаляет каталог
 	*/
 	public static function delete_dir($path = '' , $encode = true){
    		$done = false;
@@ -157,14 +157,14 @@ class FileManager {
     }
 	
 	/*
-	  РњРµС‚РѕРґ РѕС‡РёС‰Р°РµС‚ РїСѓС‚СЊ РѕС‚ Р»РёС€РЅРёС… СЃР»РµС€РµРІ Рё РїРµСЂРµРІРѕРґРёС‚ РµРіРѕ РІ РІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ С„Р°Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
+	  Метод очищает путь от лишних слешев и переводит его в верный формат фаловой системы
 	*/
 	public static function clear_path($path = ''){
 		return preg_replace('/\\\+|\/+/', DS, $path);
 	} 
 	
 	/*
-	  РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ СЂР°СЃС€РёСЂРµРЅРёСЏ С„Р°Р№Р»Р°
+	  Метод возвращает расширения файла
 	*/
 	public static function get_ext($filename = ''){
 		preg_match('/\.([a-z]{3,})$/i', $filename, $ext);
@@ -173,14 +173,14 @@ class FileManager {
 	
 	
 	/*
-	  РњРµС‚РѕРґ СѓРґР°Р»СЏРµС‚ С„Р°Р№Р»
+	  Метод удаляет файл
 	*/
 	public static function delete_file($filename = ''){
 		return $filename != '' && unlink($filename);
 	}
 	
 	/*
-	 РњРµС‚РѕРґ РїРµСЂРµРёРјРµРЅРЅРѕРІС‹РІР°РµС‚ С„РёР» РёР»Рё РґРµСЂРёРєС‚РѕСЂРёСЋ
+	 Метод переименновывает фил или дерикторию
 	*/
 	public static function rename($old = '', $new = ''){
 		return $old != '' && $new != '' && rename(FileManager::convertToFileSystem($old), FileManager::convertToFileSystem($new));

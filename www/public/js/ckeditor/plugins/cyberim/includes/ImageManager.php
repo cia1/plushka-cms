@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -23,7 +23,7 @@ class ImageManager {
 	
 	public function __construct(){
 		ImageManager::$instance = & $this;		
-	    //Р·Р°РіСЂСѓР¶Р°РµРј РґСЂР°Р№РІРµСЂ РѕР±СЂР°Р±РѕС‚РєРё РёР·РѕР±СЂР°Р¶РµРЅРёР№
+	    //загружаем драйвер обработки изображений
 		$driver_name = 'ImageManager_'.Manager::$conf['thumbnail.driver'].'_Driver';
 		require_once(INCLUDE_PATH.'drivers'.DS.'ImageManager_Driver'.EXT);
 		require_once(INCLUDE_PATH.'drivers'.DS.'ImageManager'.DS.$driver_name.EXT);

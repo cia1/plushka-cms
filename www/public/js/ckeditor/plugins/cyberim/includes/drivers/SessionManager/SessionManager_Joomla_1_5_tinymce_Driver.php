@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die('Restricted access');
 
@@ -38,11 +38,11 @@ class SessionManager_Joomla_1_5_tinymce_Driver implements SessionManager_Driver{
 			
 		chdir($old_cwd);
 			
-		// РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ
+		// пользователь не авторизован
 		if ($user->id == 0)
 			return false;	
 			
-		// Р·Р°РјРµРЅСЏРµРј РІСЃРµ Р·РЅР°С‡РµРЅРёСЏ {#user#} РІ С„Р°Р№Р»Рµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РЅР° РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+		// заменяем все значения {#user#} в файле конфигурации на имя пользователя
 		foreach(Manager::$conf as $key => $value){
 			if (!is_string($value) || empty($value))
 				continue;
@@ -50,7 +50,7 @@ class SessionManager_Joomla_1_5_tinymce_Driver implements SessionManager_Driver{
 			Manager::$conf[$key] = str_replace('{#user#}', $user->username, $value);
 		}	
 			
-		//РїСЂРѕРІРµСЂСЏРµРј СЂР°Р·СЂРµС€РµРЅ Р»Рё РґРѕСЃС‚СѓРї СЌС‚РѕРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ	
+		//проверяем разрешен ли доступ этому пользователю	
 		return preg_match(Manager::$conf['session.valid_users'], $user->username);
 	}	
 }

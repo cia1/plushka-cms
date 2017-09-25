@@ -1,17 +1,8 @@
+
 CKEDITOR.editorConfig = function( config ) {
-	config.toolbar_Full=[
-		{name:'document',items:['Source']},
-		{name:'clipboard',items:['Cut','Copy','Paste','PasteText','PasteFromWord','-','Undo','Redo']},
-		{name:'editing',items:['Find','Replace','SelectAll']},
-		{name:'basicstyles',items:['Bold','Italic','Underline','Strike','Subscript','Superscript','-','RemoveFormat']},
-		{name:'paragraph',items:['NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock']},
-		{name:'links',items:['Link','Unlink','Anchor']},
-		{name:'insert',items:['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','Iframe']},
-		{name:'styles',items:['Format','Font','FontSize']},
-		{name:'colors',items:['TextColor','BGColor']},
-		{name:'tools',items:['Maximize','ShowBlocks']}
-	];
 	config.height = '312px';
-	config.extraPlugins="cyberim";
+	config.extraPlugins='image2,uploadimage,cyberim';
 	config.language='ru';
+	config.removePlugins='about,save,newpage,preview,print,selectall,forms,copyformatting,bidi,language,smiley,pagebreak,stylescombo,font,a11yhelp,enterkey,entities,floatingspace,htmlwriter,indentblock,tab,wsc,htmlwriter';
+	config.filebrowserBrowseUrl='../public/js/ckeditor/plugins/cyberim/index.php';
 };

@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -23,7 +23,7 @@ class ErrorManager {
 	
 	public function __construct(){
 		ErrorManager::$instance = & $this;		
-		//Р·Р°РіСЂСѓР¶Р°РµРј РґСЂР°Р№РІРµСЂ РѕР±СЂР°Р±РѕС‚РєРё РёР·РѕР±СЂР°Р¶РµРЅРёР№
+		//загружаем драйвер обработки изображений
 		$driver_name = 'ErrorManager_'.Manager::$conf['general.error'].'_Driver';
 		require_once(INCLUDE_PATH.'drivers'.DS.'ErrorManager_Driver'.EXT);
 		require_once(INCLUDE_PATH.'drivers'.DS.'ErrorManager'.DS.$driver_name.EXT);

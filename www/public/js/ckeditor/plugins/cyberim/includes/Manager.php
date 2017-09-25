@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -24,7 +24,7 @@ class Manager {
 	public static $conf;
 	
 	/*
-	  РњРµС‚РѕРґ РІС‹РїРѕР»РЅСЏРµС‚ Р·Р°РґР°С‡Сѓ
+	  Метод выполняет задачу
 	*/
 	public function peform($task = ''){
 		if (file_exists(TASKS_PATH.$task.EXT)){

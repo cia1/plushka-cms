@@ -12,7 +12,7 @@
  */
  
 	/*
-  		Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  		Защита от прямой загрузки
 	*/
 	defined('ACCESS') or die();
 	
@@ -25,7 +25,7 @@
 		exit();
 	}
 				
-	//СЃРѕР·РґР°РµРј РєР°С‚Р°Р»РѕРі РµСЃР»Рё РµРіРѕ РЅРµС‚
+	//создаем каталог если его нет
 	$thumb_path = FileManager::convertToFileSystem(
 		FileManager::clear_path(	
 			Manager::$conf['filesystem.files_abs_path'].DS.$_REQUEST['path'].DS.Manager::$conf['thumbnail.folder']
@@ -35,7 +35,7 @@
 	if (!is_dir($thumb_path)){FileManager::create_dir(FileManager::convertToGeniral($thumb_path));}
 				
 	/*
-		Р¤РѕСЂРјРёСЂСѓРµРј РґР°РЅРЅС‹Рµ Рѕ РїРѕ СЃС‚Р°РЅРёС‡РЅРѕР№ РЅР°РІРёРіР°С†РёРё
+		Формируем данные о по станичной навигации
 	*/
 				
 	$start = ($_REQUEST['page'] - 1) * Manager::$conf['general.elements'];
@@ -44,10 +44,10 @@
 	$list = array_slice($list, $start, Manager::$conf['general.elements']);
 				
 	/*
-		Р¤РѕСЂРјРёСЂСѓРµРј СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ РґР»СЏ РѕС‚РІРµС‚Р°
+		Формируем список файлов для ответа
 	*/
 	foreach ($list as $item){
-		//СЃРѕР·РґР°РµРј РїСЂРµРІСЊСЋС€РєРё
+		//создаем превьюшки
 		$src = FileManager::clear_path(
 			FileManager::convertToFileSystem(
 				Manager::$conf['filesystem.files_abs_path'].DS.$_REQUEST['path'].DS.$item['name']
@@ -58,9 +58,9 @@
 		$height = Manager::$conf['thumbnail.hieght'];
 				  
 		if (!file_exists($dest)){						
-			//СЃРѕР·РґР°РµРј РїСЂРµРІСЊСЋ
+			//создаем превью
 			if (!ImageManager::instance()->thunbnail($src, $dest, $width, $height)){
-				//РµСЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ С‚Рѕ РІС‹РІРѕРґРёРј РїСЂРµРІСЊСЋ С‡С‚Рѕ РїСЂРѕСЃРјРѕС‚СЂ РЅРµ РґРѕСЃС‚СѓРїРµРЅ
+				//если не удалось то выводим превью что просмотр не доступен
 				$dest = 'pages/'.Manager::$conf['general.template'].'/img/error_thumbnails.gif';						
 			};
 		}

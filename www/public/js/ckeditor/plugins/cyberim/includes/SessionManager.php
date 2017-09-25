@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -22,7 +22,7 @@ class SessionManager {
 	
 	public function __construct(){
 		SessionManager::$instance = & $this;
-		//Р·Р°РіСЂСѓР¶Р°РµРј РґСЂР°Р№РІРµСЂ
+		//загружаем драйвер
 		require_once(INCLUDE_PATH.'drivers'.DS.'SessionManager_Driver'.EXT);
 		$driver_name = 'SessionManager_'.Manager::$conf['session.driver'].'_Driver';
 		require_once(INCLUDE_PATH.'drivers'.DS.'SessionManager'.DS.$driver_name.EXT);

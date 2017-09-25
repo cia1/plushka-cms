@@ -59,23 +59,45 @@ class _core {
 		include_once(self::path().$name.'.php');
 	}
 
-	/* Возвращает относительный URL до корня сайта */
+	//Возвращает относительный URL до корня сайта.
+	//$lang===true - добавить префикс языка, $lang является строкой - сслыка на страницу с языком $lang;
+	//$domain - полная, а не относительная ссылка
 	public static function url($lang=false,$domain=false) {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
-				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')+1);
+//				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')+1);
+				$_url=str_replace(array($_SERVER['DOCUMENT_ROOT'],'core/core.php'),'',str_replace('\\','/',__FILE__));
 			} else { //CGI-запрос
 				$cfg=core::config('cgi');
 				$_url=$cfg['url'];
-				if($domain) $_url=$cfg['host'].$_url;
 			}
 		}
-		if($lang) {
+		$url=$_url;
+		if($lang===true) {
 			$cfg=core::config();
-			if($cfg['languageDefault']!=_LANG) return $_url._LANG.'/';
+			if($cfg['languageDefault']!=_LANG) $url.=_LANG.'/';
+		} elseif($lang) {
+			$cfg=core::config();
+			if($cfg['languageDefault']!=$lang) $url.=$lang.'/';
 		}
-		return $_url;
+		if($domain) {
+			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
+				$url='://'.$_SERVER['HTTP_HOST'].$url;
+			} else {
+				$cfg=core::config('cgi');
+				$url=$cfg['host'].$_url;
+			}
+			if(isset($_SERVER['HTTPS'])) {
+				if($_SERVER['HTTPS']=='off') $url='http'.$url;
+				else $url='https'.$url;
+			} elseif(isset($_SERVER['REQUEST_SCHEME'])) $url=$_SERVER['REQUEST_SCHEME'].$url;
+			elseif(isset($_SERVER['SERVER_PORT'])) {
+				if($_SERVER['SERVER_PORT']==443) $url='https'.$url;
+				else $url='http'.$url;
+			} else $url='http'.$url;
+		}
+		return $url;
 	}
 
 	/* Возвращает класс, олицетворяющий пользователя (экземпляр 'user"). */
@@ -101,7 +123,7 @@ class _core {
 		$f=self::path().'cache/custom/'.$id.'.txt';
 		if(file_exists($f)) {
 			if($timeout===-1 || !$callback) return unserialize(file_get_contents($f));
-			if(time()-filemtime($f)<$timeout) return unserialize(file_get_contents($f));
+			if(time()-filemtime($f)<$timeout*60) return unserialize(file_get_contents($f));
 		}
 		if(!$callback) return null;
 		$data=call_user_func($callback);
@@ -241,6 +263,7 @@ class _core {
 
 	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
 	public static function error404() {
+		core::hook('404');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
 		core::language('global');
 		core::language('error');
@@ -407,9 +430,6 @@ class controller {
 			if(_LANG==$cfg['languageDefault']) $link=$_SERVER['REQUEST_URI']; else {
 				$link=substr($_SERVER['REQUEST_URI'],3);
 				if(!$link) $link=core::url();
-			}
-			foreach($cfg['languageList'] as $item) {
-				$this->_head.='<link rel="alternate" hreflang="'.$item.'" href="'.($cfg['languageDefault']==$item ? $link : core::url().$item.$link).'">';
 			}
 		}
 		$this->url=$_GET['corePath'];

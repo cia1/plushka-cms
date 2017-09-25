@@ -20,8 +20,9 @@
 
 	//Лог журнала регистрации
 	public function actionLog() {
+		if(isset($_GET['keyword'])) $this->keyword=$_GET['keyword']; else $this->keyword=null;
 		core::import('admin/model/log');
-		$log=new log($_GET['id'],(isset($_GET['page']) ? $_GET['page'] : null));
+		$log=new log($_GET['id'],$this->keyword,(isset($_GET['page']) ? $_GET['page'] : null));
 		if(core::error(false)) core::error404();
 		$title=$log->title();
 		$table=core::table();

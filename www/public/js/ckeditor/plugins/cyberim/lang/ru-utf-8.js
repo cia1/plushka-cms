@@ -1,4 +1,4 @@
-{
+{   
 	"title": "Cyber Image Manager",
 	"folder_tree": "Каталог",
 	"loading": "Загрузка...",

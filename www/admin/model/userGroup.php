@@ -1,7 +1,7 @@
 <?php
 /* Объект "группа пользователей */
 core::import('core/model');
-class modelUserGroup extends model {
+class userGroup extends model {
 
 	public function __construct() {
 		parent::__construct('userGroup');
@@ -13,17 +13,11 @@ class modelUserGroup extends model {
 
 	//Возвращает правила валидации
 	protected function rule() {
+		$exists=$this->db->fetchValue('SELECT 1 FROM userGroup WHERE id='.(int)$this->id); //если уже есть такая группа, то выполнить UPDATE вместо INSERT
 		return array(
-			'id'=>array('integer','Группа',true,'min'=>1,'max'=>255),
+			'id'=>array(($exists ? 'primary' : 'integer'),'Группа',true,'min'=>1,'max'=>255),
 			'name'=>array('string','Описание',true)
 		);
-	}
-
-	/* Подставить идентификатор пользователя */
-	public function validate($validator=null) {
-		if(!parent::validate($validator)) return false;
-		if($this->db->fetchValue('SELECT 1 FROM userGroup WHERE id='.(int)$this->id)) $this->_primary='id';
-		return true;
 	}
 
 	public function afterInsert($id=null) { return $this->afterUpdate($id); }

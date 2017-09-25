@@ -5,7 +5,7 @@ body {min-height:100%; background-color:#086378;}
 
 .clr{clear:both; font-size:0; overflow:hidden}
 
-/*Р›РµРІС‹Р№ Р±Р»РѕРє*/
+/*Левый блок*/
 .sen-left{width:200px;}
 .sen-left-wrap{background:#adc8cf; margin:25px 5px 0 0; border:4px solid #8eb3bc; border-left:none;}
 .sen-left-title{background:#CFDEE3; height:26px;}
@@ -20,7 +20,7 @@ body {min-height:100%; background-color:#086378;}
 #file_desc_data {font-size:12px;}
 #file_description #file_desc_data{padding:5px; line-height:16px;}
 
-/*Р”РµСЂРµРІРѕ С„Р°Р№Р»РѕРІ*/
+/*Дерево файлов*/
 
 .sen-dirs {width:177px; padding:7px; *overflow:visible; overflow-x:auto; *overflow-y:hidden; background:#adc8cf;}
 .sen-dirs ul{ list-style:none}
@@ -32,13 +32,13 @@ HTML:first-child .sen-dirs{overflow:auto;}
 .sen-dirs li.sen-el{background: url(./pages/default/img/map.gif) no-repeat 0 2px;}
 .sen-dirs input {margin-left:20px; width:153px;}
 
-/*Р¦РµРЅС‚СЂР°Р»СЊРЅС‹Р№ Р±Р»РѕРє*/
+/*Центральный блок*/
 .sen-content-wrap{margin: 25px 10px 10px 10px;}
 .sen-files-wrap{background-color:#D9D9D9; border:4px solid #C6C6C6; padding:5px;}
 #sen-items{white-space:nowrap;}
 .sen-big-ajax-loader{ background:url(./pages/default/img/big-ajax-loader.gif) no-repeat center center; width:100%; height:50px;}
 
-/*Р‘Р»РѕРє Р·Р°РіСЂСѓР·РєРё С„Р°Р№Р»РѕРІ*/
+/*Блок загрузки файлов*/
 #upload_toolbar{height:32px;}
 #ajaxFrame{display:none}
 #sen-uploader{display:none;}
@@ -61,7 +61,7 @@ HTML:first-child .sen-dirs{overflow:auto;}
 #filesQueue .queueItem .file{margin-left:5px;}
 #filesQueue .queueItem .fileCancel a {display:block; width:24px; height:24px; background:url(./pages/default/img/map.gif) no-repeat 0 -120px; *background-position:0 -123px}
 
-/*РџСѓС‚СЊ РєР°С‚РѕР»РѕРіРѕРІ*/
+/*Путь катологов*/
 .sen-pathview-el{background: url(./pages/default/img/arrow_right.gif) no-repeat center right; float:left; font-size:12px; line-height:16px; padding-right:15px; cursor:pointer;}
 .sen-pathview-el .sen-dir{float:left;}
 .sen-pathview-el.sen-hover .sen-dir{text-decoration:underline; color:blue;}
@@ -71,7 +71,7 @@ HTML:first-child .sen-dirs{overflow:auto;}
 #sen-pathview .sen-edit{background:url(./pages/default/img/map.gif) no-repeat 0 -100px}
 #sen-pathview .sen-del{background:url(./pages/default/img/map.gif) no-repeat 0 -125px}
 
-/*Р¤Р°Р№Р»РѕРІР°СЏ РѕР±Р»Р°СЃС‚СЊ*/
+/*Файловая область*/
 #sen-list{font-size:14px;}
 .sen-file-wrap{float:left; cursor:pointer; width:100px;  border:1px solid #CCC; background:#FFF; margin-top:5px; padding:3px;margin-left:5px; margin-bottom:5px; margin-right:5px;}
 .sen-file-wrap1{display: table; #position: relative; overflow: hidden; text-align:center; width:100px; height:100px;
@@ -84,7 +84,7 @@ background-color:#FFF;}
 .sen-selected-file .sen-file-wrap1, .sen-selected-file .sen-filename{background:#99CCFF;} 
 .sen-filename{overflow:hidden; _width:100%; text-align:center; font-size:12px; background:#FFF}
 
-/*РџР°РіРёРЅР°С‚РѕСЂ*/
+/*Пагинатор*/
 .paginator {font-size:10px; margin:5px auto; width:450px;}
 .paginator table {border-collapse:collapse; table-layout:fixed; width:100%;}
 .paginator table td {padding:0; white-space:nowrap; text-align:center; font-size:12px;}

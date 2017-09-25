@@ -1,0 +1,8 @@
+array(3) {
+  ["uploaded"]=>
+  int(1)
+  ["fileName"]=>
+  string(13) "header-bg.png"
+  ["url"]=>
+  string(21) "/public/header-bg.png"
+}

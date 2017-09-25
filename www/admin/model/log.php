@@ -23,8 +23,9 @@ class log implements Iterator {
 	private $_current;
 	private $_offset;
 	private $_limit;
+	private $_keyword;
 
-	function __construct($file,$page=-1,$limit=LOG_LIMIT_ON_PAGE) {
+	function __construct($file,$keyword=null,$page=-1,$limit=LOG_LIMIT_ON_PAGE) {
 		//Анализ конфигурационного файла (/admin/config/$file.log.php), подготовка формата
 		$file=core::translit($file); //фильтр имени файла
 		$field=core::configAdmin($file);
@@ -55,7 +56,7 @@ class log implements Iterator {
 		$this->_field=$field;
 		//Перенести указатель чтения на нужную позицию в файле
 		$this->_file=fopen(core::path().'tmp/'.$file,'r');
-		$this->_count=self::_foundRows($this->_file);
+		$this->_count=self::_foundRows($this->_file,$keyword);
 		if($page===null) $this->_offset=$this->_count-$limit;
 		elseif($page==0) $this->_offset=0;
 		else $this->_offset=($page-1)*$limit;
@@ -63,6 +64,7 @@ class log implements Iterator {
 		if($this->_offset>0) {
 			while($line=fgets($this->_file)) if(++$skip>=$this->_offset) break;
 		}
+		$this->_keyword=$keyword;
 		$this->_limit=$this->_offset+$limit;
 		$this->_offset--;
 		$this->next();
@@ -86,9 +88,14 @@ class log implements Iterator {
 	}
 
 	public function next() {
+		$found=false;
+		do {
 		$line=fgets($this->_file);
-		$this->_offset++;
-		if($line!==false) {
+			if($line===false) {
+				$this->_current=false;
+				return;
+			}
+			if($this->_keyword && mb_stripos($line,$this->_keyword)===false) continue;
 			$line=rtrim($line);
 			$line=explode("\t",$line);
 			foreach($this->_field as $i=>$fld) {
@@ -96,7 +103,9 @@ class log implements Iterator {
 				if($method=='_formatText' || !method_exists($this,$method)) continue;
 				$line[$i]=self::$method((isset($line[$i]) ? $line[$i] : null),$fld[2],$line);
 			}
-		}
+			$found=true;
+		} while(!$found);
+		$this->_offset++;
 		$this->_current=$line;
 	}
 
@@ -113,9 +122,12 @@ class log implements Iterator {
 	}
 
 	//Возвращает количество строк в файле (исключая пустые строки)
-	private static function _foundRows($file) {
+	private static function _foundRows($file,$keyword=null) {
 		$count=0;
-		while($line=fgets($file)) if($line!=="\n") $count++; //пропустить пустые строки
+		while($line=fgets($file)) {
+			if($keyword && mb_stripos($line,$keyword)===false) continue;
+			if($line!=="\n") $count++; //пропустить пустые строки
+		}
 		rewind($file);
 		return $count;
 	}

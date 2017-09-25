@@ -47,7 +47,7 @@ class sController extends controller {
 		if($data['id']) {
 			$f->label('Группа',$data['id']);
 			$f->hidden('id',$data['id']);
-		} else $f->text('id','Группа','','onkeyup="if(parseInt(this.value)<200 || parseInt(this.value)>254) $(\'#_admRight\').slideUp(); else $(\'#_admRight\').slideDown();"');
+		} else $f->number('id','Группа','','onkeyup="if(parseInt(this.value)<200 || parseInt(this.value)>254) $(\'#_admRight\').slideUp(); else $(\'#_admRight\').slideDown();" min="1" max="255"');
 		$f->text('name','Описание',$data['name']);
 		if(!$data['id'] || ($data['id']>=200 && $data['id']!=255)) { //Если группа пользователей относится к администраторам или ещё неизвестна, то присоединить чекбоксы с правами пользователей
 			$f->html('<div id="_admRight"><h2>Права группы пользователей</h2><fieldset>');
@@ -69,9 +69,9 @@ class sController extends controller {
 
 	public function actionGroupItemSubmit($data) {
 		core::import('admin/model/userGroup');
-		$model=new modelUserGroup();
-		$model->set($data);
-		if(!$model->save()) return false;
+		$userGroup=new userGroup();
+		$userGroup->set($data);
+		if(!$userGroup->save()) return false;
 		core::redirect('?controller=user&action=group');
 	}
 
@@ -141,7 +141,7 @@ class sController extends controller {
 			return false;
 		}
 		core::import('admin/model/user');
-		$user=new modelUserAdmin();
+		$user=new userAdmin();
 		$user->set($data);
 		if(!$user->save()) return false;
 		$s='Изменения сохранены';

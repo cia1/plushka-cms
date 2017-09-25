@@ -12,7 +12,7 @@
  */
  
 	/*
-  		Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  		Защита от прямой загрузки
 	*/
 	defined('ACCESS') or die();
 	header('Content-type: text/json; charset='.Manager::$conf['general.char_set']);

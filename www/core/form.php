@@ -31,7 +31,7 @@ class form {
 	/* Поле ввода числа
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, который нужно добавить к тегу <input> */
 	public function number($name,$label,$value='',$html='') {
-		$this->_data.='<dt class="text number '.$name.'">'.$label.':</dt><dd class="text number '.$name.'">'.$this->getText($name,$value,$html).'</dd>';
+		$this->_data.='<dt class="text number '.$name.'">'.$label.':</dt><dd class="text number '.$name.'">'.$this->getNumber($name,$value,$html).'</dd>';
 	}
 
 	/* Поле ввода e-mail адреса
@@ -219,7 +219,7 @@ class form {
 			}
 		} else foreach($items as $item) {
 			$s.='<option value="'.$item[0].'"';
-			if($item[0]==$value) $s.=' selected="selected"';
+			if($item[0]==$value && !($item[0]=='0' && ($value===null || $value===''))) $s.=' selected="selected"';
 			$s.='>'.$item[1].'</option>';
 		}
 		$s.='</select>';
@@ -301,18 +301,28 @@ class form {
 	}
 
 	/* Возвращает HTML-код визуального редактора */
-	public function getEditor($name,$value='',$html='') {
+	public function getEditor($name,$value='',$config=array()) {
+		$userGroup=core::userGroup();
+		if(!$config) $config=array();
+		if($userGroup>=200 && !isset($config['uploadTo'])) $config['uploadTo']='public/'; //для админки по умолчанию разрешить загружать изображения куда угодно в пределах директория /public
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
-		return '<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'" '.$html.'>'.$value.'</textarea>'.
-		(isset($_GET['_lang']) ? '' : core::js('ckeditor/ckeditor')).'
-		<script>
+		$html='<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'"'.(isset($config['html']) && $config['html'] ? ' '.$html : '').'>'.$value.'</textarea>';
+		if(!isset($_GET['_lang'])) $html.=core::js('ckeditor/ckeditor');
+		$html.='<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();
 		if(document.ckeditor["'.$name.'"]!=undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
-		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{customConfig:"'.(isset($_GET['_lang']) ? core::url().'admin/public/js/ckeditor-config.js' : core::url().'public/js/ckeditor-config.js').'"});
-		</script>';
+		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{
+			customConfig:"'.(isset($_GET['_lang']) ? core::url().'admin/public/js/ckeditor-config.js' : core::url().'public/js/ckeditor-config.js').'"';
+		if(isset($config['uploadTo'])) {
+			$html.=',uploadUrl:"'.core::url().'upload.php"';
+//				',filebrowserUploadUrl:"'.core::url().$config['uploadTo'].'"';
+			$_SESSION['_ckUploadTo']=$config['uploadTo']; //запомнить, куда разрешено загружать файлы, поддерживается только один директорий
+		}
+		$html.='});</script>';
+		return $html;
 	}
 
 	/* Возвращает HTML-код выбора даты */

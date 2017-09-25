@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -21,16 +21,16 @@ class ImageManager_GD2_Driver extends ImageManager_Driver{
 	private $im = NULL;
 	
 	/*
-	  РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєР»Р°СЃСЃР° ImageManager_GD_Driver
-	  Р·Р°РіСЂСѓР¶Р°РµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёРµ 
+	  Конструктор класса ImageManager_GD_Driver
+	  загружает изображение 
 	*/
 	public function __construct($filename = ''){
 		$this->open($filename);
 	}
 	
 	/*
-	  РњРµС‚РѕРґ РёР·РјРµРЅСЏРµС‚ СЂР°Р·РјРµСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° РїРµСЂРµРґР°РµС‚СЃСЏ 
-	  С€РёСЂРёРЅР° Рё РІС‹СЃРѕС‚Р° РЅРѕРІРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+	  Метод изменяет размер изображения в качестве параметра передается 
+	  ширина и высота нового изображения
 	*/
 	public function resize($width = 100, $height = 100, $toFrame = false){
 		if ($this->im == NULL || $width == 0 || $height == 0) return false;
@@ -81,7 +81,7 @@ class ImageManager_GD2_Driver extends ImageManager_Driver{
 	}
 	
 	/*
-	  РњРµС‚РѕРґ РїРѕР»СѓС‡Р°РµС‚ РёРЅС„СЂРјР°С†РёСЋ Рѕ РѕР·РёР±СЂР°Р¶РµРЅРёРё
+	  Метод получает инфрмацию о озибражении
 	*/  
 	public function info($filename = ''){
 		$i = getimagesize($filename);		
@@ -89,7 +89,7 @@ class ImageManager_GD2_Driver extends ImageManager_Driver{
 	}
 	
 	/*
-	  РњРµС‚РѕРґ СЃРѕС…СЂР°РЅСЏРµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С„Р°Р№Р»
+	  Метод сохраняет изображение в файл
 	*/
 	function save($filename = '', $quality = 80){
 	    preg_match('/\.([a-z]{3,})$/i', $filename, $ext);
@@ -111,7 +111,7 @@ class ImageManager_GD2_Driver extends ImageManager_Driver{
 	}
 	
 	/*
-	  РњРµС‚РѕРґ СЃРѕР·РґР°РµС‚ РїСЂРѕР·СЂР°С‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
+	  Метод создает прозрачное изображение
 	*/
 	private function imagecreatetransparent($width = 0, $height = 0){
 		$blank  = "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29m";

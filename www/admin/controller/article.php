@@ -26,7 +26,8 @@ class sController extends controller {
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM articleCategory_'._LANG.' WHERE id='.(int)$_GET['id']);
 		} elseif(isset($_GET['link']) && $_GET['link']) { //Выбрать категорию по псевдониму
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM articleCategory_'._LANG.' WHERE alias='.$db->escape(substr($_GET['link'],strrpos($_GET['link'],'/')+1)));
-		} else $data=array('id'=>null,'parentId'=>0,'title'=>'','alias'=>'','onPage'=>20,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'','text1'=>'');
+		} else $data=array('id'=>null,'parentId'=>(isset($_GET['parent']) ? $_GET['parent'] : 0),'title'=>'','alias'=>'','onPage'=>20,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'','text1'=>'');
+		if(isset($_GET['parent'])) $data['parentId']=intVal($_GET['parent']);
 		if(!$data) core::error404();
 		$f=core::form();
 		$f->hidden('id',$data['id']);

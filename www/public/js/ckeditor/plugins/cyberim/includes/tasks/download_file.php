@@ -12,7 +12,7 @@
  */
  
 	/*
-  		Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  		Защита от прямой загрузки
 	*/
 	defined('ACCESS') or die();
 	
@@ -22,12 +22,12 @@
 	
 	if (file_exists(FileManager::convertToFileSystem($file))){
 		Manager::$conf['stream.mimes']['use_gzip']=false;
-		//Р·Р°СЂСѓР¶Р°РµРј С„Р°Р№Р»
+		//заружаем файл
 		$data = file_get_contents(FileManager::convertToFileSystem($file));
-		//РїРѕР»СѓС‡Р°РµРј СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р°	
+		//получаем расширение файла	
 		$ext = strtolower(FileManager::get_ext($file));
 		
-		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј mime РїРѕСѓРјРѕР»С‡Р°РЅРёСЋ РµСЃР»Рё РЅРµ РјРѕР¶РµРј РЅР°Р№С‚Рё С‚РёРї СЌС‚РѕРіРѕ С„Р°Р»Р°
+		// Устанавливаем mime поумолчанию если не можем найти тип этого фала
 		if (!isset(Manager::$conf['stream.mimes'][$ext])){
 			$mime = 'application/octet-stream';
 		}
@@ -37,7 +37,7 @@
 					Manager::$conf['stream.mimes'][$ext];
 		}
 		
-		// Р“РµРЅРёСЂРёСЂСѓРµРј Р·Р°РіРѕР»РѕРІРєРё СЃРµСЂРІРµСЂР°
+		// Генирируем заголовки сервера
 		if (strstr($_SERVER['HTTP_USER_AGENT'], "MSIE")){
 			header('Content-Type: "'.$mime.'"');
 			header('Content-Disposition: attachment; filename="'.basename($file).'"');

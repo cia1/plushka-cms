@@ -32,17 +32,19 @@ class sController extends controller {
 
 	/* Общие настройки модуля комментариев */
 	public function actionSetting() {
-		$f=core::form();
+		$form=core::form();
 		$cfg=core::config('comment');
-		$f->select('status','Состояние новых сообщений',array(array(0,'публиковать после проверки модератором'),array(1,'публиковать сразу')),$cfg['status']);
-		$f->submit();
-		return $f;
+		$form->select('status','Состояние новых сообщений',array(array(0,'публиковать после проверки модератором'),array(1,'публиковать сразу')),$cfg['status']);
+		$form->checkbox('Вход через OAuth',$cfg['oauth']);
+		$form->submit();
+		return $form;
 	}
 
 	public function actionSettingSubmit($data) {
 		core::import('admin/core/config');
 		$cfg=new config();
 		$cfg->status=(int)$data['status'];
+		$cfg->oauth=isset($data['oauth']);
 		$cfg->save('comment');
 		core::success('Изменения сохранены');
 		core::redirect('?controller=comment&action=moderate');

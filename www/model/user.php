@@ -145,6 +145,7 @@ class modelUser extends model {
 		}
 		unset($_SESSION['newMessageCount']);
 		unset($_SESSION['newMessageTimeout']);
+		unset($_SESSION['ckUploadTo']);
 		return true;
 	}
 

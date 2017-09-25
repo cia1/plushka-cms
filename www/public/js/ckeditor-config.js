@@ -1,10 +1,5 @@
-CKEDITOR.editorConfig = function( config ) {
-	config.toolbar_Full=[
-		{ name: 'clipboard', items : [ 'Cut','Copy','Paste','Undo','Redo' ] },
-		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','-','RemoveFormat' ] },
-		{ name: 'paragraph', items : [ 'JustifyLeft','JustifyCenter','JustifyRight' ] },
-		{ name: 'links', items : [ 'Link','Unlink','Anchor','Image' ] },
-		{ name: 'tools', items : [ 'Maximize' ] }
-	];
-//	config.extraPlugins="simpleimage";
+CKEDITOR.editorConfig=function(config) {
+	config.height = '312px';
+	config.language='ru';
+	config.removePlugins='about,save,newpage,preview,print,selectall,forms,copyformatting,bidi,language,smiley,pagebreak,stylescombo,font,a11yhelp,enterkey,entities,floatingspace,htmlwriter,indentblock,tab,wsc,htmlwriter';
 };

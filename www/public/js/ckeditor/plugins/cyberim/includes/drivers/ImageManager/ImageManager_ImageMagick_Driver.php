@@ -12,7 +12,7 @@
  */
  
 /*
-  Р—Р°С‰РёС‚Р° РѕС‚ РїСЂСЏРјРѕР№ Р·Р°РіСЂСѓР·РєРё
+  Защита от прямой загрузки
 */
 defined('ACCESS') or die();
 
@@ -21,14 +21,14 @@ class ImageManager_ImageMagick_Driver extends ImageManager_Driver{
 	private $im = NULL;
 	
 	/*
-	  РєРѕСЃРЅС‚СЂСѓРєС‚РѕСЂ РєР»Р°СЃСЃР° ImageManager_ImageMagick_Driver
+	  коснтруктор класса ImageManager_ImageMagick_Driver
 	*/
 	public function __construct($filename = ''){
 		$this->open($filename);
 	}
 	
 	/*
-	  РјРµС‚РѕРґ РѕС‚РєСЂС‹РІР°РµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃ РёРјРµРЅРµРј $filename
+	  метод открывает изображение с именем $filename
 	*/
 	public function open($filename = ''){
 		if (!file_exists($filename)) return false;
@@ -43,7 +43,7 @@ class ImageManager_ImageMagick_Driver extends ImageManager_Driver{
 	}
 	
 	/*
-	  РјРµС‚РѕРґ РёР·РјРµРЅСЏРµС‚ СЂР°Р·РјРµСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РЅР° $width%$hienght РёСЃР»Рё СѓРєР°Р·Р°РЅС‹ РїР°СЂР°РјРµС‚РѕСЂ $toFrame С‚Рѕ РІРїРёСЃС‹РІР°РµС‚ РµРіРѕ РІ СЂР°РјРєСѓ 
+	  метод изменяет размер изображения на $width%$hienght исли указаны параметор $toFrame то вписывает его в рамку 
 	*/
 	public function resize($width = 100, $height = 100, $toFrame = false){
 		if ($this->im == NULL || $width == 0 || $height == 0) return false;
@@ -60,7 +60,7 @@ class ImageManager_ImageMagick_Driver extends ImageManager_Driver{
 	}
 	
 	/*
-	  РјРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РёР·РѕР±СЂР°Р¶РµРЅРёРё
+	  метод возвращает информацию о изображении
 	*/
 	public function info($filename = ''){
 		$this->open($filename);
@@ -72,7 +72,7 @@ class ImageManager_ImageMagick_Driver extends ImageManager_Driver{
 	
 	
 	/*
-	  РјРµС‚РѕРґ СЃРѕС…СЂР°РЅСЏРµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С„Р°Р№Р»Рµ СЃ РїСѓС‚РµРј $filename
+	  метод сохраняет изображение в файле с путем $filename
 	*/
 	public function save($filename = ''){
 		

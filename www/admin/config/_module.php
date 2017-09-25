@@ -1,7 +1,7 @@
 <?php return array(
 'core'=>array(
 	'name'=>'Ядро',
-	'version'=>'3.13',
+	'version'=>'3.14',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
@@ -43,13 +43,13 @@
 ),
 'comment'=>array(
 	'name'=>'Комментарии (виджет)',
-	'version'=>'1.2',
+	'version'=>'1.3',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
 'comment.lang_ru'=>array(
 	'name'=>'Комментарии (виджет). Языковой пакет RU',
-	'version'=>'1.0',
+	'version'=>'1.3',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
@@ -145,7 +145,7 @@
 ),
 'oauth'=>array(
 	'name'=>'Регистрация и авторизация OAuth 2.0',
-	'version'=>'1.0',
+	'version'=>'1.1',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),

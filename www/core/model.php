@@ -80,6 +80,7 @@ class model {
 		foreach($validate as $name=>$option) {
 			if(!$this->_validateField($this->_data[$name],$name,$option)) return false;
 		}
+		if(!$this->_primary) $this->_primary=false; //обозначить, если первичного ключа нет в правилах
 		return true;
 	}
 
@@ -109,7 +110,7 @@ class model {
 		//Поиск первичного ключа (если не был определён в методе validate() )
 		if($primaryKeyName!==null) $this->_primary=$primaryKeyName;
 		if(is_string($validate)) $validate=explode(',',$validate);
-		if(!$this->_primary && $primaryKeyName!==false && method_exists($this,'rule')) { //ситация: первичный ключ указан явно, но валидация не требуется
+		if($this->_primary===null && $primaryKeyName!==false && method_exists($this,'rule')) { //ситуация: первичный ключ указан явно, но валидация не требуется
 			$validate=$this->rule('save');
 			foreach($validate as $id=>$null) {
 				if($null[0]=='primary') {
@@ -174,9 +175,6 @@ class model {
 			$this->_primary=$name;
 			if(!$value) $value=null;
 			break;
-//		case 'id':
-//			if(!$value) $value=(int)$value;
-//			break;
 		case 'integer':
 			if($value==='') $value=null; else $value=(int)$value;
 			if($value) {
@@ -335,7 +333,6 @@ class model {
 		$s1=$s2='';
 		foreach($fieldList as $field) {
 			if($this->_data[$field]===null) continue;
-//			$value=($this->_data[$field]===null ? 'null' : $this->db->escape($this->_data[$field]));
 			$value=$this->db->escape($this->_data[$field]);
 			if(is_array($this->_languageDb) && in_array($field,$this->_languageDb)) { //это поле является мультиязычным
 				if($this->_multiLanguage) {
