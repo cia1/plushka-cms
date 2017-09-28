@@ -6,7 +6,8 @@ class sController extends controller {
 		return array(
 			'Index'=>'language.*',
 			'Add'=>'language.*',
-			'Delete'=>'language.*'
+			'Delete'=>'language.*',
+			'Setting'=>'language.rule'
 		);
 	}
 
@@ -82,5 +83,40 @@ class sController extends controller {
 		$cfg->save('_core');
 		core::redirect('?controller=language');
 	}
+
+	//Правила переключения между языками
+	public function actionSetting() {
+		$form=core::form();
+		$cfg=core::config();
+		$cfgLanguage=core::config('language');
+		foreach($cfg['languageList'] as $item) {
+			$form->text($item,'Название языка <b>'.$item.'</b>',$cfgLanguage['lang'][$item]);
+		}
+		$form->textarea('rule','Не мультиязычные страницы',implode("\n",$cfgLanguage['rule']));
+		$form->submit();
+		$this->cite='На этой странице задаётся список ссылок, которые не являются мультиязычными, тоесть страница с таким URL может не существовать на других языках. Для таких страниц переключатель языков (виджет language) будет "вести" на страницу на один уровень вверх (она, в свою очередь, тоже может присутствовать в этом списке). Если все уровни будут обнаружены в этом списке, то переключатель языков будет "вести" на главную страницу.';
+		return $form;
+	}
+
+	public function actionSettingSubmit($data) {
+		$cfg=core::config();
+		core::import('admin/core/config');
+		$cfgLanguage=new config();
+		foreach($cfg['languageList'] as $item) $lang[$item]=$data[$item];
+		$cfgLanguage->lang=$lang;
+
+		$data=explode("\n",$data['rule']);
+		for($i=0,$cnt=count($data);$i<$cnt;$i++) {
+			$item=trim($data[$i]);
+			if($item[0]=='/') $item=substr($item,1);
+			if($item[strlen($item)-1]=='/') $item=substr($item,0,-1);
+			if(!$item) unset($data[$i]);
+			$data[$i]=$item;
+		}
+		$data=array_values($data);
+		$cfgLanguage->rule=$data;
+		if(!$cfgLanguage->save('language')) return false;
+		core::redirect('?controller=language&action=setting','Сохранено');
+		}
 
 }

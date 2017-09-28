@@ -1,11 +1,16 @@
-$.fn.chat=function(urlRoot,serverTime,form) {
+$.fn.chat=function(urlRoot,serverTime,form,callback) {
 	var console=$(this.get(0)); //HTML-контейнер для сообщений
+	console.scrollTop(99999);
 	var hideMe=false;
 
 	//Генерирует HTML сообщения и обновляет дату последнего сообщения
 	var _html=function(data) {
 		line=data.split("\t");
-		if(line.length!=5) return '<p class="system">'+data+'</p>';
+		if(line.length!=5) {
+			alert(data);
+			hideMe=true;
+			return '';
+		}
 		if(serverTime>=line[0]) return '';
 		if(line[0]>serverTime) serverTime=line[0];
 		html='<p><span class="time">';
@@ -36,16 +41,16 @@ $.fn.chat=function(urlRoot,serverTime,form) {
 	}
 
 	//Форма постит сообщения
+	form.action+='?ajax';
 	$(form).ajaxForm(function(data) {
 		$('.message',form).val('').focus();
-		if(!data) return;
+		if(!data) return false;
+		console.append(_html(data));
 		if(hideMe==false) {
 			$('.hideMe',form).remove();
 			hideMe=true;			
 		}
-		console.append(_html(data));
 	});
-	$('.message',form).focus();
 
 	//Обновляет чат
 	setInterval(function() {
@@ -58,17 +63,19 @@ $.fn.chat=function(urlRoot,serverTime,form) {
 				html+=_html(content[i]);
 			}
 			console.append(html);
+			console.scrollTop(99999);
 		});
 	},2500);
 
 	//Форма вставляет смайл в чат
-	var smile=$('.smile',form);
+	var smile=$('div.smile',form);
 	if(smile.length==1) {
 		$('img',smile).click(function() {
 			$('.message',form).insertAtCaret(' [['+this.alt+']] ');
 		});
 	}
 
+	if(callback!=undefined) callback(console,form);
 	return this;
 };
 
@@ -93,3 +100,27 @@ jQuery.fn.insertAtCaret=function(value) {
 		}
 	});
 };
+
+function setHeight(console,form) {
+	var img=$('img',form);
+	var counter=0;
+	img.each(function() {
+		if(this.complete) counter++;
+	});
+	if(counter<img.length) {
+		img.on('load',function() {
+			counter++;
+		});
+	}
+	var interval=setInterval(function() {
+		if(counter==img.length) {
+			clearInterval(interval);
+			var height=$(window).height()-$(form).outerHeight(true)-3;
+			if(height<150) height=185;
+			console.height(height);
+			$(document).ready(function() {
+				$(window).scrollTop(console.offset().top-3);
+			});
+		}
+	},50);
+}

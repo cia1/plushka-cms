@@ -5,6 +5,7 @@
 	'admin/model/language.php',
 	'admin/public/icon/language16.png',
 	'admin/view/languageMessage.php',
+	'config/language.php',
 	'public/flag/',
 	'widget/language.php'
 )

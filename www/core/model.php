@@ -272,6 +272,10 @@ class model {
 			break;
 		case 'image': //options[]: 'minWidth','minHeight','maxWidth','maxHeight'
 			core::import('core/picture');
+			if(is_array($value) && !$options[2] && !$value['size']) {
+				$value=null;
+				return true;
+			}
 			if(is_array($value) && isset($value[0])) foreach($value as $i=>$item) {
 				$item=self::_picture($item,$options);
 				if(!$item) return false;

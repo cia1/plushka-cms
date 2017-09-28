@@ -71,7 +71,7 @@ class sController extends controller {
 			return;
 		}
 		if(isset($_SESSION['wrongPassword'])) unset($_SESSION['wrongPassword']);
-		core::redirect('');
+		core::redirect('user');
 	}
 
 	/* Выводит форму регистрации */

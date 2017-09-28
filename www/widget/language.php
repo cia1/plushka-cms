@@ -1,23 +1,49 @@
 <?php class widgetLanguage extends widget {
 
 	public function __invoke() {
-		$cfg=core::config();
-		$link=substr($_SERVER['REQUEST_URI'],strlen(core::url()));
-		if(_LANG!=$cfg['languageDefault']) $link=substr($link,($link[2]=='?' ? 2 : 3));
-		$this->language=$cfg['languageList'];
-		foreach($this->language as $i=>$item) {
-			if($item==$cfg['languageDefault']) $lang=''; else $lang=$item.'/';
-			$this->language[$i]=array('alias'=>$item,'link'=>core::url().$lang.$link,'title'=>$item);
+		$this->language=core::config('language');
+		$this->language=$this->language['lang'];
+		$link=self::_getLink();
+		foreach($this->language as $id=>$item) {
+			$this->language[$id]=array('link'=>core::link($link,$id),'title'=>$item);
 		}
-		$this->language[0]['title']='english';
-		$this->language[1]['title']='русский';
 		return true;
 	}
 
 	public function render($view=null) {
-		foreach($this->language as $item) { ?>
-			<a href="<?=$item['link']?>"><img src="<?=core::url()?>public/flag/<?=$item['alias']?>.png" alt="<?=$item['title']?>" title="<?=$item['title']?>" /></a>
+		foreach($this->language as $id=>$item) { ?>
+			<a href="<?=$item['link']?>"><img src="<?=core::url()?>public/flag/<?=$id?>.png" alt="<?=$item['title']?>" title="<?=$item['title']?>" /></a>
 		<?php }
 	}
 
+	public function adminLink() {
+		return array(
+			array('language.rule','?controller=language&action=setting','setting','Правила переключения зыков')
+		);
+	}
+
+	//Возвращает ссылку без языка для "переключателя" с учтёом настройки мультиязычных страниц
+	private static function _getLink() {
+		$link=$_GET['corePath'];
+		unset($link[count($link)-1]);
+		$link=implode('/',$link);
+		$rule=core::config('language');
+		$rule=$rule['rule'];
+
+		if(in_array($link,$rule)) return $link;
+		$link=$_SERVER['REQUEST_URI'];
+		return substr($_SERVER['REQUEST_URI'],strlen(core::url()));
+	}
+
+//	private static function _getLink() {
+//		$link=$_GET['corePath'];
+//		$rule=core::config('language');
+//		$rule=$rule['rule'];
+//		while(!$link || in_array(implode('/',$link),$rule)) unset($link[count($link)-1]);
+//		if(count($_GET['corePath'])==count($link)) {
+//			$i=strpos($_SERVER['REQUEST_URI'],'?');
+//			if($i!==false) $link=implode('/',$link).substr($_SERVER['REQUEST_URI'],$i);
+//		} else $link=implode('/',$link);
+//		return implode('/',$link);
+//	}
 }
