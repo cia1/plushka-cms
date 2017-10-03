@@ -35,15 +35,4 @@
 		return substr($_SERVER['REQUEST_URI'],strlen(core::url()));
 	}
 
-//	private static function _getLink() {
-//		$link=$_GET['corePath'];
-//		$rule=core::config('language');
-//		$rule=$rule['rule'];
-//		while(!$link || in_array(implode('/',$link),$rule)) unset($link[count($link)-1]);
-//		if(count($_GET['corePath'])==count($link)) {
-//			$i=strpos($_SERVER['REQUEST_URI'],'?');
-//			if($i!==false) $link=implode('/',$link).substr($_SERVER['REQUEST_URI'],$i);
-//		} else $link=implode('/',$link);
-//		return implode('/',$link);
-//	}
 }

@@ -1,6 +1,4 @@
-<?php
-define('MAIN_CHAT_ID','default');
-class sController extends controller {
+<?php class sController extends controller {
 
 	public function actionIndex() {
 		core::import('model/chat');

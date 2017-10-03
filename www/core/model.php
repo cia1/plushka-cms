@@ -395,7 +395,11 @@ class model {
 			if($s) $s.=',';
 			$s.='`'.$name;
 			if($this->_multiLanguage && is_array($this->_languageDb) && in_array($name,$this->_languageDb)) $s.='_'._LANG;
-			$s.='`='.($this->_data[$name]===null ? 'null' : $this->db->escape($this->_data[$name]));
+			if($this->_data[$name]===null) $value='null';
+			elseif($this->_data[$name]===true) $value='1';
+			elseif($this->_data[$name]===false) $value='0';
+			else $value=$this->db->escape($this->_data[$name]);
+			$s.='`='.$value;
 		}
 		if($this->_languageDb===true) $s='UPDATE `'.$this->_table.'_'._LANG.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
 		else $s='UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);

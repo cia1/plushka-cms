@@ -36,6 +36,7 @@
 $('#chatConsole').chat(
 	'<?=core::url()?>',
 	<?=microtime(true)?>,
-	document.forms.chatMessage
+	document.forms.chatMessage,
+	setHeight
 );
 </script>
