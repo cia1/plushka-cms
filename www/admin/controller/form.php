@@ -82,33 +82,10 @@ class sController extends controller {
 	}
 
 	public function actionFieldItemSubmit($data) {
-		//Значения для списков задаются в текстовом поле, сохраняются в БД строкой с разделителем "|"
-		if($data['htmlType']=='radio' || $data['htmlType']=='select') $data['data']=str_replace(array("\n","\r"),array('|',''),$data['value']);
-		elseif($data['htmlType']=='file') $data['data']=strtolower(str_replace(array('.',' '),'',$data['fileType']));
-		else $data['data']=null;
-		if($data['htmlType']=='captcha') {
-			$data['defaultValue']=null;
-			$data['required']=true;
-		}
-		$validate=array(
-			'id'=>array('primary'),
-			'formId'=>array('integer'),
-			'title'=>array('string','название',true),
-			'htmlType'=>array('string'),
-			'data'=>array('string'),
-			'defaultValue'=>array('string'),
-			'required'=>array('boolean'),
-		);
-		if(!$data['id']) { //Если это новое поле, то вычислить индекс сортировки (целое число)
-			$db=core::db();
-			$sort=$db->fetchValue('SELECT max(sort) FROM frmField WHERE formId='.$data['formId']);
-			$data['sort']=++$sort;
-			$validate['sort']=array('integer');
-		}
-		$m=core::model('frmField');
-		$m->set($data);
-		$m->multiLanguage();
-		if(!$m->save($validate)) return false;
+		core::import('admin/model/frmField');
+		$frmField=new frmField();
+		$frmField->set($data);
+		if(!$frmField->save()) return false;
 		core::redirect('?controller=form&action=field&id='.$data['formId']);
 	}
 

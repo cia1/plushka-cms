@@ -2,12 +2,17 @@
 /* Библиотека функций личного кабинета пользователей */
 define('_SALT','2f48uj0'); //Соль для шифрования пароля (одна на всех)
 core::import('core/model');
+core::language('user');
 class modelUser extends model {
 
 	private $_self; //Указатель на класс, находящийся в сессии (содержит информацию о пользователе)
 
 	protected function fieldList($action) {
-		if($action=='save') return '*';
+		if($action=='save') {
+			//Если пароль строго false, то не требовать ввода пароля (регистрация oauth). Не достаточно очевидный вариант реализации, но это работает.
+			if($this->_data['password']===false) return 'id,groupId,login,status,email,code,date';
+			return '*';
+    }
 		return 'id,groupId,login,email';
 	}
 
@@ -95,7 +100,6 @@ class modelUser extends model {
 	/* Отправляет личное сообщение пользователю
 	int $user2Id и string $user2Login - ИД и логин получателя; string $message - текст сообщения; bool $email - надо или нет продублировать сообщение по электронной почте */
 	public function message($user2Id=null,$user2Login=null,$message,$email=null) {
-		core::language('user');
 		$message=trim($message);
 		if(!$message) {
 			core::error(LNGNothingToSend);
@@ -152,6 +156,8 @@ class modelUser extends model {
 	//Создаёт пользователя
 	public function create($login,$password,$email,$status=0,$groupId=1) {
 		$this->id=null; //чтобы гарантированно был выполнен запрос INSERT, а не UPDATE
+		$this->groupId=$groupId;
+		$this->status=$status;
 		$this->code=md5(time().'regIster'); //код подтверждения e-mail
 		$this->login=$login;
 		$this->password=$password;
@@ -219,7 +225,7 @@ class modelUser extends model {
 		if(!isset($this->_data['password'])) return parent::save($validate,$id);
 		$_password=$this->_data['password'];
 		$this->_data['password']=self::_hash($_password);
-		$result=parent::save($validate,$fields,$id);
+		$result=parent::save($validate,$id);
 		$this->_data['password']=$_password;
 		//Обработать событие изменения или создания пользователя
 		if($result) {
@@ -237,8 +243,8 @@ class modelUser extends model {
 			core::error(LNGLoginCannotBeShorter3Symbols);
 			return false;
 		}
-		if(strlen($value)>20) {
-			core::error(LNGLoginCannotBeLonger20Symbols);
+		if(mb_strlen($value)>35) {
+			core::error(LNGLoginCannotBeLonger35Symbols);
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE login='.$this->db->escape($value);

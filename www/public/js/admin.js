@@ -114,15 +114,3 @@ function toggleFullScreen() {
 	$.adminDialog.self.byScreenWidth(toggleFullScreen.width);
 }
 toggleFullScreen.width=95;
-
-
-setTimeout(function() {
-	$('.widgetfilter legend').click(function() {
-		var form=false;
-		$('form',this.parentNode).each(function() {
-			if(this.style.display!=='none') form=this;
-		});
-		document.forms.adminSort.action=document.forms.adminSort.action.replace('event',form.name.substr(6).toLowerCase());
-		document.forms.adminSort.action=document.forms.adminSort.action.replace('object',form.name.substr(6).toLowerCase());
-	});
-},1000);

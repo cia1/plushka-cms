@@ -1,4 +1,3 @@
-
 CKEDITOR.editorConfig = function( config ) {
 	config.height = '312px';
 	config.extraPlugins='image2,uploadimage,cyberim';

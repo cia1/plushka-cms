@@ -11,7 +11,7 @@
 
 	//Возвращет массив с данными авторизации или false, если авторизация не удалась
 	// Возвращаемые данные: id, email, и д.р.
-	public static function getAnswer($backlink) {
+	public static function getAnswer($id,$backlink) {
 		core::language('oauth');
 		if(isset($_REQUEST['error'])) {
 			if(isset($_REQUEST['error_description'])) core::error(urldecode($_REQUEST['error_description']));
@@ -67,7 +67,7 @@
 
 	//Возвращает URL страницы соц.сети, открывающей сессию авторизации (первый запрос)
 	private static function _linkCode($id,$appId,$backlink) {
-		$backlink=urlencode('http://'.$_SERVER['HTTP_HOST'].core::link($backlink));
+		$backlink=urlencode(core::link($backlink,true,true));
 		switch($id) {
 		case 'vk':
 			return 'https://oauth.vk.com/authorize?client_id='.$appId.'&scope=email&redirect_uri='.$backlink.'&response_type=code';
@@ -78,7 +78,7 @@
 
 	//Возвращает URL страницы соц.сети, возвращающей токен (второй запрос)
 	private static function _linkToken($id,$appId,$secret,$code,$backlink) {
-		$backlink=urlencode('http://'.$_SERVER['HTTP_HOST'].core::link($backlink));
+		$backlink=urlencode(core::link($backlink,true,true));
 		switch($id) {
 		case 'vk':
 			return 'https://oauth.vk.com/access_token?client_id='.$appId.'&client_secret='.$secret.'&code='.$code.'&redirect_uri='.$backlink;

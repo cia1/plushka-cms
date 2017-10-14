@@ -37,7 +37,7 @@ class html {
 			$cfg=core::config();
 			$f=core::path().'data/widgetHtml/'.$fileName.'_'.$cfg['languageDefault'].'.html';
 		}
-		$this->html=file_get_contents($f);
+		if(file_exists($f)) $this->html=file_get_contents($f); else $this->html='';
 		return true;
 	}
 

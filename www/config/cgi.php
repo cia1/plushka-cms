@@ -1,4 +1,4 @@
 <?php return array(
-	'host'=>'https://demo.plushka-cms.ru',
+	'host'=>'http://demo.plushka-cms.ru',
 	'url'=>'/'
 );

@@ -8,6 +8,7 @@
 	'admin/hook/menuItemDelete.form.php',
 	'admin/hook/widgetDelete.form.php',
 	'admin/model/form.php',
+	'admin/model/frmField',
 	'admin/public/icon/field16.png',
 	'admin/public/icon/field32.png',
 	'admin/view/formField.php',

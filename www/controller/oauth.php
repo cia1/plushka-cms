@@ -22,20 +22,20 @@ class sController extends controller {
 	//Анализирует возвращённый сервером ответ
 	public function actionReturn() {
 		core::import('model/oauth');
-		$data=oauth::getAnswer('oauth/return/'.$this->id);
+		$data=oauth::getAnswer($this->id,'oauth/return/'.$this->id);
 		if(!$data) return 'Answer';
-
-		$db=core::db();
 		$user=oauth::getUser($this->id,$data['id']);
 		if(!$user) { //пользователь не был зарегистрирован ранее
+			$userGroup=core::config('oauth');
+			$userGroup=$userGroup['userGroup'];
 			if(!$userGroup) {
 				core::error(LNGYouDontRegisteredThisSite);
 				return 'Answer';
 			}
 			$user=core::user()->model();
-			if(!$user->create($this->id.($db->fetchValue('SELECT MAX(id) FROM user')+1),null,$data['email'],1,$userGroup)) return false;
+			if(!$user->create($data['email'],false,$data['email'],1,$userGroup)) return '_empty';
 		}
-		core::redirect('',LNGYouLoginAs.' '.$user->login);
+		core::redirect('user',LNGYouLoginAs.' '.$user->login);
 	}
 
 }

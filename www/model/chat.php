@@ -1,4 +1,5 @@
 <?php
+define('MAIN_CHAT_ID','default');
 define('CHAT_LOGIN_FILTER','root,admin,fuck');
 /*
 Формат файла /data/chat/{ID}.txt:
@@ -9,7 +10,9 @@ class chat {
 	//Возвращает массив сообщений: если $limit<1000, то последние $limit сообщений, иначе начиная с $limit (если не указано, то возвращает все сообщения)
 	public static function content($chatId,$limit=0) {
 		$chatId=core::translit($chatId);
-		$f=fopen(core::path().'data/chat/'.$chatId.'.txt','r');
+		$f=core::path().'data/chat/'.$chatId.'.txt';
+		if(!file_exists($f)) return array();
+		$f=fopen($f,'r');
 		$data=array();
 		$cnt=0;
 		while($item=fgets($f)) {
@@ -38,6 +41,21 @@ class chat {
 		}
 		closedir($d);
 		return $smile;
+	}
+
+	//$data: message, login, captcha
+	public static function submit($chatId,$data) {
+		//Определить логин пользвателя
+		$user=core::user();
+		if($user->id) $login=$user->login;
+		elseif(isset($_SESSION['chatLogin'])) $login=$_SESSION['chatLogin'];
+		else $login=self::filterLogin($data['login'],$data['captcha']);
+		if(!$login) die(strip_tags(core::error(false)));
+		$message=self::filterMessage($data['message']);
+		if(!$message) return false;
+		$line=self::post($chatId,$login,$message);
+		if(!$line) return false;
+		return $line;
 	}
 
 	//Проверяет и фильтрует логин (вводится посетителем вручную)
@@ -99,7 +117,6 @@ class chat {
 			}
 		}
 		//Фильтр адресов сайтов
-//		if(core::userGroup()<200) {
 			$cfg=core::config('chat');
 			if($cfg['linkFilter']) {
 				$cnt=preg_match_all('~[^\s]+[a-z0-9_\.-]+\.(?:ru|com|net|org|name|su|biz|info|us|cc)\b~i',$message,$tmp);
@@ -110,7 +127,6 @@ class chat {
 					}
 				}
 			}
-//		}
 		//Добавить смайлы
 		$smile1=self::smile();
 		$smile2=array();

@@ -190,16 +190,16 @@ class _core {
 	}
 
 	/* Формирует относительную ссылку используя механизм подмены ссылок */
-	public static function link($link,$lang=true) {
+	public static function link($link,$lang=true,$domain=false) {
 		static $_link;
 		static $_main;
-		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://') return $link;
+		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://' || $link[0]=='/') return $link;
 		if(!isset($_link)) {
 			$cfg=self::config();
 			$_link=$cfg['link'];
 			$_main=$cfg['mainPath'];
 		}
-		if($link==$_main) return self::url($lang);
+		if($link==$_main) return self::url($lang,$domain);
 		$i=strpos($link,'?');
 		if($i) {
 			$end=substr($link,$i);
@@ -214,7 +214,7 @@ class _core {
 			$len2=strlen($s);
 			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
 		}
-		return self::url($lang).$link.$end;
+		return self::url($lang,$domain).$link.$end;
 	}
 
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */

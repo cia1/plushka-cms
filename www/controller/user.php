@@ -16,8 +16,8 @@ class sController extends controller {
 		if(!$u->id) core::redirect('user/login'); //если пользователь не авторизован
 		//Форма смены пароля.
 		$f=core::form();
-		$f->label(LNGLogin.':',$u->login);
-		$f->label('E-mail:',$u->email);
+		$f->label(LNGLogin,$u->login);
+		$f->label('E-mail',$u->email);
 		$f->html('<h3>'.LNGPasswordChanging.'</h3>');
 		$f->password('passwordOld',LNGOldPassword);
 		$f->password('password1',LNGNewPassword);

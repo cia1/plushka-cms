@@ -1,4 +1,4 @@
-$.fn.chat=function(urlRoot,serverTime,form,callback) {
+$.fn.chat=function(urlContent,serverTime,form,callback) {
 	var console=$(this.get(0)); //HTML-контейнер для сообщений
 	console.scrollTop(99999);
 	var hideMe=false;
@@ -7,7 +7,7 @@ $.fn.chat=function(urlRoot,serverTime,form,callback) {
 	var _html=function(data) {
 		line=data.split("\t");
 		if(line.length!=5) {
-			alert(data);
+			alert(data.replace(/<\/?[^>]+>/gi,''));
 			hideMe=true;
 			return '';
 		}
@@ -54,7 +54,7 @@ $.fn.chat=function(urlRoot,serverTime,form,callback) {
 
 	//Обновляет чат
 	setInterval(function() {
-		var link=urlRoot+'index2.php?controller=chat&action=content&time='+serverTime;
+		var link=urlContent+'&time='+serverTime;
 		$.get(link,function(content) {
 			if(!content) return;
 			content=content.split("\n");
@@ -124,3 +124,10 @@ function setHeight(console,form) {
 		}
 	},50);
 }
+
+$('#chatConsole').chat(
+	document.chatUrlContent,
+	document.chatTime,
+	document.forms.chatMessage,
+	setHeight
+);

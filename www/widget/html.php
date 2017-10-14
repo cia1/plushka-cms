@@ -11,7 +11,8 @@ class widgetHtml extends widget {
 			$cfg=core::config();
 			$f=core::path().'data/widgetHtml/'.$this->options.'_'.$cfg['languageDefault'].'.html';
 		}
-		include($f);
+		$f=core::path().'data/widgetHtml/'.$this->options.'_'._LANG.'.html';
+		if(file_exists($f)) include($f);
 	}
 
 	public function adminLink() {
