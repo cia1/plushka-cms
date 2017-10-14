@@ -84,6 +84,7 @@ function _adminElement() { jQuery(function() {
 			'left':aPosition.left+indexLeft,
 			'top':aPosition.top
 		});
+//_debug(o,s,indexTop,19,22);
 	});
 }); }
 _adminElement.itemByPoint=[]; //содержит кол-во кнопок в одной точке (чтобы они не накладывались друг на друга)
