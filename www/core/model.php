@@ -8,6 +8,7 @@ class model {
 	protected $db; //экземпляр класса базы данных (может быть отличным от заданного по умолчанию)
 	protected $_multiLanguage=false; //если true, то будут выполнены запросы для всех языков
 	protected $_languageDb; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
+	private $_bool=array(); //список булевых полей (для корректного преобразования)
 
 	public function __construct($table=null,$db='db') {
 		if($table) $this->_table=$table; else $this->_table=$_GET['corePath'][0];
@@ -202,6 +203,7 @@ class model {
 			}
 			break;
 		case 'boolean':
+			$this->_bool[]=$name;
 			if($value) $value=true; else $value=false;
 			break;
 		case 'date':
@@ -337,7 +339,9 @@ class model {
 		$s1=$s2='';
 		foreach($fieldList as $field) {
 			if($this->_data[$field]===null) continue;
-			$value=$this->db->escape($this->_data[$field]);
+			if(in_array($field,$this->_bool)) {
+				$value=($value ? '1' : '0');
+			} else $value=$this->db->escape($this->_data[$field]);
 			if(is_array($this->_languageDb) && in_array($field,$this->_languageDb)) { //это поле является мультиязычным
 				if($this->_multiLanguage) {
 					foreach($languageList as $lang) { //добавить поля для каждого языка
