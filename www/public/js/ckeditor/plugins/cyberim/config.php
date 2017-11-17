@@ -1,7 +1,7 @@
 <?php
 defined('ACCESS') or die();
 session_start();
-if(!isset($_SESSION['_ckUploadTo'])) exit;
+if(!isset($_SESSION['_uploadFolder'])) exit;
 
 /*
   General options
@@ -32,9 +32,9 @@ $conf['session.valid_users_groups'] = '/^.+$/';
 */
 //путь для заключительного url
 //require_once(substr(__FILE__,0,-45).'core/core.php');
-$conf['filesystem.path']=$conf['filesystem.path']='../../../'.$_SESSION['_ckUploadTo'];
+$conf['filesystem.path']=$conf['filesystem.path']='../../../'.$_SESSION['_uploadFolder'];
 //относительный путь к файлам пользователя
-$conf['filesystem.files_path']='../../../../../'.$_SESSION['_ckUploadTo'];
+$conf['filesystem.files_path']='../../../../../'.$_SESSION['_uploadFolder'];
 //регулярное выражения описания пропускаемых каталогов
 $conf['filesystem.exclude_directory_pattern'] = '/^_thumb$|^_system$/i';
 //права устанавливаемые на создаваемые директории

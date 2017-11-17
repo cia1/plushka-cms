@@ -2,16 +2,6 @@
 
 class core extends _core {
 
-	public static function redirect($url,$message=null,$code=302) {
-		coreLog::add('REDIRECT',$url.($message ? '; Message: '.$message : ''));
-		$cfg=core::config('../admin/config/debug');
-		if($cfg['redirect']) parent::redirect($url,$message,$code);
-		else {
-			coreLog::render();
-			exit;
-		}
-	}
-
 	public static function section($name) {
 		coreLog::add('section',$name,false);
 		parent::section($name);

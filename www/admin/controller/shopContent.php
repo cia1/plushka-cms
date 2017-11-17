@@ -146,7 +146,12 @@ class sController extends controller {
 		foreach($feature as $item1) {
 			$f->html('<p><b>'.$item1['title'].'</b></p>');
 			foreach($item1['data'] as $item2) {
-				$f->field($item2['type'],'feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['value'],$item2['data']);
+				$type=$item2['type'];
+				if($type=='select') {
+					$f->select('feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['data'],$item2['value']);
+				} else {
+					$f->$type('feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['value']);
+				}
 			}
 		}
 		$f->submit('Сохранить');
@@ -347,7 +352,12 @@ class sController extends controller {
 		foreach($feature as $item1) {
 			$f->html('<p><b>'.$item1['title'].'</b></p>');
 			foreach($item1['data'] as $item2) {
-				$f->field($item2['type'],'feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['value']);
+				$type=$item2['type'];
+				if($type=='select') {
+					$f->select('feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['data'],$item2['value']);
+				} else {
+					$f->$type('feature]['.$item2['id'],'&nbsp;'.$item2['title'],$item2['value']);
+				}
 			}
 		}
 		$f->submit();

@@ -22,10 +22,10 @@ class widgetForm extends widget {
 				$data=$items[$i]['data'];
 				$data=explode('|',$data);
 				for($y=0;$y<count($data);$y++) $data[$y]=array($data[$y],$data[$y]);
-				$f->field($type,'fld'.$items[$i]['id'],$title,$items[$i]['defaultValue'],$data);
-			} else $f->field($type,'fld'.$items[$i]['id'],$title,$items[$i]['defaultValue']);
+				$f->$type('fld'.$items[$i]['id'],$title,$data,$items[$i]['defaultValue']);
+			} else $f->$type('fld'.$items[$i]['id'],$title,$items[$i]['defaultValue']);
 		}
-		$f->field('submit','submit',LNGSend);
+		$f->submit(LNGSend);
 		if($form['formView']) { //задано индивидуальное MVC-представление
 			$this->form=$f;
 			$this->formData=$form;

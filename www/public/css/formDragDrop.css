@@ -1,0 +1,5 @@
+dl.form .fileDragDrop {width:100%;height:auto;}
+.fileDropBox {position:relative;min-height:108px;border:1px solid black;text-align:center;background:#eee;}
+.fileDropBox.hover {background:#ddd;}
+.fileDropBox img {height:90px;margin-left:3px;}
+.fileDropBox input {position:absolute;display:block;top:0;left:0;width:100% !important;height:100% !important;margin:0;padding:0 !important;border:0 !important;opacity:0;cursor:pointer;}

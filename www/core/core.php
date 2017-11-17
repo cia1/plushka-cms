@@ -193,6 +193,7 @@ class _core {
 	public static function link($link,$lang=true,$domain=false) {
 		static $_link;
 		static $_main;
+		if(!$link) return core::url($lang,$domain);
 		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://' || $link[0]=='/') return $link;
 		if(!isset($_link)) {
 			$cfg=self::config();
@@ -366,16 +367,18 @@ class _core {
 		$_js[$name]=true;
 		if(substr($name,0,7)=='http://') return '<script type="text/javascript" src="'.$name.'" '.$attribute.'></script>';
 		if(substr($name,0,3)==='LNG') {
-			return '<script type="text/javascript">'.
+			$html='<script type="text/javascript">'.
 			($_lang ? '' : 'document._lang=new Array();').
 			'document._lang["'.$name.'"]="'.constant($name).'";</script>';
 			$_lang=true;
+			return $html;
 		}
 		return '<script type="text/javascript" src="'.self::url().'public/js/'.$name.'.js" '.$attribute.'></script>';
 	}
 
 	/* Генерирует событие (прерывание).
 	Параметры: 1й - системное имя события, 2й и последующие - индивидуальны для каждого события */
+	//Эту функцию можно кешировать, но пусть пока останется как есть, ибо экономия на спичках
 	public static function hook() {
 		$data=func_get_args();
 		$name=array_shift($data);
@@ -436,7 +439,7 @@ class controller {
 	}
 
 	/* Служит для подключения JavaScript или других тегов в область <head> */
-	protected function js($text,$attribute=null) {
+	public function js($text,$attribute=null) {
 		if($text[0]!='<') $text=core::js($text,$attribute);
 		$this->_head.=$text;
 	}
@@ -613,6 +616,7 @@ function runApplication($renderTemplate=true) {
 	}
 	//Подготовить данные $_POST и $_FILES для передачи submit-действию
 	if(isset($_POST[$alias])) {
+		core::hook('initPOST',$alias);
 		if(isset($_FILES[$alias])) {
 			$f1=$_FILES[$alias];
 			foreach($f1['size'] as $name=>$value) {
@@ -627,6 +631,7 @@ function runApplication($renderTemplate=true) {
 				}
 			}
 		}
+
 		$s='action'.controller::$self->url[1].'Submit';
 		controller::$self->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
 	}

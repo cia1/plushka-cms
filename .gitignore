@@ -1,7 +1,0 @@
-cms.sublime-project
-cms.sublime-workspace
-генератор форм
-www/cache/template/*.*
-www/cache/widget/*.*
-www/cache/custom/*.*
-_thumb

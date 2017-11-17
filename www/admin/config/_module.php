@@ -1,7 +1,7 @@
 <?php return array(
 'core'=>array(
 	'name'=>'Ядро',
-	'version'=>'3.14',
+	'version'=>'3.15',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
@@ -92,6 +92,24 @@
 'form.lang_ru'=>array(
 	'name'=>'Контактные формы. Языковой пакет RU',
 	'version'=>'1.3',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'formDragDrop'=>array(
+	'name'=>'Расширенный генератор HTML-форм с поддержкой AJAX-загрузки файлов',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'formDragDrop.lang_en'=>array(
+	'name'=>'Расширенный генератор HTML-форм. Языковой пакет EN',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'formDragDrop.lang_ru'=>array(
+	'name'=>'Расширенный генератор HTML-форм. Языковой пакет RU',
+	'version'=>'1.0',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),

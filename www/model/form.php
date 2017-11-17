@@ -50,9 +50,9 @@ class mForm extends form {
 				$title=$this->field[$i]['title'];
 				if($this->field[$i]['required']) $title.='<span class="required">*</span>';
 				$type=$this->field[$i]['htmlType'];
-				if($type=='radio' || $type=='select' || $type=='listBox') $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue'],$this->field[$i]['data']);
-				elseif($type=='email') $this->field('text',$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
-				else $this->field($type,$this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
+				if($type=='radio' || $type=='select' || $type=='listBox') {
+					$this->$type($this->field[$i]['id'],$title,$this->field[$i]['data'],$this->field[$i]['defaultValue']);
+				} else $this->$type($this->field[$i]['id'],$title,$this->field[$i]['defaultValue']);
 			}
 			$this->submit(LNGSend);
 			unset($this->field);

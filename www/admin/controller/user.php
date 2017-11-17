@@ -155,11 +155,9 @@ class sController extends controller {
 
 	/* Смена статуса пользователя (активен/заблокирован) */
 	public function actionStatus() {
-		core::import('model/user');
-		$modelUser=new modelUser();
-		$modelUser->loadById($_GET['id'],'id,status');
-		$modelUser->status=!$modelUser->status;
-		$modelUser->save(false,'id,status');
+		core::import('admin/model/user');
+		$user=new userAdmin();
+		$user->status($_GET['id']);
 		core::redirect('?controller=user&action=user');
 	}
 

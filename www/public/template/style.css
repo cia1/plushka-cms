@@ -32,6 +32,8 @@ dl.form .button {float:right;width:122px;height:32px;}
 	background: #9cddfa;background: -moz-linear-gradient(top,  #9cddfa 0%, #3ea5d4 100%);background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9cddfa), color-stop(100%,#3ea5d4));background: -webkit-linear-gradient(top,  #9cddfa 0%,#3ea5d4 100%);background: -o-linear-gradient(top,  #9cddfa 0%,#3ea5d4 100%);background: -ms-linear-gradient(top,  #9cddfa 0%,#3ea5d4 100%);background: linear-gradient(to bottom,  #9cddfa 0%,#3ea5d4 100%);filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9cddfa', endColorstr='#3ea5d4',GradientType=0 );
 }
 dl.form h3 {float:left;width:100%;margin-top:10px;padding-bottom:5px;font-size:1.2em;font-weight:bold;}
+.fileDropBox .input {float:left;margin-top:-15px;}
+.fileDropBox .input a {padding:0 !important;}
 
 span.required {padding-left:3px;color:red;}
 span.date {float:right;margin-top:-18px;font-style:italic;}

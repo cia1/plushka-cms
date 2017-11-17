@@ -4,4 +4,5 @@ CKEDITOR.editorConfig = function( config ) {
 	config.language='ru';
 	config.removePlugins='about,save,newpage,preview,print,selectall,forms,copyformatting,bidi,language,smiley,pagebreak,stylescombo,font,a11yhelp,enterkey,entities,floatingspace,htmlwriter,indentblock,tab,wsc,htmlwriter';
 	config.filebrowserBrowseUrl='../public/js/ckeditor/plugins/cyberim/index.php';
+	config.allowedContent=true;
 };

@@ -26,8 +26,10 @@ class userAdmin extends modelUser {
 	/* Меняет статус на противоположенный (предполагается, что пользователь уже подтвердил e-mail) */
 	public function status($id=null) {
 		if($id) $id=(int)$id; else $id=$this->id;
-		$status=(int)$this->db->fetchValue('SELECT status FROM user WHERE id='.$id);
-		if($status=='1') $status='2'; else $status='1';
+		if($status===null) {
+			$status=(int)$this->db->fetchValue('SELECT status FROM user WHERE id='.$id);
+			if($status=='1') $status='2'; else $status='1';
+		}
 		$this->db->query('UPDATE user SET status='.$status.' WHERE id='.$id);
 		return true;
 	}

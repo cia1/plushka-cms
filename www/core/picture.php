@@ -2,17 +2,21 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 /* Класс для обработки изображение (обрезка, сжатие, водный знак) */
 class picture {
-	private $_src;
-	private $_type;
-	private $_srcX=0;
-	private $_srcY=0;
-	private $_dstX;
-	private $_dstY;
-	private $_srcW;
-	private $_srcH;
-	private $_dstW;
-	private $_dstH;
-	private $_w;
+	private $_src; //содержит исходное изображение
+	private $_type; //расширения исходного файла, используется при сохранении в файл, если имя файла не содержит расширения
+	private $_srcW; //шинира исходного изображения
+	private $_srcH; //высота исходного изображения
+	private $_dstW; //ширина генерируемого изображения (для масштабирования)
+	private $_dstH; //высота генерируемого изображения (для масштабирования)
+	private $_x1; //верхний левый угол исходного изображения (для обрезки)
+	private $_y1; //верхний левый угол исходного изображения (для обрезки)
+	private $_x2; //нижний правый угол исходного изображения (для обрезки)
+	private $_y2; //нижний правый угол исходного изображения (для обрезки)
+
+//	private $_dstX;
+//	private $_dstY;
+
+	private $_watermark; //содержит изображение водного знака
 	private $_wX;
 	private $_wY;
 	private $_wW;
@@ -21,6 +25,7 @@ class picture {
 	/* Открывает файл изображения, проверяет что это действительно изображение
 	$filename - имя файла, если массив, то воспринимается как файл из массива $_FILES */
 	public function __construct($file) {
+		$file=core::path().$file;
 		if(is_array($file)) {
 			$this->_type=substr($file['type'],strrpos($file['type'],'/')+1);
 			$file=$file['tmpName'];
@@ -44,11 +49,9 @@ class picture {
 			core::error(LNGFileTypeNotSupport.' ('.$file.')');
 			return;
 		}
-		$this->_dstX=$this->_dstY=0;
-		$this->_srcW=imagesx($this->_src);
-		$this->_srcH=imagesy($this->_src);
-		$this->_dstW=$this->_srcW;
-		$this->_dstH=$this->_srcH;
+		$this->_x1=$this->_y1=0;
+		$this->_x2=$this->_dstW=$this->_srcW=imagesx($this->_src);
+		$this->_y2=$this->_dstH=$this->_srcH=imagesy($this->_src);
 	}
 
 	public function __destruct() {
@@ -65,28 +68,39 @@ class picture {
 		return $this->_srcW;
 	}
 
-/*
-	public function cropByCoord($x1,$y1,$x2=null,$y2=null) { die('crop function not emplemented'); }
-*/
-
-	//Обрезает фотографию по краям до указанных размеров. Вызовы width(), height() и resize() должы проводить до вызова crop().
-	public function crop($width=null,$height=null) {
-		if($width && $width<$this->_srcW) {
-			$this->_dstX=($this->_dstW-$width)/2;
-			$this->_dstW=$this->_srcW=$width;
+	//Обрезает исходное изображение по краям по заданной ширине и высоте ($x2===null && $y2===null)
+	//Если заданы $x2 и $y2, то все четыре параметра воспринимаются как координаты прямоугольника
+	public function crop($width=null,$height=null,$x2=null,$y2=null) {
+		if($x2===null && $y2===null) { //обрезка по ширине и высоте
+			if($width && $width<$this->_srcW) {
+				$this->_x1=($this->_srcW-$width)/2;
+				$this->_x2=$width;
+			}
+			if($height && $height<$this->_dstH) {
+				$this->_y1=($this->_srcH-$height)/2;
+				$this->_x2=$height;
+			}
+		} else { //обрезка по координатам
+			if($x2>$this->_srcW) $x2=$this->_srcW;
+			if($y2>$this->_srcH) $y2=$this->_srcH;
+			$this->_x1=(int)$width;
+			$this->_y1=(int)$height;
+			$this->_x2=(int)$x2;
+			$this->_y2=(int)$y2;
 		}
-		if($height && $height<$this->_dstH) {
-			$this->_dstY=($this->_dstH-$height)/2;
-			$this->_dstH=$this->_srcH=$height;
-		}
+		//если изображение не масшатибровалось, то изменить размеры генерируемого изображения
+		if($this->_dstW==$this->_srcW) $this->_dstW=($this->_x2-$this->_x1);
+		if($this->_dstH==$this->_srcH) $this->_dstH=($this->_y2-$this->_y1);
 		return true;
 	}
 
 	/* Сжимает или растягивает изображение до указанных размеров */
 	public function resize($width=null,$height=null) {
+		$srcW=$this->_x2-$this->_x1;
+		$srcH=$this->_y2-$this->_y1;
 		if(!$width && !$height) {
-			$this->_dstW=$this->_srcW;
-			$this->_dstH=$this->_srcH;
+			$this->_dstW=$srcW;
+			$this->_dstH=$srcH;
 			return true;
 		}
 		if($width) {
@@ -99,25 +113,25 @@ class picture {
 			$w=(int)substr($width,1);
 			$h=(int)substr($height,1);
 			if($symbolWidth=='<' && $symbolHeight=='<') {
-				if(($this->_srcW-$w)>($this->_srcH-$h)) $height=null; else $width=null;
+				if(($srcW-$w)>($srcH-$h)) $height=null; else $width=null;
 			} elseif($w>$h) $height=null; else $width=null;
 		}
 		if($symbolWidth=='<') {
 			$width=(int)substr($width,1);
-			if($this->_srcW<$width) $width=$this->_srcW;
+			if($srcW<$width) $width=$srcW;
 		} elseif($symbolWidth=='>') {
 			$width=(int)substr($width,1);
-			if($this->_srcW>$width) $width=$this->_srcW;
+			if($srcW>$width) $width=$srcW;
 		}
 		if($symbolHeight=='<') {
 			$height=(int)substr($height,1);
-			if($this->_srcH<$height) $height=$this->_srcH;
+			if($srcH<$height) $height=$srcH;
 		} elseif($symbolHeight=='>') {
 			$height=(int)substr($height,1);
-			if($this->_srcH>$height) $height=$this->_srcH;
+			if($srcH>$height) $height=$srcH;
 		}
-		if(!$width && $height) $width=round($this->_srcW/$this->_srcH*$height);
-		elseif(!$height && $width) $height=round($this->_srcH/$this->_srcW*$width);
+		if(!$width && $height) $width=round($srcW/$srcH*$height);
+		elseif(!$height && $width) $height=round($srcH/$srcW*$width);
 		$this->_dstW=$width;
 		$this->_dstH=$height;
 	}
@@ -126,23 +140,24 @@ class picture {
 	$f - имя файла изображения, $x и $y задают отступы от краёв изображения */
 	public function watermark($f,$x,$y) {
 		$ext=strtolower(substr($f,strrpos($f,'.')+1));
+    $f=core::path().$f;
 		switch($ext) {
 		case 'jpg': case 'jpeg':
-			$this->_w=imagecreatefromjpeg($f);
+			$this->_watermark=imagecreatefromjpeg($f);
 			break;
 		case 'gif':
-			$this->_w=imagecreatefromgif($f);
+			$this->_watermark=imagecreatefromgif($f);
 			break;
 		case 'png':
-			$this->_w=imagecreatefrompng($f);
-			imagealphablending($this->_w,true);
+			$this->_watermark=imagecreatefrompng($f);
+			imagealphablending($this->_watermark,true);
 			break;
 		default:
 			core::error(LNGFileIsNotImage);
 			return false;
 		}
-		$this->_wW=imagesx($this->_w);
-		$this->_wH=imagesy($this->_w);
+		$this->_wW=imagesx($this->_watermark);
+		$this->_wH=imagesy($this->_watermark);
 		if($x[0]=='-') {
 			$minus=true;
 			$x=substr($x,1);
@@ -178,19 +193,22 @@ class picture {
 //			imagefill($dst,0,0,$transparent);
 //			imagecolortransparent($dst,$transparent);
 //			imagesavealpha($dst,true);
-//		}
-			if(!$this->_w) imagealphablending($dst,false);
+			if(!$this->_watermark) imagealphablending($dst,false);
 			imagesavealpha($dst,true);
 		}
-		imagecopyresampled($dst,$this->_src,$this->_srcX,$this->_srcY,$this->_dstX,$this->_dstY,$this->_dstW,$this->_dstH,$this->_srcW,$this->_srcH);
-		if($this->_dstX!=0 || $this->_dstY!=0 || $this->_srcW!=$this->_dstW || $this->_srcH!=$this->_dstH) {
-			$this->_dstX=$this->_dstY=0;
-			$this->_dstW=$this->_srcW;
-			$this->_dstH=$this->_srcH;
-		}
-		if($this->_w) {
-			imagecopy($dst,$this->_w,$this->_wX,$this->_wY,0,0,$this->_wW,$this->_wH);
-			$this->_w=null;
+		imagecopyresampled($dst,$this->_src,
+			0,0,
+			$this->_x1,$this->_y1,
+			$this->_dstW,$this->_dstH,
+			($this->_x2-$this->_x1),($this->_y2-$this->_y1)
+		);
+		//сбросить для последующих операций
+		$this->_x1=$this->_y1=0;
+		$this->_x2=$this->_dstW=$this->_srcW;
+		$this->_y2=$this->_dstH=$this->_srcH;
+		if($this->_watermark) {
+			imagecopy($dst,$this->_watermark,$this->_wX,$this->_wY,0,0,$this->_wW,$this->_wH);
+			$this->_watermark=null;
 		}
 		switch($type) {
 		case 'jpg': case 'jpeg':
