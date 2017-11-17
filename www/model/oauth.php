@@ -20,11 +20,9 @@
 		}
 		$data=core::config('oauth');
 		if(!isset($data[$id])) return false;
-		$userGroup=$data['userGroup'];
 		$data=$data[$id];
 		$answer=self::_load(self::_linkToken($id,$data[0],$data[1],$_REQUEST['code'],$backlink)); //запрос токена
 		if(!$answer) return false;
-
 		if(!isset($answer['id']) || !isset($answer['email'])) { //ВКонтакте сразу возвращает необходимые данные - можно сэкономить на одном запросе
 			$answer=self::_load(self::_linkInfo($id,$answer['access_token']));
 			if(!$answer) return false;
@@ -83,7 +81,7 @@
 		case 'vk':
 			return 'https://oauth.vk.com/access_token?client_id='.$appId.'&client_secret='.$secret.'&code='.$code.'&redirect_uri='.$backlink;
 		case 'facebook':
-			return 'https://graph.facebook.com/oauth/access_token?client_id='.$appId.'&client_secret='.$secret.'&code='.$code.'&redirect_uri='.$backlink;
+			return 'https://graph.facebook.com/oauth/access_token?client_id='.$appId.'&client_secret='.$secret.'&code='.$code.'&redirect_uri='.$backlink.'&scope=email';
 		}
 	}
 
@@ -91,7 +89,7 @@
 	private static function _linkInfo($id,$accessToken) {
 		switch($id) {
 		case 'facebook':
-			return 'https://graph.facebook.com/me?access_token='.$accessToken;
+			return 'https://graph.facebook.com/me?access_token='.$accessToken.'&scope=email';
 		}
 	}
 

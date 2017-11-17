@@ -8,6 +8,7 @@
 	'config/oauth.php',
 	'controller/oauth.php',
 	'public/facebook.png',
+	'public/google.png',
 	'public/vk.png',
 	'view/oauthAnswer.php',
 	'view/widgetOauth.php',

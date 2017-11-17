@@ -269,4 +269,4 @@
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 )
-); ?>
+);

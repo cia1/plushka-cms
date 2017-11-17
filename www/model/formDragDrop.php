@@ -28,10 +28,20 @@ class formDragDrop extends form {
 			echo core::js('formDragDrop');
 			echo core::js('LNGFileAlreadyUploaded');
 			echo core::js('LNGFileMaximumAlreadyUploaded');
+			$path=core::path().'tmp/upload/';
+			$d=opendir($path);
+			$time=time()-3600;
+			while($f=readdir($d)) {
+				if($f=='.' || $f=='..') continue;
+				$f=$path.$f;
+				$t=filemtime($f);
+				if($time>$t) unlink($f);
+			}
+			closedir($d);
+			$_SESSION['_uploadTimeLimit']=time()+240;
+			$_SESSION['_uploadFolder']='tmp/upload/';
+			$_SESSION['_uploadList']=array();
 		} else $html='';
-		$_SESSION['_uploadTimeLimit']=time()+240;
-		$_SESSION['_uploadFolder']='tmp/upload/';
-		$_SESSION['_uploadList']=array();
 		$path=core::path().'tmp/upload/';
 		if(!is_dir($path)) mkdir($path);
 		$_index++;

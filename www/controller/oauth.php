@@ -33,7 +33,7 @@ class sController extends controller {
 				return 'Answer';
 			}
 			$user=core::user()->model();
-			if(!$user->create($data['email'],false,$data['email'],1,$userGroup)) return '_empty';
+			if(!$user->create(($data['email'] ? $data['email'] : $data['name']),false,$data['email'],1,$userGroup)) return '_empty';
 		}
 		core::redirect('user',LNGYouLoginAs.' '.$user->login);
 	}

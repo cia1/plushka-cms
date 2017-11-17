@@ -24,7 +24,7 @@ class userAdmin extends modelUser {
 	}
 
 	/* Меняет статус на противоположенный (предполагается, что пользователь уже подтвердил e-mail) */
-	public function status($id=null) {
+	public function status($id=null,$status=null) {
 		if($id) $id=(int)$id; else $id=$this->id;
 		if($status===null) {
 			$status=(int)$this->db->fetchValue('SELECT status FROM user WHERE id='.$id);
@@ -35,7 +35,7 @@ class userAdmin extends modelUser {
 	}
 
 	/* Удаляет пользователя */
-	public function delete($id=null) {
+	public function delete($id=null,$affected=false) {
 		$db=core::db();
 		$db->query('DELETE FROM userMessage WHERE user1Id='.$id.' OR user2Id='.$id);
 		$db->query('DELETE FROM user WHERE id='.$id);

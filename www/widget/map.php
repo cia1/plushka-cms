@@ -13,7 +13,7 @@
 		);
 	}
 
-	public function render() {
+	public function render($view) {
 		echo core::js('http://maps.google.com/maps/api/js?sensor=false');
 		?>
 		<div class="map" id="map<?=$this->id?>" style="width:100%;height:200px;"></div>

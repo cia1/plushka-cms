@@ -6,23 +6,23 @@ core::language('user');
 class modelUser extends model {
 
 	private $_self; //Указатель на класс, находящийся в сессии (содержит информацию о пользователе)
-
 	protected function fieldList($action) {
 		if($action=='save') {
 			//Если пароль строго false, то не требовать ввода пароля (регистрация oauth). Не достаточно очевидный вариант реализации, но это работает.
-			if($this->_data['password']===false) return 'id,groupId,login,status,email,code,date';
+			if($this->_data['password']===false) return 'id,groupId,login,status,email,code';
 			return '*';
-    }
+		}
 		return 'id,groupId,login,email';
 	}
 
 	//Возвращает массив правил валидиции
 	protected function rule() {
+		$cfg=core::config();
 		$data=array(
 			'id'=>array('primary'),
 			'login'=>array('callback',LNGlogin,true,array($this,'validateLogin')),
 			'password'=>array('callback',LNGpassword,true,array($this,'validatePassword')),
-			'email'=>array('callback','e-mail',true,array($this,'validateEmail')),
+			'email'=>array('callback','e-mail',$cfg['emailRequired'],array($this,'validateEmail')),
 			'code'=>array('string')
 		);
 		if(isset($this->_data['status'])) $data['status']=array('boolean');
@@ -83,7 +83,7 @@ class modelUser extends model {
 	/* Авторизация по логину и паролю */
 	public function login($login,$password) {
 		//Когда PHP 5.6 станет использоваться повсеместно, нужно переписать на hash_equals
-		if(!$this->load('login='.$this->db->escape($login).' AND password='.$this->db->escape(self::_hash($password)).' AND status=1')) {
+		if(!$this->load('login='.$this->db->escape($login).' AND password='.$this->db->escape(self::_hash($password)).' AND status!=2')) {
 			core::error(LNGLoginOrPasswordIsWrong);
 			return false;
 		}
