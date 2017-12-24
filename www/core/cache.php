@@ -1,8 +1,7 @@
 <?php
-//Внимание! Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+//Р’РЅРёРјР°РЅРёРµ! Р­С‚РѕС‚ С„Р°Р№Р» СЏРІР»СЏРµС‚СЃСЏ С‡Р°СЃС‚СЊСЋ С„СЂРµР№РјРІРѕСЂРєР°. Р’РЅРѕСЃРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ РЅРµ СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ.
 class cache {
 
-	/* Создаёт кеш шаблона с именем $name */
 	public static function template($name) {
 		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
 		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
@@ -12,7 +11,7 @@ class cache {
 		$template=str_replace('{{head}}','<?=$this->_head?>',$template);
 		$template=str_replace('{{pageTitle}}','<?php if($this->pageTitle) echo \'<h1 class="pageTitle">\'.$this->pageTitle.\'</h1>\'; ?>',$template);
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);
-		$section=$widget=array(); //Список секций и виджетов в шаблоне - эта информация может кому-то понадобиться в последствии
+		$section=$widget=array();
 		$template=preg_replace_callback('/{{section\[([^\]]+)\]}}/',function($data) use(&$section) {
 			if(!isset($data[1])) return;
 			$section[]=$data[1];
@@ -22,25 +21,37 @@ class cache {
 			if(!isset($data[1])) return;
 			$s='<?=core::widget(\''.$data[1].'\'';
 			if(isset($data[2])) {
-				$sub=$data[2];
+				$sub=$data[2]."\0";
 				$quote=false;
-				$count=0;
-				for($i=0;$i<strlen($sub);$i++) {
-					if($sub[$i]=='"') {
-						$quote=!$quote;
+				$isArray=false;
+				$start=0;
+				$param='';
+				for($i=0,$len=strlen($sub);$i<$len;$i++) {
+					if(!$quote && ($sub[$i]=='"' || $sub[$i]=="'")) {
+						$quote=$sub[$i];
+						$start++;
+						continue;
+					}
+					if($quote && $sub[$i]==$quote) {
+						$quote=false;
 						continue;
 					}
 					if($sub[$i]==':' && !$quote) {
-						$sub=substr($sub,0,$i).'=>'.substr($sub,++$i);
-						$count++;
+						if($param) $param.=',';
+						$param.="'".str_replace(array('"',"'"),'',substr($sub,$start,($i-$start)))."'=>";
+						$start=$i+1;
+					}
+					if(!$quote && ($sub[$i]==',' || $sub[$i]==="\0")) {
+						$value=str_replace(array('"',"'"),'',substr($sub,$start,($i-$start)));
+						if(is_numeric($value)) $param.=$value; else $param.="'".$value."'";
+						$start=$i+1;
+						if($sub[$i]==',') $isArray=true;
 					}
 				}
-
-				if($count) $s.=',array('.str_replace('"','\'',$sub).')';
-				elseif($data[2]) $s.=",'".$data[2]."'";
-				else $s.=',null';
-			} else $sub=null;
-			$widget[]=array($data[1],$sub);
+				if($isArray) $s.=',array('.$param.')';
+				else $s.=','.$param;
+			} else $param=null;
+			$widget[]=array($data[1],$param);
 			if(isset($data[3]) && (int)$data[3]) $s.=','.(int)$data[3];
 			if(isset($data[4]) && $data[4]) {
 				if(!isset($data[3]) || !$data[3]) $s.=',null';
@@ -68,7 +79,6 @@ class cache {
 		fwrite($f,$s);
 	}
 
-	//Кеширует мультиязычные таблицы
 	static function languageDatabase() {
 		$cfg=core::config();
 		if($cfg['dbDriver']=='mysql') {
@@ -122,7 +132,6 @@ class cache {
 		return $data;
 	}
 
-	/* Р’РѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ, СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р±Р°Р·С‹ РґР°РЅРЅС‹С… SQLite */
 	private static function _structureSQLite($field=true) {
 		$data=array();
 		$db=core::sqlite();

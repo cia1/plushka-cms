@@ -507,18 +507,19 @@ class controller {
 		if($renderTemplate && $s) include(core::path().'cache/template/'.core::template().'Footer.php'); //нижняя часть шаблона
 	}
 
-	/* Выводит HTML-код хлебных крошек */
+	//Выводит HTML-код хлебных крошек, если существует sController::breadcrumb(Action).
 	public function breadcrumb() {
 		if(core::url()==$_SERVER['REQUEST_URI'] || core::url()._LANG.'/'==$_SERVER['REQUEST_URI']) return; //главная страница
 		$b='breadcrumb'.$this->url[1];
-		//Если метод контроллера существует, то добавить элементы, а иначе вывести просто ГЛАВНАЯ > ИМЯ_СТРАНИЦЫ
-		if(method_exists($this,$b)) {
-			$b=$this->$b();
-			if($b===null) return;
-			if($b) $b=' &raquo; '.implode(' &raquo; ',$b); else $b='';
-		} else $b='';
-		if($this->pageTitle) $b.=' &raquo; '.$this->pageTitle;
+		//Если метод контроллера существует, то добавить элементы, а иначе не выводить хлебные крошки
+		if(!method_exists($this,$b)) return;
+		$b=$this->$b();
 		if(!$b) return;
+		$last=count($b)-1;
+		if($b[$last]=='{{pageTitle}}') {
+			if($this->pageTitle) $b[$last]='&raquo; '.$this->pageTitle; else unset($b[$last]);
+		}
+		$b=' &raquo; '.implode(' &raquo; ',$b);
 		$cfg=core::config();
 		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
 	}

@@ -21,10 +21,10 @@ class sController extends controller {
 	}
 
 	protected function breadcrumbView() {
-		if($_GET['corePath'][1]=='view') return array();
+		if($_GET['corePath'][1]=='view') return array('{{pageTitle}}');
 		else {
 			$db=core::db();
-			return array('<a href="'.core::link('article/'.$_GET['corePath'][1].'/'.$this->url[2]).'">'.$db->fetchValue('SELECT title FROM articleCategory_'._LANG.' WHERE id='.$this->data['categoryId']).'</a>');
+			return array('<a href="'.core::link('article/'.$_GET['corePath'][1].'/'.$this->url[2]).'">'.$db->fetchValue('SELECT title FROM articleCategory_'._LANG.' WHERE id='.$this->data['categoryId']).'</a>','{{pageTitle}}');
 		}
 	}
 

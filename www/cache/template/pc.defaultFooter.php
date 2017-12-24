@@ -7,7 +7,7 @@
 
 		<aside>
 			<?=core::widget('user')?>
-			<?=core::widget('oauth',null,null,'Войти через...')?>
+			<?=core::widget('oauth','',null,'Войти через...')?>
 			<?=core::section('right')?>
 		</aside>
 

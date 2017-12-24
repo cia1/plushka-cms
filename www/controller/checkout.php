@@ -48,7 +48,7 @@ class sController extends controller {
 	}
 
 	protected function breadcrumbIndex() {
-		return array('<a href="'.core::link('shop/category').'">'.LNGShop.'</a>');
+		return array('<a href="'.core::link('shop/category').'">'.LNGShop.'</a>','{{pageTitle}}');
 	}
 
 	public function actionCheckout() {
@@ -64,12 +64,4 @@ class sController extends controller {
 		if(!$m->execute($cfg['formId'],$data)) return false;
 	}
 
-	/* Сообщение об успехе по умолчанию */
-//	public function actionSuccess() { return 'Success'; }
-
-//	protected function breadcrumbSuccess() {
-//		return array('Магазин');
-//	}
-
 }
-?>

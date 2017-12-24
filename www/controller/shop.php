@@ -58,7 +58,7 @@ class sController extends controller {
 
 	protected function breadcrumbCategory() {
 		if(!isset($this->categoryAlias)) return array(LNGShop);
-		return array('<a href="'.core::link('shop').'">'.LNGShop.'</a>');
+		return array('<a href="'.core::link('shop').'">'.LNGShop.'</a>','{{pageTitle}}');
 	}
 
 	protected function adminCategoryLink() {
@@ -92,7 +92,7 @@ class sController extends controller {
 
 	protected function breadcrumbProduct() {
 		$db=core::db();
-		return array('<a href="'.core::link('shop').'">'.LNGShop.'</a>','<a href="'.core::link('shop/'.$this->categoryAlias).'">'.$this->product['categoryTitle'].'</a>');
+		return array('<a href="'.core::link('shop').'">'.LNGShop.'</a>','<a href="'.core::link('shop/'.$this->categoryAlias).'">'.$this->product['categoryTitle'].'</a>','{{pageTitle}}');
 	}
 
 	protected function adminProductLink() {

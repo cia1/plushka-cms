@@ -36,7 +36,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbProfile() {
-		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','{{pageTitle}}');
 	}
 
 	public function actionProfileSubmit($data) {
@@ -114,7 +114,7 @@ class sController extends controller {
 
 	/* Хлебные крошки */
 	public function breadcrumbCategory() {
-		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','{{pageTitle}}');
 	}
 
 	/* Интерфейс администратора */
@@ -165,7 +165,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbNewTopic() {
-		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','{{pageTitle}}');
 	}
 
 	/* Форум - Категория - Тема */
@@ -215,7 +215,7 @@ class sController extends controller {
 
 	/* Хлебные крошки */
 	public function breadcrumbTopic() {
-		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','{{pageTitle}}');
 	}
 
 	public function adminTopicLink() {
@@ -250,7 +250,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbNewPost() {
-		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','<a href="'.core::link('forum/'.$this->categoryId.'/'.$this->topicId).'">'.$this->topicTitle.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','<a href="'.core::link('forum/'.$this->categoryId).'">'.$this->categoryTitle.'</a>','<a href="'.core::link('forum/'.$this->categoryId.'/'.$this->topicId).'">'.$this->topicTitle.'</a>','{{pageTitle}}');
 	}
 
 	public function actionNewPostSubmit($data) {
@@ -295,7 +295,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbUser() {
-		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>');
+		return array('<a href="'.core::link('forum').'">'.LNGForum.'</a>','{{pageTitle}}');
 	}
 
 	public function adminUserLink() {

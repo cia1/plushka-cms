@@ -133,7 +133,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbRestore() {
-		return array('<a href="'.core::link('user/login').'">'.LNGLogin.'</a>');
+		return array('<a href="'.core::link('user/login').'">'.LNGLogin.'</a>','{{pageTitle}}');
 	}
 
 	public function actionRestoreSubmit($data) {

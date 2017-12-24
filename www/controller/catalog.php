@@ -131,7 +131,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbView() {
-		return array('<a href="'.core::link('catalog/'.$this->layoutId).'">'.LNGCatalog.'</a>');
+		return array('<a href="'.core::link('catalog/'.$this->layoutId).'">'.LNGCatalog.'</a>','{{pageTitle}}');
 	}
 
 	public function adminViewLink() {

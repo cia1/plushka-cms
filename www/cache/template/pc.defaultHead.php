@@ -16,8 +16,7 @@
 		<?=core::widget('search')?>
 	</header>
 
-	<div id="header"><?=core::widget('menu','1')?></div>
-
+	<div id="header"><?=core::widget('menu',1)?></div>
 	<div id="page">
 		<main>
 			<?php $this->breadcrumb(); ?>

@@ -76,7 +76,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbConstruct() {
-		return array('<a href="'.core::link('demotivator').'">'.LNGDemotivators.'</a>');
+		return array('<a href="'.core::link('demotivator').'">'.LNGDemotivators.'</a>','{{pageTitle}}');
 	}
 
 	public function adminConstructLink() {
@@ -128,7 +128,7 @@ class sController extends controller {
 	}
 
 	public function breadcrumbSuccess() {
-		return array('<a href="'.core::link('demotivator').'">'.LNGDemotivators.'</a>');
+		return array('<a href="'.core::link('demotivator').'">'.LNGDemotivators.'</a>','{{pageTitle}}');
 	}
 
 
