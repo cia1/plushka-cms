@@ -3,18 +3,23 @@ $.fn.center=function() {
 		var o=$(this);
 		var offset=o.offset();
 		var position=o.position();
-		var top=($(window).height()-o.outerHeight())/2;
-		var top=($(window).height()-o.outerHeight())/2-(offset.top-position.top)+$(document).scrollTop();
-		if(top<0) top=5;
+		if(toggleFullScreen.full) top=0;
+		else {
+			var top=($(window).height()-o.outerHeight())/2;
+			var top=($(window).height()-o.outerHeight())/2-(offset.top-position.top)+$(document).scrollTop();
+			if(top<0) top=5;
+		}
 		var left=($(window).width()-o.outerWidth())/2-(offset.left-position.left);
 		o.css({'left':left,'top':top});
 	});
 }
 
-$.fn.byScreenWidth=function(width) {
+$.fn.byWindowSize=function(full) {
 	var winWidth=$(window).width();
 	return this.each(function() {
-		$(this).width(winWidth/100*width);
+		var tmp=$(this);
+		tmp[0].className=(full ? 'full' : '');
+		tmp.width(winWidth/100*(full ? 99.7 : 95));
 	});
 }
 
@@ -49,10 +54,21 @@ $.adminDialog=function(o) {
 	}).mouseout(function() {
 		$.adminDialog.self.css('opacity',1);
 	});
+	var i1=o[0].href.indexOf('controller=')+11;
+	var i2=o[0].href.indexOf('&',i1);
+	var path=o[0].href.substring(i1,i2)+'/';
+	var i1=o[0].href.indexOf('action=')+7;
+	var i2=o[0].href.indexOf('&',i1);
+	if(!i2) i2=900;
+	path='&path='+path+o[0].href.substring(i1,i2);
+	i1=$('._adminDialogBoxHelp',$.adminDialog.self).get(0);
+	i2=i1.href.indexOf('path=');
+	if(i2!=-1) i1=i1.href.substring(0,i1);
+	i1.href=i1.href+path;
 	return false;
 }
 $.adminDialog.load=function(url) {
-	$.adminDialog.self.byScreenWidth(95).fadeIn().center();
+	$.adminDialog.self.byWindowSize(false).fadeIn().center();
 	$('#_adminDialogBox > iframe.container')[0].src=url;
 }
 $.adminDialog.afterLoad=function(h) {
@@ -111,7 +127,13 @@ function _debug(img,savedPosition,indexLeft,from,to) {
 }
 */
 function toggleFullScreen() {
-	if(toggleFullScreen.width==100) toggleFullScreen.width=95; else toggleFullScreen.width=100;
-	$.adminDialog.self.byScreenWidth(toggleFullScreen.width);
+	toggleFullScreen.full=!toggleFullScreen.full;
+	if(toggleFullScreen.full) {
+		$.adminDialog.self.byWindowSize(true);
+		$('iframe',$.adminDialog.self).get(0).contentWindow.document.body.className='fullScreen';
+	} else {
+		$.adminDialog.self.byWindowSize(false);
+		$('iframe',$.adminDialog.self).get(0).contentWindow.document.body.className='';
+	}
 }
-toggleFullScreen.width=95;
+toggleFullScreen.full=false;

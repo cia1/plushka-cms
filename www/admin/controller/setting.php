@@ -38,6 +38,10 @@ class sController extends controller {
 		return 'Core';
 	}
 
+	protected function helpCore() {
+		return 'core/setting';
+	}
+
 	public function actionCoreSubmit($data) {
 		core::import('admin/core/config');
 		$cfg=new config('_core');
@@ -71,6 +75,10 @@ class sController extends controller {
 		$f->submit('Сохранить');
 		$this->cite='Здесь вы можете изменить вид ссылок на страницы сайта. Впишите строки вида: <b>реальная_ссыла</b>=<b>короткая_ссылка</b>, например: <b>article/view/service</b>=<b>service</b> (теперь страница http://example.com/article/view/service будет доступна по адресу http://example.com/service).';
 		return $f;
+	}
+
+	protected function helpUrl() {
+		return 'core/link#replace';
 	}
 
 	public function actionUrlSubmit($data) {

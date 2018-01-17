@@ -1,9 +1,10 @@
 <?php return array(
 'core'=>array(
 	'name'=>'Ядро',
-	'version'=>'3.16',
+	'version'=>'3.17',
 	'status'=>100,
-	'url'=>'http://plushka-cms.ru'
+	'url'=>'http://plushka-cms.ru',
+	'documentation'=>'http://plushka-cms.ru/manual/core'
 ),
 'chat'=>array(
 	'name'=>'Чат',
@@ -25,12 +26,6 @@
 ),
 'catalog'=>array(
 	'name'=>'Универсальный каталог',
-	'version'=>'1.2',
-	'status'=>100,
-	'url'=>'http://plushka-cms.ru'
-),
-'catalog.lang_en'=>array(
-	'name'=>'Универсальный каталог. Языковой пакет EN',
 	'version'=>'1.2',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'

@@ -3,7 +3,7 @@
 
 /* ---------- CORE ------------------------------------------------------------------- */
 /* Базовый класс, содержит основные статические методы */
-class _core {
+class core {
 
 	private static $_template='default'; //имя шаблона, который будет использован при выводе контента
 
@@ -137,10 +137,7 @@ class _core {
 	Если задан $newQuery, то будет открыто новое подключение */
 	public static function sqlite($newQuery=false) {
 		static $_sqlite;
-		if(!$_sqlite) {
-			self::import('core/sqlite3');
-			if(self::debug()) self::import('core/sqlite3-debug'); else class_alias('_sqlite','sqlite');
-		}
+		if(!$_sqlite) self::import('core/sqlite3');
 		if($newQuery) return new sqlite();
 		if(!$_sqlite) $_sqlite=new sqlite();
 		return $_sqlite;
@@ -150,10 +147,7 @@ class _core {
 	Если задан $newQuery, то будет открыто новое подключение */
 	public static function mysql($newQuery=false) {
 		static $_mysql;
-		if(!$_mysql) {
-			self::import('core/mysqli');
-			if(self::debug()) self::import('core/mysqli-debug'); else class_alias('_mysql','mysql');
-		}
+		if(!$_mysql) self::import('core/mysqli');
 		if($newQuery) return new mysql();
 		if(!$_mysql) $_mysql=new mysql();
 		return $_mysql;
@@ -473,7 +467,7 @@ class controller {
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">
-				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><a href="#" onclick="return toggleFullScreen();">&#9643;</a><b>',_LANG,'</b></div>
+				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><a href="#" onclick="return toggleFullScreen();">&#9643;</a><a class="_adminDialogBoxHelp" onclick="return $.adminDialog(this);" style="display:none;">?</a><b>',_LANG,'</b></div>
 				<img id="_adminDialogBoxLoading" src="'.core::url().'admin/public/icon/loadingBig.gif" alt="Загрузка..." />
 				<iframe class="container"></iframe>
 				</div>';
@@ -606,10 +600,6 @@ function runApplication($renderTemplate=true) {
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
 	$alias=controller::$self->url[0];
-	if($renderTemplate && core::debug()) {
-		coreLog::add('Requested URI',implode('/',$_GET['corePath']),false);
-		coreLog::add('Controller.Action',$_GET['corePath'][0].'.action'.controller::$self->url[1].(isset($_POST[$alias]) ? 'Submit()' : '()'),false);
-	}
 	if(!isset($_POST[$alias])) { //в _POST нет данных, относящихся к запрошенному контроллеру
 		if(!method_exists('sController','action'.controller::$self->url[1])) core::error404();
 	} else { //в _POST есть данные, относящиеся к запрошенному контроллеру
@@ -639,24 +629,15 @@ function runApplication($renderTemplate=true) {
 	//Запуск действия (не submit) и вывод контента
 	$s='action'.controller::$self->url[1];
 	@$view=controller::$self->$s();
-	if(core::debug()) {
-		if(is_object($view)) {
-			$r=new ReflectionClass($view);
-			coreLog::add('view',get_class($view).' ('.$r->getFileName().')',false);
-			unset($r);
-		} elseif(is_string($view)) coreLog::add('view','view/'.$alias.$view.'.php',false);
-	}
 	controller::$self->render($view,$renderTemplate);
-	if($renderTemplate && core::debug()) coreLog::render();
 }
 
 /* --- INITIALIZE --- */
-if(_core::debug()) {
+if(core::debug()) {
 	ini_set('error_reporting', E_ALL);
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
-	_core::import('core/core-debug');
-} else class_alias('_core','core');
+}
 if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
 
 $cfg=core::config();

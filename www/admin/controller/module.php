@@ -32,12 +32,20 @@ class sController extends controller {
 		return $t;
 	}
 
+	protected function helpIndex() {
+		return 'core/module';
+	}
+
 	//Начало установки модуля: загрузка архива модуля
 	public function actionInstallZip() {
 		$f=core::form();
 		$f->file('archive','.zip-архив');
 		$f->submit('Продолжить','submit');
 		return $f;
+	}
+
+	protected function helpInstallZip() {
+		return 'core/module#zip';
 	}
 
 	public function actionInstallZipSubmit($data) {
@@ -78,6 +86,10 @@ class sController extends controller {
 		$this->pageTitle='Установка модуля';
 		$this->module=$module;
 		return 'Info';
+	}
+
+	protected function helpInstallTmp() {
+		return 'core/module#tmp';
 	}
 
 	/* Непосредственно начинает процесс установки */
@@ -253,7 +265,7 @@ class sController extends controller {
 		$db=core::db();
 		//Запретить удаление, если в меню есть ссылки на страницы этого модуля
 		if(is_array($module['menu'])) $s=implode(',',$module['menu']); else $s=$module['menu'];
-		$items=$db->fetchArray('SELECT title FROM menuItem WHERE typeId IN('.$s.')');
+		if($s) $items=$db->fetchArray('SELECT title_'._LANG.' title FROM menuItem WHERE typeId IN('.$s.')'); else $items=null;
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];
@@ -266,7 +278,7 @@ class sController extends controller {
 			if($s) $s.=',';
 			$s.=$db->escape($item);
 		}
-		$items=$db->fetchArray('SELECT title FROM widget WHERE name IN('.$s.')');
+		if($s) $items=$db->fetchArray('SELECT title_'._LANG.' title FROM widget WHERE name IN('.$s.')'); else $items=null;
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];

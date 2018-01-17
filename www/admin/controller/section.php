@@ -34,6 +34,10 @@ class scontroller extends controller {
 		return 'Index';
 	}
 
+	protected function helpIndex() {
+		return 'core/section';
+	}
+
 	/* Изменение порядка виджетов (выше) */
 	public function actionUp() {
 		$id=(int)$_GET['id']; //Идентификатор
@@ -119,6 +123,10 @@ class scontroller extends controller {
 		$this->pageOther=self::_pageOther($url,$this->pageMenu); //Обработка $this->pageMenu и создание $this->pageOther
 		$this->js('jquery.form');
 		return 'Widget';
+	}
+
+	protected function helpWidget() {
+		return 'core/section#widgetNew';
 	}
 
 	public function actionWidgetSubmit($data) {

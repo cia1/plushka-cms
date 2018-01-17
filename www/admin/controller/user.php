@@ -36,6 +36,10 @@ class sController extends controller {
 		return $t;
 	}
 
+	protected function helpGroup() {
+		return 'core/user-group';
+	}
+
 	/* Создание или изменение группы пользователей */
 	public function actionGroupItem() {
 		$db=core::db();
@@ -113,6 +117,10 @@ class sController extends controller {
 			elseif($this->data[$i]['status']=='2') $this->data[$i]['status']='<a href="'.core::link('?controller=user&action=status&id='.$this->data[$i]['id']).'"><img src="'.core::url().'admin/public/icon/status016.png" alt="Заблокирован" title="Заблокирован" /></a>';
 		}
 		return 'User';
+	}
+
+	protected function helpUser() {
+		return 'core/user';
 	}
 
 	/* Создание или изменение пользователя */

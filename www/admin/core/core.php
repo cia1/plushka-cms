@@ -446,6 +446,12 @@ class controller {
 		if($this->cite) echo '<cite>'.$this->cite.'</cite>'; //Поясняющий текст
 		if($renderTemplate) include(core::path().'admin/cache/template/'.core::template().'Footer.php'); //Нижняя часть шаблона
 		elseif(!isset($_GET['_front'])) echo '<div style="clear:both;"></div>';
+		if($renderTemplate && isset($_GET['_front'])) {
+			$f='help'.$this->url[1];
+			if(method_exists($this,$f)) {
+				echo '<script type="text/javascript">_adminDialogBoxSetHelp("',$this->$f(),'")</script>';
+			}
+		}
 	}
 
 	/* Служебный метод, используется при провоцировании HTTP-ошибок (только 404) */

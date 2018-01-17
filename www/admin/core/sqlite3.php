@@ -2,7 +2,7 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 /* Реализует интерфейс с СУБД SQLite3. Расширенная версия */
 core::import('core/sqlite3');
-class sqliteExt extends _sqlite {
+class sqliteExt extends sqlite {
 
 	/* Создаёт таблицу в соответствии с описанной в $structure структурой (формат MySQL) */
 	public function create($table,$structure) {

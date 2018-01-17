@@ -64,6 +64,10 @@ class sController extends controller {
 		return $table;
 	}
 
+	protected function helpFeature() {
+		return 'core/article#feature';
+	}
+
 	/* Создание или редактирование статьи (отдельной или в составе блога) */
 	public function actionArticle() {
 		core::import('admin/model/article');

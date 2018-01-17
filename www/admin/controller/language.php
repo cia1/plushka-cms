@@ -30,6 +30,10 @@ class sController extends controller {
 		return $table;
 	}
 
+	protected function helpIndex() {
+		return 'core/language';
+	}
+
 	//Добавление языка
 	public function actionAdd() {
 		$form=core::form();
@@ -97,6 +101,10 @@ class sController extends controller {
 		$this->cite='На этой странице задаётся список разделов сайта, дочерние элементы которых не являются мультиязычными, тоесть элементов этого раздела сайта может не существовать на других языках. В этом случае, для элементов этого раздела сайта, переключатель языков (виджет language) будет "вести" на один уровень выше.<br />
 		Пример: <b>article/blog/news</b> - на всех статьях этого блога переключатель языка будет "вести" на "article/blog/news", а не на саму статью (article/blog/news/some_article)';
 		return $form;
+	}
+
+	protected function helpSetting() {
+		return 'core/language#widget';
 	}
 
 	public function actionSettingSubmit($data) {

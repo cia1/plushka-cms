@@ -39,11 +39,19 @@ jQuery.fn.tab=function(defIndex) {
 jQuery(document).ready(function() {
 	if(!top.$.adminDialog) return;
 	top.$.adminDialog.afterLoad($('#content').outerHeight());
-	resizer.onresize=function() {
-//		if(this.timeOut) return;
+	if(top.toggleFullScreen.full==false) resizer.onresize=function() {
 		if(this.timeOut) clearTimeout(this.timeOut);
 		this.timeOut=setTimeout(function() {
 			top.$.adminDialog.afterLoad($('#content').outerHeight());
 		},250);
 	};
 });
+
+function _adminDialogBoxSetHelp(link) {
+	if(!top.$.adminDialog) return;
+	var a=top.$.adminDialog.self[0].getElementsByClassName('_adminDialogBoxHelp')[0];
+	if(link) {
+		a.href='admin/index.php?controller=documentation&action=dialog&path='+encodeURIComponent(link)+'&_front';
+		a.style.display='';
+	} else a.style.display='none';
+}

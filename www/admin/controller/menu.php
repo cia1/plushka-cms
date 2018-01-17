@@ -58,6 +58,10 @@ class sController extends controller {
 		return $t;
 	}
 
+	protected function helpItems() {
+		return 'core/menu';
+	}
+
 	/* Добавляет пункты меню к таблице $table, используя данные массива $d.
 	$parentId - ИД родителя, для которого добавлять пункты меню; $level - уровень вложенности (отвечает за отступ названия пункта меню от края) */
 	private function _buildViewTable($d,$table,$parentId=0,$level=0) {
@@ -180,6 +184,10 @@ class sController extends controller {
 	public function actionHidden() {
 		$_GET['menuId']=0; //без лишнего фанатизма в структурировании кода
 		return $this->actionItems(true);
+	}
+
+	protected function helpHidden() {
+		return 'core/menu#hidden';
 	}
 
 /* ----------------------------------------------------------------------------------- */

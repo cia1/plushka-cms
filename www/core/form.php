@@ -74,8 +74,8 @@ class form {
 	}
 
 	/* Поле с редактором CKEditor */
-	public function editor($name,$label,$value='',$html='') {
-		$this->_data.='<dt class="textarea '.$name.'">'.$label.':</dt><dd class="textarea '.$name.'">'.$this->getEditor($name,$value,$html).'</dd>';
+	public function editor($name,$label,$value='',$config=array()) {
+		$this->_data.='<dt class="textarea '.$name.'">'.$label.':</dt><dd class="textarea '.$name.'">'.$this->getEditor($name,$value,$config).'</dd>';
 	}
 
 	/* Поле выбора даты */
