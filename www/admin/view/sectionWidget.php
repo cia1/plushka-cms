@@ -20,6 +20,8 @@ $f->hidden('cache','','id="cacheTime"');
 $f->label('Секция',$this->data['section']);
 $f->text('title','Название',$this->data['title'],'id="widgetTitle"');
 $f->checkbox('publicTitle','Публиковать название виджета',$this->data['publicTitle']);
+$user=core::user();
+if($user->group==255) $f->text('cssClass','CSS класс виджета',$this->data['cssClass']);
 //Сформировать список чекбоксов
 $f->html('<dt>Страницы</dt><dd id="_admPageCheck" style="height:auto;">'.getHTMLMenu($this->pageMenu).'</dd>');
 $f->text('url2','другие URL (через запятую)',implode($this->pageOther,', '),'id="url2"');

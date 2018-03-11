@@ -269,7 +269,12 @@ class core {
 	/* Генерирует виджет. Обрабатывает {{widget}}
 	$name - имя виджета, $options - какие-либо параметры виджета, $cacheTime - время актуальности кеша, $title - заголовок, $link - страница, для которой выводится виджет (только если процедура вызвана при обработке секции) */
 	public static function widget($name,$options=null,$cacheTime=null,$title=null,$link=null) {
+		if(is_array($options) && isset($options['cssClass'])) {
+			$cssClass=' '.$options['cssClass'];
+			unset($options['cssClass']);
+		} else $cssClass='';
 		if(is_string($options) && isset($options[1]) && $options[1]==':') $options=unserialize($options);
+		elseif(is_array($options) && count($options)==1 && isset($options['_content'])) $options=$options['_content'];
 		//Нужно ли кешировать?
 		$debug=self::debug();
 		if($cacheTime && !$debug) {
@@ -289,12 +294,15 @@ class core {
 			}
 			ob_start();
 		}
+		$f=self::path().'override/widget/'.$name.'.php';
+		if(file_exists($f)) include_once($f);
+		else include_once(self::path().'widget/'.$name.'.php');
 		$f='widget'.$name;
-		include_once(self::path().'widget/'.$name.'.php');
 		$w=new $f($options,$link);
+		$w->cssClass=$cssClass;
 		$view=$w();
 		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
-			echo '<section class="widget'.$name.'">';
+			echo '<section class="widget'.$name.$cssClass.'">';
 			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
 			$user=core::userCore();
 			if($user->group>=200) {
@@ -333,7 +341,7 @@ class core {
 			if($i<$cnt) $query.='"'.$s.'/","'.$s.'*"'; else $query.='"'.$s.'/","'.$s.'."';
 		}
 		$db=self::db();
-		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url,w.groupId FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url,w.groupId,w.cssClass FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
 		$cnt=count($items);
 		echo '<div class="section section'.$name.'">';
 		$u=self::userCore();
@@ -346,7 +354,14 @@ class core {
 		$userGroup=core::userGroup();
 		for($i=0;$i<$cnt;$i++) {
 			if($items[$i][6]!==null && $items[$i][6]!=$userGroup) continue;
-			core::widget($items[$i][0],$items[$i][1],$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
+			$options=$items[$i][1];
+			if($items[$i][7]) {
+				if(isset($options[1]) && $options[1]==':') {
+					$options=unserialize($options);
+				} else $options=array('_content'=>$options);
+				$options['cssClass']=$items[$i][7];
+			}
+			core::widget($items[$i][0],$options,$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
 		}
 		echo '</div>';
 	}

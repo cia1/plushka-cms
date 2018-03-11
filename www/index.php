@@ -8,5 +8,4 @@ if(!file_exists($name)) {
 	core::error404();
 }
 include_once($name);
-
 runApplication();

@@ -120,4 +120,3 @@ class sController extends controller {
 	}
 
 }
-?>

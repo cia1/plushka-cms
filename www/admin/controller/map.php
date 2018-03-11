@@ -29,6 +29,7 @@ class sController extends controller {
 		$form=core::form();
 		$form->hidden('id',$this->id);
 		$form->hidden('marker','');
+		$form->text('apiKey','API-ключ',$widget['apiKey']);
 		$form->text('centerLatitude','Центр (широта)',$widget['centerLatitude'],'readonly="readonly" id="centerLatitude"');
 		$form->text('centerLongitude','Центр (долгота)',$widget['centerLongitude'],'readonly="readonly" id="centerLongitude"');
 		$form->text('zoom','Масштаб',$widget['zoom'],'readonly="readonly" id="zoom"');
@@ -40,7 +41,7 @@ class sController extends controller {
 		),$widget['type'],null,'onchange="window._map.setMapTypeId(_google.maps.MapTypeId[this.value]);"');
 		$form->submit('Сохранить');
 		$this->formMap=$form;
-		//Форма/изменения добавления точки
+		//Форма изменения/добавления точки
 		$form=core::form('marker');
 		$form->text('title','Заголовок');
 		$form->text('latitude','Широта');
@@ -60,6 +61,7 @@ class sController extends controller {
 		$widget['centerLongitude']=(float)$data['centerLongitude'];
 		$widget['zoom']=(int)$data['zoom'];
 		$widget['type']=$data['type'];
+		$widget['apiKey']=($data['apiKey'] ? trim($data['apiKey']) : null);
 		$db->query('UPDATE widget SET data='.$db->escape(serialize($widget)).' WHERE id='.$id);
 		core::success('Изменения сохранены');
 		core::redirect('?controller=map&action=marker&id='.$data['id']);
@@ -67,7 +69,9 @@ class sController extends controller {
 
 	//Рисует карту, это действие загружается во фрейме
 	public function actionMap() {
-		$this->js('http://maps.google.com/maps/api/js?sensor=false');
+		$link='http://maps.google.com/maps/api/js';
+		if(isset($_GET['key']) && $_GET['key']) $link.='?key='.$_GET['key'];
+		$this->js($link);
 		return 'Map';
 	}
 
@@ -81,7 +85,8 @@ class sController extends controller {
 				'centerLongitude'=>55.728950739854184,
 				'zoom'=>6,
 				'type'=>'HIBRID',
-				'marker'=>array()
+				'marker'=>array(),
+				'apiKey'=>null
 			);
 		}
 		$form=core::form();
@@ -91,13 +96,10 @@ class sController extends controller {
 		$form->hidden('zoom',$data['zoom']);
 		$form->hidden('type',$data['type']);
 		$form->hidden('marker',urlencode(json_encode($data['marker'])));
+		$form->text('apiKey','API ключ',$data['apiKey']);
 		$form->submit();
+    $this->cite='<b>apiKey</b> - ключ API, получить можно тут: https://developers.google.com/maps/documentation/geocoding/get-api-key?hl=ru<br />Настроить карту и добавить метки можно будет после создания виджета.';
 		return $form;
-//		$this->form=$form;
-//		$this->data=$data;
-//		$this->scriptAdmin('map');
-		$this->cite='Настроить карту и добавить метки можно будет после создания виджета.';
-		return 'WidgetMap';
 	}
 
 	public function actionWidgetMapSubmit($data) {
@@ -106,7 +108,8 @@ class sController extends controller {
 		$data['centerLongitude']=(float)$data['centerLongitude'];
 		$data['zoom']=(int)$data['zoom'];
 		$data['marker']=json_decode(urldecode($data['marker']),true);
+		$data['apiKey']=($data['apiKey'] ? trim($data['apiKey']) : null);
 		return $data;
 	}
 
-} ?>
+}

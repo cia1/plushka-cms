@@ -79,7 +79,7 @@ class form {
 	}
 
 	/* Поле выбора даты */
-	public function date($name,$label,$value,$html='') {
+	public function date($name,$label,$value=null,$html='') {
 		$this->_data.='<dt class="text date '.$name.'">'.$label.':</dt><dd class="text date '.$name.'">'.$this->getDate($name,$value,$html).'</dd>';
 	}
 
@@ -283,7 +283,7 @@ class form {
 	}
 
 	/* Возвращает HTML-код выбора даты */
-	public function getDate($name,$value,$html='') {
+	public function getDate($name,$value=null,$html='') {
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
 			$value=$_POST[$this->_namespace][$name];
 		}

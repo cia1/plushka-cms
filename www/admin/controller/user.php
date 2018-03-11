@@ -83,7 +83,7 @@ class sController extends controller {
 	/* Удаление группы */
 	public function actionGroupDelete() {
 		core::import('admin/model/userGroup');
-		$model=new modelUserGroup();
+		$model=new userGroup();
 		if(!$model->delete($_GET['id'])) return false;
 		core::redirect('?controller=user&action=group','Группа пользователей удалена');
 	}

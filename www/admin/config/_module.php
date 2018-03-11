@@ -1,10 +1,9 @@
 <?php return array(
 'core'=>array(
 	'name'=>'Ядро',
-	'version'=>'3.17',
+	'version'=>'3.15',
 	'status'=>100,
-	'url'=>'http://plushka-cms.ru',
-	'documentation'=>'http://plushka-cms.ru/manual/core'
+	'url'=>'http://plushka-cms.ru'
 ),
 'chat'=>array(
 	'name'=>'Чат',
@@ -140,7 +139,7 @@
 ),
 'map'=>array(
 	'name'=>'Интерактивные карты (виджет)',
-	'version'=>'1.0',
+	'version'=>'1.1',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),

@@ -16,4 +16,3 @@ if($db->fetchValue('SELECT 1 FROM menuItem WHERE menuId='.$data[2].' LIMIT 1')) 
 }
 $db->query('DELETE FROM menu WHERE id='.$data[2]);
 return true;
-?>

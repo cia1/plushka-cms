@@ -1,5 +1,4 @@
-<?php
-class paymentWmcard extends payment {
+<?php class paymentWmcard extends payment {
 	public $title='Карты предоплаты WebMoney';
 
 	public function formData($paymentId,$amount=null) {

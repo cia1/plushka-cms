@@ -25,11 +25,10 @@ class picture {
 	/* Открывает файл изображения, проверяет что это действительно изображение
 	$filename - имя файла, если массив, то воспринимается как файл из массива $_FILES */
 	public function __construct($file) {
-		$file=core::path().$file;
 		if(is_array($file)) {
 			$this->_type=substr($file['type'],strrpos($file['type'],'/')+1);
 			$file=$file['tmpName'];
-		} else $this->_type=substr($file,strrpos($file,'.')+1);
+		} else $this->_type=substr(core::path().$file,strrpos($file,'.')+1);
 		$type=strtolower($this->_type);
 		switch($type) {
 		case 'jpg': case 'jpeg':
@@ -74,11 +73,11 @@ class picture {
 		if($x2===null && $y2===null) { //обрезка по ширине и высоте
 			if($width && $width<$this->_srcW) {
 				$this->_x1=($this->_srcW-$width)/2;
-				$this->_x2=$width;
+				$this->_x2=$width+$this->_x1;
 			}
-			if($height && $height<$this->_dstH) {
+			if($height && $height<$this->_srcH) {
 				$this->_y1=($this->_srcH-$height)/2;
-				$this->_x2=$height;
+				$this->_y2=$height+$this->_y1;
 			}
 		} else { //обрезка по координатам
 			if($x2>$this->_srcW) $x2=$this->_srcW;
@@ -196,11 +195,12 @@ class picture {
 			if(!$this->_watermark) imagealphablending($dst,false);
 			imagesavealpha($dst,true);
 		}
+//echo 'FROM POINT: ',$this->_x1,'x',$this->_y1,'<br>';echo 'FROM SIZE: ',round($this->_x2-$this->_x1),'x',round($this->_y2-$this->_y1),'<br>';echo 'TO POINT: 0x0<br>';echo 'TO SIZE: ',$this->_dstW,'x',$this->_dstH,'<br>';
 		imagecopyresampled($dst,$this->_src,
-			0,0,
-			$this->_x1,$this->_y1,
-			$this->_dstW,$this->_dstH,
-			($this->_x2-$this->_x1),($this->_y2-$this->_y1)
+			0,0, //dst_x, dst_y
+			$this->_x1,$this->_y1, //src_x, src_y
+			$this->_dstW,$this->_dstH, //dst_w, dst_h
+			round($this->_x2-$this->_x1),round($this->_y2-$this->_y1) //src_w, src_h
 		);
 		//сбросить для последующих операций
 		$this->_x1=$this->_y1=0;

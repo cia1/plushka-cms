@@ -169,7 +169,7 @@ class model {
 			core::error(sprintf(LNGFieldCannotByEmpty,$options[1]));
 			return false;
 		}
-		if($value===null && $options[0]!='primary') return true;
+		if($value===null && $options[0]!='primary' && $options[0]!='boolean') return true;
 		//Валидация в зависимости от типа поля
 		switch($options[0]) {
 		case 'primary':

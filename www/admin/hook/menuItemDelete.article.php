@@ -36,4 +36,3 @@ function _blogDelete($link) {
 	}
 	return true;
 }
-?>

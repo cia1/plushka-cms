@@ -23,7 +23,6 @@ class sController extends controller {
 		$f->password('password1',LNGNewPassword);
 		$f->password('password2',LNGNewPasswordAgain);
 		$f->submit();
-
 		$this->pageTitle=$this->metaTitle=LNGYourProfile;
 		return $f;
 	}

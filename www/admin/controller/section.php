@@ -20,7 +20,7 @@ class scontroller extends controller {
 		$t=core::table();
 		$t->rowTh('Пользователи|Виджет|Тип||');
 		$db=core::db();
-		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).'GROUP BY w.id ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).' GROUP BY w.id,t.title,s.sort ORDER BY s.sort');
 		if($items) for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
 			$t->text(($items[$i][5] ? $items[$i][5] : 'все'));
@@ -88,7 +88,7 @@ class scontroller extends controller {
 	public function actionWidget() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Изменение
-			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section,w.groupId FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
+			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section,w.groupId,w.cssClass FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
 			$this->data['type']=array($this->data['id'],$this->data['controller'],$this->data['action']); //Нужен для загрузки (ajax) формы модуля.
 			if($this->data['groupId']!==null) $this->data['groupId']=$this->data['groupId'];
 			//Загрузить список страниц, на которых публикуется виджет
@@ -96,7 +96,7 @@ class scontroller extends controller {
 			$url=array();
 			while($item=$db->fetch()) $url[]=$item[0];
 		} else { //Создание
-			$this->data=array('id'=>null,'groupId'=>null,'name'=>null,'title'=>'','cache'=>0,'data'=>null,'publicTitle'=>false);
+			$this->data=array('id'=>null,'groupId'=>null,'name'=>null,'title'=>'','cache'=>0,'data'=>null,'publicTitle'=>false,'cssClass'=>'');
 			//Тип виджета может быть определён ранее - тогда в представлении нужно "подгрузить" (AJAX) соответствующую форму модуля
 			//Иначе загрузить список типов, чтобы предоставить выбор
 			if(isset($_GET['type'])) {
@@ -134,7 +134,7 @@ class scontroller extends controller {
 		$model->set($data);
 		$model->multiLanguage();
 		if($data['id']) $isNew=false; else $isNew=true;
-		if(!$model->save(array(
+		$rule=array(
 			'id'=>array('primary'),
 			'groupId'=>array('integer','группа пользователей','max'=>254),
 			'section'=>array('string'),
@@ -143,7 +143,10 @@ class scontroller extends controller {
 			'cache'=>array('integer','Время кеширования'),
 			'title'=>array('string','Описание',true),
 			'publicTitle'=>array('boolean')
-		))) return false;
+		);
+		$user=core::user();
+		if($user->group==255) $rule['cssClass']=array('string');
+		if(!$model->save($rule)) return false;
 		//Проверить правильность ссылок, перечисленных в поле "другие страницы"
 		$url2=str_replace(array("\n",';',"\t",' '),array(',',',',',',''),$data['url2']);
 		$url2=explode(',',$url2);

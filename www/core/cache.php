@@ -2,6 +2,7 @@
 //Внимание! Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 class cache {
 
+	/* Создаёт кеш шаблона с именем $name */
 	public static function template($name) {
 		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
 		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
@@ -11,7 +12,7 @@ class cache {
 		$template=str_replace('{{head}}','<?=$this->_head?>',$template);
 		$template=str_replace('{{pageTitle}}','<?php if($this->pageTitle) echo \'<h1 class="pageTitle">\'.$this->pageTitle.\'</h1>\'; ?>',$template);
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);
-		$section=$widget=array();
+		$section=$widget=array(); //Список секций и виджетов в шаблоне - эта информация может кому-то понадобиться в последствии
 		$template=preg_replace_callback('/{{section\[([^\]]+)\]}}/',function($data) use(&$section) {
 			if(!isset($data[1])) return;
 			$section[]=$data[1];
@@ -79,6 +80,7 @@ class cache {
 		fwrite($f,$s);
 	}
 
+	//Кеширует мультиязычные таблицы
 	static function languageDatabase() {
 		$cfg=core::config();
 		if($cfg['dbDriver']=='mysql') {

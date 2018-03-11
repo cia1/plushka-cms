@@ -45,12 +45,12 @@ class widgetMenu extends widget {
 	public function render($d=null,$child=false) {
 		if(!$child) echo '<nav>';
 		if($d===true) $d=$this->data[0];
-		echo '<ul>';
+		echo '<ul itemscope itemtype="http://www.schema.org/SiteNavigationElement">';
 		for($i=0,$cnt=count($d);$i<$cnt;$i++) {
 			$item=$d[$i];
 			echo '<li class="item'.$i;
 			if(in_array($item[2],$this->active)) echo ' active';
-			echo '"><a href="'.core::link($item[0]).'"><span>'.$item[1].'</span></a>';
+			echo '" itemprop="name"><a href="'.core::link($item[0]).'" itemprop="url"><span>'.$item[1].'</span></a>';
 			if(isset($this->data[$item[2]])) $this->render($this->data[$item[2]],true);
 			echo '</li>';
 		}

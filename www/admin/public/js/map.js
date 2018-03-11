@@ -4,8 +4,9 @@ var mapMarker=new function(_map) {
 
 	this.setCenter=function(form) {
 		var tmp=window._map.getCenter();
-		form['map[centerLatitude]'].value=tmp.D;
-		form['map[centerLongitude]'].value=tmp.k;
+		var center=window._map.getCenter();
+		form['map[centerLatitude]'].value=tmp.lat();
+		form['map[centerLongitude]'].value=tmp.lng();
 		form['map[zoom]'].value=window._map.getZoom();
 		return false;
 	}
@@ -13,8 +14,8 @@ var mapMarker=new function(_map) {
 	this.add=function(showForm,_marker) {
 		if(!_marker) {
 			var tmp=window._map.getCenter();
-			var latLng=new _google.maps.LatLng(tmp.k,tmp.D);
-		} else var latLng=new _google.maps.LatLng(_marker.longitude,_marker.latitude);
+			var latLng=new _google.maps.LatLng(tmp.lat(),tmp.lng());
+		} else var latLng=new _google.maps.LatLng(_marker.latitude,_marker.longitude);
 		var marker=new _google.maps.Marker({
 			map:window._map,
 			position: latLng,
@@ -25,8 +26,8 @@ var mapMarker=new function(_map) {
 			if(mapMarker._formMarker!=this) return;
 			var position=marker.getPosition();
 			var form=document.forms.marker;
-			form['marker[latitude]'].value=position.D;
-			form['marker[longitude]'].value=position.k;
+			form['marker[latitude]'].value=position.lat();
+			form['marker[longitude]'].value=position.lng();
 		});
 		_google.maps.event.addListener(marker,'click',function() {
 			mapMarker.form(this);
@@ -46,8 +47,8 @@ var mapMarker=new function(_map) {
 		this._formMarker=marker;
 		form['marker[title]'].value=marker.title;
 		var position=marker.getPosition();
-		form['marker[latitude]'].value=position.D;
-		form['marker[longitude]'].value=position.k;
+		form['marker[latitude]'].value=position.lat();
+		form['marker[longitude]'].value=position.lng();
 		document.getElementById('markerForm').style.display='';
 		document.getElementById('markerDelete').style.display='';
 		marker.setAnimation(_google.maps.Animation.BOUNCE);
@@ -80,7 +81,7 @@ var mapMarker=new function(_map) {
 		var data=[];
 		for(var i=0;i<this._list.length;i++) {
 			var position=this._list[i].getPosition();
-			var marker={title:this._list[i].title,latitude:position.D,longitude:position.k};
+			var marker={title:this._list[i].title,latitude:position.lat(),longitude:position.lng()};
 			data.push(marker);
 		}
 		return JSON.stringify(data);
