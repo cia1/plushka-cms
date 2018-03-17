@@ -66,8 +66,8 @@ class core {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
-//				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')+1);
-				$_url=str_replace(array($_SERVER['DOCUMENT_ROOT'],'core/core.php'),'',str_replace('\\','/',__FILE__));
+				$i=strlen($_SERVER['DOCUMENT_ROOT']);
+				$_url=str_replace('\\','/',substr(__FILE__,$i,strlen(__FILE__)-$i-13));
 			} else { //CGI-запрос
 				$cfg=core::config('cgi');
 				$_url=$cfg['url'];
