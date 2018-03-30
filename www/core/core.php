@@ -46,12 +46,13 @@ class core {
 		if(isset($cfg['debug']) && $cfg['debug']) return true; else return false;
 	}
 
-	/* Возвращает массив, содержащий конфигурацию с именем $name (/config/$name.php).
+	/* Возвращает массив, содержащий конфигурацию с именем $name (/config/$name.php) или значение атрибута, если указан $attribute
 	Массив возвращается по ссылке, т.к. конфигурация может быть изменена при помощи класса "config" */
-	public static function &config($name='_core') {
+	public static function &config($name='_core',$attribute=null) {
 		static $_cfg;
 		if(!isset($_cfg[$name])) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
-		return $_cfg[$name];
+		if($attribute===null) return $_cfg[$name];
+		return isset($_cfg[$name][$attribute]) ? $_cfg[$name][$attribute] : null;
 	}
 
 	/* Подключает указанный php-скрипт */
@@ -66,8 +67,7 @@ class core {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
-				$i=strlen($_SERVER['DOCUMENT_ROOT']);
-				$_url=str_replace('\\','/',substr(__FILE__,$i,strlen(__FILE__)-$i-13));
+				$_url=str_replace(array($_SERVER['DOCUMENT_ROOT'],'core/core.php'),'',str_replace('\\','/',__FILE__));
 			} else { //CGI-запрос
 				$cfg=core::config('cgi');
 				$_url=$cfg['url'];
@@ -374,7 +374,7 @@ class core {
 		if(!$_js) $_js=array();
 		if(isset($_js[$name])) return '';
 		$_js[$name]=true;
-		if(substr($name,0,7)=='http://') return '<script type="text/javascript" src="'.$name.'" '.$attribute.'></script>';
+		if($name[0]=='/' || substr($name,0,7)=='http://' || substr($name,0,8)=='https://') return '<script type="text/javascript" src="'.$name.'" '.$attribute.'></script>';
 		if(substr($name,0,3)==='LNG') {
 			$html='<script type="text/javascript">'.
 			($_lang ? '' : 'document._lang=new Array();').
@@ -467,9 +467,9 @@ class controller {
 		if(!$view) return; //если представления нет, то ничего не выводить в поток
 		$user=core::userCore();
 		if($user->group>=200) {
-			$this->js('jquery.min');
-			$this->js('admin');
-			$this->style('admin');
+			$this->js('jquery.min','defer');
+			$this->js('admin','defer');
+			$this->style('admin','defer');
 		}
 		//Вывести верхнюю часть шаблона (до "{{content}}")
 		$s=core::template();

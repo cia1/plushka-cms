@@ -3,9 +3,13 @@
 	public function __invoke() {
 		if(isset($this->options['id'])) $this->id=$this->options['id']; else $this->id=time();
 		if(!isset($this->options['type'])) $this->options['type']='ROAD';
-		$this->id=$this->options['id'];
-		$this->jsLink='http://maps.google.com/maps/api/js';
+		$this->jsLink='//maps.google.com/maps/api/js';
 		if($this->options['apiKey']) $this->jsLink.='?key='.$this->options['apiKey'];
+		if(!isset($this->options['centerLatitude']) && isset($this->options['marker'])) {
+			$this->options['centerLatitude']=$this->options['marker'][0]['latitude'];
+			$this->options['centerLongitude']=$this->options['marker'][0]['longitude'];
+		}
+		if(!isset($this->options['zoom'])) $this->options['zoom']=11;
 		return true;
 	}
 

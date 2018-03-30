@@ -143,4 +143,3 @@ class sController extends controller {
 	}
 
 }
-?>

@@ -143,6 +143,12 @@
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
+'mapMarker'=>array(
+	'name'=>'Google Map Виджет указания координат для HTML-формы',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
 'mysql'=>array(
 	'name'=>'СУБД MySQL',
 	'version'=>'1.1',

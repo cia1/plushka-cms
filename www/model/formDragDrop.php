@@ -10,8 +10,8 @@ class formDragDrop extends form {
 	/* Поле для загрузки файла (<input type="file")
 	$name - имя поля формы, $label - отображаемый заголовок, $fileCount - разрешить выбирать несколько файлов, $html - произвольный текст, который будет присоединён к тегу <input> */
 	public function fileDragDrop($name,$label,$fileCount=1,$jsCallBack=null) {
-		controller::$self->js('jquery.min');
-		controller::$self->js('formDragDrop');
+		controller::$self->js('jquery.min','defer');
+		controller::$self->js('formDragDrop','defer');
 		core::language('formDragDrop');
 		controller::$self->js('LNGFileAlreadyUploaded');
 		controller::$self->js('LNGFileMaximumAlreadyUploaded');
@@ -24,8 +24,8 @@ class formDragDrop extends form {
 		if(!$_index) {
 			$html='<link href="'.core::url().'public/css/formDragDrop.css" rel="stylesheet" />';
 			core::language('formDragDrop');
-			echo core::js('jquery.min');
-			echo core::js('formDragDrop');
+			echo core::js('jquery.min','defer');
+			echo core::js('formDragDrop','defer');
 			echo core::js('LNGFileAlreadyUploaded');
 			echo core::js('LNGFileMaximumAlreadyUploaded');
 			$path=core::path().'tmp/upload/';
@@ -48,7 +48,7 @@ class formDragDrop extends form {
 		$html.='<div class="fileDropBox" id="fileDropBox_'.$_index.'">'.LNGDropOrClick.'.<br /><input type="file"';
 		if($fileCount>1) $html.=' multiple="multiple"';
 		$html.=' /></div>';
-		$html.='<script>fileDragDrop("'.$this->_namespace.'","'.$name.'",document.getElementById("fileDropBox_'.$_index.'"),'.$fileCount.($jsCallBack ? ',"'.$jsCallBack.'"' : '').');</script>';
+		$html.='<script defer="defer">fileDragDrop("'.$this->_namespace.'","'.$name.'",document.getElementById("fileDropBox_'.$_index.'"),'.$fileCount.($jsCallBack ? ',"'.$jsCallBack.'"' : '').');</script>';
 		return $html;
 	}
 
