@@ -52,13 +52,9 @@ class core {
 		static $_cfg;
 		if(!isset($_cfg[$name])) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
 		if($attribute===null) return $_cfg[$name];
-<<<<<<< HEAD
 		if(!isset($_cfg[$name][$attribute])) return null;
 		$value=$_cfg[$name][$attribute];
 		return $value;
-=======
-		return isset($_cfg[$name][$attribute]) ? $_cfg[$name][$attribute] : null;
->>>>>>> 2ac76eeb9056c31a92720860031ee0f410193fd3
 	}
 
 	/* Подключает указанный php-скрипт */
