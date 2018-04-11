@@ -1,7 +1,7 @@
 <?php return array(
 'core'=>array(
 	'name'=>'Ядро',
-	'version'=>'3.15',
+	'version'=>'3.16',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),
@@ -140,6 +140,12 @@
 'map'=>array(
 	'name'=>'Интерактивные карты (виджет)',
 	'version'=>'1.1',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
+'mapMarker'=>array(
+	'name'=>'Google Map Виджет указания координат для HTML-формы',
+	'version'=>'1.0',
 	'status'=>100,
 	'url'=>'http://plushka-cms.ru'
 ),

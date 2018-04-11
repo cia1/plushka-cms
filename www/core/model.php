@@ -338,7 +338,8 @@ class model {
 		}
 		$s1=$s2='';
 		foreach($fieldList as $field) {
-			if($this->_data[$field]===null) continue;
+			$value=$this->_data[$field];
+			if($value===null) continue;
 			if(in_array($field,$this->_bool)) {
 				$value=($value ? '1' : '0');
 			} else $value=$this->db->escape($this->_data[$field]);

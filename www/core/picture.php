@@ -3,7 +3,7 @@
 /* Класс для обработки изображение (обрезка, сжатие, водный знак) */
 class picture {
 	private $_src; //содержит исходное изображение
-	private $_type; //расширения исходного файла, используется при сохранении в файл, если имя файла не содержит расширения
+	private $_type; //расширение исходного файла, используется при сохранении в файл, если имя файла не содержит расширения
 	private $_srcW; //шинира исходного изображения
 	private $_srcH; //высота исходного изображения
 	private $_dstW; //ширина генерируемого изображения (для масштабирования)
@@ -23,34 +23,60 @@ class picture {
 	private $_wH;
 
 	/* Открывает файл изображения, проверяет что это действительно изображение
-	$filename - имя файла, если массив, то воспринимается как файл из массива $_FILES */
-	public function __construct($file) {
-		if(is_array($file)) {
-			$this->_type=substr($file['type'],strrpos($file['type'],'/')+1);
-			$file=$file['tmpName'];
-		} else $this->_type=substr(core::path().$file,strrpos($file,'.')+1);
-		$type=strtolower($this->_type);
-		switch($type) {
-		case 'jpg': case 'jpeg':
-			$this->_src=imagecreatefromjpeg($file);
-			break;
-		case 'gif':
-			$this->_src=imagecreatefromgif($file);
-			break;
-		case 'png':
-			$this->_src=imagecreatefrompng($file);
-			break;
-		default:
-			core::error(LNGFileIsNotImage.'('.$file.')');
-			return false;
-		}
-		if(!$this->_src) {
-			core::error(LNGFileTypeNotSupport.' ('.$file.')');
-			return;
+	$file - имя файла, массив, экземпляр picture или целое число;
+	int $file и int $height - ширина и высота пустого изображения */
+	public function __construct($file,$height=null) {
+		if($file instanceof picture) {
+			$this->_src=$file->gd();
+			$this->_srcW=$file->width();
+			$this->_srcH=$file->height();
+			$this->_type=$file->type();
+		} elseif($height!==null) {
+			$this->_type='png';
+			$this->_src=imagecreatetruecolor($file,$height);
+			$this->_srcW=(int)$file;
+			$this->_srcH=(int)$height;
+			imagesavealpha($this->_src,true);
+			$color=imagecolorallocatealpha($this->_src,0,0,0,127);
+			imagefill($this->_src,0,0,$color);
+		} elseif(is_resource($file)) {
+			$this->_src=$file;
+			$this->_type='png';
+			$this->_srcW=imagesx($this->_src);
+			$this->_srcH=imagesy($this->_src);
+		} else {
+			if(is_array($file)) {
+				$this->_type=substr($file['type'],strrpos($file['type'],'/')+1);
+				$file=$file['tmpName'];
+			} else {
+				$file=core::path().$file;
+				$this->_type=substr($file,strrpos($file,'.')+1);
+			}
+			$type=strtolower($this->_type);
+			switch($type) {
+			case 'jpg': case 'jpeg':
+				$this->_src=imagecreatefromjpeg($file);
+				break;
+			case 'gif':
+				$this->_src=imagecreatefromgif($file);
+				break;
+			case 'png':
+				$this->_src=imagecreatefrompng($file);
+				break;
+			default:
+				core::error(LNGFileIsNotImage.'('.$file.')');
+				return false;
+			}
+			if(!$this->_src) {
+				core::error(LNGFileTypeNotSupport.' ('.$file.')');
+				return;
+			}
+			$this->_srcW=imagesx($this->_src);
+			$this->_srcH=imagesy($this->_src);
 		}
 		$this->_x1=$this->_y1=0;
-		$this->_x2=$this->_dstW=$this->_srcW=imagesx($this->_src);
-		$this->_y2=$this->_dstH=$this->_srcH=imagesy($this->_src);
+		$this->_x2=$this->_dstW=$this->_srcW;
+		$this->_y2=$this->_dstH=$this->_srcH;
 	}
 
 	public function __destruct() {
@@ -67,8 +93,14 @@ class picture {
 		return $this->_srcW;
 	}
 
+	//Возвращает тип изображения
+	public function type() {
+		return $this->_type;
+	}
+
 	//Обрезает исходное изображение по краям по заданной ширине и высоте ($x2===null && $y2===null)
 	//Если заданы $x2 и $y2, то все четыре параметра воспринимаются как координаты прямоугольника
+	//picture::crop() должен быть вызван до picture::resize()
 	public function crop($width=null,$height=null,$x2=null,$y2=null) {
 		if($x2===null && $y2===null) { //обрезка по ширине и высоте
 			if($width && $width<$this->_srcW) {
@@ -136,24 +168,31 @@ class picture {
 	}
 
 	/* Накладывает водный знак
-	$f - имя файла изображения, $x и $y задают отступы от краёв изображения */
+	$f - имя файла изображения, экземпляр picture или imageGD; $x и $y задают отступы от краёв изображения */
 	public function watermark($f,$x,$y) {
-		$ext=strtolower(substr($f,strrpos($f,'.')+1));
-    $f=core::path().$f;
-		switch($ext) {
-		case 'jpg': case 'jpeg':
-			$this->_watermark=imagecreatefromjpeg($f);
-			break;
-		case 'gif':
-			$this->_watermark=imagecreatefromgif($f);
-			break;
-		case 'png':
-			$this->_watermark=imagecreatefrompng($f);
+		if($f instanceof picture) {
+			$this->_watermark=$f->gd();
+		} elseif(is_string($f)) {
+			$ext=strtolower(substr($f,strrpos($f,'.')+1));
+	    $f=core::path().$f;
+			switch($ext) {
+			case 'jpg': case 'jpeg':
+				$this->_watermark=imagecreatefromjpeg($f);
+				break;
+			case 'gif':
+				$this->_watermark=imagecreatefromgif($f);
+				break;
+			case 'png':
+				$this->_watermark=imagecreatefrompng($f);
+				imagealphablending($this->_watermark,true);
+				break;
+			default:
+				core::error(LNGFileIsNotImage);
+				return false;
+			}
+		} else {
+			$this->_watermark=$f;
 			imagealphablending($this->_watermark,true);
-			break;
-		default:
-			core::error(LNGFileIsNotImage);
-			return false;
 		}
 		$this->_wW=imagesx($this->_watermark);
 		$this->_wH=imagesy($this->_watermark);
@@ -177,31 +216,27 @@ class picture {
 		if($minus) $this->_wY=$this->_dstH-$this->_wH-$y; else $this->_wY=$y;
 	}
 
-	/* Выполняет все действия обработки и сохраняет изображение в файл.
-	Тип файла определяется расширением $fileName, если оно задано, возвращает имя файба без директория, но с расширением */
-	public function save($fileName,$quality=100) {
-		$type=strrpos($fileName,'.');
-		if($type) $type=strtolower(substr($fileName,$type+1));
-		if($type!='jpg' && $type!='jpeg' && $type!='gif' && $type!='png') {
-			$type=$this->_type;
-			$fileName.='.'.$type;
+	/* Возвращает объект image, содержащий обработанное изображение */
+	public function gd() {
+		//если размеры изображения совпадают с исходными, то нет надобности дублировать исходное изображение
+		if($this->_x1===0 && $this->_y1===0 && $this->_dstW===$this->_srcW && $this->_dstH===$this->_srcH) {
+			$dst=$this->_src;
+		} else {
+			$dst=imagecreatetruecolor($this->_dstW,$this->_dstH);
+			$color=imagecolorallocatealpha($dst,0,0,0,127);
+			imagefill($dst,0,0,$color);
+			if($this->_type=='png') {
+				imagealphablending($dst,true);
+				imagesavealpha($dst,true);
+			}
+	//echo 'FROM POINT: ',$this->_x1,'x',$this->_y1,'<br>';echo 'FROM SIZE: ',round($this->_x2-$this->_x1),'x',round($this->_y2-$this->_y1),'<br>';echo 'TO POINT: 0x0<br>';echo 'TO SIZE: ',$this->_dstW,'x',$this->_dstH,'<br>';
+			imagecopyresampled($dst,$this->_src,
+				0,0, //dst_x, dst_y
+				$this->_x1,$this->_y1, //src_x, src_y
+				$this->_dstW,$this->_dstH, //dst_w, dst_h
+				round($this->_x2-$this->_x1),round($this->_y2-$this->_y1) //src_w, src_h
+			);
 		}
-		$dst=imagecreatetruecolor($this->_dstW,$this->_dstH);
-		if($type=='png') {
-//			$transparent=imagecolorallocatealpha($dst,0,0,0,127);
-//			imagefill($dst,0,0,$transparent);
-//			imagecolortransparent($dst,$transparent);
-//			imagesavealpha($dst,true);
-			if(!$this->_watermark) imagealphablending($dst,false);
-			imagesavealpha($dst,true);
-		}
-//echo 'FROM POINT: ',$this->_x1,'x',$this->_y1,'<br>';echo 'FROM SIZE: ',round($this->_x2-$this->_x1),'x',round($this->_y2-$this->_y1),'<br>';echo 'TO POINT: 0x0<br>';echo 'TO SIZE: ',$this->_dstW,'x',$this->_dstH,'<br>';
-		imagecopyresampled($dst,$this->_src,
-			0,0, //dst_x, dst_y
-			$this->_x1,$this->_y1, //src_x, src_y
-			$this->_dstW,$this->_dstH, //dst_w, dst_h
-			round($this->_x2-$this->_x1),round($this->_y2-$this->_y1) //src_w, src_h
-		);
 		//сбросить для последующих операций
 		$this->_x1=$this->_y1=0;
 		$this->_x2=$this->_dstW=$this->_srcW;
@@ -210,7 +245,19 @@ class picture {
 			imagecopy($dst,$this->_watermark,$this->_wX,$this->_wY,0,0,$this->_wW,$this->_wH);
 			$this->_watermark=null;
 		}
-		switch($type) {
+		return $dst;
+	}
+
+	/* Выполняет все действия обработки и сохраняет изображение в файл.
+	Тип файла определяется расширением $fileName, если оно задано, возвращает имя файба без директория, но с расширением */
+	public function save($fileName,$quality=100) {
+		$type=strrpos($fileName,'.');
+		if($type) $type=strtolower(substr($fileName,$type+1));
+		if($type==='jpg' || $type==='jpeg' || $type==='gif' || $type==='png') {
+			$this->_type=$type;
+		} else $fileName.='.'.$type;
+		$dst=$this->gd();
+		switch($this->_type) {
 		case 'jpg': case 'jpeg':
 			imagejpeg($dst,core::path().$fileName,$quality);
 			break;

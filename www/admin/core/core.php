@@ -67,13 +67,16 @@ class core {
 
 	/* Возвращает массив, содержащий конфигурацию с именем $name (/config/$name.php).
 	Массив возвращается по ссылке, т.к. конфигурация может быть изменена при помощи класса "config" или другим способом */
-	public static function &config($name='_core') {
+	public static function &config($name='_core',$attribute=null) {
 		static $_cfg;
 		if(!isset($_cfg[$name])) {
 			$f=core::path().'config/'.$name.'.php';
-			if(file_exists($f)) $_cfg[$name]=include($f); else return null;
+			if(file_exists($f)) $_cfg[$name]=include($f); else $_cfg[$name]=null;
 		}
-		return $_cfg[$name];
+		if($attribute===null) return $_cfg[$name];
+		if(!isset($_cfg[$name][$attribute])) return null;
+		$value=$_cfg[$name][$attribute];
+		return $value;
 	}
 
 	/* Подключает указанный php-скрипт */
