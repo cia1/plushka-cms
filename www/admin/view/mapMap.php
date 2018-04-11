@@ -9,14 +9,6 @@ google.maps.event.addDomListener(window,'load',function() {
 		mapTypeId:google.maps.MapTypeId.<?=$_GET['type']?>,
 		mapTypeControlOptions: { mapTypeIds: 'HYBRID' }
 	});
-//	google.maps.event.addListener(map,'center_changed',function() {
-//		if(document.mapTimer) return;
-//		document.mapTimer=setTimeout(function() {
-//			var tmp=map.getCenter();
-//			parent.onMove(tmp.k,tmp.D,map.getZoom());
-//			document.mapTimer=false;
-//		},1000);
-//	});
 	parent._map=map;
 	parent._google=google;
 });

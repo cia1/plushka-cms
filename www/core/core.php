@@ -52,9 +52,13 @@ class core {
 		static $_cfg;
 		if(!isset($_cfg[$name])) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
 		if($attribute===null) return $_cfg[$name];
+<<<<<<< HEAD
 		if(!isset($_cfg[$name][$attribute])) return null;
 		$value=$_cfg[$name][$attribute];
 		return $value;
+=======
+		return isset($_cfg[$name][$attribute]) ? $_cfg[$name][$attribute] : null;
+>>>>>>> 2ac76eeb9056c31a92720860031ee0f410193fd3
 	}
 
 	/* Подключает указанный php-скрипт */
@@ -69,8 +73,7 @@ class core {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
-				$i=strlen($_SERVER['DOCUMENT_ROOT']);
-				$_url=str_replace('\\','/',substr(__FILE__,$i,strlen(__FILE__)-$i-13));
+				$_url=str_replace(array($_SERVER['DOCUMENT_ROOT'],'core/core.php'),'',str_replace('\\','/',__FILE__));
 			} else { //CGI-запрос
 				$cfg=core::config('cgi');
 				$_url=$cfg['url'];
