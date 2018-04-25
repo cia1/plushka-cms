@@ -4,6 +4,7 @@
 'table'=>'comment,commentGroup',
 'file'=>array(
 	'admin/controller/comment.php',
+	'admin/hook/pageDelete.comment.php',
 	'admin/hook/widgetDelete.comment.php',
 	'admin/hook/widgetPageDelete.comment.php',
 	'admin/public/icon/comment16.png',

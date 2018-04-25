@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Хост:                         127.0.0.1
--- Версия сервера:               5.7.20-log - MySQL Community Server (GPL)
--- Операционная система:         Win32
--- HeidiSQL Версия:              9.4.0.5125
+-- Версия сервера:               5.7.19 - MySQL Community Server (GPL)
+-- Операционная система:         Win64
+-- HeidiSQL Версия:              9.5.0.5196
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -12,7 +12,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- Дамп структуры для таблица cms.adminNote
-DROP TABLE IF EXISTS `adminNote`;
 CREATE TABLE IF NOT EXISTS `adminNote` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `groupView` tinyint(3) unsigned NOT NULL DEFAULT '255',
@@ -29,7 +28,6 @@ REPLACE INTO `adminNote` (`id`, `groupView`, `groupEdit`, `title`, `html`) VALUE
 /*!40000 ALTER TABLE `adminNote` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.articleCategory_en
-DROP TABLE IF EXISTS `articleCategory_en`;
 CREATE TABLE IF NOT EXISTS `articleCategory_en` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `parentId` smallint(5) unsigned NOT NULL,
@@ -53,7 +51,6 @@ REPLACE INTO `articleCategory_en` (`id`, `parentId`, `title`, `metaTitle`, `meta
 /*!40000 ALTER TABLE `articleCategory_en` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.articleCategory_ru
-DROP TABLE IF EXISTS `articleCategory_ru`;
 CREATE TABLE IF NOT EXISTS `articleCategory_ru` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `parentId` smallint(5) unsigned NOT NULL,
@@ -77,7 +74,6 @@ REPLACE INTO `articleCategory_ru` (`id`, `parentId`, `title`, `metaTitle`, `meta
 /*!40000 ALTER TABLE `articleCategory_ru` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.article_en
-DROP TABLE IF EXISTS `article_en`;
 CREATE TABLE IF NOT EXISTS `article_en` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `categoryId` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -109,7 +105,6 @@ REPLACE INTO `article_en` (`id`, `categoryId`, `alias`, `title`, `text1`, `text2
 /*!40000 ALTER TABLE `article_en` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.article_ru
-DROP TABLE IF EXISTS `article_ru`;
 CREATE TABLE IF NOT EXISTS `article_ru` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `categoryId` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -129,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `article_ru` (
 -- Дамп данных таблицы cms.article_ru: 9 rows
 /*!40000 ALTER TABLE `article_ru` DISABLE KEYS */;
 REPLACE INTO `article_ru` (`id`, `categoryId`, `alias`, `title`, `text1`, `text2`, `sort`, `metaTitle`, `metaKeyword`, `metaDescription`, `date`) VALUES
-	(1, 0, 'index', 'Статья на главной странице', NULL, '<p>\r\n	Главная страница&nbsp;– это информация, которая предстаёт перед пользователем при переходе его по адресу сайта. Другими словами, главная страница – это первое, с чем сталкивается посетитель, оказываясь на сайте. Правилу этому подчиняются все сайты в Интернете – контент-провайдеры, модные интернет-магазины, мощные порталы и многолюдные форумы. Предназначение главной страницы любого сайта – это обеспечение такого «приёма» посетителя, чтобы, в идеале, он стал пользователем. Или, по крайней мере, чтобы задержался на сайте в течение длительного времени.</p>\r\n', 0, 'meta Главная страница', 'meta Ключевые слова', 'meta Описание', NULL),
+	(1, 0, 'index', 'Статья на главной странице', NULL, '<p>Главная страница&nbsp;– это информация, которая предстаёт перед пользователем при переходе его по адресу сайта. Другими словами, главная страница – это первое, с чем сталкивается посетитель, оказываясь на сайте. Правилу этому подчиняются все сайты в Интернете – контент-провайдеры, модные интернет-магазины, мощные порталы и многолюдные форумы. Предназначение главной страницы любого сайта – это обеспечение такого «приёма» посетителя, чтобы, в идеале, он стал пользователем. Или, по крайней мере, чтобы задержался на сайте в течение длительного времени.</p>', 0, 'meta Главная страница', 'meta Ключевые слова', 'meta Описание', NULL),
 	(2, 0, 'about', 'О нас', NULL, '<p>\r\n	Раздел «О компании» чрезвычайно важен для корпоративного сайта или интернет-магазина и при правильном использовании может поднять продажи. Люди все больше интересуются товарами и услугами не только с точки зрения их полезности. Они хотят приобретать товары и услуги у компаний, имеющих историю и значение. Они хотят знать больше о том, у кого они покупают, и бремя информирования их об этом чаще всего ложится всего на одну страницу. Что касается интернет-магазинов, то они часто не придают значения страницам «О нас», в то время как их роль в онлайн-покупках стремительно растет.</p>\r\n', 0, '', '', '', NULL),
 	(3, 1, '130412', 'Михаил Бабич', '<p>\r\n	13 апреля 2013 года в Нижнем Новгороде министр здравоохранения РФ Вероника Скворцова и полномочный представитель Президента России в ПФО Михаил Бабич проведут совещание по реализации мероприятий региональных программ модернизации здравоохранения субъектов ПФО. Об этом сообщает пресс-служба полномочного представителя президента РФ в ПФО</p>\r\n', '<p>\r\n	 </p>\r\n<p>\r\n	13 апреля 2013 года в Нижнем Новгороде министр здравоохранения РФ Вероника Скворцова и полномочный представитель Президента России в ПФО Михаил Бабич проведут совещание по реализации мероприятий региональных программ модернизации здравоохранения субъектов ПФО. Об этом сообщает пресс-служба полномочного представителя президента РФ в ПФО,</p>\r\n<p>\r\n	Выездное совещание с участием главы Минздрава РФ организовано по инициативе приволжского полпреда, такое мероприятие в стране проходит впервые.</p>\r\n<p>\r\n	Руководители органов исполнительной власти в сфере здравоохранения из всех субъектов округа будут защищать программы развития здравоохранения своих регионов до 2020 года. Целевые показатели этой работы заложены в майском Указе Президента РФ №598 и предусматривают: повышение эффективности оказания медицинской помощи, увеличение продолжительности жизни россиян, снижение заболеваемости и смертности населения от наиболее значимых заболеваний путем обеспечения доступности качественной медицинской помощи каждому гражданину страны, а также улучшение состояния региональной инфраструктуры учреждений здравоохранения.</p>\r\n<p>\r\n	Уровень проработки региональных программ развития здравоохранения ПФО лично оценят министр здравоохранения РФ и приволжский полпред. Подобный формат совещания позволит регионам ПФО максимально тщательно проработать свои программы, которые должны быть окончательно утверждены до 1 мая 2013 г., а округу в целом подойти к реализации указа Президента РФ более системно.</p>\r\n', 0, '', '', '', 0),
 	(4, 1, '130411', 'Я лично всегда готов принять любого нижегородца, который приходит с дельным предложением - В.Хохлов', '<p>\r\n	Мы всегда готовы к диалогу с представителями общественных организаций, равно как и меценатами или частными компаниями, заинтересованными в сохранении историко-архитектурного наследия. Главное, чтобы этот диалог был конструктивным, направленным на решение проблемы.</p>\r\n', '<p>\r\n	"Мы всегда готовы к диалогу с представителями общественных организаций, равно как и меценатами или частными компаниями, заинтересованными в сохранении историко-архитектурного наследия. Главное, чтобы этот диалог был конструктивным, направленным на решение проблемы. При управлении государственной охраны объектов культурного наследия действует научно-экспертный совет, где собираются наиболее авторитетные эксперты, чтобы дать свои рекомендации. Я лично всегда готов принять любого нижегородца, который приходит с дельным предложением", - заявил журналистам Владимир Хохлов, комментируя итоги работы по сохранению историко-архитектурного наследия Нижегородской области. "Как показывает практика, привлечение частных инвесторов к реставрации памятников архитектуры оправдывает себя. Многие памятники были удачно приспособлены под современное использование, принося доход владельцам, - и при этом оставаясь украшением города.</p>\r\n<p>\r\n	Конечно, действия собственников объектов культурного наследия необходимо строго контролировать. Случаи, когда собственник памятника самовольно его разрушал, в Нижегородской области единичны, но, к моему великому сожалению, такое бывало. Главное: мы не позволяем сделать на месте разрушенного памятника какой-то новый объект – наоборот, понуждаем собственника к восстановлению старинного здания по сохранившимся документам. Это наша принципиальная позиция", - сказал В.Хохлов.</p>\r\n<p>\r\n	"Например, здание № 24 по ул. Новой в Нижнем Новгороде. По данному дому был разработан проект реставрации и приспособления для современного использования. Однако, памятник застройщиком был полностью разобран. По инициативе управления и при содействии прокуратуры Нижнего Новгорода, застройщика обязали воссоздать дом № 24 по ул. Новой. Восстановление здания в настоящее время успешно завершено", - подчеркнул В.Хохлов.</p>\r\n<p>\r\n	Напомним, в конце 2012 года губернатор Валерий Шанцев в своем блоге в «Живом Журнале» сообщил, что, по решению нижегородских блогеров и экспертов, 2013 год в регионе объявлен Годом национального культурного наследия. Валерий Шанцев подчеркнул, что история подарила Нижегородской области очень богатое наследие, и за последние годы сделано немало для его сохранения. «Восстановлено около 300 памятников, в том числе, Зачатская башня, дом Рукавишниковых, дом Бугровых, Сироткина, Шуховская башня… Это наследие, доставшееся от наших предков, которое мы должны ценить и беречь», - написал губернатор. Глава региона напомнил, что в 2012 году область отметила 400-летие народного ополчения – значимый исторический праздник, напоминающий о роли каждого поколения в истории родной страны.</p>\r\n', 0, '', '', '', 1365624000),
@@ -141,7 +136,6 @@ REPLACE INTO `article_ru` (`id`, `categoryId`, `alias`, `title`, `text1`, `text2
 /*!40000 ALTER TABLE `article_ru` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.catalog_1
-DROP TABLE IF EXISTS `catalog_1`;
 CREATE TABLE IF NOT EXISTS `catalog_1` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `alias` char(40) NOT NULL,
@@ -170,8 +164,17 @@ REPLACE INTO `catalog_1` (`id`, `alias`, `title`, `metaTitle`, `metaKeyword`, `m
 	(7, 'podkidiysh', 'Подкидыш', '', '', '', 'комедия, драмма', 1939, 'Татьяна Лукашевич', 'СССР', 'Вероника Лебедева, Фаина Раневская, Петр Репнин, Ростислав Плятт, Рина Зеленая, Ольга Жизнева, Татьяна Барышева, Дмитрий Глухов, Федор Одиноков, Николай', '<p>\r\n	Классическая</p>\r\n', '<p>\r\n	Классическая комедия советского кинематографа. Маленькая Наташа вышла из дома и потерялась в большом городе. В ее судьбе приняли участие все, кого она встретила в своем увлекательном, полном веселых приключений путешествии. Все, конечно, закончилось хорошо. А пока Наташа блуждала по городу, она приобрела много друзей и среди взрослых, и среди детей. «Подкидыш» — одна из самых известных комедий отечественного кино советского периода, а фраза «Муля, не нервируй меня» превратилась в визитную карточку Фаины Раневской.</p>\r\n', '1.7-fld8.jpg', '', '');
 /*!40000 ALTER TABLE `catalog_1` ENABLE KEYS */;
 
+-- Дамп структуры для таблица cms.chatBan
+CREATE TABLE IF NOT EXISTS `chatBan` (
+  `ip` char(26) NOT NULL,
+  `date` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Дамп данных таблицы cms.chatBan: ~0 rows (приблизительно)
+/*!40000 ALTER TABLE `chatBan` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chatBan` ENABLE KEYS */;
+
 -- Дамп структуры для таблица cms.comment
-DROP TABLE IF EXISTS `comment`;
 CREATE TABLE IF NOT EXISTS `comment` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `groupId` smallint(5) unsigned NOT NULL,
@@ -195,7 +198,6 @@ REPLACE INTO `comment` (`id`, `groupId`, `userId`, `date`, `name`, `text`, `stat
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.commentGroup
-DROP TABLE IF EXISTS `commentGroup`;
 CREATE TABLE IF NOT EXISTS `commentGroup` (
   `link` char(40) NOT NULL,
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -212,7 +214,6 @@ REPLACE INTO `commentGroup` (`link`, `id`) VALUES
 /*!40000 ALTER TABLE `commentGroup` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.demotivator
-DROP TABLE IF EXISTS `demotivator`;
 CREATE TABLE IF NOT EXISTS `demotivator` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(40) NOT NULL,
@@ -235,7 +236,6 @@ REPLACE INTO `demotivator` (`id`, `title`, `image`, `author`, `date`, `metaKeywo
 /*!40000 ALTER TABLE `demotivator` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.faq
-DROP TABLE IF EXISTS `faq`;
 CREATE TABLE IF NOT EXISTS `faq` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` char(25) NOT NULL,
@@ -256,7 +256,6 @@ REPLACE INTO `faq` (`id`, `name`, `question`, `answer`, `email`, `date`) VALUES
 /*!40000 ALTER TABLE `faq` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.forumCategory
-DROP TABLE IF EXISTS `forumCategory`;
 CREATE TABLE IF NOT EXISTS `forumCategory` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(200) NOT NULL,
@@ -277,7 +276,6 @@ REPLACE INTO `forumCategory` (`id`, `title`, `sort`, `metaTitle`, `metaKeyword`,
 /*!40000 ALTER TABLE `forumCategory` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.forumPost
-DROP TABLE IF EXISTS `forumPost`;
 CREATE TABLE IF NOT EXISTS `forumPost` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `topicId` mediumint(8) unsigned NOT NULL,
@@ -302,7 +300,6 @@ REPLACE INTO `forumPost` (`id`, `topicId`, `userId`, `date`, `message`) VALUES
 /*!40000 ALTER TABLE `forumPost` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.forumTopic
-DROP TABLE IF EXISTS `forumTopic`;
 CREATE TABLE IF NOT EXISTS `forumTopic` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `categoryId` smallint(5) unsigned NOT NULL,
@@ -326,7 +323,6 @@ REPLACE INTO `forumTopic` (`id`, `categoryId`, `userId`, `title`, `date`, `lastD
 /*!40000 ALTER TABLE `forumTopic` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.forumUser
-DROP TABLE IF EXISTS `forumUser`;
 CREATE TABLE IF NOT EXISTS `forumUser` (
   `id` int(10) unsigned NOT NULL,
   `login` char(25) NOT NULL,
@@ -345,7 +341,6 @@ REPLACE INTO `forumUser` (`id`, `login`, `date`, `ip`, `avatar`, `postCount`, `s
 /*!40000 ALTER TABLE `forumUser` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.frmField
-DROP TABLE IF EXISTS `frmField`;
 CREATE TABLE IF NOT EXISTS `frmField` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `formId` mediumint(8) unsigned NOT NULL,
@@ -380,7 +375,6 @@ REPLACE INTO `frmField` (`id`, `formId`, `title_ru`, `htmlType`, `data_ru`, `def
 /*!40000 ALTER TABLE `frmField` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.frmForm
-DROP TABLE IF EXISTS `frmForm`;
 CREATE TABLE IF NOT EXISTS `frmForm` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `title_ru` char(35) NOT NULL,
@@ -406,7 +400,6 @@ REPLACE INTO `frmForm` (`id`, `title_ru`, `email`, `subject_ru`, `successMessage
 /*!40000 ALTER TABLE `frmForm` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.menu
-DROP TABLE IF EXISTS `menu`;
 CREATE TABLE IF NOT EXISTS `menu` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(25) NOT NULL,
@@ -421,7 +414,6 @@ REPLACE INTO `menu` (`id`, `title`) VALUES
 /*!40000 ALTER TABLE `menu` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.menuItem
-DROP TABLE IF EXISTS `menuItem`;
 CREATE TABLE IF NOT EXISTS `menuItem` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `parentId` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -455,7 +447,6 @@ REPLACE INTO `menuItem` (`id`, `parentId`, `menuId`, `typeId`, `link`, `title_ru
 /*!40000 ALTER TABLE `menuItem` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.menuType
-DROP TABLE IF EXISTS `menuType`;
 CREATE TABLE IF NOT EXISTS `menuType` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(25) NOT NULL,
@@ -483,7 +474,6 @@ REPLACE INTO `menuType` (`id`, `title`, `controller`, `action`) VALUES
 /*!40000 ALTER TABLE `menuType` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.modified
-DROP TABLE IF EXISTS `modified`;
 CREATE TABLE IF NOT EXISTS `modified` (
   `link` char(120) NOT NULL,
   `time` int(10) unsigned NOT NULL,
@@ -524,7 +514,7 @@ REPLACE INTO `modified` (`link`, `time`) VALUES
 	('en/article/list/article', 1461064721),
 	('en/article/blog/article', 1461064721),
 	('en/article/view/index', 1461064716),
-	('article/view/index', 1478733912),
+	('article/view/index', 1506766789),
 	('article/view/about', 1462789962),
 	('en/article/view/about', 1462790023),
 	('article/blog/test', 1462824013),
@@ -539,7 +529,6 @@ REPLACE INTO `modified` (`link`, `time`) VALUES
 /*!40000 ALTER TABLE `modified` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.oauth
-DROP TABLE IF EXISTS `oauth`;
 CREATE TABLE IF NOT EXISTS `oauth` (
   `id` bigint(15) unsigned NOT NULL,
   `social` enum('vk','facebook') NOT NULL,
@@ -551,7 +540,6 @@ CREATE TABLE IF NOT EXISTS `oauth` (
 /*!40000 ALTER TABLE `oauth` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.payment
-DROP TABLE IF EXISTS `payment`;
 CREATE TABLE IF NOT EXISTS `payment` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `userId` int(10) unsigned DEFAULT NULL,
@@ -568,7 +556,6 @@ CREATE TABLE IF NOT EXISTS `payment` (
 /*!40000 ALTER TABLE `payment` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.section
-DROP TABLE IF EXISTS `section`;
 CREATE TABLE IF NOT EXISTS `section` (
   `name` char(20) NOT NULL,
   `url` varchar(255) DEFAULT NULL,
@@ -577,7 +564,7 @@ CREATE TABLE IF NOT EXISTS `section` (
   KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.section: 45 rows
+-- Дамп данных таблицы cms.section: 33 rows
 /*!40000 ALTER TABLE `section` DISABLE KEYS */;
 REPLACE INTO `section` (`name`, `url`, `widgetId`, `sort`) VALUES
 	('bottom', 'article/blog/news*', 9, 1),
@@ -587,14 +574,11 @@ REPLACE INTO `section` (`name`, `url`, `widgetId`, `sort`) VALUES
 	('footer', 'catalog/1/', 51, 1),
 	('right', 'article/view/about.', 13, 4),
 	('right', 'article/list/article/', 13, 4),
-	('right', 'article/view/about.', 16, 5),
-	('right', 'faq.', 16, 5),
-	('right', 'form/1000/', 16, 5),
-	('right', 'article/view/about.', 17, 6),
-	('right', 'form/1000/', 17, 6),
+	('right', 'article/view/about.', 17, 5),
+	('right', 'form/1000/', 17, 5),
 	('bottom', 'article/view/index.', 53, 2),
-	('right', 'faq/', 54, 7),
-	('right', 'form/1000.', 54, 7),
+	('right', 'faq/', 54, 6),
+	('right', 'form/1000.', 54, 6),
 	('footer', 'faq/', 51, 1),
 	('footer', '#/', 51, 1),
 	('footer', 'article/view/index/', 51, 1),
@@ -603,32 +587,22 @@ REPLACE INTO `section` (`name`, `url`, `widgetId`, `sort`) VALUES
 	('footer', 'article/blog/news/', 51, 1),
 	('footer', 'article/list/article/', 51, 1),
 	('footer', 'article/view/about/', 51, 1),
-	('right', 'article/view/about.', 58, 8),
-	('right', 'article/view/index.', 58, 8),
+	('right', 'article/view/about.', 58, 7),
+	('right', 'article/view/index.', 58, 7),
 	('top', 'user/register.', 63, 1),
 	('top', 'user/login.', 63, 1),
-	('right', 'article/list/article/', 66, 9),
+	('right', 'article/list/article/', 66, 8),
 	('top', 'catalog/1/', 68, 2),
-	('right', 'shop/', 15, 10),
+	('right', 'shop/', 15, 9),
 	('right', 'article/view/index.', 14, 1),
 	('right', 'shop/', 14, 1),
 	('bottom', 'article/view/index.', 6, 3),
 	('bottom', 'form/1000.', 77, 4),
 	('bottom', 'article/view/index.', 78, 5),
-	('bottom', 'article/list/article*', 79, 6),
-	('right', 'article/view/index.', 80, 11),
-	('right', 'article/view/about.', 80, 11),
-	('right', 'article/list/article.', 80, 11),
-	('right', 'article/blog/news.', 80, 11),
-	('right', 'faq.', 80, 11),
-	('right', '#/', 80, 11),
-	('right', 'forum/', 80, 11),
-	('right', 'chat.', 80, 11),
-	('right', 'form/1000.', 80, 11);
+	('bottom', 'article/list/article*', 79, 6);
 /*!40000 ALTER TABLE `section` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpBrand
-DROP TABLE IF EXISTS `shpBrand`;
 CREATE TABLE IF NOT EXISTS `shpBrand` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(50) NOT NULL,
@@ -648,7 +622,6 @@ REPLACE INTO `shpBrand` (`id`, `title`, `image`, `text1`) VALUES
 /*!40000 ALTER TABLE `shpBrand` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpCategory
-DROP TABLE IF EXISTS `shpCategory`;
 CREATE TABLE IF NOT EXISTS `shpCategory` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `parentId` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -675,7 +648,6 @@ REPLACE INTO `shpCategory` (`id`, `parentId`, `alias`, `title`, `text1`, `sort`,
 /*!40000 ALTER TABLE `shpCategory` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpFeature
-DROP TABLE IF EXISTS `shpFeature`;
 CREATE TABLE IF NOT EXISTS `shpFeature` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `type` enum('text','checkbox','select') NOT NULL,
@@ -701,7 +673,6 @@ REPLACE INTO `shpFeature` (`id`, `type`, `groupId`, `title`, `unit`, `variant`, 
 /*!40000 ALTER TABLE `shpFeature` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpFeatureGroup
-DROP TABLE IF EXISTS `shpFeatureGroup`;
 CREATE TABLE IF NOT EXISTS `shpFeatureGroup` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
@@ -718,7 +689,6 @@ REPLACE INTO `shpFeatureGroup` (`id`, `title`) VALUES
 /*!40000 ALTER TABLE `shpFeatureGroup` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpProduct
-DROP TABLE IF EXISTS `shpProduct`;
 CREATE TABLE IF NOT EXISTS `shpProduct` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `categoryId` smallint(5) unsigned NOT NULL,
@@ -752,7 +722,6 @@ REPLACE INTO `shpProduct` (`id`, `categoryId`, `brandId`, `alias`, `title`, `tex
 /*!40000 ALTER TABLE `shpProduct` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpProductFeature
-DROP TABLE IF EXISTS `shpProductFeature`;
 CREATE TABLE IF NOT EXISTS `shpProductFeature` (
   `productId` int(10) unsigned NOT NULL,
   `featureId` smallint(5) unsigned NOT NULL,
@@ -788,7 +757,6 @@ REPLACE INTO `shpProductFeature` (`productId`, `featureId`, `value`) VALUES
 /*!40000 ALTER TABLE `shpProductFeature` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpProductGroup
-DROP TABLE IF EXISTS `shpProductGroup`;
 CREATE TABLE IF NOT EXISTS `shpProductGroup` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(30) NOT NULL,
@@ -802,7 +770,6 @@ REPLACE INTO `shpProductGroup` (`id`, `title`) VALUES
 /*!40000 ALTER TABLE `shpProductGroup` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpProductGroupItem
-DROP TABLE IF EXISTS `shpProductGroupItem`;
 CREATE TABLE IF NOT EXISTS `shpProductGroupItem` (
   `groupId` smallint(5) unsigned NOT NULL,
   `productId` int(10) unsigned NOT NULL
@@ -815,7 +782,6 @@ REPLACE INTO `shpProductGroupItem` (`groupId`, `productId`) VALUES
 /*!40000 ALTER TABLE `shpProductGroupItem` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.shpVariant
-DROP TABLE IF EXISTS `shpVariant`;
 CREATE TABLE IF NOT EXISTS `shpVariant` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `productId` int(10) unsigned NOT NULL,
@@ -831,11 +797,10 @@ REPLACE INTO `shpVariant` (`id`, `productId`, `title`, `feature`) VALUES
 /*!40000 ALTER TABLE `shpVariant` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.user
-DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `groupId` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `login` char(25) NOT NULL,
+  `login` char(35) NOT NULL,
   `password` char(32) NOT NULL,
   `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `email` char(30) DEFAULT NULL,
@@ -852,7 +817,6 @@ REPLACE INTO `user` (`id`, `groupId`, `login`, `password`, `status`, `email`, `c
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.userGroup
-DROP TABLE IF EXISTS `userGroup`;
 CREATE TABLE IF NOT EXISTS `userGroup` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` char(20) NOT NULL,
@@ -869,7 +833,6 @@ REPLACE INTO `userGroup` (`id`, `name`) VALUES
 /*!40000 ALTER TABLE `userGroup` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.userMessage
-DROP TABLE IF EXISTS `userMessage`;
 CREATE TABLE IF NOT EXISTS `userMessage` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user1Id` int(10) unsigned NOT NULL,
@@ -890,7 +853,6 @@ REPLACE INTO `userMessage` (`id`, `user1Id`, `user1Login`, `user2Id`, `user2Logi
 /*!40000 ALTER TABLE `userMessage` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.userRight
-DROP TABLE IF EXISTS `userRight`;
 CREATE TABLE IF NOT EXISTS `userRight` (
   `module` char(30) NOT NULL,
   `groupId` varchar(255) DEFAULT NULL,
@@ -944,7 +906,6 @@ REPLACE INTO `userRight` (`module`, `groupId`, `description`, `picture`) VALUES
 /*!40000 ALTER TABLE `userRight` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.vote
-DROP TABLE IF EXISTS `vote`;
 CREATE TABLE IF NOT EXISTS `vote` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `question` varchar(300) NOT NULL,
@@ -961,7 +922,6 @@ REPLACE INTO `vote` (`id`, `question`, `answer`, `result`, `ip`) VALUES
 /*!40000 ALTER TABLE `vote` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.widget
-DROP TABLE IF EXISTS `widget`;
 CREATE TABLE IF NOT EXISTS `widget` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `groupId` tinyint(3) unsigned DEFAULT NULL,
@@ -972,12 +932,12 @@ CREATE TABLE IF NOT EXISTS `widget` (
   `publicTitle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `section` char(20) NOT NULL,
   `title_en` char(35) DEFAULT NULL,
-  `cssClass` char(30) DEFAULT NULL,
+  `cssClass` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `section` (`section`)
 ) ENGINE=MyISAM AUTO_INCREMENT=81 DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.widget: 18 rows
+-- Дамп данных таблицы cms.widget: 16 rows
 /*!40000 ALTER TABLE `widget` DISABLE KEYS */;
 REPLACE INTO `widget` (`id`, `groupId`, `name`, `data`, `cache`, `title_ru`, `publicTitle`, `section`, `title_en`, `cssClass`) VALUES
 	(6, NULL, 'shopProductGroup', '1', 30, 'Избранные товары', 1, 'bottom', 'Favorite Products', NULL),
@@ -988,7 +948,6 @@ REPLACE INTO `widget` (`id`, `groupId`, `name`, `data`, `cache`, `title_ru`, `pu
 	(11, NULL, 'html', 'right.2', 0, 'Демотиватор (текст)', 0, 'right', 'Демотиватор (текст)', NULL),
 	(51, NULL, 'html', 'footer.1', 0, 'Копирайты', 0, 'footer', 'Копирайты', NULL),
 	(13, NULL, 'articleBlog', 'a:4:{s:10:"categoryId";s:1:"2";s:8:"linkType";s:4:"list";s:12:"countPreview";i:0;s:9:"countLink";i:100;}', 0, 'Статьи', 1, 'right', 'Articles', NULL),
-	(16, NULL, 'chat', 'a:2:{s:2:"id";i:1;s:5:"count";i:5;}', 0, 'Тем временем в чате...', 1, 'right', 'This time in the chat...', NULL),
 	(17, NULL, 'form', '1002', 30, 'Обратный звонок', 1, 'right', 'Callback', NULL),
 	(58, NULL, 'articleBlog', 'a:4:{s:10:"categoryId";s:1:"1";s:8:"linkType";s:4:"blog";s:12:"countPreview";i:3;s:9:"countLink";i:0;}', 0, 'Новости', 1, 'right', 'News', NULL),
 	(53, NULL, 'html', 'bottom.1', 0, 'С праздником!!!!', 1, 'bottom', 'Happy Holidays!!!', NULL),
@@ -996,12 +955,10 @@ REPLACE INTO `widget` (`id`, `groupId`, `name`, `data`, `cache`, `title_ru`, `pu
 	(68, NULL, 'catalogSearch', 'a:2:{s:2:"id";s:1:"1";s:3:"fld";a:2:{s:5:"title";b:1;s:4:"year";a:4:{s:3:"min";d:1900;s:3:"max";d:2015;s:4:"step";d:1;s:5:"range";b:1;}}}', 0, 'Поиск', 1, 'top', 'Search', NULL),
 	(63, NULL, 'oauth', 'a:2:{s:8:"register";b:0;s:2:"vk";a:2:{i:0;s:3:"111";i:1;s:3:"222";}}', 0, 'Войти через...', 0, 'top', 'Войти через...', NULL),
 	(66, NULL, 'html', 'right.3', 0, 'Произвольный текст', 0, 'right', 'Произвольный текст', NULL),
-	(77, NULL, 'map', 'a:6:{s:2:"id";i:68;s:14:"centerLatitude";d:43.133643865585;s:15:"centerLongitude";d:55.958936550308998;s:4:"zoom";i:10;s:4:"type";s:7:"ROADMAP";s:6:"marker";a:1:{i:0;a:3:{s:5:"title";s:18:"Я живу тут";s:8:"latitude";d:43.084396439491002;s:9:"longitude";d:55.973300787063003;}}}', 0, 'Как проехать', 1, 'bottom', 'How Can I Get To', NULL),
-	(80, NULL, 'chat', '', 0, 'Тем временем в чате', 1, 'right', 'Тем временем в чате', NULL);
+	(77, NULL, 'map', 'a:6:{s:2:"id";i:68;s:14:"centerLatitude";d:43.133643865585;s:15:"centerLongitude";d:55.958936550308998;s:4:"zoom";i:10;s:4:"type";s:7:"ROADMAP";s:6:"marker";a:1:{i:0;a:3:{s:5:"title";s:18:"Я живу тут";s:8:"latitude";d:43.084396439491002;s:9:"longitude";d:55.973300787063003;}}}', 0, 'Как проехать', 1, 'bottom', 'How Can I Get To', NULL);
 /*!40000 ALTER TABLE `widget` ENABLE KEYS */;
 
 -- Дамп структуры для таблица cms.widgetType
-DROP TABLE IF EXISTS `widgetType`;
 CREATE TABLE IF NOT EXISTS `widgetType` (
   `name` char(20) NOT NULL,
   `title` char(35) NOT NULL,
@@ -1010,7 +967,7 @@ CREATE TABLE IF NOT EXISTS `widgetType` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Дамп данных таблицы cms.widgetType: 18 rows
+-- Дамп данных таблицы cms.widgetType: 20 rows
 /*!40000 ALTER TABLE `widgetType` DISABLE KEYS */;
 REPLACE INTO `widgetType` (`name`, `title`, `controller`, `action`) VALUES
 	('html', 'Произвольный текст', 'html', 'widgetHtml'),
@@ -1030,7 +987,9 @@ REPLACE INTO `widgetType` (`name`, `title`, `controller`, `action`) VALUES
 	('oauth', 'Регистрация и авторизация OAuth 2.0', 'oauth', 'widget'),
 	('shopProductGroup', 'Магазин: группа товаров', 'shopSetting', 'widgetProductGroup'),
 	('map', 'Карта Google', 'map', 'widgetMap'),
-	('articleList', 'Список статей в категории', 'article', 'widgetList');
+	('articleList', 'Список статей в категории', 'article', 'widgetList'),
+	('divOpen', 'DIV: открывающий блок', 'div', 'widgetOpen'),
+	('divClose', 'DIV: закрывающий блок', 'div', 'widgetClose');
 /*!40000 ALTER TABLE `widgetType` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

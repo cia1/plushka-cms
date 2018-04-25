@@ -33,6 +33,7 @@
 	'config/shop.php',
 	'controller/checkout.php',
 	'controller/shop.php',
+	'data/email/shopOrder.html',
 	'data/shopAfter.php',
 	'hook/search.shop.php',
 	'model/shop.php',

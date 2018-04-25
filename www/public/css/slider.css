@@ -1,8 +1,0 @@
-.widgetslider > div {position:relative;overflow:hidden;}
-.sliderContainer {width:99999px;}
-.sliderContainer .item {position:relative;float:left;}
-.sliderContainer .bg {height:auto;width:300px;} /* обязательно переопределить в шаблоне width (для горизонтальной прокрутки) или heigh (для вертикальной прокрутки), или же определить размер блока (.item) */
-.sliderContainer .inner {position:absolute;bottom:10px;left:0;}
-
-.noOneFreeHorizontal .prev {position:absolute;z-index:2;left:0;top:49%;}
-.noOneFreeHorizontal .next {position:absolute;z-index:2;right:0;top:49%;}

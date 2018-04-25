@@ -4,6 +4,7 @@
 'widget'=>'chat',
 'file'=>array(
 	'admin/controller/chat.php',
+	'admin/model/chat.php',
 	'config/chat.php',
 	'config/chat-blacklist.php',
 	'controller/chat.php',
@@ -15,6 +16,8 @@
 	'public/smile.png',
 	'view/chatIndex.php',
 	'view/widgetChat.php',
-	'widget/chat.php'
+	'view/widgetChatForm.php',
+	'widget/chat.php',
+	'widget/chatForm.php'
 )
 );

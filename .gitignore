@@ -1,4 +1,4 @@
-cache/*
-config/_core.php
-data/widgetHtml/*
-tmp/
+www/cache/*
+www/config/_core.php
+www/data/widgetHtml/*
+www/tmp/

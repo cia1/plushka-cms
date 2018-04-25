@@ -5,6 +5,7 @@
 'table'=>'frmForm(title),frmField',
 'file'=>array(
 	'admin/controller/form.php',
+	'admin/hook/languageCreate.form.php',
 	'admin/hook/menuItemDelete.form.php',
 	'admin/hook/widgetDelete.form.php',
 	'admin/model/form.php',
