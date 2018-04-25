@@ -19,5 +19,8 @@
 'article/blog/news'=>'red'
 ),
 'languageDefault'=>'ru',
-'languageList'=>array('ru','en')
+'languageList'=>array(
+'ru',
+'en'
+)
 );

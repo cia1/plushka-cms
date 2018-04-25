@@ -278,24 +278,31 @@ class core {
 		if(is_string($options) && isset($options[1]) && $options[1]==':') $options=unserialize($options);
 		elseif(is_array($options) && count($options)==1 && isset($options['_content'])) $options=$options['_content'];
 		//Нужно ли кешировать?
-		$debug=self::debug();
-		if($cacheTime && !$debug) {
+		if($cacheTime && self::debug()) $cacheTime=false;
+
+		if($cacheTime) {
 			if(is_array($options)) {
 				$f='';
 				ksort($options);
 				foreach($options as $index=>$value) $f.=$index.$value;
 			} else $f=$options;
 			$f=md5($f);
-			$cacheFile=self::path().'cache/widget/'.$name.'.'.$f.'.html';
-			if(file_exists($cacheFile)) {
-				$f=filemtime($cacheFile)+$cacheTime*60;
+			$cacheFile=self::path().'cache/widget/'.$name.'.'.$f;
+			$content=$cacheFile.'.html';
+			if(file_exists($content)) {
+				$f=filemtime($content)+$cacheTime*60;
 				if($f>time()) {
-					include($cacheFile);
+					echo '<section class="widget'.$name.$cssClass.'">';
+					$cacheFile.='.json';
+					if(file_exists($cacheFile)) self::_widgetAdmin(json_decode(file_get_contents($cacheFile),true));
+					$content=file_get_contents($content);
+					echo $content;
+					echo '<div style="clear:both;"></div></section>';
 					return;
 				}
 			}
-			ob_start();
 		}
+
 		$f=self::path().'override/widget/'.$name.'.php';
 		if(file_exists($f)) include_once($f);
 		else include_once(self::path().'widget/'.$name.'.php');
@@ -306,24 +313,35 @@ class core {
 		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
 			echo '<section class="widget'.$name.$cssClass.'">';
 			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
-			$user=core::userCore();
-			if($user->group>=200) {
-				$admin=new admin();
-				$link=$w->adminLink();
-				foreach($link as $item) {
-					if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
-				}
-			}
-			if($title) $w->title($title); //Вывод заголовка
+			$cacheAdmin=self::_widgetAdmin($w,true);
+			if($cacheTime) ob_start();
+			if($title) $w->title($title); //вывод заголовка
 			if(is_object($view)) $view->render(); else $w->render($view);
-			echo '<div style="clear:both;"></div></section>';
 		}
-		if($cacheTime && !$debug) {
-			$f=fopen($cacheFile,'w');
-			fwrite($f,ob_get_contents());
+		if($cacheTime) {
+			$f=fopen($cacheFile.'.html','w');
+			fwrite($f,ob_get_flush());
 			fclose($f);
-			ob_end_flush();
+			if($cacheAdmin!==false) {
+				$f=fopen($cacheFile.'.json','w');
+				fwrite($f,json_encode($cacheAdmin));
+				fclose($f);
+			}
 		}
+		echo '<div style="clear:both;"></div></section>';
+	}
+
+	//Выводит кнопки админки для виджета и возвращает кеш, если это необходимо.
+	//$data - экземпляр виджета или массив ссылок
+	private static function _widgetAdmin($data,$cache=false) {
+		$user=core::userCore();
+		if($user->group<200) return false;
+		$admin=new admin();
+		if(is_object($data)) $data=$data->adminLink();
+		foreach($data as $item) {
+			if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
+		}
+		return ($cache ? $data : null);
 	}
 
 	/* Генерирует HTML-представление секции. Обрабатывает {{section}}
