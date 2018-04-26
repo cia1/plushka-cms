@@ -11,14 +11,15 @@ class sController extends controller {
 		$items=module::getList();
 		$status=array(0=>'не установлен',1=>'установка, шаг 2',2=>'установка, шаг 3',3=>'установка, шаг 4',4=>'установка, шаг 5',5=>'установка, шаг 6',6=>'установка, шаг 7',7=>'установка, шаг 8',8=>'установка, шаг 9',100=>'работает');
 		//Сформировать таблицу (список модулей)
-		$t=core::table();
-		$t->rowTh('ID|Модуль|Версия|Состояние|URL|');
+		$table=core::table();
+		$table->rowTh('ID|Модуль|Версия|Состояние|URL|<input type="submit" class="buttom" value="Удалить">|');
 		foreach($items as $i=>$item) {
-			$t->text($i);
-			$t->text($item['name']);
-			$t->text($item['version']);
-			$t->text($status[$item['status']]);
-			$t->text($item['url']);
+			$table->text($i);
+			$table->text($item['name']);
+			$table->text($item['version']);
+			$table->text($status[$item['status']]);
+			$table->text($item['url']);
+			$table->checkbox(false,'id',$i);
 			//Ссылка "удалить" или "отменить", "продолжить установку" в зависимости от состояния модуля
 			if($i=='core') $s='';
 			else {
@@ -26,10 +27,11 @@ class sController extends controller {
 				else $s='<a href="'.core::link('?controller=module&action=uninstall&id='.$i).'" onclick="return confirm(\'Подтвердите отмену установки\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
 				if($item['status']<99) $s.=' | <a href="'.core::link('?controller=module&action=installTmp&id='.$i).'">Продолжить</a>';
 			}
-			$t->text($s,null,'style="text-align:center;"');
+			$table->text($s,null,'style="text-align:center;"');
 		}
+		$this->table=$table;
 		$this->cite='<u>Внимание</u>! Удаление или некорректная установка многих модулей может привести к нарушению работоспособности сайта. Некоторые модули в представленном списке являются необходимыми для корректной работы системы.';
-		return $t;
+		return 'Index';
 	}
 
 	protected function helpIndex() {
@@ -118,26 +120,32 @@ class sController extends controller {
 	/* Начинает процесс удаления модуля */
 	public function actionUninstall() {
 		core::import('admin/model/module');
-		$module=core::configAdmin('../module/'.$_GET['id']); //Информация об установленном модуле
-		module::explodeData($module); //В конфигурации информация хранится в сжатом виде - разобрать её на массивы
-		$module['id']=$_GET['id']; //Идентификатор модуля (строка)
-		$db=core::db();
+		if(!is_array($_GET['id'])) $_GET['id']=array($_GET['id']);
+		foreach($_GET['id'] as $id) {
+			$module=core::configAdmin('../module/'.$id); //Информация об установленном модуле
+			module::explodeData($module); //В конфигурации информация хранится в сжатом виде - разобрать её на массивы
+			$module['id']=$id; //Идентификатор модуля (строка)
+			if(!self::_uninstall($module)) return $this->actionIndex();
+			unset($module);
+		}
+die("END");
+		core::redirect('?controller=module','Модуль удалён');
+	}
+/* ----------------------------------------------------------------------------------- */
+
+
+/* ----------- PRIVATE --------------------------------------------------------------- */
+	private static function _uninstall($module) {
 		//Сразу же убрать права текущего пользователя, чтоб не пришлось делать "выйти-войти"
 		if(!$module['currentVersion']) {
 			$u=core::user();
 			foreach($module['right'] as $item) {
 				if(isset($u->right[$item])) unset($u->right[$item]);
 			}
-			if(self::_uninstall1($module)) core::redirect('?controller=module','Модуль удалён'); //Нужный этап удаления
-		} else {
-			if(self::_uninstall2($module)) core::redirect('?controller=module','Модуль удалён'); //Нужный этап удаления
-		}
-		return $this->actionIndex();
+			return self::_uninstall1($module);
+		} else return self::_uninstall2($module);
 	}
-/* ----------------------------------------------------------------------------------- */
 
-
-/* ----------- PRIVATE --------------------------------------------------------------- */
 	/* Проверяет зависимости модуля от других (ему может потребоваться для работы какой-то модуль) */
 	private static function _install0(&$module) {
 		//$depend - список зависимостей в виде строки "module1 ver 1.0, module2 ver 1.4..."
@@ -257,7 +265,7 @@ class sController extends controller {
 	private static function _uninstall1(&$module) {
 		core::import('admin/model/module');
 		//Запретить удаление, если этот модуль необходим для работы других
-		$depend=module::dependSearch($_GET['id']);
+		$depend=module::dependSearch($module['id']);
 		if($depend) {
 			core::error('Этот модуль используется другими модулями: &laquo;'.implode('&raquo;,&laquo;',$depend).'&raquo;. Удаление невозможно.');
 			return false;
@@ -285,7 +293,7 @@ class sController extends controller {
 			core::error('Удаление модуля невозможно: существуют созданные виджеты (&laquo;'.$s.'&raquo;). Сначала удалите их.');
 			return false;
 		}
-		module::status($_GET['id'],99);
+		module::status($module['id'],99);
 		return self::_uninstall2($module);
 	}
 

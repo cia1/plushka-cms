@@ -18,12 +18,6 @@ class module {
 			$data['menu']=explode(',',$data['menu']);
 			for($i=0,$cnt=count($data['menu']);$i<$cnt;$i++) $data['menu'][$i]=trim($data['menu'][$i]);
 		} else $data['menu']=array();
-//		if(isset($data['hook1']) && $data['hook1']) { //события (порождённые модулем) общедоступной части сайта
-//			$data['hook1']=explode(',',$data['hook1']);
-//		} else $data['hook1']=array();
-//		if(isset($data['hook2']) && $data['hook2']) { //события (порождённые модулем) админки
-//			$data['hook2']=explode(',',$data['hook2']);
-//		} else $data['hook2']=array();
 		if(isset($data['table']) && $data['table']) { //список таблиц БД
 			$data['table']=explode(',',$data['table']);
 			for($i=0,$cnt=count($data['table']);$i<$cnt;$i++) $data['table'][$i]=trim($data['table'][$i]);
@@ -365,9 +359,12 @@ class module {
 	/* Удаляет информацию о модуле и его конфигурационный файл */
 	public static function delete($id) {
 		unlink(core::path().'admin/module/'.$id.'.php');
-		$cfg=new config('admin/_module');
-		unset($cfg->$id);
-		$cfg->save('admin/_module');
+		if(!self::$_config) {
+			core::import('admin/core/config');
+			self::$_config=new config('admin/_module');
+		}
+		unset(self::$_config->$id);
+		self::$_config->save('admin/_module');
 		return true;
 	}
 
