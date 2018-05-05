@@ -203,6 +203,12 @@
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),
+'rating'=>array(
+	'name'=>'Хелпер рейтинга записей БД',
+	'version'=>'1.0',
+	'status'=>100,
+	'url'=>'http://plushka-cms.ru'
+),
 'search'=>array(
 'name'=>'Поиск по сайту',
 'version'=>'1.0',

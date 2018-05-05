@@ -3,16 +3,20 @@
 
 abstract class rating {
 
+	//Метод должен возвращать имя таблицы, к которой привязывается рейтинг
 	protected static abstract function table();
 
+	//Псевдоним таблицы, используетс в SQL-запросах
 	protected static function alias() {
 		return static::table();
 	}
 
+	//Имя первичного ключа таблицы
 	protected static function primaryKey() {
 		return 'id';
 	}
 
+	//Имя поля, содержащего рейтинг (число) запии
 	protected static function field() {
 			return 'rating';
 	}
@@ -25,15 +29,16 @@ abstract class rating {
 	//Возвращает часть SQL-запроса, секция LEFT JOIN
 	public static function sqlLeftJoin() {
 		$db=core::db();
-		return ' LEFT JOIN rating ON rating.table='.$db->escape(static::table()).' AND rating.rowId='.static::alias().'.'.static::primaryKey().' AND rating.ip='.$db->escape(static::ip());
+		return ' LEFT JOIN rating ON rating.tableName='.$db->escape(static::table()).' AND rating.rowId='.static::alias().'.'.static::primaryKey().' AND rating.ip='.$db->escape(static::ip());
 	}
 
-	//Возвращает рейтинг для указанной записи таблицы БД
+	//Возвращает рейтинг для указанной записи таблицы БД и текущего пользователя
 	public static function getRating($rowId) {
 		$db=core::db();
-		return (float)$db->fetchValue('SELECT rating FROM rating WHERE table='.$db->escape($table).' AND rowId='.(int)$rowId.' AND ip='.$db->escape(self:_ip())));
+		return (float)$db->fetchValue('SELECT rating FROM rating WHERE tableName='.$db->escape($table).' AND rowId='.(int)$rowId.' AND ip='.$db->escape(self:_ip())));
 	}
 
+	//Задаёт рейтинг для указанной записи таблицы БД и текущего пользователя
 	public static function setRating($rowId,$value) {
 		$value=(int)$value;
 		if(!$value) return false;
@@ -41,9 +46,9 @@ abstract class rating {
 		if($value==$rating) return false;
 		$db=core::db();
 		if($rationg) {
-			$db->query('UPDATE rating SET value='.$value.' WHERE table='.$db->escape(static::table()).' AND rowId='.(int)$rowId.' AND ip='.$db->escape(self::_ip()));
+			$db->query('UPDATE rating SET value='.$value.' WHERE tableName='.$db->escape(static::table()).' AND rowId='.(int)$rowId.' AND ip='.$db->escape(self::_ip()));
 		} else {
-			$db->query('INSERT INTO rating (table,rowId,value,ip) VALUES ('.$db->escape(static::table()).','.(int)$rowId.','.$value.','.$db->escape(self::_ip()).')');
+			$db->query('INSERT INTO rating (tableName,rowId,value,ip) VALUES ('.$db->escape(static::table()).','.(int)$rowId.','.$value.','.$db->escape(self::_ip()).')');
 		}
 		return $db->query('UPDATE '.static::table().' SET '.static::field().'='.static::field().'-'.$rating.'+'.$value);
 	}
@@ -60,11 +65,4 @@ abstract class rating {
 }
 
 /*
-CREATE TABLE rating (
-	userId INT UNSIGNED NOT NULL DEFAULT 0,
-	table CHAR(20) NOT NULL,
-	rowId INT UNSIGNED NOT NULL,
-	ip CHAR(15) NOT NULL,
-	rating VARCHAR(50)
-);
 */
