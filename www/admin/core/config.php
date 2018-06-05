@@ -13,7 +13,8 @@ class config implements IteratorAggregate {
 	}
 
 	/* Загружает в $this->_data конфигурацию из указанного файла */
-	public function load($fname) {
+	public function load($fname=null) {
+		if($fname===null && property_exists($this,'fileName')) $fname=$this->fileName;
 		if(substr($fname,0,6)=='admin/') $f=core::path().'admin/config/'.substr($fname,6).'.php'; else $f=core::path().'config/'.$fname.'.php';
 		if(!file_exists($f)) {
 			core::error('Конфигурации '.$fname.' не существует');
@@ -49,7 +50,8 @@ class config implements IteratorAggregate {
 	}
 
 	/* Сохраняет конфигурацию в php-файл */
-	public function save($fname) {
+	public function save($fname=null) {
+		if($fname===null && property_exists($this,'fileName')) $fname=$this->fileName;
 		if(substr($fname,0,6)=='admin/') $fname=core::path().'admin/config/'.substr($fname,6).'.php'; else $fname=core::path().'config/'.$fname.'.php';
 		$f=fopen($fname,'w');
 		if(!$f) {
