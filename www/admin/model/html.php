@@ -4,6 +4,7 @@ class html {
 
 	private $_fileName;
 	public $html;
+	public $section;
 
 	//Генерирует имя файла для указанной секции
 	public static function fileNameBySection($section) {
@@ -23,8 +24,9 @@ class html {
 	}
 
 	//Инициализирует пустой текст
-	public function init() {
+	public function init($section=null) {
 		$this->html='';
+		$this->section=$section;
 		return true;
 	}
 
@@ -44,6 +46,7 @@ class html {
 	//Возвращает экземпляр класса form для редактирования текста
 	public function form() {
 		$form=core::form();
+		$form->hidden('section',$this->section);
 		$form->hidden('fileName',$this->_fileName);
 		$form->editor('html','Текст',$this->html);
 		$form->submit();
