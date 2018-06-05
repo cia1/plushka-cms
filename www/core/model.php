@@ -19,7 +19,7 @@ class model extends validator {
 
 	//Устанавливает мультиязычный режим
 	public function multiLanguage($value=true) {
-		$this->_multiLanguage=$value;
+		$this->_multiLanguage=(bool)$value;
 	}
 
 	/* Загружает данные из БД по указанному условию
@@ -28,30 +28,42 @@ class model extends validator {
 	ВАЖНО! В целом нужно анализировать _languageDb и добавлять суффикс языка к именам полей, но оставлю это для следующих версий.
 	*/
 	public function load($where,$fieldList=null) {
-		if(!$fieldList) $fieldList=$this->fieldList('load');
-		if($this->_languageDb===null) $this->_setLanguageDb();
-		if(is_array($this->_languageDb)) {
-			if($fieldList==='*') $fieldList=array_keys($this->rule());
-			if(is_string($fieldList)) $fieldList=explode(',',$fieldList);
-			$s='';
-			foreach($fieldList as $item) {
-				if($s) $s.=',';
-				$s.=$item;
-				if(in_array($item,$this->_languageDb)) $s.='_'._LANG.' '.$item;
+		if($this->_multiLanguage===true && $this->_languageDb===null) $this->_setLanguageDb();
+		if($fieldList!=='*') {
+			if($fieldList===null) $fieldList=$this->fieldList(false);
+			if($this->_multiLanguage===true) {
+				if(is_array($this->_languageDb)) {
+					if($fieldList==='*') $fieldList=array_keys($this->rule());
+					if(is_string($fieldList)) $fieldList=explode(',',$fieldList);
+					$s='';
+					foreach($fieldList as $item) {
+						if($s) $s.=',';
+						$s.=$item;
+						if(in_array($item,$this->_languageDb)) $s.='_'._LANG.' '.$item;
+					}
+					$fieldList=$s;
+					unset($s);
+				}
 			}
-			$fieldList=$s;
-			unset($s);
+			if(is_array($fieldList)) $fieldList=implde(',',$fieldList);
 		}
-		if(is_array($fieldList)) $fieldList=implde(',',$fieldList);
 		$this->_data=$this->db->fetchArrayOnceAssoc('SELECT '.$fieldList.' FROM `'.$this->_table.($this->_languageDb===true ? '_'._LANG : '').'` WHERE '.$where);
 		if(!$this->_data) return false;
+		//Если данамическое использование, мультиязычный режим и указаны все поля (*), то выбрать поля только для одного языка
+		if($this->_multiLanguage===true && $fieldList==='*' && is_array($this->_languageDb)) {
+			$lang=core::config('_core','languageList');
+			foreach($this->_languageDb as $attribute) {
+				$this->_data[$attribute]=$this->_data[$attribute.'_'._LANG];
+				foreach($lang as $item) unset($this->_data[$attribute.'_'.$item]);
+			}
+		}
 		return true;
 	}
 
 	/* Загружает данные записи по первичному ключу */
-	public function loadById($id,$fields=null) {
+	public function loadById($id,$fieldList=null) {
 		$this->_data['id']=(int)$id;
-		return $this->load('id='.$this->_data['id'],$fields);
+		return $this->load('id='.$this->_data['id'],$fieldList);
 	}
 
 	/*
@@ -60,7 +72,7 @@ class model extends validator {
 	*/
 	public function validate($rule=null) {
 		if($rule===null) {
-			$rule=explode(',',$this->fieldList('save'));
+			$rule=explode(',',$this->fieldList(true));
 			$rule=array_intersect_key($this->rule(),array_combine($rule,$rule));
 		}
 		if(parent::validate($rule)===false) return false;
@@ -74,7 +86,7 @@ class model extends validator {
 	public function save($validate=null,$primaryAttribute=null) {
 		//Валидация
 		if($validate===null || $validate===true || is_string($validate)) {
-			if($validate===null || $validate===true) $validate=$this->fieldList('save');
+			if($validate===null || $validate===true) $validate=$this->fieldList(true);
 			if(is_string($validate)) $validate=explode(',',$validate);
 			if($validate[0]=='*') $validate=$this->rule();
 			else $validate=array_intersect_key($this->rule(),array_combine($validate,$validate));
@@ -93,9 +105,8 @@ class model extends validator {
 		}
 		//Поиск первичного ключа (если не был определён в методе validate() )
 		if($primaryAttribute!==null) $this->primaryAttribute=$primaryAttribute;
-//		if(is_string($validate)) $validate=explode(',',$validate);
-		if($this->primaryAttribute===null && $primaryAttribute!==false && method_exists($this,'rule')) { //ситуация: первичный ключ указан явно, но валидация не требуется
-			$validate=$this->rule('save');
+		if($this->primaryAttribute===null && $primaryAttribute!==false) { //ситуация: первичный ключ указан явно, но валидация не требуется
+			$validate=$this->rule();
 			foreach($validate as $attribute=>$setting) {
 				if($setting[0]==='primary') {
 					$this->primaryAttribute=$attribute;
@@ -122,28 +133,35 @@ class model extends validator {
 
 	/* Удаляет запись по первичному ключу */
 	public function delete($id=null,$affected=false) {
-		if(!$id) $id=$this->id; else $id=(int)$id;
-		if($this->_multiLanguage) {
-			if($this->_languageDb===null) $this->_setLanguageDb();
-		} else $multiLanguage=false;
-		if($this->_languageDb===true) {
+		if($id===null) $id=$this->id; else $id=(int)$id;
+		if($this->_languageDb===null) $this->_setLanguageDb();
+
+		if($this->_multiLanguage===true && $this->_languageDb===true) {
 			$lang=core::config('_core','languageList');
 			foreach($lang as $item) {
 				$this->db->query('DELETE FROM '.$this->_table.'_'.$item.' WHERE id='.$id);
 			}
-		} else $this->db->query('DELETE FROM '.$this->_table.' WHERE id='.$id);
+		} else $this->db->query('DELETE FROM '.$this->_table.($this->_languageDb===true ? '_'._LANG : '').' WHERE id='.$id);
 		if($id==$this->id) $this->init();
 		if($affected===false) return true;
 		if($this->db->affected()) return true; else return false;
 	}
 
+	protected function validatePrimary($attribute,$setting) {
+		$this->primaryAttribute=$attribute;
+		if(!isset($this->_data[$attribute]) || !$this->_data[$attribute]) $this->_data[$attribute]=null;
+		return true;
+	}
+
 	protected function afterInsert($id=null) { return true; } //триггер, может быть перегружен
 	protected function afterUpdate($id=null) { return true; } //триггер, может быть перегружен
 
-	protected function validatePrimary($attribute,$setting) {
-		$this->primaryAttribute=$attribute;
-		if(!$this->_data[$attribute]) $this->_data[$attribute]=null;
-		return true;
+	protected function rule() {
+		die('You have to override model::rule() to use class this way.');
+	}
+
+	protected function fieldList($isSave) {
+		return '*';
 	}
 
 	//Возвращает информацию о мультиязычных таблицах:

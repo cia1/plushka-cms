@@ -7,11 +7,10 @@ class frmField extends model {
 		$this->multiLanguage();
 	}
 
-	protected function fieldList($action) {
-		if($action=='load') return 'id,formId,title,htmlType,data,defaultValue,required';
-		$field='id,formId,title,htmlType,data,defaultValue,required';
-		if(!$this->_data['id']) $field.=',sort';
-		return $field;
+	protected function fieldList($isSave) {
+		$fieldList='id,formId,title,htmlType,data,defaultValue,required';
+		if(!$this->id) $fieldList.=',sort';
+		return $fieldList;
 	}
 
 	protected function rule() {

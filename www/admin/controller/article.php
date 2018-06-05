@@ -191,7 +191,7 @@ class sController extends controller {
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
-			'parentId'=>array('id','',true),
+			'parentId'=>array('integer','',true),
 			'title'=>array('string','Заголовок',true),
 			'alias'=>array('latin','URL (псевдоним)',true),
 			'metaTitle'=>array('string'),

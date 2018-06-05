@@ -51,7 +51,7 @@ class sController extends controller {
 		$db=core::db();
 		$validate=array(
 			'id'=>array('primary'),
-			'parentId'=>array('id','',true),
+			'parentId'=>array('integer','',true),
 			'alias'=>array('latin','псевдоним',true,'max'=>50),
 			'title'=>array('string','Заголовок',true),
 			'text1'=>array('html','Вступительный текст'),

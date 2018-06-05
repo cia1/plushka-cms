@@ -6,7 +6,8 @@ core::language('user');
 class modelUser extends model {
 
 	private $_self; //Указатель на класс, находящийся в сессии (содержит информацию о пользователе)
-	protected function fieldList($action) {
+
+	protected function fieldList($isSave) {
 		if($action=='save') {
 			//Если пароль строго false, то не требовать ввода пароля (регистрация oauth). Не достаточно очевидный вариант реализации, но это работает.
 			if($this->_data['password']===false) return 'id,groupId,login,status,email,code';

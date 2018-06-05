@@ -7,10 +7,6 @@ class userGroup extends model {
 		parent::__construct('userGroup');
 	}
 
-	protected function fieldList($action) {
-		return '*';
-	}
-
 	//Возвращает правила валидации
 	protected function rule() {
 		$exists=$this->db->fetchValue('SELECT 1 FROM userGroup WHERE id='.(int)$this->id); //если уже есть такая группа, то выполнить UPDATE вместо INSERT

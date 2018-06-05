@@ -34,6 +34,7 @@
 	rule: [type, title, required]
 	*/
 	public function validate($rule=null) {
+		core::language('global');
 		if($rule===null) $rule=$this->rule();
 		foreach($rule as $attribute=>$item) {
 			$value=isset($this->_data[$attribute]) ? $this->_data[$attribute] : null;
@@ -41,7 +42,7 @@
 				core::error(sprintf(LNGFieldCannotByEmpty,$item[1]));
 				return false;
 			}
-			if($this->{'validate'.ucfirst($attribute)}($attribute,$item)===false) return false;
+			if($this->{'validate'.ucfirst($item[0])}($attribute,$item)===false) return false;
 		}
 		return true;
 	}
@@ -49,7 +50,7 @@
 	protected function validateBoolean($attribute,$setting) {
 		if(!isset($this->_data[$attribute])) $this->_data[$attribute]=null;
 		$value=&$this->_data[$attribute];
-		$this->_bool[]=$name;
+		$this->_bool[]=$attribute;
 		if($value) $value=true; else $value=false;
 		return true;
 	}
@@ -131,7 +132,7 @@
 
 	protected function validateInteger($attribute,$setting) {
 		$value=&$this->_data[$attribute];
-		if($value==='') $value=null; else $value=(int)$value;
+		if($value==='') $value=null; elseif($value!==null) $value=(int)$value;
 		if($value) {
 			if(isset($setting['min']) && $setting['min']>$value) {
 				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));

@@ -6,11 +6,7 @@ class article extends model {
 
 	function __construct($db=null) {
 		parent::__construct('article');
-		$this->_multiLanguage=true;
-	}
-
-	protected function fieldList($action) {
-		return '*';
+		$this->multiLanguage();
 	}
 
 	public function loadbyAlias($alias) {
@@ -21,13 +17,9 @@ class article extends model {
 	public function delete($id=null,$affected=false) {
 		$id=(int)$id;
 		$data=$this->db->fetchArrayOnce('SELECT categoryId,alias FROM article_'._LANG.' WHERE id='.$id);
-		if($data[0]) {
-			$this->_multiLanguage=false;
-			$this->_table='article_'._LANG;
-		}
+		if($data[0]) $this->multiLanguage(false);
 		if(!parent::delete($id)) return false;
-		if($data[0]) $this->_table='article';
-		$this->_multiLanguage=true;
+		$this->multiLanguage(true);
 		core::hook('pageDelete','article/view/'.$data[1],!$this->_multiLanguage);
 		return true;
 	}
@@ -55,22 +47,18 @@ class article extends model {
 			core::error('Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.');
 			return false;
 		}
-		if($this->_data['categoryId']) {
-			$this->_multiLanguage=false; //копии записей создавать только если статья не находится в категории
-			$this->_table='article_'._LANG;
-		}
+		if($this->_data['categoryId']) $this->multiLanguage(false);
 		return true;
 	}
 
 	protected function afterInsert($id=null) {
-		$this->_table='article';
+		$this->multiLanguage(true);
 		core::hook('modify','article/view/'.$this->alias); //Обновить дату изменения статьи
 		return true;
 	}
 
 	//Обновляет меню, а также проверять URI главной страницы. Вообще это нужно вынести в отдельный класс.
 	protected function afterUpdate($id=null) {
-		$this->_table='article';
 		if($this->_oldAlias!=$this->_data['alias']) {
 			$cfg1=core::config();
 			$s='article/view/'.$this->_oldAlias;
@@ -89,9 +77,7 @@ class article extends model {
 			}
 			$this->db->query('UPDATE menuItem SET link='.$this->db->escape('article/view/'.$this->_data['alias']).' WHERE link='.$this->db->escape($s));
 		}
-		core::hook('modify','article/view/'.$this->alias); //Обновить дату изменения статьи
-		return true;
+		return $this->afterInsert($id);
 	}
-
 
 }

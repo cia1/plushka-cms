@@ -1,13 +1,9 @@
 <?php
 /* Объект "пользователь". */
 core::import('model/user');
-core::import('language/user.'._LANG);
+core::language('user');
 
 class userAdmin extends modelUser {
-
-	protected function fieldList($action) {
-		return '*';
-	}
 
 	//Возвращает массив с правилами валидации
 	protected function rule() {
