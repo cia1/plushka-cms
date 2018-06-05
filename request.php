@@ -108,7 +108,7 @@
 			else $charset=strtoupper($s[1]);
 		}
 		if($charset=='WINDOWS-1251' || $charset=='CP-1251') $charset='CP1251';
-		if($charset==$this->charset) return $this->_content;
+		if($charset==$this->_charset) return $this->_content;
 		return iconv($charset,$this->_charset.'//IGNORE',$this->_content);
 	}
 

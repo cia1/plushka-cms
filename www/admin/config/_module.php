@@ -3,7 +3,8 @@
 'name'=>'Ядро',
 'version'=>'3.17',
 'status'=>100,
-'url'=>'http://plushka-cms.ru'
+'url'=>'http://plushka-cms.ru',
+'documentation'=>'http://plushka-cms.ru/manual/core'
 ),
 'chat'=>array(
 'name'=>'Чат',
