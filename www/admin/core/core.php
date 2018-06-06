@@ -43,7 +43,7 @@ class core {
 	public static function path() {
 		static $_path;
 		if(!$_path) {
-			$_path=dirname(__FILE__);
+			$_path=__DIR__;
 			$s=strrpos($_path,'/');
 			if(!$s) $s=strrpos($_path,'\\');
 			$_path=substr($_path,0,$s-5);

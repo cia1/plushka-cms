@@ -14,7 +14,7 @@
 	define('ACCESS', true);
 	define('EXT', '.php');
 	define('DS', DIRECTORY_SEPARATOR);
-	define('ROOT_PATH', dirname(__FILE__).DS);
+	define('ROOT_PATH',__DIR__.DS);
 	define('INCLUDE_PATH', ROOT_PATH.'includes'.DS);
 	define('TASKS_PATH', INCLUDE_PATH.'tasks'.DS);
 	define('CONF_PATH', ROOT_PATH);

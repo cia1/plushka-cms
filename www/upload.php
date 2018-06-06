@@ -5,7 +5,7 @@ if(isset($_SESSION['_uploadTimeLimit'])) {
 	if(time()>$_SESSION['_uploadTimeLimit']) _die('Time out. Please, try again.');
 }
 
-include(dirname(__FILE__).'/core/core.php');
+include(__DIR__.'/core/core.php');
 core::language('global');
 $fileName=core::translit($_FILES['upload']['name']);
 $ext=strtolower(substr($fileName,strrpos($fileName,'.')+1));
