@@ -1,2 +1,4 @@
 www/config/_core.php
 www/data/widgetHtml/*
+www/cache/*
+www/tmp/*
