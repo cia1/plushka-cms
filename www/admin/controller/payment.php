@@ -2,8 +2,8 @@
 
 	protected function right() {
 		return array(
-			'Method'=>'payment.method',
-			'Log'=>'payment.log'
+			'method'=>'payment.method',
+			'log'=>'payment.log'
 		);
 	}
 

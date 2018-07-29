@@ -4,13 +4,13 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Setting'=>'domotivator.setting',
-			'Hidden'=>'demotivator.moderate',
-			'Edit'=>'demotivator.moderate',
-			'Delete'=>'demotivator.moderate',
-			'MenuConstructor'=>'domotivator.setting',
-			'MenuGallery'=>'domotivator.setting',
-			'WidgetLast'=>'domotivator.setting'
+			'setting'=>'domotivator.setting',
+			'hidden'=>'demotivator.moderate',
+			'edit'=>'demotivator.moderate',
+			'delete'=>'demotivator.moderate',
+			'menuConstructor'=>'domotivator.setting',
+			'menuGallery'=>'domotivator.setting',
+			'widgetLast'=>'domotivator.setting'
 		);
 	}
 

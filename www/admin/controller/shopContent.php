@@ -4,21 +4,21 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Category'=>'shopContent.category',
-			'CategoryDelete'=>'shopContent.category',
-			'ProductList'=>'shopContent.product',
-			'Product'=>'shopContent.product',
-			'ProductDelete'=>'shopContent.product',
-			'ProductImage'=>'shopContent.product',
-			'ProductImageMain'=>'shopContent.product',
-			'ProductImageDelete'=>'shopContent.product',
-			'ProductMove'=>'shopContent.product',
-			'Variant'=>'shopContent.variant',
-			'VariantItem'=>'shopContent.variant',
-			'VariantDelete'=>'shopContent.variant',
-			'Brand'=>'shopContent.brand',
-			'BrandItem'=>'shopContent.brand',
-			'BrandDelete'=>'shopContent.brand'
+			'category'=>'shopContent.category',
+			'categoryDelete'=>'shopContent.category',
+			'productList'=>'shopContent.product',
+			'product'=>'shopContent.product',
+			'productDelete'=>'shopContent.product',
+			'productImage'=>'shopContent.product',
+			'productImageMain'=>'shopContent.product',
+			'productImageDelete'=>'shopContent.product',
+			'productMove'=>'shopContent.product',
+			'variant'=>'shopContent.variant',
+			'variantItem'=>'shopContent.variant',
+			'variantDelete'=>'shopContent.variant',
+			'brand'=>'shopContent.brand',
+			'brandItem'=>'shopContent.brand',
+			'brandDelete'=>'shopContent.brand'
 		);
 	}
 

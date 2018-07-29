@@ -7,8 +7,8 @@ class sController extends controller {
 		core::import('model/payment');
 		$this->payment=payment::instance(lcfirst($this->url[1]));
 		if(!$this->payment) core::error404();
-		$this->url[1]=ucfirst($this->url[2]);
-		if($this->url[1]!='Status' && $this->url[1]!='Success' && $this->url[1]!='Fail') $this->url[1]='ModelMethod';
+		$this->url[1]=$this->url[2];
+		if($this->url[1]!=='status' && $this->url[1]!=='success' && $this->url[1]!=='fail') $this->url[1]='modelMethod';
 	}
 
 	//Обновление статуса платежа. Вызывается сервером платёжной системы.

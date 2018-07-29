@@ -72,7 +72,7 @@ class sController extends controller {
 			core::error('Ошибка при попытке распаковать архив');
 			return false;
 		}
-		$this->url[1]='InstallTmp';
+		$this->url[1]='installTmp';
 		return $this->actionInstallTmp();
 	}
 

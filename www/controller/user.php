@@ -5,7 +5,7 @@ class sController extends controller {
 	public function __construct($action) {
 		parent::__construct($action);
 		if($action=='restore' && isset($_GET['code'])) {
-			$this->url[1]='RestoreSendPassword';
+			$this->url[1]='restoreSendPassword';
 		}
 		core::language('user');
 	}
@@ -15,16 +15,18 @@ class sController extends controller {
 		$u=core::user();
 		if(!$u->id) core::redirect('user/login'); //если пользователь не авторизован
 		//Форма смены пароля.
-		$f=core::form();
-		$f->label(LNGLogin,$u->login);
-		$f->label('E-mail',$u->email);
-		$f->html('<h3>'.LNGPasswordChanging.'</h3>');
-		$f->password('passwordOld',LNGOldPassword);
-		$f->password('password1',LNGNewPassword);
-		$f->password('password2',LNGNewPasswordAgain);
-		$f->submit();
+		$form=core::form();
+		$form->label(LNGLogin,$u->login);
+		$form->label('E-mail',$u->email);
+		$form->html('<h3>'.LNGPasswordChanging.'</h3>');
+		$form->password('passwordOld',LNGOldPassword);
+		$form->password('password1',LNGNewPassword);
+		$form->password('password2',LNGNewPasswordAgain);
+		$form->submit();
+		$this->formPassword=$form;
+		$this->notification=core::moduleExists('notification');
 		$this->pageTitle=$this->metaTitle=LNGYourProfile;
-		return $f;
+		return 'Index';
 	}
 
 	public function actionIndexSubmit($data) {

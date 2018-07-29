@@ -4,11 +4,11 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Moderate'=>'comment.moderate',
-			'Setting'=>'comment.setting',
-			'Edit'=>'comment.moderate',
-			'Delete'=>'comment.moderate',
-			'WidgetComment'=>'comment.setting'
+			'moderate'=>'comment.moderate',
+			'setting'=>'comment.setting',
+			'edit'=>'comment.moderate',
+			'delete'=>'comment.moderate',
+			'widgetComment'=>'comment.setting'
 		);
 	}
 

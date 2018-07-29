@@ -4,10 +4,10 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Index'=>'language.*',
-			'Add'=>'language.*',
-			'Delete'=>'language.*',
-			'Setting'=>'language.rule'
+			'index'=>'language.*',
+			'add'=>'language.*',
+			'delete'=>'language.*',
+			'setting'=>'language.rule'
 		);
 	}
 

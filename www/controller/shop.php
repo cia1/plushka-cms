@@ -9,10 +9,10 @@ class sController extends controller {
 	public function __construct($action) {
 		parent::__construct();
 		core::language('shop');
-		if($this->url[1]=='AddToCart') return;
-		if($this->url[1]=='Index') $this->categoryAlias=null;
+		if($this->url[1]==='addToCart') return;
+		if($this->url[1]==='index') $this->categoryAlias=null;
 		else $this->categoryAlias=$_GET['corePath'][1];
-		if(count($this->url)==2) $this->url[1]='Category'; else $this->url[1]='Product';
+		if(count($this->url)===2) $this->url[1]='category'; else $this->url[1]='product';
 	}
 
 	public function actionIndex() { core::error404(); }

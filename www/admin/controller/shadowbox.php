@@ -4,7 +4,7 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'WidgetShadowbox'=>'*'
+			'widgetShadowbox'=>'*'
 		);
 	}
 

@@ -4,10 +4,10 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Index'=>'vote.*',
-			'Reset'=>'vote.*',
-			'Result'=>'vote.*',
-			'WidgetVote'=>'vote.*'
+			'index'=>'vote.*',
+			'reset'=>'vote.*',
+			'result'=>'vote.*',
+			'widgetVote'=>'vote.*'
 		);
 	}
 

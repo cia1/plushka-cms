@@ -2,9 +2,9 @@
 
 	protected function right() {
 		return array(
-			'Setting'=>'chat.setting',
-			'Message'=>'chat.moderate',
-			'Delete'=>'chat.moderate'
+			'setting'=>'chat.setting',
+			'message'=>'chat.moderate',
+			'delete'=>'chat.moderate'
 		);
 	}
 

@@ -6,14 +6,14 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Category'=>'article.category',
-			'Feature'=>'*',
-			'Article'=>'article.article',
-			'ArticleDelete'=>'article.article',
-			'MenuArticle'=>'article.article',
-			'MenuBlog'=>'article.category',
-			'WidgetBlog'=>'article.category',
-			'MenuList'=>'*'
+			'category'=>'article.category',
+			'feature'=>'*',
+			'article'=>'article.article',
+			'articleDelete'=>'article.article',
+			'menuArticle'=>'article.article',
+			'menuBlog'=>'article.category',
+			'widgetBlog'=>'article.category',
+			'menuList'=>'*'
 		);
 	}
 

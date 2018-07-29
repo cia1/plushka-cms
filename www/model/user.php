@@ -5,10 +5,67 @@ core::import('core/model');
 core::language('user');
 class modelUser extends model {
 
-	private $_self; //Указатель на класс, находящийся в сессии (содержит информацию о пользователе)
+	private $_self; //указатель на класс, находящийся в сессии (содержит информацию о пользователе)
+	private $_attribute; //контейнет для массива, содержащего дополнительные данные пользователя
+
+	//Если задан $id, то загружается информация из базы данных. $user - ссылка на класс, находящийся в сессии
+	public function __construct($id=null,&$user=null) {
+		parent::__construct('user');
+		$this->_self=$user;
+		if($id) {
+			if(!$this->loginById($id)) core::error(LNGUserNotExists);
+		} elseif($user!==null) foreach($this->_self as $key=>$value) $this->_data[$key]=$value;
+	}
+
+	//Загружает данные пользователя по адресу электронной почты (без авторизации)
+	public function loadByEmail($email) {
+		if(!$this->load('email='.$this->db->escape($email),'id,groupId,status,login,email')) {
+			core::error(LNGUserWithEmailNotFound);
+			return false;
+		}
+		return true;
+	}
+
+	//Загружает данные, а также авторизует пользователя по указанному идентификатору
+	public function loginById($id) {
+		die("EEE");
+		if(!$this->loadById($id)) {
+			core::error(LNGUserNotExists);
+			return false;
+		}
+		if($this->_self) { //Если класс создан через core:user() или core::userCore()
+			$this->_self->id=$this->id;
+			$this->_self->group=$this->groupId;
+			$this->_self->login=$this->login;
+			$this->_self->email=$this->email;
+			$this->_userRight();
+		}
+		return true;
+	}
+
+	public function load($where,$fieldList=null) {
+		$this->_attribute=null;
+		return parent::load($where,$fieldList);
+	}
+
+	//Сохраняет (если задан $value) и/или возвращает дополнительный атрибут с именем $attribute
+	public function attribute($attribute,$value=null) {
+		if(!$this->id) return null;
+		$id=(int)$this->_data['id'];
+		if($this->_attribute===null) {
+			$this->_attribute=$this->db->fetchValue('SELECT data FROM user WHERE id='.$id);
+			if($this->_attribute) $this->_attribute=json_decode($this->_attribute,true); else $this->_attribute=array();
+		}
+		if($value!==null) {
+			$this->_attribute[$attribute]=$value;
+			$this->db->query('UPDATE user SET data='.$this->db->escape(json_encode($this->_attribute)).' WHERE id='.$id);
+		}
+		if(isset($this->_attribute[$attribute])) return $this->_attribute[$attribute];
+		return null;
+	}
 
 	protected function fieldList($isSave) {
-		if($action=='save') {
+		if($isSave===true) {
 			//Если пароль строго false, то не требовать ввода пароля (регистрация oauth). Не достаточно очевидный вариант реализации, но это работает.
 			if($this->_data['password']===false) return 'id,groupId,login,status,email,code';
 			return '*';
@@ -29,40 +86,6 @@ class modelUser extends model {
 		if(isset($this->_data['status'])) $data['status']=array('boolean');
 		if(isset($this->_data['groupId'])) $data['groupId']=array('integer');
 		return $data;
-	}
-
-	//Если задан $id, то загружается информация из базы данных. $user - ссылка на класс, находящийся в сессии
-	public function __construct($id=null,&$user=null) {
-		parent::__construct('user');
-		$this->_self=$user;
-		if($id) {
-			if(!$this->loginById($id)) core::error(LNGUserNotExists);
-		}
-	}
-
-	//Загружает данные пользователя по адресу электронной почты (без авторизации)
-	public function loadByEmail($email) {
-		if(!$this->load('email='.$this->db->escape($email),'id,groupId,status,login,email')) {
-			core::error(LNGUserWithEmailNotFound);
-			return false;
-		}
-		return true;
-	}
-
-	//Загружает данные, а также авторизует пользователя по указанному идентификатору
-	public function loginById($id) {
-		if(!$this->loadById($id)) {
-			core::error(LNGUserNotExists);
-			return false;
-		}
-		if($this->_self) { //Если класс создан через core:user() или core::userCore()
-			$this->_self->id=$this->id;
-			$this->_self->group=$this->groupId;
-			$this->_self->login=$this->login;
-			$this->_self->email=$this->email;
-			$this->_userRight();
-		}
-		return true;
 	}
 
 	//Загружает данные, а также авторизует пользователя по коду активации

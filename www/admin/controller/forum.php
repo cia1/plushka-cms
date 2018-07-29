@@ -4,19 +4,19 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Setting'=>'forum.category',
-			'Category'=>'forum.category',
-			'CategoryUp'=>'forum.category',
-			'CategoryDown'=>'forum.category',
-			'CategoryDelete'=>'forum.category',
-			'Topic'=>'forum.moderate',
-			'TopicDelete'=>'forum.moderate',
-			'TopicStatus'=>'forum.moderate',
-			'PostEdit'=>'forum.moderate',
-			'PostDelete'=>'forum.moderate',
-			'UserStatus'=>'forum.moderate',
-			'MenuProfile'=>'*',
-			'MenuCategory'=>'*'
+			'setting'=>'forum.category',
+			'category'=>'forum.category',
+			'categoryUp'=>'forum.category',
+			'categoryDown'=>'forum.category',
+			'categoryDelete'=>'forum.category',
+			'topic'=>'forum.moderate',
+			'topicDelete'=>'forum.moderate',
+			'topicStatus'=>'forum.moderate',
+			'postEdit'=>'forum.moderate',
+			'postDelete'=>'forum.moderate',
+			'userStatus'=>'forum.moderate',
+			'menuProfile'=>'*',
+			'menuCategory'=>'*'
 		);
 	}
 

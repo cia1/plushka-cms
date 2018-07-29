@@ -25,67 +25,79 @@ class form {
 	/* Текстовое поле
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, который нужно добавить к тегу <input> */
 	public function text($name,$label,$value='',$html='') {
-		$this->_data.='<dt class="text '.$name.'">'.$label.':</dt><dd class="text '.$name.'">'.$this->getText($name,$value,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="text '.$class.'">'.$label.':</dt><dd class="text '.$class.'">'.$this->getText($name,$value,$html).'</dd>';
 	}
 
 	/* Поле ввода числа
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, который нужно добавить к тегу <input> */
 	public function number($name,$label,$value='',$html='') {
-		$this->_data.='<dt class="text number '.$name.'">'.$label.':</dt><dd class="text number '.$name.'">'.$this->getNumber($name,$value,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="text number '.$class.'">'.$label.':</dt><dd class="text number '.$class.'">'.$this->getNumber($name,$value,$html).'</dd>';
 	}
 
 	/* Поле ввода e-mail адреса
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, ктороый нужно добавить к тегу <input> */
 	public function email($name,$label,$value='',$html='') {
-		$this->_data.='<dt class="text email '.$name.'">'.$label.':</dt><dd class="text email '.$name.'">'.$this->getEmail($name,$value,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="text email '.$class.'">'.$label.':</dt><dd class="text email '.$class.'">'.$this->getEmail($name,$value,$html).'</dd>';
 	}
 
 	/* Выпадающий список
 	$name - имя поля формы, $label - заголовок рядом со списком, $items - массив значений, $value - значение по умолчанию, $nullTitle - заголовок "пустого значения", $html - произвольный текст, который будет добавлен к тегу <select> */
 	public function select($name,$label,$items,$value=null,$nullTitle=null,$html='') {
-		$this->_data.='<dt class="select '.$name.'">'.$label.':</dt><dd class="select '.$name.'">'.$this->getSelect($name,$items,$value,$nullTitle,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="select '.$class.'">'.$label.':</dt><dd class="select '.$class.'">'.$this->getSelect($name,$items,$value,$nullTitle,$html).'</dd>';
 	}
 
 	/* Многострочный список
 	$name - имя поля формы, $label - отображаемый заголовок, $items - массив возможных значений, $value - значение по умолчанию, $nullTitle - заголовок "пустого значения", $html - произвольный текст, который будет присоединён к тегу <select> */
 	public function listBox($name,$label,$items,$value=null,$nullTitle=null,$html='') {
-		$this->_data.='<dt class="list '.$name.'">'.$label.':</dt><dd class="list '.$name.'">'.$this->getListBox($name,$items,$value,$nullTitle,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="list '.$class.'">'.$label.':</dt><dd class="list '.$class.'">'.$this->getListBox($name,$items,$value,$nullTitle,$html).'</dd>';
 	}
 
 	/* Группа переключателей
 	$name - имя поля формы, $label - отображаемый заголовок, $items - массив возможных значений, $value - значение по умолчанию */
 	public function radio($name,$label,$items,$value=null) {
-		$this->_data.='<dt class="radio '.$name.'">'.$label.':</dt><dd class="radio '.$name.'">'.$this->getRadio($name,$items,$value).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="radio '.$class.'">'.$label.':</dt><dd class="radio '.$class.'">'.$this->getRadio($name,$items,$value).'</dd>';
 	}
 
 	/* Чекбокс */
 	public function checkbox($name,$label,$value=null,$html='') {
-		$this->_data.='<label><dt class="checkbox '.$name.'">'.$label.':</dt><dd class="checkbox '.$name.'">'.$this->getCheckbox($name,$value,$html).'</dd></label>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<label><dt class="checkbox '.$class.'">'.$label.':</dt><dd class="checkbox '.$class.'">'.$this->getCheckbox($name,$value,$html).'</dd></label>';
 	}
 
 	/* Поле <input> для ввода пароля */
 	public function password($name,$label,$html='') {
-		$this->_data.='<dt class="password '.$name.'">'.$label.':</dt><dd class="password '.$name.'">'.$this->getPassword($name,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="password '.$class.'">'.$label.':</dt><dd class="password '.$class.'">'.$this->getPassword($name,$html).'</dd>';
 	}
 
 	/* Поле многостраничного текста (<textarea>) */
 	public function textarea($name,$label,$value='',$html='') {
-		$this->_data.='<dt class="textarea '.$name.'">'.$label.':</dt><dd class="textarea '.$name.'">'.$this->getTextarea($name,$value,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="textarea '.$class.'">'.$label.':</dt><dd class="textarea '.$class.'">'.$this->getTextarea($name,$value,$html).'</dd>';
 	}
 
 	/* Поле с редактором CKEditor */
 	public function editor($name,$label,$value='',$config=array()) {
-		$this->_data.='<dt class="textarea '.$name.'">'.$label.':</dt><dd class="textarea '.$name.'">'.$this->getEditor($name,$value,$config).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="textarea '.$class.'">'.$label.':</dt><dd class="textarea '.$class.'">'.$this->getEditor($name,$value,$config).'</dd>';
 	}
 
 	/* Поле выбора даты */
 	public function date($name,$label,$value=null,$html='') {
-		$this->_data.='<dt class="text date '.$name.'">'.$label.':</dt><dd class="text date '.$name.'">'.$this->getDate($name,$value,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="text date '.$class.'">'.$label.':</dt><dd class="text date '.$class.'">'.$this->getDate($name,$value,$html).'</dd>';
 	}
 
 	//Поле выбора даты и времени
 	public function dateTime($name,$label,$value,$html='') {
-		$this->_data.='<dt class="text date time '.$name.'">'.$label.':</dt><dd class="text date '.$name.'">'.$this->getDateTime($name,$value,$html).'</dd>';
+		$class=str_replace('][','-',$name);
+		$this->_data.='<dt class="text date time '.$class.'">'.$label.':</dt><dd class="text date '.$class.'">'.$this->getDateTime($name,$value,$html).'</dd>';
 	}
 
 	/* Поле для загрузки файла (<input type="file")

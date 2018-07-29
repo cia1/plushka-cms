@@ -5,10 +5,10 @@ class sController extends controller {
 
 	public function __construct() {
 		parent::__construct();
-		if($this->url[1]=='Return') $this->id=$_GET['corePath'][2];
+		if($this->url[1]==='return') $this->id=$_GET['corePath'][2];
 		else {
 			$this->id=$_GET['corePath'][1];
-			$this->url[1]='Redirect';
+			$this->url[1]='redirect';
 		}
 		core::language('oauth');
 	}

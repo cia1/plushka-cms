@@ -23,30 +23,35 @@ class config implements IteratorAggregate {
 		$this->_data=include($f);
 	}
 
-	/* Возвращает значение параметра $name */
-	public function get($name) {
-		if(isset($this->_data[$name])) return $this->_data[$name]; else return null;
+	/* Возвращает значение параметра */
+	public function get($attribute) {
+		if(isset($this->_data[$attribute])) return $this->_data[$attribute]; else return null;
 	}
 
-	/* Устанавливает значение $value для параметра $name */
-	public function set($name,$value) {
-		$this->_data[$name]=$value;
+	/* Устанавливает значение $value для параметра */
+	public function set($attribute,$value) {
+		$this->_data[$attribute]=$value;
 		return $value;
 	}
 
-	/* Возвращает значение параметра $name */
-	public function __get($name) {
-		if(isset($this->_data[$name])) return $this->_data[$name]; else return null;
+	public function __isset($attribute) {
+		return isset($this->_data[$attribute]);
+
 	}
 
-	/* Устанавливает значение $value для параметра $name */
-	public function __set($name,$value) {
-		$this->_data[$name]=$value;
+	/* Возвращает значение параметра */
+	public function __get($attribute) {
+		if(isset($this->_data[$attribute])) return $this->_data[$attribute]; else return null;
+	}
+
+	/* Устанавливает значение $value для параметра */
+	public function __set($attribute,$value) {
+		$this->_data[$attribute]=$value;
 	}
 
 	/* Удаляет параметр $name */
-	public function __unset($name) {
-		unset($this->_data[$name]);
+	public function __unset($attribute) {
+		unset($this->_data[$attribute]);
 	}
 
 	/* Сохраняет конфигурацию в php-файл */

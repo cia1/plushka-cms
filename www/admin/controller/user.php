@@ -4,16 +4,16 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Group'=>'user.group',
-			'GroupItem'=>'user.group',
-			'GroupDelete'=>'user.group',
-			'User'=>'user.user',
-			'UserItem'=>'user.user',
-			'Status'=>'user.user',
-			'UserDelete'=>'user.user',
-			'Replace'=>'user.replace',
-			'Return'=>'user.replace',
-			'Message'=>'*'
+			'group'=>'user.group',
+			'groupItem'=>'user.group',
+			'groupDelete'=>'user.group',
+			'user'=>'user.user',
+			'userItem'=>'user.user',
+			'status'=>'user.user',
+			'userDelete'=>'user.user',
+			'replace'=>'user.replace',
+			'return'=>'user.replace',
+			'message'=>'*'
 		);
 	}
 

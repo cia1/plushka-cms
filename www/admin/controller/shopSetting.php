@@ -4,21 +4,21 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Setting'=>'shopSetting.setting',
-			'ProductGroupDelete'=>'shopSetting.setting',
-			'FeatureList'=>'shopSetting.feature',
-			'FeatureItem'=>'shopSetting.feature',
-			'FeatureDelete'=>'shopSetting.feature',
-			'CategoryFeature'=>'shopSetting.feature',
-			'Import'=>'shopSetting.import',
-			'ImportStart'=>'shopSetting.import',
-			'ImportProcess'=>'shopSetting.import',
-			'MenuCategory'=>'*',
-			'MenuIndex'=>'*',
-			'WidgetCategory'=>'*',
-			'WidgetProductGroup'=>'*',
-			'WidgetCart'=>'*',
-			'WidgetFeatureSearch'=>'*'
+			'setting'=>'shopSetting.setting',
+			'productGroupDelete'=>'shopSetting.setting',
+			'featureList'=>'shopSetting.feature',
+			'featureItem'=>'shopSetting.feature',
+			'featureDelete'=>'shopSetting.feature',
+			'categoryFeature'=>'shopSetting.feature',
+			'import'=>'shopSetting.import',
+			'importStart'=>'shopSetting.import',
+			'importProcess'=>'shopSetting.import',
+			'menuCategory'=>'*',
+			'menuIndex'=>'*',
+			'widgetCategory'=>'*',
+			'widgetProductGroup'=>'*',
+			'widgetCart'=>'*',
+			'widgetFeatureSearch'=>'*'
 		);
 	}
 

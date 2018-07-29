@@ -11,7 +11,7 @@ class sController extends controller {
 		if(!$this->layoutId) core::error404();
 		if(file_exists(core::path().'config/catalogLayout/'.$this->layoutId.'.php')) $this->layout=core::config('catalogLayout/'.$this->layoutId); //Конфигурация каталога, содержит список полей и другую информацию
 		else core::error404();
-		if(count($this->url)==2) $this->url[1]='Index'; else $this->url[1]='View'; //http://example.com/catalog/ИД/элемент_каталога
+		if(count($this->url)==2) $this->url[1]='index'; else $this->url[1]='view'; //http://example.com/catalog/ИД/элемент_каталога
 		core::import('model/catalog'); //Содержит методы для генерации HTML-представления полей каталога
 		core::language('catalog');
 	}

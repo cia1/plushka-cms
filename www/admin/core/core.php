@@ -74,8 +74,8 @@ class core {
 			if(file_exists($f)) $_cfg[$name]=include($f); else $_cfg[$name]=null;
 		}
 		if($attribute===null) return $_cfg[$name];
-		if(!isset($_cfg[$name][$attribute])) return null;
-		$value=$_cfg[$name][$attribute];
+		if(!isset($_cfg[$name][$attribute])) $value=null;
+		else $value=$_cfg[$name][$attribute];
 		return $value;
 	}
 
@@ -388,7 +388,7 @@ class controller {
 
 	public function __construct() {
 		$this->url=$_GET['corePath'];
-		if($_GET['corePath'][1]) $this->url[1]=ucfirst($this->url[1]); else $this->url[1]='Index';
+		if(!$_GET['corePath'][1]) $this->url[1]='index';
 	}
 
 	/* Служит для подключения JavaScript или других тегов в область <head> */

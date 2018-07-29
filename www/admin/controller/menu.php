@@ -4,14 +4,14 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'ItemMenu'=>'menu.*',
-			'Items'=>'menu.*',
-			'Item'=>'menu.*',
-			'Up'=>'menu.*',
-			'Down'=>'menu.*',
-			'Delete'=>'menu.*',
-			'Hidden'=>'menu.*',
-			'WidgetList'=>'menu.*'
+			'itemMenu'=>'menu.*',
+			'items'=>'menu.*',
+			'item'=>'menu.*',
+			'up'=>'menu.*',
+			'down'=>'menu.*',
+			'delete'=>'menu.*',
+			'hidden'=>'menu.*',
+			'widgetList'=>'menu.*'
 		);
 	}
 

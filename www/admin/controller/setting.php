@@ -4,9 +4,9 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Core'=>'setting.core',
-			'Url'=>'setting.url',
-			'Cache'=>'*'
+			'core'=>'setting.core',
+			'url'=>'setting.url',
+			'cache'=>'*'
 		);
 	}
 

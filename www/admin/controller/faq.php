@@ -4,11 +4,11 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Setting'=>'faq.setting',
-			'List'=>'faq.content',
-			'Edit'=>'faq.content',
-			'Delete'=>'faq.content',
-			'MenuList'=>'faq.setting'
+			'setting'=>'faq.setting',
+			'list'=>'faq.content',
+			'edit'=>'faq.content',
+			'delete'=>'faq.content',
+			'menuList'=>'faq.setting'
 		);
 	}
 

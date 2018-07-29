@@ -4,17 +4,17 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'LayoutData'=>'catalog.layout',
-			'LayoutDataItem'=>'catalog.layout',
-			'LayoutDataDelete'=>'catalog.layout',
-			'LayoutView'=>'catalog.layout',
-			'Text'=>'catalog.content',
-			'Item'=>'catalog.content',
-			'GalleryDelete'=>'catalog.content',
-			'Delete'=>'catalog.content',
-			'Field'=>'*',
-			'WidgetSearch'=>'*',
-			'MenuCatalog'=>'*'
+			'layoutData'=>'catalog.layout',
+			'layoutDataItem'=>'catalog.layout',
+			'layoutDataDelete'=>'catalog.layout',
+			'layoutView'=>'catalog.layout',
+			'text'=>'catalog.content',
+			'item'=>'catalog.content',
+			'galleryDelete'=>'catalog.content',
+			'delete'=>'catalog.content',
+			'field'=>'*',
+			'widgetSearch'=>'*',
+			'menuCatalog'=>'*'
 		);
 	}
 

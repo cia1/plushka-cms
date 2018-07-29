@@ -75,7 +75,7 @@ class sController extends controller {
 	/* Список статей (категория) */
 	public function actionList() {
 		if(count($this->url)>=4) {
-			$this->url[1]='View';
+			$this->url[1]='view';
 			return $this->actionView();
 		}
 		if(isset($this->url[2])) $categoryAlias=$this->url[2]; else $categoryAlias='blog';

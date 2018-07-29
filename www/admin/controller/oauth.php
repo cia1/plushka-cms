@@ -4,9 +4,9 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Server'=>'oauth.*',
-			'Item'=>'oauth.*',
-			'Widget'=>'*'
+			'server'=>'oauth.*',
+			'item'=>'oauth.*',
+			'widget'=>'*'
 		);
 	}
 

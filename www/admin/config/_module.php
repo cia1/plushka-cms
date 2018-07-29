@@ -161,6 +161,12 @@
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),
+'notification'=>array(
+'name'=>'Рассылка уведомлений разными способами',
+'version'=>'1.0',
+'status'=>100,
+'url'=>'http://plushka-cms.ru'
+),
 'oauth'=>array(
 'name'=>'Регистрация и авторизация OAuth 2.0',
 'version'=>'1.1',

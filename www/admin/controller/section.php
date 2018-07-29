@@ -4,11 +4,11 @@ class scontroller extends controller {
 
 	public function right() {
 		return array(
-			'Index'=>'section.*',
-			'Up'=>'section.*',
-			'Down'=>'section.*',
-			'Delete'=>'section.*',
-			'Widget'=>'section.*'
+			'index'=>'section.*',
+			'up'=>'section.*',
+			'down'=>'section.*',
+			'delete'=>'section.*',
+			'widget'=>'section.*'
 		);
 	}
 

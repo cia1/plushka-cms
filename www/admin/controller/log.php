@@ -2,8 +2,8 @@
 
 	public function right() {
 		return array(
-			'Index'=>'log.*',
-			'Log'=>'log.*'
+			'index'=>'log.*',
+			'log'=>'log.*'
 		);
 	}
 

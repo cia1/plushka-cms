@@ -4,14 +4,14 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Form'=>'form.*',
-			'Field'=>'form.*',
-			'FieldItem'=>'form.*',
-			'Up'=>'form.*',
-			'Down'=>'form.*',
-			'FieldDelete'=>'form.*',
-			'MenuForm'=>'form.*',
-			'WidgetForm'=>'form.*'
+			'form'=>'form.*',
+			'field'=>'form.*',
+			'fieldItem'=>'form.*',
+			'up'=>'form.*',
+			'down'=>'form.*',
+			'fieldDelete'=>'form.*',
+			'menuForm'=>'form.*',
+			'widgetForm'=>'form.*'
 		);
 	}
 

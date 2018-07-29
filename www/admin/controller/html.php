@@ -4,8 +4,8 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Item'=>'html.*',
-			'WidgetHtml'=>'html.*'
+			'item'=>'html.*',
+			'widgetHtml'=>'html.*'
 		);
 	}
 

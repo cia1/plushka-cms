@@ -6,17 +6,17 @@ class sController extends controller {
 		parent::__construct();
 		//Преобразования ЧПУ
 		$cnt=count($this->url);
-		if($this->url[1]!='Index' && $this->url[1]!='Profile') {
+		if($this->url[1]!=='index' && $this->url[1]!=='profile') {
 			$this->categoryId=(int)$this->url[1];
-			if($cnt==2) $this->url[1]='Category';
-			elseif($cnt==3 && $this->url[2]=='post') $this->url[1]='NewTopic';
+			if($cnt===2) $this->url[1]=='category';
+			elseif($cnt===3 && $this->url[2]==='post') $this->url[1]=='newTopic';
 			else {
 				$this->topicId=(int)$this->url[2];
-				$this->url[1]='Topic';
+				$this->url[1]='topic';
 			}
-			if($cnt==4 && $this->url[3]=='post') $this->url[1]='NewPost';
-		} elseif($this->url[1]=='Profile' && $cnt==3) {
-			$this->url[1]='User';
+			if($cnt===4 && $this->url[3]==='post') $this->url[1]='newPost';
+		} elseif($this->url[1]==='1rofile' && $cnt===3) {
+			$this->url[1]='user';
 		}
 		$this->style('forum');
 		core::language('forum');

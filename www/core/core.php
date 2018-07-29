@@ -7,6 +7,12 @@ class core {
 
 	private static $_template='default'; //имя шаблона, который будет использован при выводе контента
 
+	//Возвращает true, если модуль с указанным ID установлен
+	public static function moduleExists($id) {
+		$f=core::path().'admin/module/'.self::translit($id).'.php';
+		return file_exists($f);
+	}
+
 	//Переводит строку в транслит, пригодный для использования в URL
 	public static function translit($string,$max=60) {
 		$string=mb_strtolower($string,'UTF-8');
@@ -463,7 +469,7 @@ class controller {
 			}
 		}
 		$this->url=$_GET['corePath'];
-		if($this->url[1]) $this->url[1]=ucfirst($this->url[1]); else $this->url[1]='Index';
+		if(!$this->url[1]) $this->url[1]='index';
 		controller::$self=&$this;
 	}
 
@@ -572,7 +578,10 @@ class controller {
 
 /* --- WIDGET --- */
 //Базовый класс виджета
-class widget {
+abstract class widget {
+
+	abstract public function __invoke();
+
 	protected $options; //Предназначена для хранения параметров виджета, может быть переопределён в конструкторе
 	protected $link; //Предназначена для хранения той страницы, для которой виджет был сформирован в составе секции
 	public function __construct($options,$link) { $this->options=$options; $this->link=$link; }
@@ -729,5 +738,5 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 
 unset($cfg);
 $_GET['corePath']=explode('/',$_GET['corePath']);
-if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]=null; //чтобы транслятор не выдавал предупреждений (Warning)
+if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]=null; //чтобы транслятор не выдавал предупреждений
 header('Content-type:text/html; Charset=UTF-8');

@@ -8,7 +8,7 @@ class sController extends controller {
 		parent::__construct();
 		$this->id=(int)$this->url[1]; //идентификатор формы
 		if(!$this->id) core::error404();
-		if(isset($this->url[2])) $this->url[1]=$this->url[2]; else $this->url[1]='Index';
+		if(isset($this->url[2])) $this->url[1]=$this->url[2]; else $this->url[1]='index';
 	}
 
 	/* Вывод формы */

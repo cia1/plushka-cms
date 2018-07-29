@@ -4,9 +4,9 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Marker'=>'map.*',
-			'Map'=>'map.*',
-			'WidgetMap'=>'map.*'
+			'marker'=>'map.*',
+			'map'=>'map.*',
+			'widgetMap'=>'map.*'
 		);
 	}
 

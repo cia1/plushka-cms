@@ -4,10 +4,10 @@ class sController extends controller {
 
 	public function right() {
 		return array(
-			'Index'=>'note.*',
-			'Item'=>'note.*',
-			'Delete'=>'note.*',
-			'View'=>'note.*'
+			'index'=>'note.*',
+			'item'=>'note.*',
+			'delete'=>'note.*',
+			'view'=>'note.*'
 		);
 	}
 
