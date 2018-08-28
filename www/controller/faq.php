@@ -25,6 +25,10 @@ class sController extends controller {
 		return 'Index';
 	}
 
+	protected function breadcrumbIndex() {
+		return array('{{pageTitle}}');
+	}
+
 	public function actionIndexSubmit($data) {
 		if($_SERVER['SCRIPT_NAME']==core::url().'index.php') $inFrame==false; else $inFrame=true;
 		$m=core::model('faq');

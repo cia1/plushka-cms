@@ -56,6 +56,10 @@ class sController extends controller {
 		return 'Blog';
 	}
 
+	protected function breadcrumbBlog() {
+		return array('{{pageTitle}}');
+	}
+
 	/* Блог статей/новостная лента */
 	protected function adminBlogLink() {
 		return array(
@@ -89,6 +93,10 @@ class sController extends controller {
 		$this->pageTitle=$this->category['title'];
 		$this->items=$db->fetchArrayAssoc('SELECT id,alias,title,text1,date FROM article_'._LANG.' WHERE categoryId='.$this->category['id'].' AND (date<'.time().' OR date IS NULL) ORDER BY sort,date DESC,id DESC');
 		return 'List';
+	}
+
+	protected function breadcrumbList() {
+		return array('{{pageTitle}}');
 	}
 
 	protected function adminListLink() {

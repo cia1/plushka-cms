@@ -19,6 +19,10 @@ class sController extends controller {
 		return $f; //$this->id - идентификатор формы (таблица form)
 	}
 
+	protected function breadcrumbIndex() {
+		return array('{{pageTitle}}');
+	}
+
 	public function adminIndexLink() {
 		return array(
 			array('form.*','?controller=form&action=form&id='.$this->id,'setting','Настройка формы'),

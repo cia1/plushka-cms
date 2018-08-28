@@ -552,7 +552,7 @@ class controller {
 		if(!$b) return;
 		$last=count($b)-1;
 		if($b[$last]=='{{pageTitle}}') {
-			if($this->pageTitle) $b[$last]='&raquo; '.$this->pageTitle; else unset($b[$last]);
+			if($this->pageTitle) $b[$last]=$this->pageTitle; else unset($b[$last]);
 		}
 		$b=' &raquo; '.implode(' &raquo; ',$b);
 		$cfg=core::config();

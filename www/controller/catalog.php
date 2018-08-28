@@ -81,6 +81,10 @@ class sController extends controller {
 		return 'List';
 	}
 
+	protected function breadcrumbIndex() {
+		return array('{{pageTitle}}');
+	}
+
 	public function adminIndexLink() {
 		return array(
 			array('catalog.layout','?controller=catalog&action=layoutData&lid='.$this->layoutId,'field','Управление полями каталога'),

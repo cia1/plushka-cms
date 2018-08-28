@@ -29,6 +29,10 @@ class sController extends controller {
 		return 'Index';
 	}
 
+	protected function breadcrumbIndex() {
+		return array('{{pageTitle}}');
+	}
+
 	public function adminIndexLink() {
 		return array(
 			array('demotivator.moderate','?controller=demotivator&action=hidden','list','Не опубликованные')

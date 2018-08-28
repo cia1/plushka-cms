@@ -10,6 +10,10 @@
 		return 'Index';
 	}
 
+	protected function breadcrumbIndex() {
+		return array('{{pageTitle}}');
+	}
+
 	//Отправка сообщения в чат
 	public function actionIndexSubmit($data) {
 		core::import('model/chat');
