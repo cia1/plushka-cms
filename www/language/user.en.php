@@ -46,7 +46,7 @@ define('LNGUserNotExists','A user is not exists');
 define('LNGUserWithEmailNotFound','A user with this e-mail is not registered');
 define('LNGWriteToYou','Message to you from');
 define('LNGYouAreRegisteredOnSite','You are registered on site %s');
-define('LNGYouGotNewMessageOnSite','You got a new message on site %s. There is the text of the message...');
+define('LNGYouGotNewMessageOnSite','You got a new message on site %s:<br>');
 define('LNGYouHaveNewMessages','You have %s new messages');
 define('LNGYouHaveNotMessages','No messages.');
 define('LNGYourMessages','Private messages');

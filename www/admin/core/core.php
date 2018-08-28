@@ -9,6 +9,12 @@ class core {
 
 	private static $_template='default'; //Имя используемого шаблона
 
+	//Возвращает true, если модуль с указанным ID установлен
+	public static function moduleExists($id) {
+		$f=core::path().'admin/module/'.self::translit($id).'.php';
+		return file_exists($f);
+	}
+
 	//Удаляет файл кеша
 	public static function cacheCustomClear($id) {
 		$f=self::path().'cache/custom/'.$id.'.txt';
@@ -84,22 +90,44 @@ class core {
 		include_once(core::path().$name.'.php');
 	}
 
-	/* Возвращает относительный URL до директория админки */
-	public static function url($lang=false) {
+	//Возвращает относительный URL до корня сайта.
+	//$lang===true - добавить префикс языка, $lang является строкой - сслыка на страницу с языком $lang;
+	//$domain - полная, а не относительная ссылка
+	public static function url($lang=false,$domain=false) {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
-				$_url=substr($_SERVER['PHP_SELF'],0,strrpos($_SERVER['PHP_SELF'],'/')-5);
+				$_url=str_replace(array('\\','admin'),array('/',''),dirname($_SERVER['SCRIPT_NAME']));
 			} else { //CGI-запрос
-				$_url=core::config('cgi');
-				$_url=$_url['URLBase'];
+				$cfg=core::config('cgi');
+				$_url=$cfg['url'];
 			}
 		}
-		if($lang) {
+		$url=$_url;
+		if($lang===true) {
 			$cfg=core::config();
-			if($cfg['languageDefault']!=_LANG) return $_url._LANG.'/';
+			if($cfg['languageDefault']!=_LANG) $url.=_LANG.'/';
+		} elseif($lang) {
+			$cfg=core::config();
+			if($cfg['languageDefault']!=$lang) $url.=$lang.'/';
 		}
-		return $_url;
+		if($domain) {
+			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
+				$url='://'.$_SERVER['HTTP_HOST'].$url;
+			} else {
+				$cfg=core::config('cgi');
+				$url=$cfg['host'].$_url;
+			}
+			if(isset($_SERVER['HTTPS'])) {
+				if($_SERVER['HTTPS']=='off') $url='http'.$url;
+				else $url='https'.$url;
+			} elseif(isset($_SERVER['REQUEST_SCHEME'])) $url=$_SERVER['REQUEST_SCHEME'].$url;
+			elseif(isset($_SERVER['SERVER_PORT'])) {
+				if($_SERVER['SERVER_PORT']==443) $url='https'.$url;
+				else $url='http'.$url;
+			} else $url='http'.$url;
+		}
+		return $url;
 	}
 
 	//Подключает файл локализации (из общедоступной части сайта)

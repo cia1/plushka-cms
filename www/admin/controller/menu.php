@@ -172,7 +172,7 @@ class sController extends controller {
 			return false;
 		}
 		$data=$db->fetchArrayOnce('SELECT menuId,link,sort FROM menuItem WHERE id='.$id);
-		if(!core::hook('menuItemDelete',$data[1],$data[0])) return false; //Очень важное прерывание, которое позволяет модулям удалить неиспользуемые более данные
+		if(core::hook('menuItemDelete',$data[1],$data[0])===false) return false; //Очень важное прерывание, которое позволяет модулям удалить неиспользуемые более данные
 		$db->query('UPDATE menuItem SET sort=sort-1 WHERE menuId='.$data[0].' AND sort>'.$data[2]); //Чтобы числа сортировки были "ровными"
 		$db->query('DELETE FROM menuItem WHERE id='.$id);
 		if($data[0]) $menuId='&menuId='.$data[0]; else $menuId='';

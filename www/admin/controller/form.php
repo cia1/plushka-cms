@@ -163,7 +163,7 @@ class sController extends controller {
 		//это может быть ассоциативный массив, содержащий все настройки, число - идентификатор формы или NULL
 		if($data && !is_array($data)) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script FROM frmForm WHERE id='.$data);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script,notification FROM frmForm WHERE id='.$data);
 			if(!$data['email']) $data['emailSource']='no';
 			elseif($data['email']=='cfg') $data['emailSource']='cfg';
 			else $data['emailSource']='other';
@@ -175,6 +175,8 @@ class sController extends controller {
 			$this->showEmail=false;
 			if($data['emailSource']=='cfg') $data['email']='';
 		}
+		if($data['notification']==='') $data['notification']=array('transport'=>null,'userId'=>null);
+		else $data['notification']=json_decode($data['notification'],true);
 		$f=core::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('cacheTime',30);
@@ -194,6 +196,22 @@ class sController extends controller {
 			$f->hidden('formView',$data['formView']);
 			$f->hidden('script',$data['script']);
 		}
+
+		if(core::moduleExists('notification')) {
+			core::import('model/notification');
+			$transport=notification::transportList(core::userId(),true);
+			//исключить уведомления e-mail
+			foreach($transport as $i=>$item) if($item->id()==='email') {
+				unset($transport[$i]);
+				break;
+			}
+			if(count($transport)>0) {
+				$f->html('<h3>Уведомления</h3>');
+				$f->select('notification][userId','Получатель','SELECT id,login FROM user WHERE groupId>=200 ORDER BY login',$data['notification']['userId'],'(не требуется)');
+				foreach($transport as $i=>$item) $transport[$i]=array($item->id(),$item->title());
+				$f->select('notification][transport','Метод отправки',$transport,$data['notification']['transport'],'(не требуется)');
+			}
+		}
 		$f->submit('Продолжить');
 		$this->f=$f;
 
@@ -212,12 +230,17 @@ class sController extends controller {
 			'successMessage'=>array('html','Сообщение при успешной отправке'),
 			'redirect'=>array('string'),
 			'formView'=>array('string'),
-			'script'=>array('script')
+			'script'=>array('string'),
+			'notification'=>array('string')
 		);
 		if($data['emailSource']=='no') $data['email']=''; elseif($data['emailSource']=='cfg') {
 			$data['email']='cfg'; //Это означает, что e-mail нужно взять из общих настроек сайта
 			$validate['email'][0]='string';
 		}
+		if(isset($data['notification']) && $data['notification']['userId'] && $data['notification']['transport']) {
+			$data['notification']['userId']=(int)$data['notification']['userId'];
+			$data['notification']=json_encode($data['notification']);
+		} else $data['notification']=null;
 		$m->set($data);
 		$m->multiLanguage();
 		if(!$m->save($validate)) return false;

@@ -222,7 +222,9 @@ class sController extends controller {
 			$db->query('UPDATE shpFeatureGroup SET title='.$db->escape($data['title']).' WHERE id='.(int)$data['id']);
 			echo "OK\n".$data['id'];
 		}	else {
-			$db->query('INSERT INTO shpFeatureGroup (title) VALUES ('.$db->escape($data['title']).')');
+			$db->insert('shpFeatureGroup',array(
+				'title'=>$data['title']
+			));
 			echo "OK\n".$db->insertId();
 		}
 		exit;

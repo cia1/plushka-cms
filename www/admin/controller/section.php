@@ -73,7 +73,7 @@ class scontroller extends controller {
 		//Спровоцировать событие "widgetDelete" чтобы дать возможность разрушить зависимые данные виджета.
 		//Параметры: (string) имя виджета, (int) его ИД, (mixed) настройки виджета
 		if(substr($data[2],0,2)=='a:' && $data[2][strlen($data[2])-1]=='}') $data[2]=unserialize($data[2]);
-		if(!core::hook('widgetDelete',$data[1],$data[0],$data[2])) return $this->actionIndex();
+		if(core::hook('widgetDelete',$data[1],$data[0],$data[2])===false) return $this->actionIndex();
 		//Удалить из БД, а также "сдвинуть" виджеты в секции (изменить сортировку)
 		$data=$db->fetchArrayOnce('SELECT name,sort FROM section WHERE widgetId='.$id);
 		if($data) { //бывает, что виджет не опубликован ни на одной странице
@@ -227,14 +227,26 @@ class scontroller extends controller {
 		}
 		if($url) core::hook('widgetPageAdd',$data['name'],$model->id,$url); //Событие "виджет добавлен на страницы сайта
 		if($add) {
-			foreach($add as $item) {
-				$db->query('INSERT INTO section (name,url,widgetId,sort) VALUES ('.$db->escape($data['section']).','.$db->escape($item).','.$model->id.','.$sort.')');
+			for($i=0,$cnt=count($add);$i<$cnt;$i++) {
+				$add[$i]=array(
+					'name'=>$data['section'],
+					'url'=>$add[$i],
+					'widgetId'=>$model->id,
+					'sort'=>$sort
+				);
 			}
+			$db->insert('section',$add);
 		}
 		if($url) {
-			foreach($url as $item) {
-				$db->query('INSERT INTO section (name,url,widgetId,sort) VALUES ('.$db->escape($data['section']).','.$db->escape($item).','.$model->id.','.$sort.')');
+			for($i=0,$cnt=count($url);$i<$cnt;$i++) {
+				$url[$i]=array(
+					'name'=>$data['section'],
+					'url'=>$url[$i],
+					'widgetId'=>$model->id,
+					'sort'=>$sort
+				);
 			}
+			$db->insert('section',$url);
 		}
 		core::redirect('?controller=section&action=widget&id='.$data['section'],'Изменения сохранены');
 	}

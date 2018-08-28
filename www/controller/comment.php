@@ -17,7 +17,7 @@ class sController extends controller {
 		$db=core::db();
 		$groupId=$db->fetchValue('SELECT id FROM commentGroup WHERE link='.$db->escape($data['link']));
 		if(!$groupId) {
-			$db->query('INSERT INTO commentGroup (link) VALUES ('.$db->escape($data['link']).')');
+			$db->insert('commentGroup',array('link'=>$data['link']));
 			$groupId=$db->insertId();
 		}
 		$text=nl2br($data['text']);
@@ -31,10 +31,18 @@ class sController extends controller {
 		if(!$name) die(LNGUserNameNecessary);
 		if(!$text) die(LNGCommentTextCannotBeEmpty);
 		if(!core::userId()) { //Каптча только для неавторизованных пользователей
-			if($data['captcha']!==$_SESSION['captcha']) die(LNGCaptchaIsWrong);
+			if((int)$data['captcha']!==$_SESSION['captcha']) die(LNGCaptchaIsWrong);
 		}
 		$cfg=core::config('comment');
-		$db->query('INSERT INTO comment (groupId,userId,date,name,text,status,ip) VALUES ('.$groupId.','.(int)$user->id.','.time().','.$db->escape($name).','.$db->escape($text).','.$cfg['status'].','.$db->escape($this->_ip()).')');
+		$db->insert('comment',array(
+			'groupId'=>$groupId,
+			'userId'=>$user->id,
+			'date'=>time(),
+			'name'=>$name,
+			'text'=>$text,
+			'status'=>$cfg['status'],
+			'ip'=>$this->_ip()
+		));
 		if($cfg['status']>0) core::hook('commentPost',$data['link'],$groupId);
 		echo 'OK';
 		exit;

@@ -65,16 +65,18 @@ class mForm extends form {
 		core::language('form');
 		$this->data=$data;
 		$db=core::db();
-		$this->form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,email,subject_'._LANG.' subject,redirect,script FROM frmForm WHERE id='.$id);
+		$this->form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,email,subject_'._LANG.' subject,redirect,script,notification FROM frmForm WHERE id='.$id);
 		if(!$this->form) core::error404();
+		if($this->form['notification']) $this->form['notification']=json_decode($this->form['notification'],true);
+		else $this->from['notification']=null;
 		//Если задан пользовательский скрипт обработки (до валидации), то сначала вызвать его.
 		if($this->form['script']) {
 			$f=core::path().'data/'.$this->form['script'].'Before.php';
 			if(file_exists($f)) if(!include($f)) return false; //false расценивается как неудача.
 		}
 		//Стандартная валидация полей формы
-		$m=core::model();
-		$m->set($data);
+		$model=core::model();
+		$model->set($data);
 		$db->query('SELECT id,title_'._LANG.',htmlType,data_'._LANG.',required FROM frmField WHERE formId='.$id.' ORDER BY sort');
 		$this->field=$validate=array();
 		while($item=$db->fetch()) {
@@ -106,8 +108,8 @@ class mForm extends form {
 			$this->field[]=array('id'=>$fldName,'title'=>$item[1],'required'=>(bool)$item[4],'htmlType'=>$item[2]);
 			if($item[2]!='file') $validate[$fldName]=array($type,$item[1],(bool)$item[4]);
 		}
-		$m->set($data);
-		if(!$m->validate($validate)) return false;
+		$model->set($data);
+		if(!$model->validate($validate)) return false;
 		unset($validate);
 
 		$cfg=core::config();
@@ -138,6 +140,14 @@ class mForm extends form {
 			$s.='</table>';
 			$e->message('<p>'.sprintf(LNGNewMessageOnSite,'<a href="http://'.$_SERVER['HTTP_HOST'].core::url().'">'.$_SERVER['HTTP_HOST'].core::url().'</a>').'</p><hr />'.$s);
 			if(!$e->send($this->form['email'])) return false;
+		}
+		//Отправить уведомление
+		if($this->form['notification'] && core::moduleExists('notification')) {
+			core::import('model/notification');
+			$transport=notification::instance($this->form['notification']['transport']);
+			if($transport!==null) {
+				$transport->send($this->form['notification']['userId'],'Получено сообщение с формы "'.$this->form['title'].'"');
+				}
 		}
 		return true;
 	}

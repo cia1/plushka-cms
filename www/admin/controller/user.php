@@ -200,7 +200,6 @@ class sController extends controller {
 		$f->hidden('user2Email',$u->email);
 		$f->label('Кому',$u->login);
 		$f->editor('message','Сообщение');
-		$f->checkbox('email','Отправить на e-mail',true);
 		$f->submit('Отправить');
 
 		$this->cite='Сообщение будет отправлено по внутренней почте сайта. Если отмечен признак <b>Отправить на e-mail</b>, то сообщение также будет отправленно на электронную почту пользователя.';
@@ -210,7 +209,7 @@ class sController extends controller {
 	public function actionMessageSubmit($data) {
 		core::import('model/user');
 		$user=core::user();
-		if(!$user->model()->message($data['user2Id'],$data['user2Login'],$data['message'],(isset($data['email']) ? true : false))) return false;
+		if(!$user->model()->message($data['user2Id'],$data['user2Login'],$data['message'])) return false;
 		core::redirect('?controller=user','Сообщение отправлено');
 	}
 /* ----------------------------------------------------------------------------------- */

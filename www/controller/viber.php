@@ -10,7 +10,7 @@
 		echo "OK\n".$code;
 	}
 
-	//AJAX. Возвращает код
+	//AJAX. Возвращает код. Этот метод нужен для отлавливания момента подключения вайбера (ввода кода)
 	public function actionUserId() {
 		$user=core::user()->model();
 		if(!$user->id) exit;
@@ -22,6 +22,7 @@
 		}
 	}
 
+	//Обработчик-получатель событий, вызывается сервером viber.
 	public function actionHook() {
 		$request=json_decode(file_get_contents('php://input'),true);
 		$method='_hook'.ucfirst($request['event']);
@@ -34,7 +35,13 @@
 		if(strlen($sender)!=24) self::_exit();
 		$code=(int)trim($data['message']['text']);
 		if($code<1000 || $code>9999) self::_exit();
+
+		core::import('model/user');
+		$user=new modelUser();
 		$db=core::db();
+		$user->load('data LIKE '.$db->escape('%"viber":'.$code.'%'));
+		if(!$user->id) self::_exit();
+		$user->attribute('viber',$sender);
 		$db->query('UPDATE user SET viber='.$db->escape($sender).' WHERE viber='.$code);
 		self::_exit();
 	}

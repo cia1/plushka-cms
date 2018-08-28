@@ -97,7 +97,7 @@ class sController extends controller {
 		$comment=$db->fetchArrayOnce('SELECT c.status,g.link,c.groupId FROM comment c LEFT JOIN commentGroup g ON g.id=c.groupId WHERE c.id='.$id);
 		if(!$comment) core::error404();
 		if($comment[0]>0) {
-			if(!core::hook('commentDelete',$comment[1],$comment[2],$id)) return false;
+			if(core::hook('commentDelete',$comment[1],$comment[2],$id)===false) return false;
 		}
 		$db->query('DELETE FROM comment WHERE id='.$id);
 		core::success('Комментарий удалён');

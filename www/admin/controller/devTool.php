@@ -640,19 +640,4 @@ class sController extends controller {
 		return $data;
 	}
 
-/* ДОбавляет новые права */
-//	public function actionRight() {
-//		if(controller::$error) $this->view='Index'; else $this->view=null;
-//	}
-//	public function actionRightSubmit($data) {
-//		$db=core::db();
-//		if($db->fetchValue('SELECT 1 FROM userRight WHERE module='.$db->escape($data['module']))) {
-//			controller::$error='Группа прав для модуля &laquo;'.$data['module'].'&raquo; уже существует';
-//			return false;
-//		}
-//		$db->query('INSERT INTO userRight (module,description,groupId,picture) VALUES('.$db->escape($data['module']).','.$db->escape($data['description']).','.$db->escape($data['group']).','.($data['picture'] ? $db->escape($data['picture']) : 'NULL').')');
-//		echo 'Новая группа прав создана';
-//	}
-
 }
-?>

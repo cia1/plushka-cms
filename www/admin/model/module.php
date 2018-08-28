@@ -193,7 +193,11 @@ class module {
 		}
 		$s=array();
 		foreach($menu as $item) {
-			$db->query('INSERT INTO menuType SET title='.$db->escape($item[0]).',controller='.$db->escape($item[1]).',action='.$db->escape($item[2]));
+			$db->insert('menuType',array(
+				'title'=>$item[0],
+				'controller'=>$item[1],
+				'action'=>$item[2]
+			));
 			$s[]=$db->insertId();
 		}
 		//Записать информацию о меню в конфигурацию модуля

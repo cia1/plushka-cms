@@ -4,14 +4,16 @@
 ),
 'email'=>array(
 'subject'=>'this subject',
+'fromEmail'=>'asdf@asdf.ru',
+'fromName'=>'pjoipioj',
 'status'=>true
 ),
 'inner'=>array(
+'defaultUserId'=>1,
+'defaultUserLogin'=>'root',
 'status'=>true
 ),
 'viber'=>array(
-'groupId'=>'fdsddds',
-'token'=>'this-token',
-'status'=>true
+'status'=>false
 )
 );

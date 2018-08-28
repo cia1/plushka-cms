@@ -30,6 +30,7 @@ class sController extends controller {
 			$item=notificationTransport::instance($item);
 			$setting=$item->form2Setting($data);
 			$setting['status']=isset($data['status'][$item->getId()]);
+			if(core::error()) return false;
 			$cfg->{$item->getId()}=$setting;
 		}
 		if($cfg->save('notification')===false) return;

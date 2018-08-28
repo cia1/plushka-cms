@@ -137,15 +137,12 @@ abstract class payment {
 		}
 		if(!isset($_SESSION['paymentId'])) {
 			$db->query('DELETE FROM payment WHERE status='.$db->escape('request').' AND date<'.(time()-36400*7));
-			$query='INSERT INTO payment (date';
-			$userId=core::userId();
-			if($userId) $query.=',userId';
-			if($additionalData) $query.=',data';
-			$query.=') VALUES ('.time();
-			if($userId) $query.=','.$userId;
-			if($additionalData) $query.=','.$db->escape(json_encode($additionalData));
-			$query.=')';
-			$db->query($query);
+			$query=array(
+				'date'=>time()
+			);
+			if($userId) $query['userId']=>$userId;
+			if($additionalData) $query['data']=json_encode($additionalData);
+			$db->insert('payment',$query);
 			$_SESSION['paymentId']=$db->insertId();
 			return $_SESSION['paymentId'];
 		} elseif($additionalData) {

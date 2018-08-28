@@ -17,7 +17,7 @@
 
 	//Обновляет таблицы базы данных, удаляя язык $alias
 	public static function delete($alias) {
-		if(!core::hook('languageDelete',$alias)) return false;
+		if(core::hook('languageDelete',$alias===false)) return false;
 //Тут, наверно, лучше использовать транзакции
 		$table=self::_tableList();
 		foreach($table as $item) {

@@ -183,20 +183,24 @@ class sController extends controller {
 			$db->query('UPDATE shpProduct SET alias='.$db->escape($model->id).' WHERE id='.$model->id);
 		}
 		//Обновить группы, к которым привязан этот товар
-		$values='';
+		$query=array();
 		if($data['group']) {
 			foreach($data['group'] as $id=>$value) {
-				if(!$values) $values='('.$id.','.$model->id.')';
-				else $values.=',('.$id.','.$model->id.')';
+				$query[]=array(
+					'groupId'=>$id,
+					'productId'=>$model->id
+				);
 			}
 		}
 		$db=core::db();
 		$db->query('DELETE FROM shpProductGroupItem WHERE productId='.$model->id);
-		if($data['group']) $db->query('INSERT INTO shpProductGroupItem (groupId,productId) VALUES '.$values);
+		if($data['group']) $db->insert('shpProductGroupItem',$query);
+		unset($query);
 		//Обновить характеристики
 		$db->query('DELETE FROM shpProductFeature WHERE productId='.$model->id);
 		if(isset($data['feature'])) {
 			$feature=$db->fetchArray('SELECT id,unit,type FROM shpFeature WHERE id IN('.implode(',',array_keys($data['feature'])).')');
+			$query=array();
 			foreach($feature as $item) {
 				$id=$item[0];
 				if($item[2]=='checkbox') {
@@ -204,8 +208,15 @@ class sController extends controller {
 				} else $value=$data['feature'][$id];
 				if(!$value) continue;
 				if($item[1]) $value.=' '.$item[1];
-				$db->query('INSERT INTO shpProductFeature (productId,featureId,value) VALUES ('.$model->id.','.$id.','.$db->escape($value).')');
+				$query[]=array(
+					'productId'=>$model->id,
+					'featureId'=>$id,
+					'value'=>$value
+				);
 			}
+			unset($feature);
+			$db->insert('shpProductFeature',$query);
+			unset($query);
 		}
 		$alias=$db->fetchValue('SELECT alias FROM shpCategory WHERE id='.$model->categoryId);
 		core::hook('modify','shop/'.$alias.'/'.$model->alias);

@@ -203,7 +203,12 @@ class sController extends controller {
 		unset($_SESSION['demImage']);
 		//добавить в галлерею
 		$db=core::db();
-		$db->query('INSERT INTO demotivator (title,image,date,status) VALUES ('.$db->escape('').','.$db->escape($id.'.jpg').','.$id.',0)');
+		$db->insert('demotivator',array(
+			'title'=>'',
+			'image'=>$id.'.jpg',
+			'date'=>$id,
+			'status'=>0
+		));
 		$_SESSION['demId']=$db->insertId();
 		core::redirect('demotivator/rename/'.$id);
 	}

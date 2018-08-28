@@ -194,7 +194,7 @@ class sController extends controller {
 		$db=core::db();
 		$data2=$db->fetchArrayOnceAssoc('SELECT user1Id,user1Login FROM userMessage WHERE id='.(int)$data['replyTo']);
 		if(!$data2) core::error404();
-		if(!core::userCore()->model()->message($data2['user1Id'],$data2['user1Login'],nl2br($data['message']),true)) return false;
+		if(!core::userCore()->model()->message($data2['user1Id'],$data2['user1Login'],nl2br($data['message']))) return false;
 		core::redirect('user/message',LNGMessageSent);
 	}
 

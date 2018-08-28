@@ -21,6 +21,37 @@ class sqlite {
 		},-1);
 	}
 
+	/* Выполняет SQL-запрос INSERT
+	$data может быть ассоциативным массивом или массивом ассоциативных массивов */
+	public function insert($table,$data) {
+		$field=array();
+		if(isset($data[0])===false) {
+			$field=array_keys($data);
+		} else {
+			foreach($data as $null=>$item) {
+				foreach($item as $key=>$null) {
+					if(in_array($key,$field)===false) $field[]=$key;
+				}
+			}
+		}
+
+		$sql='';
+		foreach($field as $item) {
+			if($sql) $sql.=',';
+			$sql.=$item;
+		}
+		if(isset($data[0])===false) $value=self::_sqlInsert($field,$data);
+		else {
+			$value='';
+			foreach($data as $item) {
+				if($value) $value.=',';
+				$value.=self::_sqlInsert($field,$item);
+			}
+		}
+		$sql='INSERT INTO '.$table.' ('.$sql.') VALUES '.$value;
+		return $this->query($sql);
+	}
+
 	/* Выполняет произвольный SQL-запрос
 	$limit - количество элементов на странице (для пагинации), $page - номер страницы (для пагинации) */
 	public function query($query,$limit=null,$page=null) {
@@ -98,10 +129,24 @@ class sqlite {
 		return self::$_connectId->changes();
 	}
 
-/*
-	public static function like($mask,$value) {
-		return preg_match('/'.str_replace('%','.?',preg_quote($mask,'/')).'/i',$value);
+
+
+	//Возвращет часть SQL-запроса для оператора INSERT
+	private static function _sqlInsert($fieldList,$data) {
+		$sql='';
+		foreach($fieldList as $item) {
+			if($sql) $sql.=',';
+			if(isset($data[$item])===false) $sql.='null';
+			else {
+				$value=$data[$item];
+				if($value===true || $value===false) $sql.=(int)$value;
+				elseif($value===null) $sql.='null';
+				elseif(is_numeric($value)===true) $sql.=$value;
+				else $sql.=self::escape($value);
+			}
+		}
+		if(!$sql) return null;
+		return '('.$sql.')';
 	}
-*/
+
 }
-?>

@@ -79,7 +79,7 @@
 ),
 'form'=>array(
 'name'=>'Контактные формы',
-'version'=>'2.1',
+'version'=>'2.2',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),
@@ -151,7 +151,7 @@
 ),
 'mysql'=>array(
 'name'=>'СУБД MySQL',
-'version'=>'1.1',
+'version'=>'1.2',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),
@@ -247,7 +247,7 @@
 ),
 'sqlite'=>array(
 'name'=>'СУБД SQLite',
-'version'=>'1.1',
+'version'=>'1.2',
 'status'=>100,
 'url'=>'http://plushka-cms.ru'
 ),

@@ -46,7 +46,7 @@ define('LNGUserNotExists','Пользователь не существует');
 define('LNGUserWithEmailNotFound','Пользователь с таким адресом электронной почты не зарегистрирован');
 define('LNGWriteToYou','Вам пишиет');
 define('LNGYouAreRegisteredOnSite','Вы зарегистрироаны на сайте %s');
-define('LNGYouGotNewMessageOnSite','На сайте %s вам было отправлено личное сообщение. Ниже приведён текст сообщения.');
+define('LNGYouGotNewMessageOnSite','На сайте %s вам было отправлено личное сообщение:<br>');
 define('LNGYouHaveNewMessages','У вас %s новых сообщений');
 define('LNGYouHaveNotMessages','Сообщений нет.');
 define('LNGYourMessages','Личные сообщения');

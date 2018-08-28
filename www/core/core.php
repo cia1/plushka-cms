@@ -75,7 +75,7 @@ class core {
 		static $_url;
 		if(!$_url) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
-				$_url=str_replace(array($_SERVER['DOCUMENT_ROOT'],'core/core.php'),'',str_replace('\\','/',__FILE__));
+				$_url=str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME']));
 			} else { //CGI-запрос
 				$cfg=core::config('cgi');
 				$_url=$cfg['url'];
@@ -625,7 +625,7 @@ class user {
 	//Возвращает модель, позволяющую управлять пользователями. Если $id задан, то модель будут загружены данные по указанному идентификатору
 	public function model($id=null) {
 		static $model;
-		if(!isset($model)) {
+		if(!isset($model) || $id!==null) {
 			core::import('model/user');
 			$model=new modelUser($id,$this);
 		}
