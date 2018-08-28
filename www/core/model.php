@@ -214,7 +214,7 @@ class model extends validator {
 			}
 		}
 		//Если мультиязычная таблица (_languageDb===true), то выполнить несколько запросов
-		if($this->_multiLanguage && $this->_languageDb===true) {
+		if(/*$this->_multiLanguage && */$this->_languageDb===true) {
 			foreach($languageList as $i=>$item) {
 				if(!$i) { //первичный ключ определить только один раз
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
