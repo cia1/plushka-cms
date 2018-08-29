@@ -74,12 +74,11 @@ class modelUser extends model {
 
 	//Возвращает массив правил валидиции
 	protected function rule() {
-		$cfg=core::config();
 		$data=array(
 			'id'=>array('primary'),
 			'login'=>array('callback',LNGlogin,true,array($this,'validateLogin')),
 			'password'=>array('callback',LNGpassword,true,array($this,'validatePassword')),
-			'email'=>array('callback','e-mail',$cfg['emailRequired'],array($this,'validateEmail')),
+			'email'=>array('callback','e-mail',core::config('_core','emailRequired'),array($this,'validateEmail')),
 			'code'=>array('string')
 		);
 		if(isset($this->_data['status'])) $data['status']=array('boolean');

@@ -19,4 +19,4 @@
 	'view/formSuccess.php',
 	'widget/form.php'
 )
-); ?>
+);

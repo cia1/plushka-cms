@@ -20,4 +20,3 @@ class sController extends controller {
 	}
 
 }
-?>

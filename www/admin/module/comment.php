@@ -15,4 +15,4 @@
 	'model/comment.php',
 	'widget/comment.php'
 )
-); ?>
+);

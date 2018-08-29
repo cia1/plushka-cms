@@ -88,14 +88,14 @@ class mysql {
 
 	/* Выполняет запрос $query и возвращает первую запись в виде массива */
 	public function fetchArrayOnce($query) {
-		$q=self::$_connectId->query($query.' LIMIT 0,1');
+		$q=self::$_connectId->query($query.' LIMIT 1');
 		if(!$q) return false;
 		return @$q->fetch_row();
 	}
 
 	/* Выполняет запрос $query и возвращает первую запись в виде ассоциативного массива */
 	public function fetchArrayOnceAssoc($query) {
-		$q=self::$_connectId->query($query.' LIMIT 0,1');
+		$q=self::$_connectId->query($query.' LIMIT 1');
 		if(!$q) return false;
 		return @$q->fetch_assoc();
 	}

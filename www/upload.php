@@ -23,7 +23,7 @@ if(file_exists($f)) {
 }
 if(!move_uploaded_file($_FILES['upload']['tmp_name'],core::path().$_SESSION['_uploadFolder'].$fileName)) _die('Cannot move file');
 if(isset($_SESSION['_uploadList'])) {
-	$_SESSION['_uploadList'][$fileName]=array('tmpName'=>$_FILES['upload']['tmp_name'],'type'=>$_FILES['upload']['type'],'size'=>$_FILES['upload']['size']);
+	$_SESSION['_uploadList'][$fileName]=array('tmpName'=>core::path().$_SESSION['_uploadFolder'].$fileName,'type'=>$_FILES['upload']['type'],'size'=>$_FILES['upload']['size']);
 }
 die(json_encode(array(
 	'uploaded'=>1,

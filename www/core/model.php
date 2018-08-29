@@ -8,6 +8,7 @@ class model extends validator {
 	protected $db; //экземпляр класса базы данных (может быть отличным от заданного по умолчанию)
 	protected $_multiLanguage=false; //если true, то будут выполнены запросы для всех языков
 	protected $_languageDb; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
+	private $_bool=array(); //список булевых полей (для корректного преобразования)
 
 	public function __construct($table=null,$db='db') {
 		if($table) $this->_table=$table; else $this->_table=$_GET['corePath'][0];

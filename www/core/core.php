@@ -58,8 +58,7 @@ class core {
 		static $_cfg;
 		if(!isset($_cfg[$name])) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
 		if($attribute===null) return $_cfg[$name];
-		if(!isset($_cfg[$name][$attribute])) return null;
-		$value=$_cfg[$name][$attribute];
+		if(isset($_cfg[$name][$attribute])===true) $value=$_cfg[$name][$attribute]; else $value=null;
 		return $value;
 	}
 

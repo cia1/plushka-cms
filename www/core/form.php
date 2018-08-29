@@ -222,7 +222,7 @@ class form {
 	}
 
 	/* Возвращает HTML-код */
-	public function getRadio($name,$items,$value=null) {
+	public function getRadio($name,$items,$value=null,$html=null) {
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
 			$value=$_POST[$this->_namespace][$name];
 		}
@@ -238,6 +238,7 @@ class form {
 		} else foreach($items as $item) {
 		$s.='<label><input type="radio" name="'.$this->_namespace.'['.$name.']" value="'.$item[0].'"';
 			if($item[0]==$value) $s.=' checked="checked"';
+			if($html) $s.=' '.$html;
 			$s.=' />'.$item[1].'</label>';
 		}
 		return $s;

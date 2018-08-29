@@ -36,7 +36,6 @@ class config implements IteratorAggregate {
 
 	public function __isset($attribute) {
 		return isset($this->_data[$attribute]);
-
 	}
 
 	/* Возвращает значение параметра */

@@ -36,4 +36,3 @@ class widgetArticleBlog extends widget {
 	}
 
 }
-?>

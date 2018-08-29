@@ -140,7 +140,7 @@ abstract class payment {
 			$query=array(
 				'date'=>time()
 			);
-			if($userId) $query['userId']=>$userId;
+			if($userId) $query['userId']=$userId;
 			if($additionalData) $query['data']=json_encode($additionalData);
 			$db->insert('payment',$query);
 			$_SESSION['paymentId']=$db->insertId();

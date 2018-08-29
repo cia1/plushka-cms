@@ -64,7 +64,7 @@
 	}
 
 	protected function validateCallback($attribute,$setting) {
-		$this->_data[$attribute]=call_user_func_array($setting[3],array($this->_data[$attribute],$attribute));
+		$this->_data[$attribute]=call_user_func_array($setting[3],array($this->$attribute,$attribute));
 		if(core::error()) return false;
 		return true;
 	}
@@ -111,8 +111,8 @@
 		return true;
 	}
 
-	protected function validateImapage() {
-		//options[]: 'minWidth','minHeight','maxWidth','maxHeight'
+	protected function validateImage($attribute,$setting) {
+		//settings[]: 'minWidth','minHeight','maxWidth','maxHeight'
 		core::import('core/picture');
 		$value=&$this->_data[$attribute];
 		if(is_array($value) && !$setting[2] && !$setting['size']) {
