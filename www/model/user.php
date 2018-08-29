@@ -148,10 +148,7 @@ class modelUser extends model {
 		//Уведомления
 		if(core::moduleExists('notification')) {
 			core::import('model/notification');
-			$transport=notification::userTransport('privateMessage');
-			if($transport!==null) {
-				$transport->send($user2['id'],'<p>'.sprintf(LNGYouGotNewMessageOnSite,$_SERVER['HTTP_HOST'].core::url()).'</p><hr />'.$message);
-			}
+			notification::sendIfCan($user2['id'],'privateMessage','<p>'.sprintf(LNGYouGotNewMessageOnSite,$_SERVER['HTTP_HOST'].core::url()).'</p><hr />'.$message);
 		}
 		return true;
 	}

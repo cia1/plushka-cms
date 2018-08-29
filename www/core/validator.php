@@ -85,8 +85,8 @@
 
 	protected function validateEmail($attribute,$setting) {
 		$value=$this->_data[$attribute];
-		if(filter_var($this->_data[$attribute],FILTER_VALIDATE_EMAIL)) {
-			core::error(sprintf(LNGFieldHasBeEMail,$options[1]));
+		if(filter_var($value,FILTER_VALIDATE_EMAIL)===false) {
+			core::error(sprintf(LNGFieldHasBeEMail,$setting[1]));
 			return false;
 		}
 		return true;
@@ -112,7 +112,7 @@
 	}
 
 	protected function validateImage($attribute,$setting) {
-		//settings[]: 'minWidth','minHeight','maxWidth','maxHeight'
+		//setting[]: 'minWidth','minHeight','maxWidth','maxHeight'
 		core::import('core/picture');
 		$value=&$this->_data[$attribute];
 		if(is_array($value) && !$setting[2] && !$setting['size']) {
@@ -163,7 +163,7 @@
 		$value=$this->_data[$attribute];
 		if($value) {
 			if(!preg_match('%'.$setting[3].'%',$value)) {
-				core::error(sprintf(LNGFieldIllegalValue,$options[1]));
+				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 		}

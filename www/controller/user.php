@@ -97,7 +97,6 @@ class sController extends controller {
 		if(!$data['captcha'] || (int)$data['captcha']!==$_SESSION['captcha']) {
 			core::error(LNGCaptcha.' '.LNGwroteWrong);
 		}
-		core::import('model/user');
 		if(core::config('_core','emailRequired')===false) $user=core::user()->model();
 		else {
 			core::import('model/user');

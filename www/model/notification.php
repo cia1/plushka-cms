@@ -1,28 +1,5 @@
 <?php abstract class notification {
 
-	//Должна возвращать название метода отправки уведомления, с учётом мультиязычности
-	abstract public function title();
-	//Должна возвращать true, если метод доставки доступен (настроен) для пользователя
-	abstract public function available();
-
-	abstract public function send($userId,$message);
-
-	public $userId;
-	private $_setting;
-
-	//Возвращает имя транспорта для группы для текущего пользователя.
-	public static function userTransportName($group) {
-		$notification=core::user()->model()->attribute('notification');
-		return (isset($notification[$group])===false ? null : $notification[$group]);
-	}
-
-	//Возвращает экземпляр класса транспорта для указанной группы или null, если для этой группы уведомления отключены
-	public static function userTransport($group) {
-		$notification=core::user()->model()->attribute('notification');
-		if(isset($notification[$group])===false) return null;
-		return notification::instance($notification[$group]);
-	}
-
 	//Возвращает массив notification для пользователя $userId
 	public static function transportList($userId,$available=null) {
 		$cfg=core::config('notification');
@@ -33,8 +10,7 @@
 			if($item['status']===false) continue;
 			$class='notification'.ucfirst($attribute);
 			core::import('model/'.$class);
-			$class=new $class(false);
-			$class->userId=$userId;
+			$class=new $class($userId);
 			if($available!==null && $class->available()!=$available) continue;
 			$transport[]=$class;
 		}
@@ -66,16 +42,48 @@
 		return $group;
 	}
 
+	public static function sendIfCan($userId,$group,$message) {
+		$transport=self::userTransport($userId,$group);
+		if($transport===null) return null;
+		return $transport->send($message);
+	}
+
+	//Возвращает экземпляр класса транспорта для указанной группы или null, если для этой группы уведомления отключены
+	public static function userTransport($userId,$group) {
+		if($userId===core::userId()) $notification=core::user()->model()->attribute('notification');
+		else {
+			core::import('model/user');
+			$notification=new modelUser();
+			$notification->id=$userId;
+			$notification=$notification->attribute('notification');
+		}
+		if(isset($notification[$group])===false) return null;
+		return notification::instance($notification[$group],$userId);
+	}
+
 	//Возвращает класс транспорта, создавая его по ИД
-	public static function instance($id,$available=true) {
+	public static function instance($id,$userId,$available=true) {
 		$transport='notification'.ucfirst(core::translit($id));
 		if(file_exists(core::path().'model/'.$transport.'.php')===false) return null;
 		core::import('model/'.$transport);
-		$transport=new $transport();
+		$transport=new $transport($userId);
 		if($transport->status===false) return null;
 		if($available!==null) if($transport->available()!==$available) return null;
 		return $transport;
 	}
+
+
+
+
+	//Должна возвращать название метода отправки уведомления, с учётом мультиязычности
+	abstract public function title();
+	//Должна возвращать true, если метод доставки доступен (настроен) для пользователя
+	abstract public function available();
+
+	abstract public function send($message);
+
+	public $userId; //получатель уведомления
+	private $_setting;
 
 	public function __construct($userId=null) {
 		if($userId===null) $this->userId=core::userId(); else $this->userId=(int)$userId;
@@ -100,7 +108,8 @@
 		if($userId==core::userId()) $user=core::user()->model();
 		else {
 			core::import('model/user');
-			$user=new modelUser($userId);
+			$user=new modelUser();
+			$user->id=$userId;
 		}
 		return $user->attribute($attribute);
 	}

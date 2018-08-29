@@ -74,11 +74,10 @@ class mForm extends form {
 			$f=core::path().'data/'.$this->form['script'].'Before.php';
 			if(file_exists($f)) if(!include($f)) return false; //false расценивается как неудача.
 		}
-		//Стандартная валидация полей формы
-		$model=core::model();
-		$model->set($data);
+
+		//Подготовка данных для валидации
 		$db->query('SELECT id,title_'._LANG.',htmlType,data_'._LANG.',required FROM frmField WHERE formId='.$id.' ORDER BY sort');
-		$this->field=$validate=array();
+		$this->field=$rule=array();
 		while($item=$db->fetch()) {
 			$fldName=$item[0];
 			$value=$data[$fldName];
@@ -106,11 +105,14 @@ class mForm extends form {
 				}
 			}
 			$this->field[]=array('id'=>$fldName,'title'=>$item[1],'required'=>(bool)$item[4],'htmlType'=>$item[2]);
-			if($item[2]!='file') $validate[$fldName]=array($type,$item[1],(bool)$item[4]);
+			if($item[2]!='file') $rule[$fldName]=array($type,$item[1],(bool)$item[4]);
 		}
-		$model->set($data);
-		if(!$model->validate($validate)) return false;
-		unset($validate);
+
+		core::import('core/validator');
+		$validator=new validator();
+		$validator->set($data);
+		if($validator->validate($rule)===false) return false;
+		unset($rule);
 
 		$cfg=core::config();
 		if($this->form['email']=='cfg') {
@@ -144,10 +146,10 @@ class mForm extends form {
 		//Отправить уведомление
 		if($this->form['notification'] && core::moduleExists('notification')) {
 			core::import('model/notification');
-			$transport=notification::instance($this->form['notification']['transport']);
+			$transport=notification::instance($this->form['notification']['transport'],$this->form['notification']['userId']);
 			if($transport!==null) {
-				$transport->send($this->form['notification']['userId'],'Получено сообщение с формы "'.$this->form['title'].'"');
-				}
+				$transport->send('Получено сообщение с формы "'.$this->form['title'].'"');
+			}
 		}
 		return true;
 	}

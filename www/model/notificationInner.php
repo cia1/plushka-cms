@@ -9,16 +9,16 @@
 		return true;
 	}
 
-	public function send($userId,$message) {
-		$user=core::user();
+	public function send($message) {
 		$db=core::db();
-		if($userId==$user->id) $recepient=array($user->id,$user->login);
+		$user=core::user();
+		if($this->userId==$user->id) $recepient=array($this->userId,$user->login);
 		else {
-			$login=$db->fetchValue('SELECT login FROM user WHERE id='.(int)$userId);
+			$login=$db->fetchValue('SELECT login FROM user WHERE id='.(int)$this->userId);
 			if(!$login) return false;
-			$recepient=array((int)$userId,$login);
+			$recepient=array((int)$this->userId,$login);
 		}
-		if($this->userId==$user->id) $sender=array($user->id,$user->login);
+		if($user->group) $sender=array($user->id,$user->login);
 		else $sender=array($this->defaultUserId,$this->defaultUserLogin);
 		if(!$sender[0] || !$sender[1]) return false;
 		return $db->insert('userMessage',array(

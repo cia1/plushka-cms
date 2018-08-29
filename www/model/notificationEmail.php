@@ -8,12 +8,11 @@
 		return true;
 	}
 
-	public function send($userId,$message) {
+	public function send($message) {
 		core::import('core/email');
 		$email=new email();
-		$user=core::user();
-		if($userId==core::user()) $recepient=$user->email;
-		else $recepient=core::db()->fetchValue('SELECT email FROM user WHERE id='.(int)$userId);
+		if($this->userId==core::userId()) $recepient=core::user()->email;
+		else $recepient=core::db()->fetchValue('SELECT email FROM user WHERE id='.(int)$this->userId);
 		if(!$recepient) return false;
 		if($user->email) {
 			$fromEmail=$user->email;

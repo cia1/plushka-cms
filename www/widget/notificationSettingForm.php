@@ -27,8 +27,8 @@
 		if(!$available) return false;
 		$form=core::form('notification');
 		core::language('notification');
+		array_unshift($available,array(false,LNGDisabled));
 		foreach($group as $g=>$item) {
-			array_unshift($available,array(false,LNGDisabled));
 			$form->radio($g,$item['title'],$available,$item['transport']);
 		}
 		$form->submit();

@@ -10,15 +10,15 @@
 		return false;
 	}
 
-	public function send($userId,$message) {
-		$userId=(int)$userId;
+	public function send($message) {
 		core::import('model/user');
-		if($userId===core::userId()) $user=core::user()->model();
+		if($this->userId===core::userId()) $user=core::user()->model();
 		else {
 			$user=new modelUser();
-			$user->id=$userId;
+			$user->id=$this->userId;
 		}
 		$recipient=$user->attribute('viber');
+		unset($user);
 		if(!$recipient || strlen($recipient)!==24) return false;
 
 		core::import('model/request');
