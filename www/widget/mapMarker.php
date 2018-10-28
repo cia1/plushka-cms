@@ -12,7 +12,7 @@
 		return true;
 	}
 
-	public function render($view=null) { ?>
+	public function render($view) { ?>
 		<?=core::js('//maps.google.com/maps/api/js?key='.$this->options['key'])?>
 		<?=core::js('mapMarker')?>
 		<div class="map" id="<?=$this->mapId?>" style="height:200px;"></div>

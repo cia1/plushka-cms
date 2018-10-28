@@ -13,7 +13,7 @@ while($item=$db->fetch()) {
 	$links.=$db->escape(substr($item[0],0,strlen($item[0])-1));
 }
 //Выбрать ИД групп комментариев, соответствующих страницам, на которых был виджет
-$db->query('SELECT id FROM commentGroup WHERE link IN('.$links.')');
+$db->query('SELECT id FROM comment_group WHERE link IN('.$links.')');
 unset($links);
 $ids='';
 while($item=$db->fetch()) {
@@ -21,6 +21,5 @@ while($item=$db->fetch()) {
 }
 if(!$ids) return true;
 $db->query('DELETE FROM comment WHERE groupId IN('.$ids.')');
-$db->query('DELETE FROM commentGroup WHERE id IN('.$ids.')');
+$db->query('DELETE FROM comment_group WHERE id IN('.$ids.')');
 return true;
-?>

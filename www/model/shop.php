@@ -8,7 +8,7 @@ class shop {
 	public static function cacheCategoryTree() {
 		$data=core::cache('shopCategoryList',function() {
 			$db=core::db();
-			$db->query('SELECT id,alias,parentId,title,image FROM shpCategory ORDER BY parentId,sort,id');
+			$db->query('SELECT id,alias,parentId,title,image FROM shp_category ORDER BY parentId,sort,id');
 			$data=array(0=>array('child'=>array()));
 			while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'alias'=>$item[1],'title'=>$item[3],'parentId'=>$item[2],'image'=>$item[4],'child'=>array());
 			foreach($data as $id=>&$item) {
@@ -27,7 +27,7 @@ class shop {
 	/* Возвращает список дочерних категорий для категории с идентификатором $id */
 	public static function categoryList($id) {
 		$db=core::db();
-		$data=$db->fetchArrayAssoc('SELECT id,alias,title,image FROM shpCategory WHERE parentId='.$id.' ORDER BY sort,id');
+		$data=$db->fetchArrayAssoc('SELECT id,alias,title,image FROM shp_category WHERE parentId='.$id.' ORDER BY sort,id');
 		for($i=0;$i<count($data);$i++) {
 			$data[$i]['link']=core::link('shop/'.$data[$i]['alias']);
 			if($data[$i]['image']) $data[$i]['image']=core::url().'public/shop-category/'.$data[$i]['image'];
@@ -41,16 +41,16 @@ class shop {
 		//Построить SQL-запрос с учётом параметров поиска:
 		//$qSelect - выборка, $qCount - отдельный запрос для подсчёта количества товаров (для пагинации)
 		$qSelect='SELECT p.id id,p.alias alias,c.alias categoryAlias,p.title title,p.price price,p.mainImage mainImage,p.text1 text1';
-		$qCount='SELECT COUNT(id) FROM shpProduct p';
+		$qCount='SELECT COUNT(id) FROM shp_product p';
 		if($feature) { //если характеристики заданы, то присоединить их к запросу
-			$s=' FROM shpProduct p';
+			$s=' FROM shp_product p';
 			foreach($feature as $item) {
 				$qSelect.=',pf'.$item.'.value feature'.$item;
-				$s.=' LEFT JOIN shpProductFeature pf'.$item.' ON pf'.$item.'.productId=p.id AND pf'.$item.'.featureId='.$item;
+				$s.=' LEFT JOIN shp_product_feature pf'.$item.' ON pf'.$item.'.productId=p.id AND pf'.$item.'.featureId='.$item;
 			}
 			$q.=$s;
-		} else $qSelect.=' FROM shpProduct p';
-		$qSelect.=' INNER JOIN shpCategory c ON c.id=p.categoryId';
+		} else $qSelect.=' FROM shp_product p';
+		$qSelect.=' INNER JOIN shp_category c ON c.id=p.categoryId';
 		//Задан отбор по характеристикам
 		$db=core::db();
 		if(isset($_GET['feature'])) {
@@ -66,8 +66,8 @@ class shop {
 					}
 					$value=' IN('.$value.')';
 				} else $value='='.$db->escape($item);
-				$qSelect.=' INNER JOIN shpProductFeature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
-				$qCount.=' INNER JOIN shpProductFeature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
+				$qSelect.=' INNER JOIN shp_product_feature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
+				$qCount.=' INNER JOIN shp_product_feature wpf'.$id.' ON wpf'.$id.'.featureId='.$id.' AND wpf'.$id.'.productId=p.id AND wpf'.$id.'.value'.$value;
 			}
 		}
 		$qSelect.=' WHERE';
@@ -96,7 +96,7 @@ class shop {
 	}
 	/* Возвращает список товаров, принадлежащих к группе с идентификатором $id */
 	public static function productGroup($id) {
-		$q='SELECT p.id id,p.alias alias,c.alias categoryAlias,p.title title,p.price price,p.mainImage mainImage,p.text1 text1 FROM shpProductGroupItem gi INNER JOIN shpProduct p ON p.id=gi.productId INNER JOIN shpCategory c ON c.id=p.categoryId WHERE gi.groupId='.$id.' ORDER BY p.id DESC';
+		$q='SELECT p.id id,p.alias alias,c.alias categoryAlias,p.title title,p.price price,p.mainImage mainImage,p.text1 text1 FROM shp_product_group_item gi INNER JOIN shp_product p ON p.id=gi.productId INNER JOIN shp_category c ON c.id=p.categoryId WHERE gi.groupId='.$id.' ORDER BY p.id DESC';
 		return self::_loadList($q);
 	}
 
@@ -105,7 +105,7 @@ class shop {
 		$db=core::db();
 		$id=(int)$id;
 		if(!$id) return null;
-		$data=$db->fetchArrayOnceAssoc('SELECT p.*,b.title brand FROM shpProduct p LEFT JOIN shpBrand b ON b.id=p.brandId WHERE id='.$id);
+		$data=$db->fetchArrayOnceAssoc('SELECT p.*,b.title brand FROM shp_product p LEFT JOIN shp_brand b ON b.id=p.brandId WHERE id='.$id);
 		if(!$data['image']) $data['image']=array(); else {
 			$data['image']=explode(',',$data['image']);
 			unset($data['image'][0]);
@@ -117,7 +117,7 @@ class shop {
 	string $alias - псевдоним товара; bool $variant - также извлечь вариатны товаров*/
 	public static function productByAlias($alias,$variant=false) {
 		$db=core::db();
-		$data=$db->fetchArrayOnceAssoc('SELECT p.id,p.categoryId,p.title,p.text1,p.text2,p.price,p.mainImage,p.image,p.metaTitle,p.metaKeyword,p.metaDescription'.($variant ? ',p.variant variantCount' : '').',c.title categoryTitle,c.feature,b.title brand FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId LEFT JOIN shpBrand b ON b.id=p.brandId WHERE p.alias='.$db->escape($alias));
+		$data=$db->fetchArrayOnceAssoc('SELECT p.id,p.categoryId,p.title,p.text1,p.text2,p.price,p.mainImage,p.image,p.metaTitle,p.metaKeyword,p.metaDescription'.($variant ? ',p.variant variantCount' : '').',c.title categoryTitle,c.feature,b.title brand FROM shp_product p LEFT JOIN shp_category c ON c.id=p.categoryId LEFT JOIN shp_brand b ON b.id=p.brandId WHERE p.alias='.$db->escape($alias));
 		if(!$data) return false;
 		if(!$data['image']) $data['image']=array(); else {
 			$data['image']=explode(',',$data['image']);
@@ -127,7 +127,7 @@ class shop {
 		self::_appendFeature($data); //Подключить характеристики
 		//Подключить варианты (модификации)
 		if($variant && $data['variantCount']) {
-			$db->query('SELECT id,title,feature FROM shpVariant WHERE productId='.$data['id'].' ORDER BY title');
+			$db->query('SELECT id,title,feature FROM shp_variant WHERE productId='.$data['id'].' ORDER BY title');
 			$variant=array();
 			while($item=$db->fetchAssoc()) {
 				if($item['feature']) $item['feature']=unserialize($item['feature']); else $item['feature']=array();
@@ -173,7 +173,7 @@ class shop {
 			$product['feature']=array();
 			return;
 		}
-		$db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,p.value f4 FROM shpFeature f INNER JOIN shpFeatureGroup g ON g.id=f.groupId LEFT JOIN shpProductFeature p ON p.featureId=f.id AND p.productId='.$product['id'].' WHERE f.id IN('.$product['feature'].')');
+		$db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,p.value f4 FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId LEFT JOIN shp_product_feature p ON p.featureId=f.id AND p.productId='.$product['id'].' WHERE f.id IN('.$product['feature'].')');
 		$data=array();
 		$gid=null;
 		while($item=$db->fetch()) {

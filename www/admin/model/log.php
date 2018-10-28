@@ -28,7 +28,7 @@ class log implements Iterator {
 	function __construct($file,$keyword=null,$page=-1,$limit=LOG_LIMIT_ON_PAGE) {
 		//Анализ конфигурационного файла (/admin/config/$file.log.php), подготовка формата
 		$file=core::translit($file); //фильтр имени файла
-		$field=core::configAdmin($file);
+		$field=core::config('admin/'.$file);
 		if(!$field) {
 			core::error('Журнал '.$file.' не настроен');
 			return false;

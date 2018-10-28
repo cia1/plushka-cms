@@ -26,7 +26,7 @@ class sController extends controller {
 	public function actionProfile() {
 		if(!core::userGroup()) core::redirect('user/login');
 		$db=core::db();
-		$this->avatar=$db->fetchValue('SELECT avatar FROM forumUser WHERE id='.core::userId());
+		$this->avatar=$db->fetchValue('SELECT avatar FROM forum_user WHERE id='.core::userId());
 		if($this->avatar) $this->avatar=core::url().'public/avatar/'.$this->avatar;
 		$this->form=core::form();
 		$this->form->file('avatar',LNGUploadAvatar);
@@ -52,11 +52,11 @@ class sController extends controller {
 			$fname=$p->save('public/avatar/'.$userId);
 			//Удалить старый аватар
 			$db=core::db();
-			$oldAvatar=$db->fetchValue('SELECT avatar FROM forumUser WHERE id='.$userId);
+			$oldAvatar=$db->fetchValue('SELECT avatar FROM forum_user WHERE id='.$userId);
 			if($oldAvatar && $oldAvatar!=$fname) unlink(core::path().'public/avatar/'.$oldAvatar);
 
 			core::import('core/model');
-			$model=new model('forumUser');
+			$model=new model('forum_user');
 			$model->set(array('id'=>$userId,'avatar'=>$fname));
 			if(!$model->save(array(
 				'id'=>array('primary'),
@@ -69,7 +69,7 @@ class sController extends controller {
 	/* Главная страница */
 	public function actionIndex() {
 		$db=core::db();
-		$this->data=$db->fetchArrayAssoc('SELECT id,title FROM forumCategory ORDER BY sort');
+		$this->data=$db->fetchArrayAssoc('SELECT id,title FROM forum_category ORDER BY sort');
 		$this->pageTitle=$this->metaTitle=LNGForum;
 		return 'Index';
 	}
@@ -97,7 +97,7 @@ class sController extends controller {
 	/* Форум - категория */
 	public function actionCategory() {
 		$db=core::db();
-		$category=$db->fetchArrayOnce('SELECT id,title,newTopic,metaTitle,metaKeyword,metaDescription FROM forumCategory WHERE id='.$this->categoryId);
+		$category=$db->fetchArrayOnce('SELECT id,title,newTopic,metaTitle,metaKeyword,metaDescription FROM forum_category WHERE id='.$this->categoryId);
 		if(!$category) core::error404();
 		$this->newPost=(bool)$category[2];
 		$this->pageTitle=$category[1];
@@ -107,7 +107,7 @@ class sController extends controller {
 		//Выбрать информацию о темах
 		$cfg=core::config('forum');
 		$this->onPage=$cfg['onPageTopic'];
-		$this->topic=$db->fetchArrayAssoc('SELECT t.id,t.title,t.date,t.lastDate,t.postCount,u.login,u.avatar FROM forumTopic t LEFT JOIN forumUser u ON u.id=t.userId WHERE categoryId='.$this->categoryId.' ORDER BY t.lastDate DESC',$this->onPage);
+		$this->topic=$db->fetchArrayAssoc('SELECT t.id,t.title,t.date,t.lastDate,t.postCount,u.login,u.avatar FROM forum_topic t LEFT JOIN forum_user u ON u.id=t.userId WHERE categoryId='.$this->categoryId.' ORDER BY t.lastDate DESC',$this->onPage);
 		for($i=0,$cnt=count($this->topic);$i<$cnt;$i++) {
 			if($this->topic[$i]['avatar']) $this->topic[$i]['avatar']=core::url().'public/avatar/'.$this->topic[$i]['avatar'];
 			else $this->topic[$i]['avatar']=core::url().'public/avatar/no.png';
@@ -132,7 +132,7 @@ class sController extends controller {
 	public function actionNewTopic() {
 		if(!core::userGroup()) core::redirect('user/login');
 		$db=core::db();
-		$this->categoryTitle=$db->fetchValue('SELECT title FROM forumCategory WHERE id='.$this->categoryId);
+		$this->categoryTitle=$db->fetchValue('SELECT title FROM forum_category WHERE id='.$this->categoryId);
 		if(!$this->categoryTitle) core::error404();
 		$f=core::form();
 		$f->action='forum/'.$this->categoryId.'/post';
@@ -146,12 +146,12 @@ class sController extends controller {
 	public function actionNewTopicSubmit($data) {
 		if(!core::userGroup()) core::redirect('user/login');
 		$db=core::db();
-		if(!$db->fetchValue('SELECT newTopic FROM forumCategory WHERE id='.$this->categoryId)) {
+		if(!$db->fetchValue('SELECT newTopic FROM forum_category WHERE id='.$this->categoryId)) {
 			core::error(LNGNewTopicsForbiddenThisCategory);
 			return false;
 		}
 		core::import('core/model');
-		$model=new model('forumTopic');
+		$model=new model('forum_topic');
 		$data['categoryId']=$this->categoryId;
 		$data['userId']=core::userId();
 		$data['date']=time();
@@ -164,7 +164,7 @@ class sController extends controller {
 			'date'=>array('integer'),
 			'message'=>array('string',LNGmessageText,true,'min'=>10,'mix'=>2000)
 		))) return false;
-		$db->query('UPDATE forumUser SET postCount=postCount+1 WHERE id='.core::userId()); //счётчик сообщений пользователя
+		$db->query('UPDATE forum_user SET postCount=postCount+1 WHERE id='.core::userId()); //счётчик сообщений пользователя
 		core::redirect('forum/'.$this->categoryId.'/'.$model->id,LNGTopicCreated);
 	}
 
@@ -175,12 +175,12 @@ class sController extends controller {
 	/* Форум - Категория - Тема */
 	public function actionTopic() {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT title,newPost FROM forumCategory WHERE id='.$this->categoryId);
+		$data=$db->fetchArrayOnce('SELECT title,newPost FROM forum_category WHERE id='.$this->categoryId);
 		if(!$data) core::error404();
 		$this->categoryTitle=$data[0];
 		$this->newPost=$data[1];
 		unset($data);
-		$this->topic=$db->fetchArrayOnceAssoc('SELECT t.title,t.date,t.message,t.status,t.userId,u.login,u.avatar FROM forumTopic t LEFT JOIN forumUser u ON u.id=t.userId WHERE t.id='.$this->topicId);
+		$this->topic=$db->fetchArrayOnceAssoc('SELECT t.title,t.date,t.message,t.status,t.userId,u.login,u.avatar FROM forum_topic t LEFT JOIN forum_user u ON u.id=t.userId WHERE t.id='.$this->topicId);
 		if(!$this->topic) core::error404();
 
 		$this->topic['message']=str_replace(
@@ -195,7 +195,7 @@ class sController extends controller {
 		//Выбор сообщений
 		$cfg=core::config('forum');
 		$this->onPage=$cfg['onPagePost']-1;
-		$this->post=$db->fetchArrayAssoc('SELECT p.id,p.date,p.message,p.userId,u.login,u.avatar FROM forumPost p LEFT JOIN forumUser u ON u.id=p.userId WHERE p.topicId='.$this->topicId.' ORDER BY p.date',$this->onPage);
+		$this->post=$db->fetchArrayAssoc('SELECT p.id,p.date,p.message,p.userId,u.login,u.avatar FROM forum_post p LEFT JOIN forum_user u ON u.id=p.userId WHERE p.topicId='.$this->topicId.' ORDER BY p.date',$this->onPage);
 		for($i=0,$cnt=count($this->post);$i<$cnt;$i++) {
 			if($this->post[$i]['avatar']) $this->post[$i]['avatar']=core::url().'public/avatar/'.$this->post[$i]['avatar'];
 			else $this->post[$i]['avatar']=core::url().'public/avatar/no.png';
@@ -241,7 +241,7 @@ class sController extends controller {
 	public function actionNewPost() {
 		if(!core::userGroup()) core::redirect('user/login');
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT t.title,c.title FROM forumTopic t INNER JOIN forumCategory c ON c.id=t.categoryId WHERE t.id='.$this->topicId);
+		$data=$db->fetchArrayOnce('SELECT t.title,c.title FROM forum_topic t INNER JOIN forum_category c ON c.id=t.categoryId WHERE t.id='.$this->topicId);
 		if(!$data) core::error404();
 		$this->topicTitle=$data[0];
 		$this->categoryTitle=$data[1];
@@ -259,13 +259,13 @@ class sController extends controller {
 
 	public function actionNewPostSubmit($data) {
 		$db=core::db();
-		if(!$db->fetchValue('SELECT newPost FROM forumCategory WHERE id='.$this->categoryId)) {
+		if(!$db->fetchValue('SELECT newPost FROM forum_category WHERE id='.$this->categoryId)) {
 			core::error(LNGThisTopcWrittingForbidden);
 			return false;
 		}
 		if(!core::userGroup()) core::redirect('user/login'); //писать сообщения могут только зарегистрированные пользователи
 		core::import('core/model');
-		$model=new model('forumPost');
+		$model=new model('forum_post');
 		$model->set($data);
 		$model->topicId=$this->topicId;
 		$model->userId=core::userId();
@@ -277,15 +277,15 @@ class sController extends controller {
 			'date'=>array('integer'),
 			'message'=>array('string',LNGmessageText,true,'min'=>2)
 		))) return false;
-		$db->query('UPDATE forumTopic SET lastDate='.time().',postCount=postCount+1 WHERE id='.$this->topicId);
-		$db->query('UPDATE forumUser SET postCount=postCount+1 WHERE id='.core::userId());
+		$db->query('UPDATE forum_topic SET lastDate='.time().',postCount=postCount+1 WHERE id='.$this->topicId);
+		$db->query('UPDATE forum_user SET postCount=postCount+1 WHERE id='.core::userId());
 		core::redirect('forum/'.$this->categoryId.'/'.$this->topicId);
 	}
 
 	/* Информация о пользователе (профиль) */
 	public function actionUser() {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT login,avatar,date,postCount,status FROM forumUser WHERE id='.(int)$this->url[2].(core::userGroup()>=200 ? '' : ' AND status=1'));
+		$data=$db->fetchArrayOnce('SELECT login,avatar,date,postCount,status FROM forum_user WHERE id='.(int)$this->url[2].(core::userGroup()>=200 ? '' : ' AND status=1'));
 		if(!$data) core::error404();
 		$this->login=$data[0];
 		if(!$data[1]) $this->avatar='no.png'; else $this->avatar=$data[1];

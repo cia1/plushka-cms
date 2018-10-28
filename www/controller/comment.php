@@ -15,9 +15,9 @@ class sController extends controller {
 		} else $name=$data['name'];
 		$link=$data['link']; //Олицетворяет страницу, для которой добавляется комментарий
 		$db=core::db();
-		$groupId=$db->fetchValue('SELECT id FROM commentGroup WHERE link='.$db->escape($data['link']));
+		$groupId=$db->fetchValue('SELECT id FROM comment_group WHERE link='.$db->escape($data['link']));
 		if(!$groupId) {
-			$db->insert('commentGroup',array('link'=>$data['link']));
+			$db->insert('comment_group',array('link'=>$data['link']));
 			$groupId=$db->insertId();
 		}
 		$text=nl2br($data['text']);

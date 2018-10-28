@@ -20,7 +20,7 @@ class sController extends controller {
 
 	public function actionIndexSubmit($data) {
 		if(!$this->_submit($data)) return false;
-		core::redirect('?controller=vote&action=index&id='.$data['id'],'Изменения сохранены');
+		core::redirect('vote/index?id='.$data['id'],'Изменения сохранены');
 	}
 
 	/* Сброс результатов опроса */
@@ -35,12 +35,12 @@ class sController extends controller {
 	public function actionResetSubmit($data) {
 		$db=core::db();
 		$db->query('UPDATE vote SET ip='.$db->escape('').',result='.$db->escape('').' WHERE id='.$data['id']);
-		core::redirect('?controller=vote&action=result&id='.$data['id'],'Результаты очищены.');
+		core::redirect('vote/result?id='.$data['id'],'Результаты очищены.');
 	}
 
 	/* Таблица с результатами опроса */
 	public function actionResult() {
-		$this->button('?controller=vote&action=reset&id='.$_GET['id'],'refresh','Сбросить результаты');
+		$this->button('vote/reset?id='.$_GET['id'],'refresh','Сбросить результаты');
 		$db=core::db();
 		$data=$db->fetchArrayOnce('SELECT question,answer,result FROM vote WHERE id='.$_GET['id']);
 		$this->question=$data[0];
@@ -78,8 +78,8 @@ class sController extends controller {
 	/* Возвращает форму (class form) редактирования опроса */
 	private function _form($id) {
 		if($id) { //Уже существующий опрос
-			$this->button('?controller=vote&action=reset&id='.$id,'refresh','Сбросить результаты');
-			$this->button('?controller=vote&action=result&id='.$id,'graph','Результаты опроса');
+			$this->button('vote/reset?id='.$id,'refresh','Сбросить результаты');
+			$this->button('vote/result?id='.$id,'graph','Результаты опроса');
 			$db=core::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,question,answer FROM vote WHERE id='.$id);
 			if(!$data['answer']) $data['answer']=''; else $data['answer']=str_replace('|',"\n",$data['answer']);

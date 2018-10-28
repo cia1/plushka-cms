@@ -5,7 +5,7 @@ $f->hidden('menuId',$this->data['menuId']);
 $f->hidden('typeId',$this->data['typeId'],'id="typeId"'); //Обновляется при выборе какого-либо типа (для новых пунктов меню)
 $f->hidden('id',$this->data['id']);
 $f->hidden('link',$this->data['link'],'id="menuLink"'); //Ссылка будет погружена сюда после обработки формы модуля
-$f->select('parentId','Родительское меню','SELECT id,title_'._LANG.' FROM menuItem WHERE menuId='.$this->data['menuId'].' AND parentId=0 ORDER BY sort',$this->data['parentId'],' ( нет ) ');
+$f->select('parentId','Родительское меню','SELECT id,title_'._LANG.' FROM menu_item WHERE menuId='.$this->data['menuId'].' AND parentId=0 ORDER BY sort',$this->data['parentId'],' ( нет ) ');
 $f->text('title','Заголовок ссылки в меню',$this->data['title'],'id="menuTitle"');
 $f->label('Ссылка',$this->data['link'],'id="menuUrl"');
 $f->render();

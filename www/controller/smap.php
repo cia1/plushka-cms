@@ -13,7 +13,7 @@ class sController extends controller {
 			$i=strrpos($f,'.');
 			if(substr($f,$i+1)!='php') continue;
 			$f=substr($f,0,$i);
-			echo '<sitemap><loc>http://'.$_SERVER['HTTP_HOST'].core::url().'index2.php?controller=smap&amp;action=render&amp;id='.$f."</loc></sitemap>\n";
+			echo '<sitemap><loc>'.core::url(false,true).'index2.php?controller=smap&amp;action=render&amp;id='.$f."</loc></sitemap>\n";
 		}
 		echo '</sitemapindex>';
 		exit;

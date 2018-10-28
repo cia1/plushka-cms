@@ -1,19 +1,30 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 
-/* ---------- CORE ------------------------------------------------------------------- */
-/* Базовый класс, содержит основные статические методы */
+/**
+ * Предоставляет базовый API, доступный статически
+ */
 class core {
 
-	private static $_template='default'; //имя шаблона, который будет использован при выводе контента
+	/** @var string имя шаблона, который будет использован при генерации HTML-кода страницы */
+	private static $_template='default';
 
-	//Возвращает true, если модуль с указанным ID установлен
+	/**
+	 * Проверяет установлен ли указанный модуль
+	 * @param string $id идентификатор модуля
+	 * @return bool
+	 */
 	public static function moduleExists($id) {
 		$f=core::path().'admin/module/'.self::translit($id).'.php';
 		return file_exists($f);
 	}
 
-	//Переводит строку в транслит, пригодный для использования в URL
+	/**
+	 * Переводит строку в транслит, пригодный для использования в URL.
+	 * Конвертирование происходит с учётом текущего языка локализации (const _LANG)
+	 * @param string $string Исходная строка
+	 * @param int $max Максимальная длина генерируемой строки
+	 */
 	public static function translit($string,$max=60) {
 		$string=mb_strtolower($string,'UTF-8');
 		$d1=explode(',',LNGtranslit1);
@@ -29,12 +40,21 @@ class core {
 
 	/* Меняет имя шаблона (по умолчанию "default" - /template/(pc/pda).default.html). Возвращает имя шаблона с указанием типа клиента ("pc" или "pda").
 	Разумеетя должна вызываться до начала вывода контента */
+	/**
+	 * Задаёт или возврает шаблон, используемый при генерации HTML-кода страницы.
+	 * Вызов метода имеет смысл только до выхода из действия контроллера
+	 * @param string $set|null Если задан, то будет установлен указанный шаблон (соответствующий файл должен находиться в директории /template, const _CLIENT_TYPE - тип клиента ("pc" или "pda"))
+	 * @return string Имя текущего шаблона
+	 */
 	public static function template($set=null) {
 		if($set!==null) self::$_template=$set;
 		return (self::$_template ? _CLIENT_TYPE.'.'.self::$_template : false);
 	}
 
-	/* Возвращает путь к корню сайта */
+	/**
+	 * Возвращает абсолютный путь до корня сайта
+	 * @return string
+	 */
 	public static function path() {
 		static $_path;
 		if(!$_path) {
@@ -46,14 +66,23 @@ class core {
 		return $_path;
 	}
 
-	/* Возвращает true если включён отладочный режим и false в противном случае */
+	/**
+	 * Проверяет включён ли режим отладки
+	 * @return bool
+	 */
 	public static function debug() {
 		$cfg=self::config();
 		if(isset($cfg['debug']) && $cfg['debug']) return true; else return false;
 	}
 
-	/* Возвращает массив, содержащий конфигурацию с именем $name (/config/$name.php) или значение атрибута, если указан $attribute
-	Массив возвращается по ссылке, т.к. конфигурация может быть изменена при помощи класса "config" */
+	/**
+	 * Возвращает конфигурацию, соответствующую идентификатору
+	 * Конфигурация должна находиться в файле /config/{$id}.php
+	 * Конфигурация возвращается по ссылке, поэтому возможно внесение изменений "на лету". Внимание! Возможно, это поведение в будущем будет изменено.
+	 * @param string $name Идентификатор (имя файла) конфигурации
+	 * @param string $attribute|null Если задан, то будет возвращена не вся конфигурация, а значение отдельного атрибута $attribute
+	 * @return array|mixed
+	 */
 	public static function &config($name='_core',$attribute=null) {
 		static $_cfg;
 		if(!isset($_cfg[$name])) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
@@ -62,14 +91,19 @@ class core {
 		return $value;
 	}
 
-	/* Подключает указанный php-скрипт */
+	/**
+	 * Подключает указанный php-файл, по сути это обёртка для include_once
+	 * @param string $name Имя файла относительно корня сайта
+	 */
 	public static function import($name) {
 		include_once(self::path().$name.'.php');
 	}
 
-	//Возвращает относительный URL до корня сайта.
-	//$lang===true - добавить префикс языка, $lang является строкой - сслыка на страницу с языком $lang;
-	//$domain - полная, а не относительная ссылка
+	/**
+	 * Возвращает абсолютный или относительный URL-адрес главной страницы сайта (обычно "/")
+	 * @param bool $lang Если указан, то к URL будет добавлен суффикс текущего языка
+	 * @param bool $domain Если указан, то будет будет сгенерирована абсолютная ссылка, а не относительна
+	 */
 	public static function url($lang=false,$domain=false) {
 		static $_url;
 		if(!$_url) {
@@ -107,21 +141,38 @@ class core {
 		return $url;
 	}
 
-	/* Возвращает класс, олицетворяющий пользователя (экземпляр 'user"). */
+	/**
+	 * Возвращает класс, олицетворяющий текущего пользователя.
+	 * Для неавторизованных пользователей user::userGroup будет иметь значение "0".
+	 * @return user
+	 * @see core::userGroup()
+	 * @see core/user
+	 */
 	public static function &user() {
 		if(isset($_SESSION['userCore'])) return $_SESSION['userCore'];
 		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
 		return $_SESSION['user'];
 	}
 
-	/* Возвращает "истинного" пользователя несмотря на режим подмены пользователя */
+	/**
+	 * Возвращает пользователя, игнорируя режим подмены пользователя.
+	 * @return user
+	 * @see core::user()
+	 * @see core/user
+	 */
 	public static function &userCore() {
 		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
 		return $_SESSION['user'];
 	}
 
-	/* Возвращает произвольные данные из кеша.
-	$id - идентификатор данных (строка), $callback - функция, возвращающая свежие данные, $timeout - время в секундах актуальности кеша */
+	/**
+	 * Возвращает произвольные данные из кэша
+	 * Если кэш не существует или устарел и не задан параметр $callback, то будет возвращено NULL
+	 * @param string $id Идентификатор кэша
+	 * @param callback|null $callback Callback-функция, которая будет вызвана если кэш не существует или устарел.
+	 * @param int $timeout Время в минутах актуальности кэша
+	 * @return mixed|null
+	 */
 	public static function cache($id,$callback=null,$timeout=-1) {
 		if($timeout) {
 			$cfg=self::config();
@@ -140,8 +191,12 @@ class core {
 		return $data;
 	}
 
-	/* Возвращает экземпляр класса для работы с базой данных SQLite
-	Если задан $newQuery, то будет открыто новое подключение */
+	/**
+	 * Возвращает экземпляр класса для работы с СУБД SQLite
+	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
+	 * @return sqlite
+	 * @see core/sqlite
+	 */
 	public static function sqlite($newQuery=false) {
 		static $_sqlite;
 		if(!$_sqlite) self::import('core/sqlite3');
@@ -150,8 +205,12 @@ class core {
 		return $_sqlite;
 	}
 
-	/* Возвращает экземпляр класса для работы с базой данных MySQL
-	Если задан $newQuery, то будет открыто новое подключение */
+	/**
+	 * Возвращает экземпляр класса для работы с СУБД MySQL
+	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
+	 * @return mysql
+	 * @see core/mysql
+	 */
 	public static function mysql($newQuery=false) {
 		static $_mysql;
 		if(!$_mysql) self::import('core/mysqli');
@@ -160,8 +219,14 @@ class core {
 		return $_mysql;
 	}
 
-	/* Возвращает экземпляр класса для работы СУБД, указанной в настройках
-	Если задан $newQuery, то будет открыто новое подключение */
+	/**
+	 * Возвращает класс mysql или sqlite, в зависимости от того, какая СУБД настроена главной.
+	 * Главная СУБД определяется в /config/core.php['dbDriver'].
+	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
+	 * @return mysql|sqlite
+	 * @see core::sqlite()
+	 * @see core::mysql()
+	 */
 	public static function db($newQuery=false) {
 		static $_db;
 		if($newQuery) {
@@ -177,20 +242,33 @@ class core {
 		return $_db;
 	}
 
-	/* Возвращает идентификатор текущего пользователя и "0" если пользователь не авторизован */
+	/**
+	 * Возвращает идентификатор текущего пользователя (db user.id), для не авторизованных - "0"
+	 * @return int
+	 */
 	public static function userId() {
 		if(isset($_SESSION['userCore'])) return $_SESSION['userCore']->id;
 		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
 		return $_SESSION['user']->id;
 	}
 
-	/* Возвращает группу пользователей, к которой относится текущий пользователь */
+	/**
+	 * Возвращает группу пользователей, к которой относится текущий пользователь:
+	 * 0 - не авторизованный, 1-199 - зарегистрированные пользователи, 200-254 - администраторы, 255 - суперпользователь
+	 * @return int
+	 */
 	public static function userGroup() {
 		$u=self::user();
 		return $u->group;
 	}
 
-	/* Формирует относительную ссылку используя механизм подмены ссылок */
+	/**
+	 * Генерирует относительную или абсолютную ссылку
+	 * Для CGI-режима использует /config/cgi.php для определения имени домена и базового URL
+	 * @param string $link Исходная ссылка в формате controller/etc...
+	 * @param bool $lang Если false, то суффикс языка не будет добавлен
+	 * @param bool $domain Если true, то будет сгенерирована абсолютная ссылка
+	 */
 	public static function link($link,$lang=true,$domain=false) {
 		static $_link;
 		static $_main;
@@ -219,19 +297,51 @@ class core {
 		return self::url($lang,$domain).$link.$end;
 	}
 
-	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
+	/**
+	 * Возвращает экземпляр класса form, предназначенного для конструирования HTML-форм
+	 * Имена полей формы будут сгенерированы с учётом $namespace: $_POST[$namespace]['someAttribute']
+	 * @param string|null $namespace
+	 * @return form
+	 */
 	public static function form($namespace=null) {
 		if(!class_exists('form')) include(self::path().'core/form.php');
 		return new form($namespace);
 	}
 
-	/* Возвращает экземпляр класса model (универсальная модель). $namespace - имя таблицы (если нужно), $db - имя СУБД */
-	public static function model($namespace=null,$db='db') {
-		if(!class_exists('model')) include(self::path().'core/model.php');
-		return new model($namespace,$db);
+	/**
+	 * Возвращает экземпляр класса validator, реализующего валидацию входных данных
+	 * @param array|null $attribute Ассоциативный массив, содержащий данные для валидации
+	 * @return validator
+	 */
+	public static function validator($attribute=null) {
+		core::import('core/validator');
+		$validator=new $validator();
+		if($attribute) $validator->set($attribute);
+		return $validator;
 	}
 
-	//Устанавливает или возвращает текст сообщения об успешно выполненной операции
+	/**
+	 * Создаёт модель ActiveRecord для указанной таблицы базы данных
+	 * Если файл /model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса core/model, ассоциированный с таблицей $classTable.
+	 * @param string $classTable Имя таблицы или класса ActiveRecord
+	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
+	 * @return model
+	 */
+	public static function model($classTable,$db='db') {
+		$f=core::path().'model/'.$table.'.php';
+		if(file_exists($f)) {
+			include($f);
+			return new $table();
+		}
+		if(!class_exists('model')) include(self::path().'core/model.php');
+		return new model($table,$db);
+	}
+
+	/**
+	 * Устанавливает или возвращает текст сообщения об успешно выполненной операции
+	 * @param string|null $message Устанавливаемый текст сообщения
+	 * @return string|null Текст сообщения
+	 */
 	public static function success($message=null) {
 		if($message===false) {
 			$message=$_SESSION['messageSuccess'];
@@ -242,7 +352,11 @@ class core {
 		return (isset($_SESSION['messageSuccess']) ? $_SESSION['messageSuccess'] : null);
 	}
 
-	//Устанавливает и возвращает текст сообщения об ошибке
+	/**
+	 * Устанавливает и возвращает текст сообщения об ошибке
+	 * @param string|null $message Устанавливаемый текст сообщения
+	 * @return string|null Текст сообщения или null, если ошибки не было
+	 */
 	public static function error($message=null) {
 		if($message===false) {
 			$message=(isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
@@ -253,15 +367,22 @@ class core {
 		return (isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
 	}
 
-	/* Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес.
-	Если задан $message, то после перенаправления будет выведено указанное сообщение */
+	/**
+	 * Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес
+	 * @param string $url URL в формате "controller/etc"
+	 * @param string|null $message Если задан, то установит текст сообщения об успешно выполненной операции
+	 * @param int $code HTTP-код ответа
+	 * @see core:success()
+	 */
 	public static function redirect($url,$message=null,$code=302) {
 		if($message) core::success($message);
 		header('Location: '.self::link($url),true,$code);
 		exit;
 	}
 
-	/* Прерывает выполнение скрипта и генерирует ошибку 404 */
+	/**
+	 * Прерывает выполнение скрипта и генерирует 404-ю HTTP-ошибку
+	 */
 	public static function error404() {
 		core::hook('404');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
@@ -273,8 +394,16 @@ class core {
 		exit;
 	}
 
-	/* Генерирует виджет. Обрабатывает {{widget}}
-	$name - имя виджета, $options - какие-либо параметры виджета, $cacheTime - время актуальности кеша, $title - заголовок, $link - страница, для которой выводится виджет (только если процедура вызвана при обработке секции) */
+	/**
+	 * Создаёт и рендерит виджет. Этот метод обрабатывает теги {{widget}}
+	 * @param string $name Имя виджета, соответствует файлу /widget/$name.php
+	 * @param mixed $options Произвольные параметры, которые будут переданы виджету
+	 * @param int|null $cacheTime Время актуальности кэша. Если null, то виджет кэшироваться не будет
+	 * @param string|null $title Заголовок виджета
+	 * @param string|null $link Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
+	 * @see core/widget
+	 * @see core/section
+	 */
 	public static function widget($name,$options=null,$cacheTime=null,$title=null,$link=null) {
 		if(is_array($options) && isset($options['cssClass'])) {
 			$cssClass=' '.$options['cssClass'];
@@ -349,8 +478,10 @@ class core {
 		return ($cache ? $data : null);
 	}
 
-	/* Генерирует HTML-представление секции. Обрабатывает {{section}}
-	$name - имя секции */
+	/**
+	 * Генерирует и публикует HTML-код секции. Этот метод обрабатывает теги {{section}}
+	 * @param string $name Имя секции
+	 */
 	public static function section($name) {
 		//Выборка виджетов секции. Построить SQL-запрос, включающий все варианты страниц
 		$s=$query='';
@@ -391,8 +522,13 @@ class core {
 		echo '</div>';
 	}
 
-	/* Возвращает HTML-тег <script src...> или пустую строку, если скрипт уже подключен. Используется чтобы избежать повторного подключение JavaScript, а также устанавливает языковые константы JavaScript.
-	$name - имя скрипта или константы, если скрипт находится на сайте, то указывать относительный путь от /public/js, имя должно быть без ".js". */
+	/**
+	 * Возвращает строку, содержащую HTML-тег <script...> или пустую строку, если этот скрипт уже подключён. Если параметр $name содержит строку, начинающуюся с "LNG", то установит соответствующую константу локализации, доступную в JS через document._lang['LNGConstantName']
+	 * Используется для избежания повторного включения одного скрипта JavaScript.
+	 * @param string $name Абсолютное или краткое имя .js-файла или имя языковой константы (LNGxxx)
+	 * @param string|null $attribute дополнительные атрибуты, которые будут добавлены к тегу <script> (например "defer")
+	 * @return string
+	 */
 	public static function js($name,$attribute=null) {
 		static $_js;
 		static $_lang=false;
@@ -410,12 +546,14 @@ class core {
 		return '<script type="text/javascript" src="'.self::url().'public/js/'.$name.'.js" '.$attribute.'></script>';
 	}
 
-	/* Генерирует событие (прерывание).
-	Параметры: 1й - системное имя события, 2й и последующие - индивидуальны для каждого события */
-	//Эту функцию можно кешировать, но пусть пока останется как есть, ибо экономия на спичках
-	public static function hook() {
-		$data=func_get_args();
-		$name=array_shift($data);
+	/**
+	 * Генерирует событие
+	 * Обработчики события - это файлы /hook/$name.{module}.php
+	 * @param string $name Имя события (файлы )
+	 * @param mixed ...$data Произвольные данные, которые будут доступны в обработчике события
+	 * @return mixed|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
+	 */
+	public static function hook($name,...$data) {
 		$d=opendir(core::path().'hook');
 		$result=array();
 		$len=strlen($name);
@@ -432,10 +570,14 @@ class core {
 		return $result;
 	}
 
-	//Подключает файл локализации
+	/**
+	 * Подключает файл локализации (/language/$name.{_LANG}.php)
+	 * @param string $name Имя файла (без ".php" локализации)
+	 * @return bool Существует ли файл локализации
+	 */
 	public static function language($name) {
 		$f=self::path().'language/'.$name.'.'._LANG.'.php';
-		if(!file_exists($f)) return false;
+		if(file_exists($f)===false) return false;
 		include_once($f);
 		return true;
 	}
@@ -445,18 +587,42 @@ class core {
 		return $result;
 	}
 }
-/* --- --- */
 
 
 
-/* --- CONTROLLER ---*/
+
+/**
+ * Базовый класс контроллера, все контроллеры должны наследоваться от него
+ */
 class controller {
-	public $url=array(); //предназначен для сохранения запрошенного URL (в виде массива)
+
+	/**
+	 * @var string[] $url Хранит разобранный URL запрошенной страницы исходя из $_GET['corePath'] и правил преобразования ссылок: $url[0] - имя контроллера, $url[1] - имя действия
+	 * Конструктор контроллера может изменить controller::$url[1], чтобы перенаправить запрос на нужное действие.
+	 */
+	public $url=array();
+	/**
+	 * @var string $pageTitle Заголовок страницы, отображаемый в HTML-теге <h1 class="pageTitle">
+	 */
+	public $pageTitle='';
+	/**
+	 * @var controller $self Ссылка на экземпляр контроллера, через эту переменную можно получить доступ к контроллеру за его пределами (например из виджета или шаблона)
+	 */
+	public static $self;
+
+	/**
+	 * @var string|null HTML-тег <title>, если не задан будет равен self::$pageTitle
+	 */
 	protected $metaTitle='';
+	/**
+	 * @var string|null $metaKeyword HTML-тег <meta name="keywords">, если не задан, тег не будет выводиться
+	 */
 	protected $metaKeyword='';
+	/**
+	 * @var string|null $metaDescription HTML-тег <meta name="description">, если не задан, тег не будет выводиться
+	 */
 	protected $metaDescription='';
-	public $pageTitle=''; //отображаемый заголовок, если задан, то будет выведен в теге <H1 class="pageTitle">
-	public static $self; //содержит ссылку на контроллер, чтобы предоставить к нему доступ всем желающим
+
 	private $_head=''; //содержит теги, которые должны быть подключены в секции <head>
 
 	public function __construct() {
@@ -472,20 +638,32 @@ class controller {
 		controller::$self=&$this;
 	}
 
-	/* Служит для подключения JavaScript или других тегов в область <head> */
+	/**
+	 * Подключает JavaScript или другой тег в HTML-область <head>. Вызов имеет смысл только в конструкторе или действиях. Защищает от повторного включения одного и того же файла
+	 * @param string $text Имя .js-файла или произвольный тег в формате "<...>"
+	 * @param string|null $attribute Любые атрибуты, присоединяемые к тегу <script> (например "defer")
+	 * @see core::js()
+	 */
 	public function js($text,$attribute=null) {
 		if($text[0]!='<') $text=core::js($text,$attribute);
 		$this->_head.=$text;
 	}
 
-	/* Служит для подключения CSS или других тегов в область <head> */
+	/**
+	 * Служит для подключения CSS или других тегов в область <head>. Вызов имеет смысл только в конструкторе или действиях. В отличии от self::js() не проверяет подключён ли уже этот файл.
+	 * @param string $text Имя .css-файла или произвольный тег в формате "<...>"
+	*/
 	protected function style($text) {
 		if($text[0]!='<') $text='<link type="text/css" rel="stylesheet" href="'.core::url().'public/css/'.$text.'.css" />';
 		$this->_head.=$text;
 	}
 
-	/* Генерирует HTML-код (шаблон, теги в <head>, кнопки админки, представление)
-	$view - представление (null, строка или объект); $renderTemplate - если true, то выводится контент без шаблона (для AJAX-запросов) */
+	/**
+	 * Рендерит шаблон и представление. Вызывать метод явно не нужно.
+	 * Представлением может быть класс (должен реализовывать метод render($view)) или имя представления (файл /view/{controller}/$view.php). Если представление не задано, ничего выводиться не будет.
+	 * @param object|string|bool|null $view Класс представления или имя файла представления
+	 * @param bool $renderTemplate Если false, то шаблон обрабатываться не будет (полезно для AJAX-запросов)
+	 */
 	public function render($view,$renderTemplate=true) {
 		core::hook('beforeRender',$renderTemplate); //сгенерировать событие ("перед началом вывода в поток")
 		if(!core::template()) $renderTemplate=false; //шаблон мог быть отключен через вызов core::template()
@@ -541,7 +719,9 @@ class controller {
 		if($renderTemplate && $s) include(core::path().'cache/template/'.core::template().'Footer.php'); //нижняя часть шаблона
 	}
 
-	//Выводит HTML-код хлебных крошек, если существует sController::breadcrumb(Action).
+	/**
+	 * Выводит HTML-код блока хлебных крошек. Вызывается фреймворком при обработке тега шаблона {{breadcrumb}}
+	 */
 	public function breadcrumb() {
 		if(core::url()==$_SERVER['REQUEST_URI'] || core::url()._LANG.'/'==$_SERVER['REQUEST_URI']) return; //главная страница
 		$b='breadcrumb'.$this->url[1];
@@ -558,7 +738,10 @@ class controller {
 		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
 	}
 
-	/* Служебный метод, используется для вывода кнопок административного интерфейса */
+	/**
+	 * Выводит HTML-код кнопок админки для элемента списка, явно вызывать метод не нужно
+	 * @param mixed $data Произвольные данные, которые будут переданы в метод sController::admin{Action}Link2()
+	 */
 	protected function admin($data=null) {
 		$user=core::userCore();
 		if($user->group<200) return;
@@ -571,30 +754,59 @@ class controller {
 	}
 
 }
-/* --- --- */
 
 
 
-/* --- WIDGET --- */
-//Базовый класс виджета
+
+/**
+ * Базовый класс виджета. Все виджеты должны быть унаследованы от этого класса
+ */
 abstract class widget {
 
+	/**
+	 * Метод запуска обработки виджета
+	 * Если возвращаемое значение false или null, виджет не будет выводиться. Если true, то будут выведены только кнопки админки виджета
+	 * @return object|string|bool|null Класс представления (должен реализовывать метод render()) или имя файла представления (/view/widget{Result}.php).
+	 */
 	abstract public function __invoke();
 
-	protected $options; //Предназначена для хранения параметров виджета, может быть переопределён в конструкторе
-	protected $link; //Предназначена для хранения той страницы, для которой виджет был сформирован в составе секции
+	/**
+	 * @var mixed $options Настойки и другие данные виджета, зависит от конкретной реализации
+	 */
+	protected $options;
+	/**
+	 * @var string|null $link Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
+	 */
+	protected $link;
+
 	public function __construct($options,$link) { $this->options=$options; $this->link=$link; }
-	public function action() {}
-	public function title($title) { //Заголовок виджета. Используется в основном чтобы дать возможность виджету вставить какую-либо ссылку в заголовок
+
+	/**
+	 * Выводит HTML код заголовка виджета. Может быть переопределён, если, к примеру, нужно вставить ссылку в заголовок
+	 * @param string $title Заголовок, заданный в админке или шаблоне (тег {{widget}})
+	 */
+	public function title($title) {
 		echo '<header>'.$title.'</header>';
 	}
+
+	/**
+	 * Должен возвращать массив с правилами для генерации кнопок административного интерфейса
+	 * @return array[]
+	 */
 	public function adminLink() { return array(); }
 
+	/**
+	 * Генерирует HTML-код виджета. Запускается фреймворком, если widget::__invoke() не вернул false или null.
+	 * Этот метод необходим чтобы из представления был доступ к виджету через переменную $this.
+	 * @param string Имя файла представления
+	 */
 	public function render($view) {
 		if($view!==true) include(core::path().'view/widget'.$view.'.php');
 	}
 
-	/* Выводит HTML-код кнопок админки для ЭЛЕМЕНТА СПИСКА */
+	/**
+	 * Выводит HTML-код кнопок админки для элемента списка. Вызывается фреймворком, явный вызов не требуется.
+	 */
 	public function admin($data) {
 		$u=core::userCore();
 		if($u->group<200) return;
@@ -605,23 +817,52 @@ abstract class widget {
 		}
 	}
 }
-/* --- --- */
 
 
 
-/* --- USER --- */
-//Класс "пользователь" всегда находится в сессии, получить экземляр можно при помощи core::user() и core::usercore()
+
+/**
+ * Класс олицетворяет пользователя.
+ * Этот класс всегда находится в сессии ($_SESSION['user'], $_SESSION['userCore'])
+ * @see core::user()
+ * @see core::userCore()
+ * @see model/user.php
+ */
 class user {
+	/**
+	 * @var int $id Идентификатор пользователя, "0" для неавторизованных
+	 */
 	public $id;
+
+	/**
+	 * @var string|null $login Имя пользователя
+	 */
 	public $login;
+
+	/**
+	 * @var string|null $email Адрес электронной почты
+	 */
 	public $email;
+
+	/**
+	 * @var int $group Группа пользователя: 0 - не авторизованный, 1-199 - зарегистрированный, 200-254 - администратор, 255 - суперпользователь
+	 */
 	public $group=0;
 
+	/**
+	 * @param int|null $id Если задан, то из базы данных будут загружены данные пользователя с этим идентификатором
+	 */
 	public function __construct($id=null) {
 		if($id) $this->model($id);
 	}
 
 	//Возвращает модель, позволяющую управлять пользователями. Если $id задан, то модель будут загружены данные по указанному идентификатору
+	/**
+	 * Возвращает ActiveRecord-модель на основе текущего пользователя.
+	 * Если текущий пользователь авторизован, то модель будет содержать данные этого пользователя.
+	 * @param int|null $id Идентификатор пользователя. Если задан, то будут загружены соответствующие данные из базы данных, текущий пользователь будет "замещён" загруженным.
+	 * @return modelUser
+	 */
 	public function model($id=null) {
 		static $model;
 		if(!isset($model) || $id!==null) {
@@ -631,11 +872,14 @@ class user {
 		return $model;
 	}
 }
-/* --- --- */
 
 
 
-/* С этой функции начинается вся основная работа */
+
+/**
+ * Запускает цикл обработки запроса.
+ * @param bool $renderTemplate Нужно ли обрабатывать шаблон (false для AJAX-запросов)
+ */
 function runApplication($renderTemplate=true) {
 	session_start();
 	include(core::path().'language/global.'._LANG.'.php');
@@ -643,10 +887,10 @@ function runApplication($renderTemplate=true) {
 	if($user->group>=200) include(core::path().'core/admin.php');
 	controller::$self=new sController($_GET['corePath'][1]);
 	$alias=controller::$self->url[0];
-	if(!isset($_POST[$alias])) { //в _POST нет данных, относящихся к запрошенному контроллеру
-		if(!method_exists('sController','action'.controller::$self->url[1])) core::error404();
+	if(isset($_POST[$alias])===false) { //в _POST нет данных, относящихся к запрошенному контроллеру
+		if(method_exists('sController','action'.controller::$self->url[1])===false) core::error404();
 	} else { //в _POST есть данные, относящиеся к запрошенному контроллеру
-		if(!method_exists('sController','action'.controller::$self->url[1].'Submit')) core::error404();
+		if(method_exists('sController','action'.controller::$self->url[1].'Submit')===false) core::error404();
 	}
 	//Подготовить данные $_POST и $_FILES для передачи submit-действию
 	if(isset($_POST[$alias])) {
@@ -667,11 +911,11 @@ function runApplication($renderTemplate=true) {
 		}
 
 		$s='action'.controller::$self->url[1].'Submit';
-		controller::$self->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
-	}
+		$data=controller::$self->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
+	} else $data=null;
 	//Запуск действия (не submit) и вывод контента
 	$s='action'.controller::$self->url[1];
-	@$view=controller::$self->$s();
+	@$view=controller::$self->$s($data);
 	controller::$self->render($view,$renderTemplate);
 }
 

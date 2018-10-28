@@ -17,7 +17,7 @@ class widgetAdmin extends widget {
 			}
 		});
 		if(!$q) return array();
-		$db->query('SELECT module,description,picture FROM userRight WHERE module IN ('.$q.')');
+		$db->query('SELECT module,description,picture FROM user_right WHERE module IN ('.$q.')');
 		//Сформировать массив кнопок
 		while($item=$db->fetch()) {
 			$module=explode('.',$item[0]);

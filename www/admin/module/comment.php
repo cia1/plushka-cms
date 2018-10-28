@@ -1,7 +1,7 @@
 <?php return array(
 'right'=>'comment.moderate,comment.widget',
 'widget'=>'comment',
-'table'=>'comment,commentGroup',
+'table'=>'comment,comment_group',
 'file'=>array(
 	'admin/controller/comment.php',
 	'admin/hook/pageDelete.comment.php',

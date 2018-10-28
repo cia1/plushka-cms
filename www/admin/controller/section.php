@@ -16,18 +16,18 @@ class scontroller extends controller {
 	/* Список виджетов в секции */
 	public function actionIndex() {
 		$this->section=$_GET['name']; //Имя секции
-		$this->button('?controller=section&action=widget&section='.$this->section,'new','Добавить новый виджет','Создать');
+		$this->button('section/widget?section='.$this->section,'new','Добавить новый виджет','Создать');
 		$t=core::table();
 		$t->rowTh('Пользователи|Виджет|Тип||');
 		$db=core::db();
-		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widgetType t ON t.name=w.name WHERE w.section='.$db->escape($this->section).' GROUP BY w.id,t.title,s.sort ORDER BY s.sort');
+		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widget_type t ON t.name=w.name WHERE w.section='.$db->escape($this->section).' GROUP BY w.id,t.title,s.sort ORDER BY s.sort');
 		if($items) for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
 			$t->text(($items[$i][5] ? $items[$i][5] : 'все'));
-			$t->link($items[$i][1],'?controller=section&action=widget&id='.$items[$i][0].'&section='.$_GET['name']);
+			$t->link('section/widget?id='.$items[$i][0].'&section='.$_GET['name'],$items[$i][1]);
 			$t->text($items[$i][2]);
-			$t->upDown('?controller=section&id='.$items[$i][0].'&action=',$items[$i][3],$cnt);
-			$t->delete('?controller=section&name='.$this->section.'&id='.$items[$i][0].'&action=delete');
+			$t->upDown('id='.$items[$i][0],$items[$i][3],$cnt);
+			$t->delete('name='.$this->section.'&id='.$items[$i][0]);
 		}
 		unset($items);
 		$this->table=$t;
@@ -48,7 +48,7 @@ class scontroller extends controller {
 			$db->query('UPDATE section SET sort='.$data[1].' WHERE name='.$db->escape($data[0]).' AND sort='.$newSort);
 			$db->query('UPDATE section SET sort='.$newSort.' WHERE widgetId='.$id);
 		}
-		core::redirect('?controller=section&name='.$data[0]);
+		core::redirect('section?name='.$data[0]);
 	}
 
 	/* Изменение порядка виджетов (ниже) */
@@ -62,7 +62,7 @@ class scontroller extends controller {
 			$db->query('UPDATE section SET sort='.$data[1].' WHERE name='.$db->escape($data[0]).' AND sort='.$newSort);
 			$db->query('UPDATE section SET sort='.$newSort.' WHERE widgetId='.$id);
 		}
-		core::redirect('?controller=section&name='.$data[0]);
+		core::redirect('section?name='.$data[0]);
 	}
 
 	/* Удаление виджета */
@@ -81,14 +81,14 @@ class scontroller extends controller {
 		}
 		$db->query('DELETE FROM section WHERE widgetId='.$id);
 		$db->query('DELETE FROM widget WHERE id='.$id);
-		core::redirect('?controller=section&name='.$_GET['name'],'Виджет удалён');
+		core::redirect('section?name='.$_GET['name'],'Виджет удалён');
 	}
 
 	/* Создание или изменение виджета секции */
 	public function actionWidget() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Изменение
-			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section,w.groupId,w.cssClass FROM widget w INNER JOIN widgetType t ON t.name=w.name WHERE w.id='.$_GET['id']);
+			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section,w.groupId,w.cssClass FROM widget w INNER JOIN widget_type t ON t.name=w.name WHERE w.id='.$_GET['id']);
 			$this->data['type']=array($this->data['id'],$this->data['controller'],$this->data['action']); //Нужен для загрузки (ajax) формы модуля.
 			if($this->data['groupId']!==null) $this->data['groupId']=$this->data['groupId'];
 			//Загрузить список страниц, на которых публикуется виджет
@@ -101,15 +101,15 @@ class scontroller extends controller {
 			//Иначе загрузить список типов, чтобы предоставить выбор
 			if(isset($_GET['type'])) {
 				$this->data['name']=$_GET['type'];
-				$data=$db->fetchArrayOnce('SELECT controller,action FROM widgetType WHERE name='.$db->escape($this->data['name']));
+				$data=$db->fetchArrayOnce('SELECT controller,action FROM widget_type WHERE name='.$db->escape($this->data['name']));
 				$this->data['controller']=$data[0];
 				$this->data['action']=$data[1];
-			} else $this->type=$db->fetchArrayAssoc('SELECT * FROM widgetType ORDER BY controller,name');
+			} else $this->type=$db->fetchArrayAssoc('SELECT * FROM widget_type ORDER BY controller,name');
 			$this->data['section']=$_GET['section'];
 			$url=array();
 		}
 		//Постройка древовидного массива, содержащего все пункты всех меню. Нужен чтобы вывести чекбоксы для отметки страниц.
-		$db->query('SELECT i.id,i.parentId,m.title,i.title_'._LANG.',i.link FROM menuItem i LEFT JOIN menu m ON m.id=i.menuId ORDER BY i.menuId,i.parentId,i.sort');
+		$db->query('SELECT i.id,i.parentId,m.title,i.title_'._LANG.',i.link FROM menu_item i LEFT JOIN menu m ON m.id=i.menuId ORDER BY i.menuId,i.parentId,i.sort');
 		$this->pageMenu=array(0=>array('title'=>null,'child'=>array(),'parent'=>null));
 		while($item=$db->fetch()) $this->pageMenu[$item[0]]=array('menuTitle'=>$item[2],'title'=>$item[3],'parent'=>$item[1],'child'=>array(),'link'=>$item[4]);
 		foreach($this->pageMenu as $id=>$null) {
@@ -117,7 +117,7 @@ class scontroller extends controller {
 			$item=&$this->pageMenu[$id];
 			$this->pageMenu[$item['parent']]['child'][]=&$item;
 		}
-		$this->userGroupList=$db->fetchArray('SELECT id,name FROM userGroup ORDER BY id');
+		$this->userGroupList=$db->fetchArray('SELECT id,name FROM user_group ORDER BY id');
 		array_unshift($this->userGroupList,array('0','не авторизованные'));
 		$this->pageMenu=$this->pageMenu[0]['child']; //Теперь уже лишний "обвес" не нужен
 		$this->pageOther=self::_pageOther($url,$this->pageMenu); //Обработка $this->pageMenu и создание $this->pageOther
@@ -248,7 +248,7 @@ class scontroller extends controller {
 			}
 			$db->insert('section',$url);
 		}
-		core::redirect('?controller=section&action=widget&id='.$data['section'],'Изменения сохранены');
+		core::redirect('section/widget?id='.$data['section'],'Изменения сохранены');
 	}
 /* ----------------------------------------------------------------------------------- */
 

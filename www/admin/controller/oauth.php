@@ -16,9 +16,9 @@ class sController extends controller {
 		$cfg=core::config('oauth');
 		$t=core::table();
 		$t->rowTh('Сервер|Статус');
-		$cfgSocial=core::configAdmin('oauth');
+		$cfgSocial=core::config('admin/oauth');
 		foreach($cfgSocial as $id=>$item) {
-			$t->text('<a href="'.core::link('?controller=oauth&action=item&id='.$id).'">'.$item[0].'</a>');
+			$t->link('oauth/item?id='.$id,$item[0]);
 			$t->text((isset($cfg[$id]) ? 'подключено' : 'не подключено'));
 		} return $t;
 	}
@@ -27,7 +27,7 @@ class sController extends controller {
 	public function actionItem() {
 		$cfg=core::config('oauth');
 		if(isset($cfg[$_GET['id']])) $cfg=$cfg[$_GET['id']]; else $cfg=array('','');
-		$cfgSocial=core::configAdmin('oauth');
+		$cfgSocial=core::config('admin/oauth');
 		$cfgSocial=$cfgSocial[$_GET['id']];
 		$f=core::form();
 		$f->label('Сервер:',$cfgSocial[0]);
@@ -48,7 +48,7 @@ class sController extends controller {
 			unset($cfg->$s);
 		}
 		$cfg->save('oauth');
-		core::redirect('?controller=oauth&action=server');
+		core::redirect('oauth/server');
 	}
 
 	/* Форма регистрации и авторизации
@@ -57,7 +57,7 @@ class sController extends controller {
 		$cfg=core::config('oauth');
 		$f=core::form();
 		$db=core::db();
-		$f->select('userGroup','Группа новых пользователей','SELECT id,name FROM userGroup WHERE id<200 ORDER BY id',$cfg['userGroup'],'не регистрировать новых пользователей');
+		$f->select('userGroup','Группа новых пользователей','SELECT id,name FROM user_group WHERE id<200 ORDER BY id',$cfg['userGroup'],'не регистрировать новых пользователей');
 		$f->submit('Продолжить','submit');
 		return $f;
 	}

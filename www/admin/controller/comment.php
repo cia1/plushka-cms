@@ -15,7 +15,7 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Общая кнопка "Комментарии: модерировать". Список всех комментариев, ожидающих модерации */
 	public function actionModerate() {
-		$this->button('?controller=comment&action=setting','setting','Настройки');
+		$this->button('comment/setting','setting','Настройки');
 		$db=core::db();
 		$db->query('SELECT id,date,name,ip,text FROM comment WHERE status!=1 ORDER BY date DESC');
 		$t=core::table();
@@ -25,7 +25,7 @@ class sController extends controller {
 			$t->text($item[2]);
 			$t->text($item[3]);
 			$t->text($item[4]);
-			$t->editDelete('?controller=comment&noConfirm&id='.$item[0]);
+			$t->editDelete('noConfirm&id='.$item[0]);
 		}
 		return $t;
 	}
@@ -47,7 +47,7 @@ class sController extends controller {
 		$cfg->oauth=isset($data['oauth']);
 		$cfg->save('comment');
 		core::success('Изменения сохранены');
-		core::redirect('?controller=comment&action=moderate');
+		core::redirect('comment/moderate');
 	}
 
 	/* Редактирование комментария (в том числе модерация) */
@@ -74,7 +74,7 @@ class sController extends controller {
 			'text'=>array('html')
 		))) return false;
 		core::success('Изменения сохранены');
-		core::redirect('?controller=comment&action=moderate');
+		core::redirect('comment/moderate');
 	}
 
 	/* Удаление комментария */
@@ -82,7 +82,7 @@ class sController extends controller {
 		if(isset($_GET['noConfirm'])) { //Удалить без подтверждения (это действие может вызываться из разных мест)
 			$db=core::db();
 			$db->query('DELETE FROM comment WHERE id='.$_GET['id']);
-			core::redirect('?controller=comment&action=moderate');
+			core::redirect('comment/moderate');
 		}
 		$f=core::form();
 		$f->html('Подтвердите удаление комментария');
@@ -94,14 +94,14 @@ class sController extends controller {
 	public function actionDeleteSubmit($data) {
 		$db=core::db();
 		$id=(int)$data['id'];
-		$comment=$db->fetchArrayOnce('SELECT c.status,g.link,c.groupId FROM comment c LEFT JOIN commentGroup g ON g.id=c.groupId WHERE c.id='.$id);
+		$comment=$db->fetchArrayOnce('SELECT c.status,g.link,c.groupId FROM comment c LEFT JOIN comment_group g ON g.id=c.groupId WHERE c.id='.$id);
 		if(!$comment) core::error404();
 		if($comment[0]>0) {
 			if(core::hook('commentDelete',$comment[1],$comment[2],$id)===false) return false;
 		}
 		$db->query('DELETE FROM comment WHERE id='.$id);
 		core::success('Комментарий удалён');
-		core::redirect('?controller=comment');
+		core::redirect('comment');
 	}
 /* ----------------------------------------------------------------------------------- */
 

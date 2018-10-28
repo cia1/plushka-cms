@@ -3,7 +3,7 @@
 'right'=>'shopContent.brand,shopContent.category,shopSetting.feature,shopContent.variant,shopSetting.setting,shopSetting.import',
 'widget'=>'shopProductGroup,shopCart,shopCategory,shopFeatureSearch',
 'menu'=>'5',
-'table'=>'shpCategory,shpBrand,shpFeature,shpFeatureGroup,shpProduct,shpProductFeature,shpProductGroup,shpProductGroupItem,shpVariant',
+'table'=>'shp_category,shp_brand,shp_feature,shp_feature_group,shp_product,shp_product_feature,shp_product_group,shp_product_group_item,shp_variant',
 'file'=>array(
 	'admin/config/shop.php',
 	'admin/controller/shopContent.php',

@@ -44,7 +44,7 @@ class sController extends controller {
 		}
 		//Сохранить новый пароль в базе данных
 		$userModel->password=$data['password1'];
-		$userModel->save('id,password');
+		$userModel->save('id');
 		core::redirect('user',LNGPasswordChanged);
 	}
 
@@ -114,8 +114,8 @@ class sController extends controller {
 		//Обновить статус пользователя
 		$user->status=1;
 		$this->code=null;
-		$user->save(false,'status,code');
-		$user->sendMail('infoAdmin'); //сообщение администрации
+		$user->save(false,'id');
+//		$user->sendMail('infoAdmin'); //сообщение администрации
 		$this->login=$user->login;
 		$this->pageTitle=$this->metaTitle=LNGRegistration;
 		return 'Confirm';
@@ -149,7 +149,7 @@ class sController extends controller {
 		}
 		//Обновление кода подтверждения
 		$user->code=md5(time().'resTore');
-		$user->save(false,'code');
+		$user->save(false,'id');
 		if(!$user->sendMail('restoreLink')) return 'Confirm'; //отправить ссылку для восстановления пароля
 		core::redirect('user/login',LNGInstructionsSent);
 	}
@@ -162,7 +162,7 @@ class sController extends controller {
 		$user->password=substr(md5(uniqid(rand(),true)),0,7);
 		$user->status=1;
 		$user->code=null;
-		$user->save(false,'status,password,code');
+		$user->save(false,'id');
 		if(!$user->sendMail('restorePassword')) return 'Confirm'; //отправить новый пароль по почте
 		core::redirect('user/login',LNGNewPasswordSent);
 	}
@@ -172,7 +172,7 @@ class sController extends controller {
 		$uid=core::userId();
 		if(!$uid) core::redirect('user/login');
 		$db=core::db();
-		$db->query('SELECT id,date,user1Id,user1Login,user2Login,message,isNew FROM userMessage WHERE user1Id='.$uid.' OR user2Id='.$uid.' ORDER BY date DESC LIMIT 0,25');
+		$db->query('SELECT id,date,user1Id,user1Login,user2Login,message,isNew FROM user_message WHERE user1Id='.$uid.' OR user2Id='.$uid.' ORDER BY date DESC LIMIT 0,25');
 		$this->items=array();
 		$this->newCount=0; //количество новых сообщений
 		while($item=$db->fetch()) {
@@ -182,7 +182,7 @@ class sController extends controller {
 			if($item[6]) $this->newCount++;
 		}
 		if($this->newCount) {
-			$db->query('UPDATE userMessage SET isNew=0 WHERE user2Id='.$uid);
+			$db->query('UPDATE user_message SET isNew=0 WHERE user2Id='.$uid);
 			$_SESSION['newMessageCount']=0;
 			$_SESSION['newMessageTimeout']=time();
 		}
@@ -194,7 +194,7 @@ class sController extends controller {
 	/* Отправка нового сообщения по внутренней почте */
 	public function actionMessageSubmit($data) {
 		//Пользователи могут только отвечать на уже существующие сообщения, но не отправлять новые
-		$data2=core::db()->fetchArrayOnceAssoc('SELECT user1Id,user1Login FROM userMessage WHERE id='.(int)$data['replyTo']);
+		$data2=core::db()->fetchArrayOnceAssoc('SELECT user1Id,user1Login FROM user_message WHERE id='.(int)$data['replyTo']);
 		if(!$data2) core::error404();
 		if(!core::userCore()->model()->message($data2['user1Id'],$data2['user1Login'],nl2br($data['message']))) return false;
 		core::redirect('user/message',LNGMessageSent);

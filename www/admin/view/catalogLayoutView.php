@@ -1,4 +1,4 @@
-<form action="<?=core::link('?controller=catalog&action=layoutView&lid='.$_GET['lid'])?>" method="post">
+<form action="<?=core::link('admin/catalog/layoutView?lid='.$_GET['lid'])?>" method="post">
 <input type="hidden" name="catalog[view]" value="<?=$_GET['view']?>" />
 <div id="layoutView">
 <div class="checkbox1">Включён</div><div class="title">Блок данных</div><div class="checkbox2">Отображать заголовок</div>

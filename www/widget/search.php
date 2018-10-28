@@ -8,7 +8,7 @@ class widgetSearch extends widget {
 		return true;
 	}
 
-	public function render($view=null) { ?>
+	public function render($view) { ?>
 		<form action="<?=core::link('search')?>">
 			<input type="text" name="search[keyword]" value="<?=$this->keyword?>" placeholder="<?=LNGFind?>" class="input" id="searchKeyword" />
 			<input type="submit" value="<?=LNGFind?>" class="button" />

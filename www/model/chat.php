@@ -97,7 +97,6 @@ class chat {
 	//Проверяет и фильтрует текст сообщения, добавляет смайлы
 	public static function filterMessage($message) {
 		core::language('chat');
-		$message=trim(str_replace(array("\n","\t",'|'),array(' ',' ','/'),strip_tags($message)));
 		//Проверка длины сообщения
 		if(mb_strlen($message,'UTF-8')<2) {
 			core::error(LNGMessageTooShort);
@@ -142,12 +141,22 @@ class chat {
 	}
 
 	//Добавляет сообщение в чат и возвращает строку сообщения
-	public static function post($chatId,$fromLogin,$message,$toLogin=null,$toId=null) {
+	public static function post($chatId,$from,$message,$toLogin=null,$toId=null) {
+		$message=trim(str_replace(array("\n","\r","\t",'|'),array(' ','',' ','/'),strip_tags($message)));
 		$chatId=core::translit($chatId);
-		$userId=core::userId();
+		if(is_array($from)===true) {
+			$userId=$from[1];
+			$fromLogin=$from[0];
+		} else {
+			$fromLogin=$from;
+			$userId=core::userId();
+			if(!$userId) $_SESSION['chatLogin']=$from;
+			elseif(isset($cfg['loginAlias'][$from])) $fromLogin=$cfg['loginAlias'][$from];
+		}
+		unset($from);
+
 		$cfg=core::config('chat');
-		if(!$userId) $_SESSION['chatLogin']=$fromLogin;
-		elseif(isset($cfg['loginAlias'][$fromLogin])) $fromLogin=$cfg['loginAlias'][$fromLogin];
+
 		$s=microtime(true)."\t".$fromLogin."|".$userId."\t".$toLogin.'|'.$toId."\t".$message."\t";
 		$data=file(core::path().'data/chat/'.$chatId.'.txt');
 		$f=fopen(core::path().'data/chat/'.$chatId.'.txt','w');

@@ -1,23 +1,35 @@
 <?php
-// Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-/* Служит для отправки электронных писем */
+//Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+
+/**
+ * Реализует отправку электронных писем
+ */
 class email {
 
+	/** @var string[] Массив MIME-частей письма */
 	private $_parts=array();
+	/** @var string Заголовок "From" */ 
 	private	$_from;
+	/** @var string Тема письма */
 	private $_subject='';
+	/** @var string|null Заголовок "Reply-To" */
 	private $_replyTo;
+	/** @var string HTML-текст письма */
 	private $_message;
+	/** @var string|null Адрес SMTP-сервера, если используется метод отправки "SMTP" */
 	private $_smtpHost;
+	/** @var int|null Порт SMTP-сервера, если используется метод отправки "SMTP" */
 	private $_smtpPort;
+	/** @var string|null Имя пользователя, если используется метод отправки "SMTP" */
 	private $_smtpUser;
+	/** @var string|null Пароль пользователя, если используется метод отправки "SMTP" */
 	private $_smtpPassword;
+	/** @var string|null E-mail для заголовка "Return-path" */
 	public $_returnPath;
 
-	/* Инициализирует SMTP, если используется режим SMTP */
 	public function __construct() {
 		$cfg=core::config();
-		if(isset($cfg['smtpHost'])) {
+		if(isset($cfg['smtpHost'])===true) {
 			$this->_smtpHost=$cfg['smtpHost'];
 			$this->_smtpPort=$cfg['smtpPort'];
 			$this->_smtpUser=$cfg['smtpUser'];
@@ -25,19 +37,35 @@ class email {
 		}
 	}
 
-	/* Задаёт поле "от кого" (почта и псевдоним) */
+	/**
+	 * Настраивает поле "от кого"
+	 * @param string $email Адрес электронной почты отправителя
+	 * @param string|null $name Имя отправителя
+	 */
 	public function from($email,$name=null) {
 		if(!$name) $name=$email;
 		$this->_from='From: =?UTF-8?B?'.base64_encode($name).'?= <'.$email.">\r\n";
 	}
 
-	/* Задаёт тему письма */
+	/**
+	 * Устанавливает тему письма
+	 * @param string $value Тема письма
+	 */
 	public function subject($value) { $this->_subject=$value; }
 
-	/* Задаёт текст письма (HTML) */
-	public function message($value) { $this->_message=trim($value); }
+	/**
+	 * Устанавливает текст письма в формате HTML
+	 * @param string $value Текст письма
+	 */
+	public function message($value) {
+		$this->_message=trim($value);
+	}
 
-	/* Задаёт текс письма (HTML), используя HTML-шаблон. $data - ассоциативный массив, содержащий данные, которые должны быть подставлены в письмо */
+	/**
+	 * Устанавливает текст письма используя HTML-шаблон письма.
+	 * @param string $fileName - относительное имя файла письма ([/admin]/data/email/{$fileName}.html)
+	 * @param string[] $data Данные в формате "ключ-значение" для подстановки в шаблон письма
+	 */
 	public function messageTemplate($fileName,$data) {
 		if(substr($fileName,0,6)=='admin/') $fileName=core::path().'admin/data/email/'.substr($fileName,6).'.html';
 		else $fileName=core::path().'data/email/'.$fileName.'.'._LANG.'.html';
@@ -50,22 +78,39 @@ class email {
 		$this->_message=trim($this->_message);
 	}
 
-	/* Задаёт адрес возврата письма */
+	/**
+	 * Устанавливает адрес для возврата письма, если его не удалось доставить адресату
+	 * @param string $email E-mail
+	 */
 	public function returnPath($email) { $this->_returnPath=$email; }
 
-	/* Задаёт адрес для ответов (e-mail и псевдоним) */
+	/**
+	 * Устанавливает получателя ответа на письмо
+	 * @param string $email E-mail
+	 * @param string|null $name Имя получателя
+	 */
 	public function replyTo($email,$name=null) {
 		if(!$name) $name=$email;
 		$this->_replyTo='Reply-To: =?UTF-8?B?'.base64_encode($name).'?= <'.$email.">\r\n";
 	}
 
-	/* Добавляет письму вложение
-	$filename - путь к файлу, $id - псевдоним (имя) файла, $type - MIME-тип */
+	/**
+	 * Добавляет вложение к письму
+	 * @param string $filename Абсолютное имя файла вложения
+	 * @param string $id Псевдоним имени файла
+	 * @param string $type MIME-тип файла
+	 */
 	public function attach($filename,$id,$type='application/octet-stream') {
 		$this->_parts[]=array('ctype'=>$type,'message'=>base64_encode(file_get_contents($filename)),'name'=>$id,'encoding'=>'base64','id'=>$id,'filename'=>substr($filename,strrpos($filename,'/')+1));
 	}
 
-	/* Добавляет к письму вложенное изображение и возвращает идентификатор, по которому можно вставить это изображение в текст письма */
+	/**
+	 * Добавляет к письму вложенное изображение и возвращает идентификатор, по которому можно вставить это изображение в текст письма
+	 * @param string $filename Абослютное имя файла изображения
+	 * @param string|null $type MIME-тип изображения, если не задан будет определён из имени файла
+	 * @return string Псевдоним имени файла
+	 * @see email::getImg()
+	 */
 	public function attachImage($filename,$type=null) {
 		static $_id;
 		if(!$type) $type=substr($filename,strrpos($filename,'.')+1);
@@ -90,11 +135,21 @@ class email {
 		return $id;
 	}
 
+	/**
+	 * Возвращает HTML-тег <img>, ссылающийся на вложенное изображение
+	 * @param string $id Псевдоним имени файла
+	 * @return string
+	 * @see email::attachImage()
+	 */
 	public function getImg($id) {
 		return '<IMG src="cid:'.$id.'" />';
 	}
 
-	/* Отправляет письмо на указанный адрес $email */
+	/**
+	 * Отправляет сформированное письмо
+	 * @param string $email E-mail получателя
+	 * @return bool TRUE при успехе и FALSE при неудаче
+	 */
 	public function send($email) {
 		$boundary=md5(uniqid(time()));
 		$header='';
@@ -111,7 +166,13 @@ class email {
 		return true;
 	}
 
-	/* Выполняет отправку письма средствами SMTP */
+	/**
+	 * Выполняет отправку письма посредством SMTP
+	 * @param string $email E-mail получателя
+	 * @param string $message Сформированное письмо
+	 * @param string[] $header Дополнительные заголовки
+	 * @return bool TRUE при успехе и FALSE при неудаче
+	 */
 	private function sendSmtp($email,$message,$header) {
 		$s='Date: '.date('D, d M Y H:i:s')." UT\r\n"
 		.'Subject: =?UTF-8?B?'.base64_encode($this->_subject)."?=\r\n"

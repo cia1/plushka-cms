@@ -1,6 +1,6 @@
 <?php
-core::import('core/model');
-class article extends model {
+core::import('admin/core/modelEx');
+class article extends modelEx {
 
 	private $_oldAlias;
 
@@ -25,17 +25,15 @@ class article extends model {
 	}
 
 	protected function rule() {
-		return array(
-			'id'=>array('primary'),
-			'categoryId'=>array('integer','Категория'),
-			'alias'=>array('latin','URL (псевдоним)',true),
-			'title'=>array('string','Заголовок',true,'max'=>150),
-			'text1'=>array('html','Краткий текст (введение)'),
-			'text2'=>array('html','Текст статььи'),
-			'date'=>array('date','Дата публикации',false),
-			'metaTitle'=>array('string','meta Заголовок'),
-			'metaKeyword'=>array('string','meta Ключевые слова'),
-			'metaDescription'=>array('string','meta Описание')
+		return $this->commonRuleAppend(
+			array(
+				'id'=>array('primary'),
+				'categoryId'=>array('integer','Категория'),
+				'text1'=>array('html','Краткий текст (введение)'),
+				'text2'=>array('html','Текст статььи'),
+				'date'=>array('date','Дата публикации',false),
+			),
+			'title,alias,metaTitle,metaDescription,metaKeyword'
 		);
 	}
 
@@ -75,7 +73,7 @@ class article extends model {
 				}
 				$cfg2->save('_core');
 			}
-			$this->db->query('UPDATE menuItem SET link='.$this->db->escape('article/view/'.$this->_data['alias']).' WHERE link='.$this->db->escape($s));
+			$this->db->query('UPDATE menu_item SET link='.$this->db->escape('article/view/'.$this->_data['alias']).' WHERE link='.$this->db->escape($s));
 		}
 		return $this->afterInsert($id);
 	}

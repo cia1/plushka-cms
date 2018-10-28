@@ -9,7 +9,7 @@ class widgetMenu extends widget {
 		//"Текущим" пунктом (выделенным) считается тот, у которого всех больше совпадений (это не идельное решение, но на практике неплохо работает).
 		//В $this->data буедт древовидный массив всех пунктов меню, а в $this->active - все "текущие" пункты меню (несколько - чтобы выделить родительские)
 		$db=core::db();
-		$db->query('SELECT link,title_'._LANG.',id,parentId FROM menuItem WHERE menuId="'.$this->options.'" ORDER BY sort');
+		$db->query('SELECT link,title_'._LANG.',id,parentId FROM menu_item WHERE menuId="'.$this->options.'" ORDER BY sort');
 		$items=array();
 		if($_GET['corePath'][1]) $this->_requestMatches=count($_GET['corePath']);
 		else $this->_requestMatches=1; //количество элементов ЧПУ ссылки в запрошенной странице

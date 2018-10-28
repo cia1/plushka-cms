@@ -15,12 +15,8 @@ class config implements IteratorAggregate {
 	/* Загружает в $this->_data конфигурацию из указанного файла */
 	public function load($fname=null) {
 		if($fname===null && property_exists($this,'fileName')) $fname=$this->fileName;
-		if(substr($fname,0,6)=='admin/') $f=core::path().'admin/config/'.substr($fname,6).'.php'; else $f=core::path().'config/'.$fname.'.php';
-		if(!file_exists($f)) {
-			core::error('Конфигурации '.$fname.' не существует');
-			return false;
-		}
-		$this->_data=include($f);
+    $this->_data=core::config($fname);
+    if(is_array($this->_data)===false) $this->_data=array();
 	}
 
 	/* Возвращает значение параметра */

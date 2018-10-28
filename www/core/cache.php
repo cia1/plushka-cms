@@ -1,8 +1,15 @@
 <?php
-//Внимание! Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+//Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+
+/**
+ * Класс, выполняющий базовое кэширование шаблона и структуры базы данных
+ */
 class cache {
 
-	/* Создаёт кеш шаблона с именем $name */
+	/**
+	 * Создаёт кэш шаблона
+	 * @param string $name Имя шаблона
+	 */
 	public static function template($name) {
 		if(substr($_SERVER['REQUEST_URI'],0,7)=='/admin/') $adminPath='admin/'; else $adminPath='';
 		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
@@ -80,7 +87,9 @@ class cache {
 		fwrite($f,$s);
 	}
 
-	//Кеширует мультиязычные таблицы
+	/**
+	 * Кэширует информацию о мультиязычных таблицах основной (core::db()) базы данных
+	 */
 	static function languageDatabase() {
 		$cfg=core::config();
 		if($cfg['dbDriver']=='mysql') {
@@ -115,9 +124,13 @@ class cache {
 		$cfg=new config();
 		$cfg->setData($lang);
 		$cfg->save('../cache/language-database');
-		return true;
 	}
 
+	/**
+	 * Загружает структуру базы данных MySQL
+	 * @param bool $field Загружать список полей таблиц (true) или только список  таблиц (false)
+	 * @return array
+	 */
 	private static function _structureMySQL($field=true) {
 		$data=array();
 		$db=core::mysql();
@@ -134,6 +147,11 @@ class cache {
 		return $data;
 	}
 
+	/**
+	 * Загружает структуру базы данных SQLite
+	 * @param bool $field Загружать список полей таблиц (true) или только список  таблиц (false)
+	 * @return array
+	 */
 	private static function _structureSQLite($field=true) {
 		$data=array();
 		$db=core::sqlite();

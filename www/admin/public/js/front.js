@@ -51,7 +51,7 @@ function _adminDialogBoxSetHelp(link) {
 	if(!top.$.adminDialog) return;
 	var a=top.$.adminDialog.self[0].getElementsByClassName('_adminDialogBoxHelp')[0];
 	if(link) {
-		a.href='admin/index.php?controller=documentation&action=dialog&path='+encodeURIComponent(link)+'&_front';
+		a.href='admin/index.php?controller=manual&action=dialog&path='+encodeURIComponent(link)+'&_front';
 		a.style.display='';
 	} else a.style.display='none';
 }

@@ -2,7 +2,7 @@
 'right'=>'form.*',
 'widget'=>'form',
 'menu'=>'7',
-'table'=>'frmForm(title),frmField',
+'table'=>'frm_form(title),frm_field',
 'file'=>array(
 	'admin/controller/form.php',
 	'admin/hook/languageCreate.form.php',

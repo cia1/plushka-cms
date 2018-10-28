@@ -14,7 +14,7 @@
 		<div style="clear:both;"></div>
 		<hr />
 		<h3>Очистка контента</h3>
-		<a href="<?=core::link('devTool/setting')?>">Настройки</a>
+		<a href="<?=core::linkAdmin('devTool/setting')?>">Настройки</a>
 		<?php $this->formClear->render('devTool/clear','onsubmit="return confirm(\'Будет удалён весь контент как из базы данных, так и из файловой системы. Подтвердите операцию.\');"'); ?>
 		<cite>Будет удалён весь контент сайта, включая главную страницу, поэтому после удаления вы увидите 404-ю ошибку.</cite>
 		<div style="clear:both;"></div>
@@ -22,9 +22,9 @@
 			<hr />
 			<h3>Бэкап</h3>
 			<?php if($this->backupDate) { ?>
-				<p>Бэкап создан <?=date('d.m.Y H:i',$this->backupDate); ?>. <a href="<?=core::url()?>tmp/dump.sql">Скачайте</a> и затем <a href="<?=core::link('?controller=devTool&action=backupDelete')?>">удалите</a> файл.</p>
+				<p>Бэкап создан <?=date('d.m.Y H:i',$this->backupDate); ?>. <a href="<?=core::url()?>tmp/dump.sql">Скачайте</a> и затем <a href="<?=core::link('admin/devTool/backupDelete')?>">удалите</a> файл.</p>
 			<?php } ?>
-			<a href="<?=core::link('?controller=devTool&action=backupCreate')?>">Создать бэкап MySQL</a>
+			<a href="<?=core::link('admin/devTool/backupCreate')?>">Создать бэкап MySQL</a>
 			<cite>Будет попытка выполнить команду mysqldump.</cite>
 		<?php } ?>
 	</fieldset>

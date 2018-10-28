@@ -19,7 +19,7 @@ class widgetUser extends widget {
 			if($this->options['message']) {
 				if(!isset($_SESSION['newMessageCount']) || $_SESSION['newMessageTimeout']<time()) {
 					$db=core::db();
-					$_SESSION['newMessageCount']=(int)$db->fetchValue('SELECT COUNT(user2Id) FROM userMessage WHERE user2Id='.$u->id.' AND isNew=1');
+					$_SESSION['newMessageCount']=(int)$db->fetchValue('SELECT COUNT(user2Id) FROM user_message WHERE user2Id='.$u->id.' AND isNew=1');
 					$_SESSION['newMessageTimeout']=time()+120;
 				}
 				echo '<span class="link"><a href="'.core::link('user/message').'">'.LNGMessages.'('.$_SESSION['newMessageCount'].')</a></span>';

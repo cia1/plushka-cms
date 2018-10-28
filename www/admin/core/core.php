@@ -59,16 +59,8 @@ class core {
 
 	/* Возвращает true если включён отладочный режим и false в противном случае */
 	public static function debug() {
-		$cfg=core::configAdmin();
+		$cfg=core::config();
 		if(isset($cfg['debug']) && $cfg['debug']) return true; else return false;
-	}
-
-	/* Возвращает массив, содержащий конфигурацию админки с именем $name (/admin/config/$name.php).
-	Массив возвращается по ссылке, т.к. конфигурация может быть изменена при помощи класса "config" или другим способом */
-	public static function &configAdmin($name='_core') {
-		static $_cfg;
-		if(!isset($_cfg[$name])) $_cfg[$name]=include(core::path().'admin/config/'.$name.'.php');
-		return $_cfg[$name];
 	}
 
 	/* Возвращает массив, содержащий конфигурацию с именем $name (/config/$name.php).
@@ -76,7 +68,9 @@ class core {
 	public static function &config($name='_core',$attribute=null) {
 		static $_cfg;
 		if(!isset($_cfg[$name])) {
-			$f=core::path().'config/'.$name.'.php';
+			if($name==='admin') $f=core::path().'admin/config/_core.php';
+			elseif(substr($name,0,6)==='admin/') $f=core::path().'admin/config/'.substr($name,6).'.php';
+			else $f=core::path().'config/'.$name.'.php';
 			if(file_exists($f)) $_cfg[$name]=include($f); else $_cfg[$name]=null;
 		}
 		if($attribute===null) return $_cfg[$name];
@@ -203,17 +197,57 @@ class core {
 		return $u->right;
 	}
 
+	public static function link($link,$lang=true,$domain=false) {
+		if(substr($link,0,7)==='http://' || substr($link,0,8)==='https://' || $link[0]==='/') return $link;
+		if(substr($link,0,6)==='admin/') return self::linkAdmin(substr($link,6),$lang,$domain);
+		return self::linkPublic($link,$lang,$domain);
+	}
+
 	/* Формирует относительную ссылку, служит главным образом для добавления к ссылке дополнительных параметров */
-	public static function link($link) {
-		if($link[0]=='/') return $link;
-		$add='&_lang='._LANG;
-		if(isset($_GET['_front'])) $add.='&_front';
-		if(isset($_GET['backlink'])) $backlink='&backlink='.urlencode($_GET['backlink']); else $backlink='';
-		if($link[0]=='?') return core::url().'admin/index.php'.$link.$add.$backlink;
-		$link=explode('/',$link);
-		$s=core::url().'admin/index.php?controller='.$link[0].$backlink;
-		if(isset($link[1])) $s.='&action='.$link[1];
-		return $s.$add;
+	public static function linkAdmin($link,$lang=true,$domain=false) {
+		$end='&_lang='.($lang===true ? _LANG : $lang);
+		if(isset($_GET['_front'])) $end.='&_front';
+		if(isset($_GET['backlink'])) $end.='&backlink='.urlencode($_GET['backlink']);
+		$tmp=explode('/',str_replace('?','&',$link));
+		$link=self::url(false,$domain).'admin/index.php?controller='.$tmp[0];
+		if(isset($tmp[1])===true) $link.='&action='.$tmp[1];
+		$link.=$end;
+		return $link;
+	}
+
+	/**
+	 * Генерирует относительную или абсолютную ссылку
+	 * Для CGI-режима использует /config/cgi.php для определения имени домена и базового URL
+	 * @param string $link Исходная ссылка в формате controller/etc...
+	 * @param bool $lang Если false, то суффикс языка не будет добавлен
+	 * @param bool $domain Если true, то будет сгенерирована абсолютная ссылка
+	 */
+	public static function linkPublic($link,$lang=true,$domain=false) {
+		static $_link;
+		static $_main;
+		if(!$link) return core::url($lang,$domain);
+		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://' || $link[0]=='/') return $link;
+		if(!isset($_link)) {
+			$cfg=self::config();
+			$_link=$cfg['link'];
+			$_main=$cfg['mainPath'];
+		}
+		if($link==$_main) return self::url($lang,$domain);
+		$i=strpos($link,'?');
+		if($i) {
+			$end=substr($link,$i);
+			$link=substr($link,0,$i);
+		} else $end='';
+		$i=$len=strlen($link);
+		do {
+			$s=substr($link,0,$i);
+			$i=strrpos($s,'/');
+		} while($s && !isset($_link[$s]));
+		if($s) {
+			$len2=strlen($s);
+			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
+		}
+		return self::url($lang,$domain).$link.$end;
 	}
 
 	/* Генерирует виджет. Обрабатывает {{widget}}
@@ -267,8 +301,8 @@ class core {
 
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
 	public static function form($url=null) {
-		if(!class_exists('form')) include(core::path().'core/form.php');
-		return new form($url);
+		if(class_exists('formEx')===false) include(core::path().'admin/core/form.php');
+		return new formEx($url);
 	}
 
 	/* Возвращает экземпляр класса table, служащего для генерации HTML-таблиц (<table>) */
@@ -277,10 +311,28 @@ class core {
 		return new table($html);
 	}
 
-	/* Возвращает экземпляр класса model (универсальная модель). $namespace - имя таблицы (если нужно), $db - имя СУБД */
-	public static function model($namespace=null) {
-		if(!class_exists('model')) include(core::path().'core/model.php');
-		return new model($namespace);
+	//Возвращает экземляр класса валидатора и инициализирует атрибутами, если $attribute указан
+	public static function validator($attribute=null) {
+		core::import('core/validator');
+		$validator=new $validator();
+		if($attribute) $validator->set($attribute);
+		return $validator;
+	}
+
+	/* Возвращает экземпляр класса model (универсальная модель) для таблицы $table, $db - имя СУБД */
+	public static function model($table,$db='db') {
+		if(substr($table,0,6)==='admin/') {
+			$table=substr($table,6);
+			core::import('admin/model/'.$table);
+			return new $table();
+		}
+		$f=core::path().'model/'.$table.'.php';
+		if(file_exists($f)) {
+			include_once($f);
+			return new $table();
+		}
+		if(!class_exists('modelEx')) include(core::path().'admin/core/modelEx.php');
+		return new modelEx($table,$db);
 	}
 
 	/* Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес.
@@ -303,7 +355,7 @@ class core {
 				exit;
 			}
 		}
-		header('Location: '.core::link($url),true,$code);
+		header('Location: '.core::link('admin/'.$url),true,$code);
 		exit;
 	}
 
@@ -439,10 +491,9 @@ class controller {
 	/* Добавляет кнопку в специально отведённую область
 	Параметры: string $link - ссылка на страницу админки; string $image - условное имя файла изображения кнопки; string $title - всплывающая подсказка; $alt - текст тега ALT; $html - любой другой HTML-код, который будет добавлен к тегу <a> */
 	public function button($link,$image,$title='',$alt='',$html='') {
-		if($link=='html') $this->_button.=$image;
+		if($link==='html') $this->_button.=$image;
 		else {
-			if(strpos($link,'controller=')===false) $link='?controller='.$this->url[0].'&'.$link;
-			$this->_button.='<a href="'.core::link($link).'"'.($html ? ' '.$html : '').'><img src="'.core::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
+			$this->_button.='<a href="'.core::link('admin/'.$link).'"'.($html ? ' '.$html : '').'><img src="'.core::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
 		}
 	}
 
@@ -561,7 +612,6 @@ class user {
 function runApplication($renderTemplate=true) {
 	session_start();
 	controller::$self=new sController($_GET['corePath'][1]);
-
 	$alias=controller::$self->url[0];
 	//Проверка прав доступа к запрошенной странице
 	$user=core::user();
@@ -589,8 +639,8 @@ function runApplication($renderTemplate=true) {
 	}
 	//Запуск submit-действия
 	if(isset($_POST[$alias])) {
-		if(!method_exists('sController','action'.controller::$self->url[1].'Submit')) core::error404();
 		$s='action'.controller::$self->url[1].'Submit';
+		if(method_exists('sController',$s)===false) core::error404();
 		//Подготовить данные _POST и _FILES для передачи submit-действию
 		if(isset($_FILES[$alias])) {
 			$f1=$_FILES[$alias];
@@ -617,16 +667,16 @@ function runApplication($renderTemplate=true) {
 			if(is_array($data)) echo serialize($data); else echo $data;
 			exit;
 		}
-	}
+	} else $data=null;
 	//Запуск "обычного" действия
 	if(controller::$self->url[1]) {
-		if(!method_exists('sController','action'.controller::$self->url[1])) core::error404();
 		$s='action'.sController::$self->url[1];
+		if(method_exists('sController',$s)===false) core::error404();
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
-		if(isset($_GET['_serialize']) && isset($_POST['data'])) {
+		if(isset($_GET['_serialize'])===true && isset($_POST['data'])===true) {
 			if(substr($_POST['data'],0,2)=='a:' && $_POST['data'][strlen($_POST['data'])-1]=='}') $view=controller::$self->$s(unserialize($_POST['data']));
 			else $view=controller::$self->$s($_POST['data']);
-		} else $view=controller::$self->$s();
+		} else $view=controller::$self->$s($data);
 	}
 	controller::$self->render($view,$renderTemplate);
 }
@@ -636,7 +686,7 @@ header('Content-type:text/html; Charset=utf-8');
 
 //Обработать запрошенный URL и положить его в $_GET['corePath']
 if(!isset($_GET['controller'])) {
-	$cfg=core::configAdmin();
+	$cfg=core::config('admin');
 	$_GET['corePath']=explode('/',$cfg['mainPath']);
 	if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]='Index';
 	unset($cfg);
@@ -645,7 +695,7 @@ if(!isset($_GET['controller'])) {
 	if(isset($_GET['action'])) $_GET['corePath'][1]=$_GET['action']; else $_GET['corePath'][1]='Index';
 }
 if(isset($_GET['_lang'])) define('_LANG',$_GET['_lang']); else {
-	$cfg=core::configAdmin();
+	$cfg=core::config();
 	define('_LANG',$cfg['languageDefault']);
 	unset($cfg);
 }

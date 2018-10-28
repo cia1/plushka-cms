@@ -1,4 +1,4 @@
-<?php class widgetchat extends widget {
+<?php class widgetChat extends widget {
 
 	public function __invoke() {
 		core::import('model/chat');

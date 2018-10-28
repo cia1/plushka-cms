@@ -11,7 +11,7 @@ return true;
 /* Удаляет статью или блог, если на них больше нет ссылок */
 function _articleDelete($link) {
 	$db=core::db();
-	if($db->fetchValue('SELECT count(id) FROM menuItem WHERE link='.$db->escape($link))!='1') return true;
+	if($db->fetchValue('SELECT count(id) FROM menu_item WHERE link='.$db->escape($link))!='1') return true;
 	$alias=substr($link,13);
 	$db->query('DELETE FROM article WHERE alias='.$db->escape($alias));
 	return true;
@@ -20,9 +20,9 @@ function _articleDelete($link) {
 /* Удаляет категорию статей, если на неё есть только одна ссылка $link */
 function _blogDelete($link) {
 	$db=core::db();
-	if($db->fetchValue('SELECT count(id) FROM menuItem WHERE link='.$db->escape($link))!='1') return true;
+	if($db->fetchValue('SELECT count(id) FROM menu_item WHERE link='.$db->escape($link))!='1') return true;
 	$alias=substr($link,13);
-	$id=$db->fetchValue('SELECT id FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($alias));
+	$id=$db->fetchValue('SELECT id FROM article_category_'._LANG.' WHERE alias='.$db->escape($alias));
 
 	core::import('admin/model/objectLink');
 	$param=array('categoryId'=>$id);
@@ -31,7 +31,7 @@ function _blogDelete($link) {
 	$cfg=core::config();
 	if(isset($cfg['languageList'])) $languageList=$cfg['languageList']; else $languageList=array($cfg['languageDefault']);
 	foreach($languageList as $item) {
-		$db->query('DELETE FROM articleCategory_'.$item.' WHERE id='.$id);
+		$db->query('DELETE FROM article_category_'.$item.' WHERE id='.$id);
 		$db->query('DELETE FROM article_'.$item.' WHERE categoryId='.$id);
 	}
 	return true;

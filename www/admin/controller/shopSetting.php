@@ -26,9 +26,9 @@ class sController extends controller {
 	/* Общие настройки */
 	public function actionSetting() {
 		$u=core::user();
-		if($u->group==255 || isset($u->right['shopSetting.feature'])) $this->button('?controller=shopSetting&action=featureList','layout','Характеристики товаров');
-		if($u->group==255 || isset($u->right['shopSetting.import'])) $this->button('?controller=shopSetting&action=import','install','Импорт товаров','Импорт');
-		if($u->group==255 || isset($u->right['shopContent.brand'])) $this->button('?controller=shopContent&action=brand','brand','Управление производителями','Производители');
+		if($u->group==255 || isset($u->right['shopSetting.feature'])) $this->button('shopSetting/featureList','layout','Характеристики товаров');
+		if($u->group==255 || isset($u->right['shopSetting.import'])) $this->button('shopSetting/import','install','Импорт товаров','Импорт');
+		if($u->group==255 || isset($u->right['shopContent.brand'])) $this->button('shopContent/brand','brand','Управление производителями','Производители');
 		$cfg=core::config('shop');
 		$this->form1=core::form();
 		//Общие
@@ -118,10 +118,10 @@ class sController extends controller {
 		$t=core::table();
 		$t->rowTh('|');
 		$db=core::db();
-		$db->query('SELECT id,title FROM shpProductGroup ORDER BY title');
+		$db->query('SELECT id,title FROM shp_product_group ORDER BY title');
 		while($item=$db->fetch()) {
 			$t->text('<a href="#" onclick="return productGroup('.$item[0].',\''.$item[1].'\');">'.$item[1].'</a>');
-			$t->delete('?controller=shopSetting&id='.$item[0].'&action=productGroupDelete');
+			$t->delete('id='.$item[0],'productGroup');
 		}
 		$this->productGroup=$t;
 
@@ -165,39 +165,39 @@ class sController extends controller {
 		fwrite($f,$data['htmlAdmin']);
 		fclose($f);
 
-		core::redirect('?controller=shopSetting&action=setting','Изменения сохранены');
+		core::redirect('shopSetting/setting','Изменения сохранены');
 	}
 
 	/* Создание или изменение группы товаров (форма находится на странице "общие настройки") */
 	public function actionProductGroupSubmit($data) {
-		$m=core::model('shpProductGroup');
+		$m=core::model('shp_product_group');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
 			'title'=>array('string','Заголовок',true)
 		))) return false;
-		core::redirect('?controller=shopSetting&action=setting');
+		core::redirect('shopSetting/setting');
 	}
 
 	/* Удаление группы товаров */
 	public function actionProductGroupDelete() {
 		$db=core::db();
-		$db->query('DELETE FROM shpProductGroupItem WHERE groupId='.$_GET['id']);
-		$db->query('DELETE FROM shpProductGroup WHERE id='.$_GET['id']);
-		core::redirect('?controller=shopSetting&action=setting');
+		$db->query('DELETE FROM shp_product_group_item WHERE groupId='.$_GET['id']);
+		$db->query('DELETE FROM shp_product_group WHERE id='.$_GET['id']);
+		core::redirect('shopSetting/setting');
 	}
 
 	/* Общий список всех характеристик товаров */
 	public function actionFeatureList() {
 		$db=core::db();
-		$this->featureGroup=$db->fetchArray('SELECT id,title FROM shpFeatureGroup');
+		$this->featureGroup=$db->fetchArray('SELECT id,title FROM shp_feature_group');
 		if(isset($_GET['gid'])) $this->gid=(int)$_GET['gid']; else $this->gid=null;
 
 		$this->button('#','new','Создать категорию','Создать','onclick="featureGroupNew();return false;"');
 		if($this->gid) {
 			//Если выбрана категория характеристик, то добавить кнопки
 			$this->button('#','delete','Удалить категорию','Удалить','onclick="featureGroupDelete();return false;"');
-			$this->button('?controller=shopSetting&action=featureItem&gid='.$_GET['gid'],'layoutNew','Создать характеристику');
+			$this->button('shopSetting/featureItem?gid='.$_GET['gid'],'layoutNew','Создать характеристику');
 			core::import('admin/model/shop');
 			$data=shop::featureList($_GET['gid']);
 			if(!$data) $this->null=true; //Признак пустого списка
@@ -207,7 +207,7 @@ class sController extends controller {
 				$t->rowTh('|');
 				foreach($data as $item) {
 					$t->text($item['title']);
-					$t->itemDelete('?controller=shopSetting&id='.$item['id'].'&gid='.$_GET['gid'].'&action=feature');
+					$t->itemDelete('id='.$item['id'].'&gid='.$_GET['gid'],'feature');
 				}
 				$this->t=$t;
 			}
@@ -219,10 +219,10 @@ class sController extends controller {
 	public static function actionFeatureGroupItemSubmit($data) {
 		$db=core::db();
 		if(isset($data['id'])) {
-			$db->query('UPDATE shpFeatureGroup SET title='.$db->escape($data['title']).' WHERE id='.(int)$data['id']);
+			$db->query('UPDATE shp_feature_group SET title='.$db->escape($data['title']).' WHERE id='.(int)$data['id']);
 			echo "OK\n".$data['id'];
 		}	else {
-			$db->insert('shpFeatureGroup',array(
+			$db->insert('shp_feature_group',array(
 				'title'=>$data['title']
 			));
 			echo "OK\n".$db->insertId();
@@ -242,7 +242,7 @@ class sController extends controller {
 	public function actionFeatureItem() {
 		if(isset($_GET['id'])) { //Изменение
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title,type,unit,variant,data FROM shpFeature WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title,type,unit,variant,data FROM shp_feature WHERE id='.$_GET['id']);
 			$data['data']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','type'=>'text','unit'=>'','variant'=>false,'data'=>'');
 		if(isset($_GET['gid'])) $gid=(int)$_GET['gid']; else $gid=$_POST['shopSetting']['groupId']; //Группа характеристик
@@ -265,9 +265,9 @@ class sController extends controller {
 		$variantDelete=false;
 		if($data['id'] && !isset($data['variant'])) {
 			$db=core::db();
-			if($db->fetchValue('SELECT variant FROM shpFeature WHERE id='.$data['id'])=='1') $variantDelete=true;
+			if($db->fetchValue('SELECT variant FROM shp_feature WHERE id='.$data['id'])=='1') $variantDelete=true;
 		}
-		$m=core::model('shpFeature');
+		$m=core::model('shp_feature');
 		if($data['type']!='select') $data['data']=null; else $data['data']=str_replace(array("\r","\n"),array('','|'),$data['data']);
 		$m->set($data);
 		if(!$m->save(array(
@@ -283,14 +283,14 @@ class sController extends controller {
 			core::import('admin/model/shop');
 			shop::featureCategoryDelete($data['id']);
 		}
-		core::redirect('?controller=shopSetting&action=featureList&gid='.$data['groupId']);
+		core::redirect('shopSetting/featureList?gid='.$data['groupId']);
 	}
 
 	/* Удаление характеристики */
 	public function actionFeatureDelete() {
 		core::import('admin/model/shop');
 		shop::featureDelete($_GET['id']);
-		core::redirect('?controller=shopSetting&action=featureList&gid='.$_GET['gid']);
+		core::redirect('shopSetting/featureList?gid='.$_GET['gid']);
 	}
 
 	/* Сопоставление характеристик товаров для категории */
@@ -299,7 +299,7 @@ class sController extends controller {
 		core::import('admin/model/shop');
 		if(isset($_GET['id'])) $this->id=$_GET['id']; else $this->id=$_POST['shopSetting']['categoryId'];
 		$db=core::db();
-		$feature=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$this->id);
+		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$this->id);
 		$this->feature2=shop::featureList(null,$feature); //Уже отмеченные для категории
 		$this->feature1=shop::featureList(null,null,$this->feature2); //Не отмеченные
 		return 'CategoryFeature';
@@ -310,7 +310,7 @@ class sController extends controller {
 		$lst1=explode(',',$data['feature']);
 		$db=core::db();
 		//$lst2 - отмеченные ранее
-		$lst2=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$data['categoryId']);
+		$lst2=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$data['categoryId']);
 		if($lst2) $lst2=explode(',',$lst2); else $lst2=array();
 		//$lst - характеристики, которые были сняты
 		$lst=array_diff($lst2,$lst1);
@@ -318,13 +318,13 @@ class sController extends controller {
 			core::import('admin/model/shop');
 			shop::featureCategoryDelete(implode(',',$lst),false,$data['categoryId']); //Убрать у всех товаров и модификаций (в будущем будет чекбоксе на форме)
 		}
-		$db->query('UPDATE shpCategory SET feature='.$db->escape($data['feature']).' WHERE id='.$data['categoryId']);
-		core::redirect('?controller=shopSetting&action=categoryFeature&cid='.$data['categoryId'],'Изменения сохранены');
+		$db->query('UPDATE shp_category SET feature='.$db->escape($data['feature']).' WHERE id='.$data['categoryId']);
+		core::redirect('shopSetting/categoryFeature?cid='.$data['categoryId'],'Изменения сохранены');
 	}
 
 	/* Настраиваемый импорт данных из Excel. В будущем нужно вынести настройки отдельно. */
 	public function actionImport() {
-		$cfg=core::configAdmin('shop'); //Конфигурация в /admin/config/shop.php
+		$cfg=core::config('admin/shop'); //Конфигурация в /admin/config/shop.php
 		$field=array( //Основные поля
 //			array('categoryId','Категория (идентификатор)',false),
 //			array('categoryAlias','Категория (псевдоним)',false),
@@ -353,7 +353,7 @@ class sController extends controller {
 		}
 		//Добавить к форме, а также к списку уникальный полей все характеристики
 		$db=core::db();
-		$db->query('SELECT g.title gTitle,f.id,f.title FROM shpFeature f INNER JOIN shpFeatureGroup g ON g.id=f.groupId ORDER BY g.title,f.title');
+		$db->query('SELECT g.title gTitle,f.id,f.title FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId ORDER BY g.title,f.title');
 		$gTitle='';
 		while($item=$db->fetch()) {
 			if($gTitle!=$item[0]) {
@@ -379,7 +379,7 @@ class sController extends controller {
 			return false;
 		}
 		//Сохранить настройки импорта в файл конфигурации
-		$cfg=core::configAdmin('shop'); // /admin/config/shop.php
+		$cfg=core::config('admin/shop'); // /admin/config/shop.php
 		unset($data['file']); //это не нужно
 		if($data!=$cfg) { //А были ли изменения в конфигурации?
 			core::import('admin/core/config');
@@ -396,7 +396,7 @@ class sController extends controller {
 		if(file_exists($f)) unlink($f);
 		$f=core::path().'tmp/shopImportId.txt';
 		if(file_exists($f)) unlink($f);
-		core::redirect('?controller=shopSetting&action=importStart');
+		core::redirect('shopSetting/importStart');
 	}
 
 	/* Запуск импорта */
@@ -410,7 +410,7 @@ class sController extends controller {
 		core::import('admin/model/shopImport');
 	 	if($_GET['stage']=='load') { //"В работе"
 			define('ROW_LIMIT',100); //Обрабатывать по 100 товаров за раз
-			$cfg=core::configAdmin('shop');
+			$cfg=core::config('admin/shop');
 			$start=(int)$_GET['row']; //Строка, с которой начинать обработку
 			if(!$start) $start=$cfg['firstRow'];
 			$count=shopImport::loadXLS($cfg,$start,ROW_LIMIT);
@@ -438,7 +438,7 @@ class sController extends controller {
 		$categoryAlias=strrpos($_GET['link'],'/');
 		if($categoryAlias) $categoryAlias=substr($_GET['link'],$categoryAlias+1);
 		$f=core::form();
-		$f->select('categoryAlias','Категория','SELECT alias,title FROM shpCategory WHERE parentId=0',$categoryAlias,'- все категории -');
+		$f->select('categoryAlias','Категория','SELECT alias,title FROM shp_category WHERE parentId=0',$categoryAlias,'- все категории -');
 		$f->submit('Продолжить');
 
 		$this->cite='Укажите раздел (категорию) интернет-магазина, которая должна открываться при переходе по этому пункту меню. Если выбрано "- все категории -", то будет открыта страница со списком всех разделов магазина.';
@@ -479,7 +479,7 @@ class sController extends controller {
 	public function actionWidgetProductGroup($data=null) {
 		$f=core::form();
 		$f->hidden('cacheTime','30'); //Время кеширования
-		$f->select('categoryId','Категория','SELECT id,title FROM shpProductGroup',$data);
+		$f->select('categoryId','Категория','SELECT id,title FROM shp_product_group',$data);
 		$f->submit('Продолжить');
 		return $f;
 	}
@@ -595,4 +595,3 @@ class sController extends controller {
 /* ---------- PRIVATE ---------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------- */
 }
-?>

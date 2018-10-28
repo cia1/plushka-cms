@@ -29,6 +29,7 @@ class sController extends controller {
 		$form=core::form();
 		$form->hidden('id',$this->id);
 		$form->hidden('marker','');
+		$form->select('provider','Источник карт',array(array('google','Google'),array('osm','Open Street Maps')),$widget['provider']);
 		$form->text('apiKey','API-ключ',$widget['apiKey']);
 		$form->text('centerLatitude','Центр (широта)',$widget['centerLatitude'],'readonly="readonly" id="centerLatitude"');
 		$form->text('centerLongitude','Центр (долгота)',$widget['centerLongitude'],'readonly="readonly" id="centerLongitude"');
@@ -57,6 +58,7 @@ class sController extends controller {
 		$widget=unserialize($db->fetchValue('SELECT data FROM widget WHERE id='.$id)); //id - это уже первичный ключ
 		if(!$widget) core::error404();
 		$widget['marker']=json_decode($data['marker'],true);
+		$widget['provider']=$data['provider'];
 		$widget['centerLatitude']=(float)$data['centerLatitude'];
 		$widget['centerLongitude']=(float)$data['centerLongitude'];
 		$widget['zoom']=(int)$data['zoom'];
@@ -64,15 +66,14 @@ class sController extends controller {
 		$widget['apiKey']=($data['apiKey'] ? trim($data['apiKey']) : null);
 		$db->query('UPDATE widget SET data='.$db->escape(serialize($widget)).' WHERE id='.$id);
 		core::success('Изменения сохранены');
-		core::redirect('?controller=map&action=marker&id='.$data['id']);
+		core::redirect('map/marker?id='.$data['id']);
 	}
 
 	//Рисует карту, это действие загружается во фрейме
 	public function actionMap() {
-		$link='http://maps.google.com/maps/api/js';
-		if(isset($_GET['key']) && $_GET['key']) $link.='?key='.$_GET['key'];
-		$this->js($link);
-		return 'Map';
+		$f='_providerGoogle';
+		if(method_exists($this,$f)===false) core::error404();
+		return $this->$f();
 	}
 
 	//Виджет карты
@@ -110,6 +111,13 @@ class sController extends controller {
 		$data['marker']=json_decode(urldecode($data['marker']),true);
 		$data['apiKey']=($data['apiKey'] ? trim($data['apiKey']) : null);
 		return $data;
+	}
+
+	private function _providerGoogle() {
+		$link='http://maps.google.com/maps/api/js';
+		if(isset($_GET['key']) && $_GET['key']) $link.='?key='.$_GET['key'];
+		$this->js($link);
+		return 'MapGoogle';
 	}
 
 }

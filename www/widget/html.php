@@ -5,7 +5,7 @@ class widgetHtml extends widget {
 
 	public function __invoke() { return true; }
 
-	public function render($view=null) {
+	public function render($view) {
 		$f=core::path().'data/widgetHtml/'.$this->options.'_'._LANG.'.html';
 		if(!file_exists($f)) {
 			$cfg=core::config();

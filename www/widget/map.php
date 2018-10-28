@@ -20,6 +20,11 @@
 	}
 
 	public function render($view) {
+		$f='_provider'.ucfirst($this->options['provider']);
+		$this->$f();
+	}
+
+	private function _providerGoogle() {
 		echo core::js($this->jsLink);
 		?>
 		<div class="map" id="map<?=$this->id?>" style="width:100%;"></div>
@@ -54,5 +59,18 @@
 		</script>
 		<?php
 	}
+
+	private function _providerOsm() {
+		//OSM zoom: 1...19
+		$zoom=1.000001+(19-$this->options['zoom'])*0.00001;
+//$zoom=1.1;
+var_dumP($zoom);
+		$latitude=$this->options['centerLatitude']*$zoom;
+		$longitude=$this->options['centerLongitude']*$zoom;
+		?>
+		<div class="map" id="map<?=$this->id?>" style="width:100%;">
+			<iframe style="width:100%;height:100%;border:0;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=<?=$this->options['centerLatitude']?>%2C<?=$this->options['centerLongitude']?>%2C<?=$latitude?>%2C<?=$longitude?>&amp;layer=mapnik"></iframe>
+		</div>
+	<?php }
 
 }

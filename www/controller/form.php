@@ -40,7 +40,7 @@ class sController extends controller {
 	/* Выводит сообщение об успехе */
 	public function actionSuccess() {
 		$db=core::db();
-		$form=$db->fetchArrayOnce('SELECT title_'._LANG.',successMessage_'._LANG.',redirect FROM frmForm WHERE id='.$this->id);
+		$form=$db->fetchArrayOnce('SELECT title_'._LANG.',successMessage_'._LANG.',redirect FROM frm_form WHERE id='.$this->id);
 		if(!$form) core::error404();
 		if($form[2]) core::redirect($form[2],$form[1]);
 		if(!$form[1]) $this->content='<p>'.LNGWeGotYourMessage.'</p>'; else $this->content=$form[1];

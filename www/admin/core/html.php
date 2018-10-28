@@ -67,47 +67,68 @@ class table {
 	}
 
 	/* Добавляет ячейку, содержащую ссылку на какую-либо страницу админки */
-	public function link($title,$link,$colspan=0,$html=null) {
-		return $this->text('<a href="'.core::link($link).'">'.$title.'</a>',$colspan,$html);
+	public function link($link,$title,$colspan=0,$html=null) {
+		return $this->text('<a href="'.core::linkAdmin($link).'">'.$title.'</a>',$colspan,$html);
 	}
 
 	/* Добавляет ячейку, содержащую кнопки "выше" и "ниже" */
-	public function upDown($link,$index=null,$count=null) {
+	public function upDown($params,$index=null,$count=null,$actionAlias=null) {
 		$this->_data.='<td width="60px" align="center">';
+		$params='&'.$params;
 		if($index>1 || $index===null) {
-			$this->_data.='<a href="'.core::link($link.'up').'"><img src="'.core::url().'admin/public/icon/up16.png" alt="Выше" title="Поднять выше" /></a>';
+			$link=controller::$self->url[0].'/'.($actionAlias===null ? 'up' : $actionAlias.'Up');
+			$this->_data.='<a href="'.core::linkAdmin($link.$params).'"><img src="'.core::url().'admin/public/icon/up16.png" alt="Выше" title="Поднять выше" /></a>';
 		}
-		if($count===null || $index!=$count) {
-			$this->_data.='&nbsp;<a href="'.core::link($link.'down').'"><img src="'.core::url().'admin/public/icon/down16.png" alt="Ниже" title="Спустить ниже" /></a>';
+		if($count===null || $index<$count) {
+			$link=controller::$self->url[0].'/'.($actionAlias===null ? 'down' : $actionAlias.'Down');
+			$this->_data.='&nbsp;<a href="'.core::linkAdmin($link.$params).'"><img src="'.core::url().'admin/public/icon/down16.png" alt="Ниже" title="Спустить ниже" /></a>';
 		}
 		$this->_data.='</td>';
 		$this->_index++;
 	}
 
 	/* Добавляет ячейку, содержащую кнопку "удалить" */
-	public function delete($link,$confirm='Подтвердите удаление') {
+	public function delete($params,$actionAlias='delete',$confirm='Подтвердите удаление') {
+		$params='&'.$params;
+		$link=controller::$self->url[0].'/'.($actionAlias===null ? 'delete' : $actionAlias.'Delete');
 		$this->_data.='<td width="40px" align="center">'
-		.'<a href="'.core::link($link).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+		.'<a href="'.core::linkAdmin($link.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}
 
 	/* Добавляет ячейку, сдержащую две кнопки "изменить" и "удалить" */
-	public function editDelete($link,$confirm='Подтвердите удаление') {
-		if(strpos($link,'action=')!==false) $action=true; else $action=false;
+	public function editDelete($params,$actionAlias='edit',$confirm='Подтвердите удаление') {
+		$params='&'.$params;
+		$linkEdit=$linkDelete=controller::$self->url[0].'/';
+		if($actionAlias===null) {
+			$linkEdit.='item';
+			$linkDelete.='delete';
+		} else {
+			$linkEdit.=$actionAlias.'Item';
+			$linkDelete.=$actionAlias.'Delete';
+		}
 		$this->_data.='<td width="40px" align="center">'
-		.'<a href="'.core::link($link.($action ? 'Edit' : '&action=edit')).'"><img src="'.core::url().'admin/public/icon/edit16.png" alt="изменить" title="Редактировать..." /></a>'
-		.'<a href="'.core::link($link.($action ? 'Delete' : '&action=delete')).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+		.'<a href="'.core::linkAdmin($linkEdit.$params).'"><img src="'.core::url().'admin/public/icon/edit16.png" alt="изменить" title="Редактировать..." /></a>'
+		.'<a href="'.core::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}
 
 	/* Добавляет ячейку, содержащую две кнопки "изменить" и "удалить", отличается от $this->editDelete() видом формируемой ссылки */
-	public function itemDelete($link,$confirm='Подтвердите удаление') {
-		if(strpos($link,'action=')!==false) $action=true; else $action=false;
+	public function itemDelete($params,$actionAlias=null,$confirm='Подтвердите удаление') {
+		$params='&'.$params;
+		$linkItem=$linkDelete=controller::$self->url[0].'/';
+		if($actionAlias===null) {
+			$linkItem.='item';
+			$linkDelete.='delete';
+		} else {
+			$linkItem.=$actionAlias.'Item';
+			$linkDelete.=$actionAlias.'Delete';
+		}
 		$this->_data.='<td width="60px" align="center">'
-		.'<a href="'.core::link($link.($action ? 'Item' : '&action=item')).'"><img src="'.core::url().'admin/public/icon/edit16.png" alt="Изменить" title="Редактировать" /></a>'
-		.'&nbsp;<a href="'.core::link($link.($action ? 'Delete' : '&action=delete')).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+		.'<a href="'.core::linkAdmin($linkItem.$params).'"><img src="'.core::url().'admin/public/icon/edit16.png" alt="Изменить" title="Редактировать" /></a>'
+		.'&nbsp;<a href="'.core::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}

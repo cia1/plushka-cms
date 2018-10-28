@@ -13,16 +13,16 @@ class sController extends controller {
 
 	/* Список доступных пользователю заметок */
 	public function actionIndex() {
-		$this->button('?controller=note&action=item','new','Добавить заметку');
+		$this->button('note/item','new','Добавить заметку');
 		$t=core::table();
 		$t->rowTh('Тема|');
 		$db=core::db();
 		$myGroup=core::userGroup();
-		$db->query('SELECT id,groupView,groupEdit,title FROM adminNote WHERE groupView<='.$myGroup);
+		$db->query('SELECT id,groupView,groupEdit,title FROM admin_note WHERE groupView<='.$myGroup);
 		while($item=$db->fetch()) {
-			$t->link($item[3],'?controller=note&action=view&id='.$item[0]);
+			$t->link('note/view?id='.$item[0],$item[3]);
 			if($item[2]!=$myGroup) $t->text(''); //Только пользователи, относящиеся к той же группе, могут редактировать заметку
-			else $t->itemDelete('?controller=note&id='.$item[0]);
+			else $t->itemDelete('id='.$item[0]);
 		}
 		$this->cite='Здесь могут находиться любые заметки, доступные только администраторам. ВНИМАНИЕ! Не храните здесь особо важные сведения - абсолютная конфиденциальность не может быть гарантирована.';
 		return $t;
@@ -33,10 +33,10 @@ class sController extends controller {
 		$myGroup=core::userGroup();
 		$db=core::db();
 		if(isset($_GET['id'])) {
-			$data=$db->fetchArrayOnceAssoc('SELECT id,groupView,title,html FROM adminNote WHERE id='.$_GET['id'].' AND groupEdit<='.$myGroup);
-			if(!$data) core::redirect('');
+			$data=$db->fetchArrayOnceAssoc('SELECT id,groupView,title,html FROM admin_note WHERE id='.$_GET['id'].' AND groupEdit<='.$myGroup);
+			if(!$data) core::redirect('note');
 		} else $data=array('id'=>null,'groupView'=>$myGroup,'title'=>'','html'=>'');
-		$userGroup=$db->fetchArray('SELECT id,name FROM userGroup WHERE id>=200 AND id<='.$myGroup.' ORDER BY id');
+		$userGroup=$db->fetchArray('SELECT id,name FROM user_group WHERE id>=200 AND id<='.$myGroup.' ORDER BY id');
 		for($i=0,$cnt=count($userGroup);$i<$cnt;$i++) $userGroup[$i][1].=' ('.$userGroup[$i][0].')';
 		$f=core::form();
 		$f->hidden('id',$data['id']);
@@ -52,7 +52,7 @@ class sController extends controller {
 
 	public function actionItemSubmit($data) {
 		$data['groupEdit']=$myGroup=core::userGroup();
-		$m=core::model('adminNote');
+		$m=core::model('admin_note');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -61,20 +61,20 @@ class sController extends controller {
 			'title'=>array('string','тема',true),
 			'html'=>array('html')
 		))) return false;
-		core::redirect('?controller=note');
+		core::redirect('note');
 	}
 
 	/* Удалить заметку */
 	public function actionDelete() {
 		$db=core::db();
-		$db->query('DELETE FROM adminNote WHERE id='.(int)$_GET['id'].' AND groupEdit<='.core::userGroup());
-		core::redirect('?controller=note');
+		$db->query('DELETE FROM admin_note WHERE id='.(int)$_GET['id'].' AND groupEdit<='.core::userGroup());
+		core::redirect('note');
 	}
 
 	/* Просмотр текста заметки */
 	public function actionView() {
 		$db=core::db();
-		$this->data=$db->fetchArrayOnceAssoc('SELECT title,html FROM adminNote WHERE id='.(int)$_GET['id'].' AND groupView<='.core::userGroup());
+		$this->data=$db->fetchArrayOnceAssoc('SELECT title,html FROM admin_note WHERE id='.(int)$_GET['id'].' AND groupView<='.core::userGroup());
 		$this->data['html']=nl2br($this->data['html']);
 		return 'View';
 	}

@@ -13,7 +13,7 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Общие основные настройки сайта */
 	public function actionCore() {
-		$this->button('?controller=setting&action=cache','delete','Очистить кеш');
+		$this->button('setting/cache','delete','Очистить кеш');
 		$cfg=core::config();
 		if(isset($cfg['smtpHost'])) {
 			$method='smtp';
@@ -61,7 +61,7 @@ class sController extends controller {
 			unset($cfg->smtpPassword);
 		}
 		if(!$cfg->save('_core')) return false;
-		core::redirect('?controller=setting','Изменения сохранены');
+		core::redirect('setting','Изменения сохранены');
 	}
 
 	/* Настройка подмены ссылок (настройка ЧПУ) */
@@ -97,13 +97,13 @@ class sController extends controller {
 		}
 		$cfg->link=$newLink;
 		$cfg->save('_core');
-		core::redirect('?controller=setting&action=url','Изменения сохранены');
+		core::redirect('setting/url','Изменения сохранены');
 	}
 
 	/* Очищает весь кеш */
 	public function actionCache() {
 		$this->_clearFolder(core::path().'cache/');
-		core::redirect('?controller=setting','Кеш очищен');
+		core::redirect('setting','Кеш очищен');
 	}
 /* ----------------------------------------------------------------------------------- */
 

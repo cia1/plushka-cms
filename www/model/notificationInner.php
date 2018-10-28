@@ -21,7 +21,7 @@
 		if($user->group) $sender=array($user->id,$user->login);
 		else $sender=array($this->defaultUserId,$this->defaultUserLogin);
 		if(!$sender[0] || !$sender[1]) return false;
-		return $db->insert('userMessage',array(
+		return $db->insert('user_message',array(
 			'user1Id'=>$sender[0],
 			'user1Login'=>$sender[1],
 			'user2Id'=>$recepient[0],

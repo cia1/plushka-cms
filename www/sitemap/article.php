@@ -1,8 +1,8 @@
 <?php
 /* Выводит XML-карту сайта для модуля article (статьи) */
 $db=core::db();
-//Два запроса нужны для того, чтобы верно определить ссылки /article/blog/... и /article/list/...
-$items=$db->fetchArray('SELECT link FROM menuItem WHERE link LIKE '.$db->escape('article/%'));
+
+$items=$db->fetchArray('SELECT link FROM menu_item WHERE link LIKE '.$db->escape('article/%'));
 $category=array();
 for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 	$item=$items[$i];
@@ -13,7 +13,7 @@ for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 	echo '<url><loc>//'.$_SERVER['HTTP_HOST'].core::link($item[0]).'</loc>'.($m ? '<lastmod>'.date('Y-m-d',$m).'</lastmod>' : '').'</url>'."\n";
 }
 echo "\n";
-$items=$db->fetchArray('SELECT c.alias,a.alias FROM article_'._LANG.' a LEFT JOIN articleCategory_'._LANG.' c ON c.id=a.categoryId ORDER BY c.alias');
+$items=$db->fetchArray('SELECT c.alias,a.alias FROM article_'._LANG.' a LEFT JOIN article_category_'._LANG.' c ON c.id=a.categoryId ORDER BY c.alias');
 $lastAlias='';
 for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 	echo '<url>';

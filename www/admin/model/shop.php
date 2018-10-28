@@ -6,24 +6,24 @@ class shop {
 	public static function deleteCategory($id) {
 		$db=core::db();
 		$id=(int)$id;
-		$alias=$db->fetchValue('SELECT alias FROM shpCategory WHERE id='.$id);
+		$alias=$db->fetchValue('SELECT alias FROM shp_category WHERE id='.$id);
 		if(!$alias) return false;
-		$items=$db->fetchArray('SELECT id FROM shpCategory WHERE parentId='.$id);
+		$items=$db->fetchArray('SELECT id FROM shp_category WHERE parentId='.$id);
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			shop::deleteCategory($items[$i][0]); //Удалить вложенные категории
 		}
 		//Удалить все товары в категории
-		$items=$db->fetchArray('SELECT id,image FROM shpProduct WHERE categoryId='.$id);
+		$items=$db->fetchArray('SELECT id,image FROM shp_product WHERE categoryId='.$id);
 		foreach($items as $item) {
 			self::deleteProduct($item[0],$item[1]);
 		}
 		//Удалить изображение категории
-		$img=$db->fetchValue('SELECT image FROM shpCategory WHERE id='.$id);
+		$img=$db->fetchValue('SELECT image FROM shp_category WHERE id='.$id);
 		if($img) {
 			$f=core::path().'public/shop-category/'.$img;
 			if(file_exists($f)) unlink($f);
 		}
-		$db->query('DELETE FROM shpCategory WHERE id='.$id);
+		$db->query('DELETE FROM shp_category WHERE id='.$id);
 		core::hook('pageDelete','shop/'.$alias,true);
 		return true;
 	}
@@ -35,7 +35,7 @@ class shop {
 		$db=core::db();
 		//Удалить изображения товара
 		if(!$image) {
-			$db->query('SELECT image FROM shpProduct WHERE id IN('.$id.')');
+			$db->query('SELECT image FROM shp_product WHERE id IN('.$id.')');
 			$image='';
 			while($item=$db->fetch()) {
 				if(!$item[0]) continue;
@@ -52,11 +52,11 @@ class shop {
 				if(file_exists($f)) unlink($f);
 			}
 		}
-		$data=$db->fetchArrayOnce('SELECT c.alias,p.alias FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId WHERE id='.$id);
-		$db->query('DELETE FROM shpVariant WHERE productId IN('.$id.')');
-		$db->query('DELETE FROM shpProductFeature WHERE productId IN('.$id.')');
-		$db->query('DELETE FROM shpProductGroupItem WHERE productId IN('.$id.')');
-		$db->query('DELETE FROM shpProduct WHERE id IN('.$id.')');
+		$data=$db->fetchArrayOnce('SELECT c.alias,p.alias FROM shp_product p LEFT JOIN shp_category c ON c.id=p.categoryId WHERE id='.$id);
+		$db->query('DELETE FROM shp_variant WHERE productId IN('.$id.')');
+		$db->query('DELETE FROM shp_product_feature WHERE productId IN('.$id.')');
+		$db->query('DELETE FROM shp_product_group_item WHERE productId IN('.$id.')');
+		$db->query('DELETE FROM shp_product WHERE id IN('.$id.')');
 		core::hook('pageDelete','shop/'.$data[0].'/'.$data[1],true);
 		return true;
 	}
@@ -68,10 +68,10 @@ class shop {
 		//Построить SQL-запрос в соответствии с заданными условиями
 		if($category==='') $category='999999999';
 		if($groupId) { //От этого параметра зависит, какие требуются данные
-			if($category!==null) $q='SELECT id,title FROM shpFeature WHERE groupId='.$groupId.' AND id IN('.$category.')';
-			else $q='SELECT id,title FROM shpFeature WHERE groupId='.$groupId;
+			if($category!==null) $q='SELECT id,title FROM shp_feature WHERE groupId='.$groupId.' AND id IN('.$category.')';
+			else $q='SELECT id,title FROM shp_feature WHERE groupId='.$groupId;
 		} else {
-			$q='SELECT f.id f1,f.title f2,g.id f3,g.title f4,f.type f5 FROM shpFeature f INNER JOIN shpFeatureGroup g ON g.id=f.groupId';
+			$q='SELECT f.id f1,f.title f2,g.id f3,g.title f4,f.type f5 FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId';
 			if($category) $q.=' WHERE f.id IN('.$category.')';
 			$q.=' ORDER BY f.groupId';
 		}
@@ -115,10 +115,10 @@ class shop {
 	/* Возвращает список характеристик товара для категории $categoryId. Если задан $productId, то также будут загружены значения характеристик */
 	public static function featureProduct($categoryId,$productId=0) {
 		$db=core::db();
-		$feature=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$categoryId);
+		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$categoryId);
 		if(!$feature) return array();
-		if($productId) $db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,p.value f5,f.unit f6,f.data f7 FROM shpFeature f INNER JOIN shpFeatureGroup g ON g.id=f.groupId LEFT JOIN shpProductFeature p ON p.featureId=f.id AND p.productId='.$productId.' WHERE f.id IN('.$feature.')');
-		else $db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,"" f5,f.unit f6,f.data f7 FROM shpFeature f INNER JOIN shpFeatureGroup g ON g.id=f.groupId WHERE f.id IN('.$feature.')');
+		if($productId) $db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,p.value f5,f.unit f6,f.data f7 FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId LEFT JOIN shp_product_feature p ON p.featureId=f.id AND p.productId='.$productId.' WHERE f.id IN('.$feature.')');
+		else $db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,"" f5,f.unit f6,f.data f7 FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId WHERE f.id IN('.$feature.')');
 		$data=array();
 		$gid=null;
 		while($item=$db->fetch()) {
@@ -144,10 +144,10 @@ class shop {
 	/* Возвращает характеристики для модификаций товаров для категории $categoryId, если $variant задан, то к результату будут добавлены значения характеристик модификации */
 	public function featureVariant($categoryId,$variant=null) {
 		$db=core::db();
-		$feature=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$categoryId);
+		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$categoryId);
 		if(!$feature) return array();
 		if($variant) $variant=unserialize($variant);
-		$db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,f.unit f5 FROM shpFeature f INNER JOIN shpFeatureGroup g ON g.id=f.groupId WHERE f.id IN('.$feature.') AND f.variant=1');
+		$db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,f.unit f5 FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId WHERE f.id IN('.$feature.') AND f.variant=1');
 		$data=array();
 		$gid=null;
 		while($item=$db->fetch()) {
@@ -174,13 +174,13 @@ class shop {
 		$db=core::db();
 		//Удалить все характеристики этой группы
 		$s='';
-		$db->query('SELECT id FROM shpFeature WHERE groupId='.$id);
+		$db->query('SELECT id FROM shp_feature WHERE groupId='.$id);
 		$s='';
 		while($item=$db->fetch()) if($s) $s.=','.$item[0]; else $s=$item[0];
 		if($s) {
 			if(!self::featureDelete($s)) return false;
 		}
-		$db->query('DELETE FROM shpFeatureGroup WHERE id='.$id);
+		$db->query('DELETE FROM shp_feature_group WHERE id='.$id);
 		return true;
 	}
 
@@ -188,44 +188,44 @@ class shop {
 	public static function featureDelete($id) {
 		$db=core::db();
 		if(!self::featureCategoryDelete($id,true)) return false;
-		$db->query('DELETE FROM shpFeature WHERE id IN('.$id.')');
-//		$db->query('DELETE FROM shpProductFeature WHERE id IN('.$id.')');
+		$db->query('DELETE FROM shp_feature WHERE id IN('.$id.')');
+//		$db->query('DELETE FROM shp_product_feature WHERE id IN('.$id.')');
 		return true;
 	}
 
-	/* Удаляет характеристики $id (список через запятую) из всех категорий (shpCategory.feature).
+	/* Удаляет характеристики $id (список через запятую) из всех категорий (shp_category.feature).
 	bool $update - надо или нет обновлять список характеристик самой категории */
 	public static function featureCategoryDelete($id,$update=false,$categoryId=null) {
 		$id0=explode(',',$id);
 		if(!self::featureVariantDelete($id)) return false; //Удалить характеристику из всех модификаций товаров
 		$db=core::db();
 		if($update) {
-			$data=$db->fetchArray('SELECT id,feature FROM shpCategory WHERE feature!='.$db->escape(''));
+			$data=$db->fetchArray('SELECT id,feature FROM shp_category WHERE feature!='.$db->escape(''));
 			foreach($data as $item) {
 				$feature=implode(',',array_diff(explode(',',$item[1]),$id0));
 				if($item[1]!=$feature) {
-					$db->query('UPDATE shpCategory SET feature='.$db->escape($feature).' WHERE id='.$item[0]);
+					$db->query('UPDATE shp_category SET feature='.$db->escape($feature).' WHERE id='.$item[0]);
 				}
 			}
 		}
 		//Если задан ИД категории, то удалить значения характеристик только у товаров этой категории, иначе удалить значения характеристик всех товаров
 		if(!$categoryId) {
-			$db->query('DELETE FROM shpProductFeature WHERE featureId IN('.$id.')');
+			$db->query('DELETE FROM shp_product_feature WHERE featureId IN('.$id.')');
 		} else {
-			$db->query('SELECT id FROM shpProduct WHERE categoryId='.$categoryId);
+			$db->query('SELECT id FROM shp_product WHERE categoryId='.$categoryId);
 			$pid='';
 			while($item=$db->fetch()) {
 				if($pid) $pid.=','.$item[0]; else $pid=$item[0];
 			}
-			$db->query('DELETE FROM shpProductFeature WHERE productId IN('.$pid.') AND featureId IN('.$id.')');
+			$db->query('DELETE FROM shp_product_feature WHERE productId IN('.$pid.') AND featureId IN('.$id.')');
 		}
 		return true;
 	}
 
-	/* Удаляет характеристики $id (строка через запятую) из всех модификаций товаров (shpVariant.feature) */
+	/* Удаляет характеристики $id (строка через запятую) из всех модификаций товаров (shp_variant.feature) */
 	public static function featureVariantDelete($id) {
 		$db=core::db();
-		$data=$db->fetchArray('SELECT id,feature FROM shpVariant');
+		$data=$db->fetchArray('SELECT id,feature FROM shp_variant');
 		$cnt=count($id);
 		foreach($data as $item) {
 			if(!$item[1]) continue;
@@ -239,7 +239,7 @@ class shop {
 			}
 			if($change) {
 				if($feature) $feature=$db->escape(serialize($feature)); else $feature='null';
-				$db->query('UPDATE shpVariant SET feature='.$feature.' WHERE id='.$item[0]);
+				$db->query('UPDATE shp_variant SET feature='.$feature.' WHERE id='.$item[0]);
 			}
 		}
 		return true;

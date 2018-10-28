@@ -9,7 +9,7 @@
 <?php if($this->module['url']) echo '<p><b>URL</b>: '.$this->module['url'].'</p>'; ?>
 <?php if($this->module['author']) echo '<p><b>Автор</b>: '.$this->module['author'].'</p>'; ?>
 <?php if($this->module['description']) echo '<p><b>Описание</b>:<br />'.$this->module['description'].'</p>'; ?>
-<form method="get" action="<?=core::link('module/installStart')?>">
+<form method="get" action="<?=core::linkAdmin('module/installStart')?>">
 <input type="hidden" name="controller" value="module" />
 <input type="hidden" name="action" value="installStart" />
 <input type="hidden" name="_front" value="" />

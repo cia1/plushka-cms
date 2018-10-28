@@ -33,7 +33,7 @@ class userAdmin extends modelUser {
 	/* Удаляет пользователя */
 	public function delete($id=null,$affected=false) {
 		$db=core::db();
-		$db->query('DELETE FROM userMessage WHERE user1Id='.$id.' OR user2Id='.$id);
+		$db->query('DELETE FROM user_message WHERE user1Id='.$id.' OR user2Id='.$id);
 		$db->query('DELETE FROM user WHERE id='.$id);
 		return true;
 	}

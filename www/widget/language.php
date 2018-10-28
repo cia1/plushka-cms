@@ -10,7 +10,7 @@
 		return true;
 	}
 
-	public function render($view=null) {
+	public function render($view) {
 		foreach($this->language as $id=>$item) { ?>
 			<a href="<?=$item['link']?>"><img src="<?=core::url()?>public/flag/<?=$id?>.png" alt="<?=$item['title']?>" title="<?=$item['title']?>" /></a>
 		<?php }

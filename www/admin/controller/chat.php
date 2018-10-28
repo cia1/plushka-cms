@@ -52,7 +52,7 @@
 		for($i=0,$cnt=count($blacklist);$i<$cnt;$i++) $blacklist[$i]=trim($blacklist[$i]);
 		$cfg->setData($blacklist);
 		$cfg->save('chat-blacklist');
-		core::redirect('?controller=chat&action=setting','Настройки обновлены');
+		core::redirect('chat/setting','Настройки обновлены');
 	}
 
 	//Модерирование сообщений, выводит список сообщений с кнопками управления
@@ -64,19 +64,19 @@
 		$table->rowTh('Время|Кто, кому|Сообщение|');
 		foreach($content as $item) {
 			$table->text(date('d.m.Y H:i:s',$item['time']));
-			if($item['fromId']) $who='<a href="'.core::link('?controller=user&action=userItem&id='.$item['fromId']).'">'; else $who='';
+			if($item['fromId']) $who='<a href="'.core::link('admin/user/userItem?id='.$item['fromId']).'">'; else $who='';
 			$who.=$item['fromLogin'];
 			if($item['fromId']) $who.='</a>';
 			else $who=$item['fromLogin'];
 			if($item['toLogin']) {
 				$who.=' => ';
-				if($item['toId']) $who.'<a href="'.core::link('?controller=user&action=userItem&id='.$item['toId']).'</a>';
+				if($item['toId']) $who.'<a href="'.core::link('admin/user/userItem?id='.$item['toId']).'</a>';
 				$who.=$item['toLogin'];
 				if($item['toId']) $who.='</a>';
 			}
 			$table->text($who);
 			$table->text($item['message']);
-			$table->delete('?controller=chat&action=delete&chatId='.$chatId.'&time='.$item['time'],'Подтвердите удаление сообщения');
+			$table->delete('chatId='.$chatId.'&time='.$item['time'],'delete','Подтвердите удаление сообщения');
 		}
 		return $table;
 	}
@@ -85,7 +85,7 @@
 	public function actionDelete() {
 		core::import('admin/model/chat');
 		if(!chat::delete($_GET['chatId'],$_GET['time'])) return '_empty';
-		core::redirect('?controller=chat&action=message&chatId='.$_GET['chatId']);
+		core::redirect('chat/message?chatId='.$_GET['chatId']);
 	}
 
 	public function actionMenu() {

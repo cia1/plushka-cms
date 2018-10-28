@@ -15,7 +15,7 @@ class mForm {
 			'successMessage'=>$successMessage,
 			'script'=>$script
 		);
-		$m=core::model('frmForm');
+		$m=core::model('frm_form');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -74,8 +74,8 @@ class mForm {
 	/* Удаляет форму */
 	public static function drop($id) {
 		$db=core::db();
-		$db->query('DELETE FROM frmField WHERE formId='.$id);
-		$db->query('DELETE FROM frmForm WHERE id='.$id);
+		$db->query('DELETE FROM frm_field WHERE formId='.$id);
+		$db->query('DELETE FROM frm_form WHERE id='.$id);
 		return true;
 	}
 
@@ -84,7 +84,7 @@ class mForm {
 		static $sort;
 		$sort++;
 		if($required) $required=true; else $required=false;
-		$m=core::model('frmField');
+		$m=core::model('frm_field');
 		$data=array(
 			'formId'=>$this->_id,
 			'title'=>$title,
@@ -109,4 +109,3 @@ class mForm {
 	}
 
 }
-?>

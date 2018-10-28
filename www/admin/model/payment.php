@@ -15,7 +15,7 @@ class payment {
 				$item=$f::settingForm((isset($cfg[$alias]) ? $cfg[$alias] : null));
 				if(!is_array($item)) continue;
 				if(is_object($item['content'])) {
-					if(!$item['content']->action) $item['content']->action='?controller=payment&action=method&method='.$alias;
+					if(!$item['content']->action) $item['content']->action='admin/payment/method?method='.$alias;
 				}
 				$item['alias']=$alias;
 				$item['rate']=(isset($cfg[$alias]) ? $cfg[$alias]['rate'] : 0);

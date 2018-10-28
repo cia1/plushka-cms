@@ -13,7 +13,7 @@
 		$table->rowTh('Журналы регистраций');
 		$data=log::getList();
 		foreach($data as $item) {
-			$table->link($item['title'],'log/log&id='.$item['file']);
+			$table->link('log/log?id='.$item['file'],$item['title']);
 		}
 		return $table;
 	}

@@ -27,7 +27,7 @@ class module {
 
 	/* Возвращает список установленных модулей */
 	public static function getList() {
-		return core::configAdmin('_module');
+		return core::config('admin/_module');
 	}
 
 	/* Возвращает массив с информацией о модуле, находящемся в директории /tmp */
@@ -57,7 +57,7 @@ class module {
 		if(!isset($data['author'])) $data['author']=null;
 		if(!isset($data['description'])) $data['description']=null;
 		if(!isset($data['depend'])) $data['depend']=null;
-		$cfg=core::configAdmin('_module');
+		$cfg=core::config('admin/_module');
 		if(isset($cfg[$data['id']])) {
 			$data['status']=$cfg[$data['id']]['status'];
 			if(isset($cfg[$data['id']]['verstion'])) $data['currentVersion']=$cfg[$data['id']]['version'];
@@ -133,10 +133,10 @@ class module {
 			$right[$i]=$item[0];
 		}
 		//Удалить и добавить вновь права
-		$s1='DELETE FROM userRight WHERE module IN ('.$s1.')';
+		$s1='DELETE FROM user_right WHERE module IN ('.$s1.')';
 		$db->query($s1);
 		if($right) {
-			$s2='INSERT INTO userRight (module,description,picture) VALUES '.$s2;
+			$s2='INSERT INTO user_right (module,description,picture) VALUES '.$s2;
 			$db->query($s2);
 		}
 		$cfg=new config('../admin/module/'.$id);
@@ -162,11 +162,11 @@ class module {
 			$widget[$i]=$item[0];
 		}
 		if($s1) {
-			$s1='DELETE FROM widgetType WHERE name IN ('.$s1.')';
+			$s1='DELETE FROM widget_type WHERE name IN ('.$s1.')';
 			$db->query($s1);
 		}
 		if($widget) {
-			$s2='INSERT INTO widgetType (name,title,controller,`action`) VALUES '.$s2;
+			$s2='INSERT INTO widget_type (name,title,controller,`action`) VALUES '.$s2;
 			$db->query($s2);
 		}
 		//Обновить конфигурацию модуля
@@ -188,12 +188,12 @@ class module {
 			else $s='(controller='.$db->escape($item[1]).' AND action='.$db->escape($item[2]).')';
 		}
 		if($s) {
-			$s='DELETE FROM menuType WHERE '.$s;
+			$s='DELETE FROM menu_type WHERE '.$s;
 			$db->query($s);
 		}
 		$s=array();
 		foreach($menu as $item) {
-			$db->insert('menuType',array(
+			$db->insert('menu_type',array(
 				'title'=>$item[0],
 				'controller'=>$item[1],
 				'action'=>$item[2]
@@ -209,7 +209,7 @@ class module {
 
 	/* Выполняет SQL-запросы установки модуля (/tmp/instal.СУБД.sql) и сохраняет информацию о созданных таблицах */
 	public static function sql($id) {
-		$cfg0=core::configAdmin();
+		$cfg0=core::config();
 		$f=core::path().'tmp/install.'.$cfg0['dbDriver'].'.sql'; //это файл для установки модуля
 		if(!file_exists($f)) return true;
 		core::import('admin/core/config');
@@ -298,7 +298,7 @@ class module {
 
 	/* Копирует файлы из /tmp в директории движка */
 	public static function copy($id) {
-		$file=core::configAdmin('../module/'.$id);
+		$file=core::config('admin/../module/'.$id);
 		$file=$file['file'];
 		$path2=str_replace('\\','/',core::path());
 		$path1=$path2.'tmp/';
@@ -323,16 +323,16 @@ class module {
 				}
 			} else $db->query('DROP TABLE '.$item);
 		}
-		if($module['menu']) $db->query('DELETE FROM menuType WHERE id IN ('.implode(',',$module['menu']).')');
+		if($module['menu']) $db->query('DELETE FROM menu_type WHERE id IN ('.implode(',',$module['menu']).')');
 		if($module['widget']) {
 			$s='';
 			foreach($module['widget'] as $item) if($s) $s.=','.$db->escape($item); else $s=$db->escape($item);
-			$db->query('DELETE FROM widgetType WHERE name IN ('.$s.')');
+			$db->query('DELETE FROM widget_type WHERE name IN ('.$s.')');
 		}
 		if($module['right']) {
 			$s='';
 			foreach($module['right'] as $item) if($s) $s.=','.$db->escape($item); else $s=$db->escape($item);
-			$db->query('DELETE FROM userRight WHERE module IN ('.$s.')');
+			$db->query('DELETE FROM user_right WHERE module IN ('.$s.')');
 		}
 		return true;
 	}
@@ -374,18 +374,18 @@ class module {
 
 	/* Возвращает версию модуля $name или false, если модуль не установлен */
 	public static function version($name) {
-		$cfg=core::configAdmin('_module');
+		$cfg=core::config('admin/_module');
 		if(!isset($cfg[$name]) || $cfg[$name]['status']!=100) return false;
 		return $cfg[$name]['version'];
 	}
 
 	/* Возвращает список модулей, которые завият от модуля с именем $module */
 	public static function dependSearch($module) {
-		$cfg=core::configAdmin('_module');
+		$cfg=core::config('admin/_module');
 		$found=array();
 		foreach($cfg as $id=>$data) {
 			if($id=='core') continue;
-			$m=core::configAdmin('../module/'.$id);
+			$m=core::config('admin/../module/'.$id);
 			if(!isset($m['depend'])) continue;
 			$s=explode(',',$m['depend']);
 			foreach($s as $item) {

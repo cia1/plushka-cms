@@ -18,12 +18,12 @@ class mForm extends form {
 	/* Строит форму, загружая все поля по указанному идентификатору формы */
 	public function load($id) {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT title_'._LANG.',formView FROM frmForm WHERE id='.$id);
+		$data=$db->fetchArrayOnce('SELECT title_'._LANG.',formView FROM frm_form WHERE id='.$id);
 		if(!$data) core::error404();
 		$this->title=$data[0]; //заголовок формы (может быть заголовок страницы)
 		$this->formView=$data[1]; //MVC-представление
 		//Загрузить все поля формы
-		$this->field=$db->fetchArrayAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frmField WHERE formId='.$id.' ORDER BY sort');
+		$this->field=$db->fetchArrayAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frm_field WHERE formId='.$id.' ORDER BY sort');
 		for($i=0,$cnt=count($this->field);$i<$cnt;$i++) {
 			$type=$this->field[$i]['htmlType'];
 			if($type=='radio' || $type=='select' || $type=='listBox') {
@@ -65,7 +65,7 @@ class mForm extends form {
 		core::language('form');
 		$this->data=$data;
 		$db=core::db();
-		$this->form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,email,subject_'._LANG.' subject,redirect,script,notification FROM frmForm WHERE id='.$id);
+		$this->form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,email,subject_'._LANG.' subject,redirect,script,notification FROM frm_form WHERE id='.$id);
 		if(!$this->form) core::error404();
 		if($this->form['notification']) $this->form['notification']=json_decode($this->form['notification'],true);
 		else $this->from['notification']=null;
@@ -76,7 +76,7 @@ class mForm extends form {
 		}
 
 		//Подготовка данных для валидации
-		$db->query('SELECT id,title_'._LANG.',htmlType,data_'._LANG.',required FROM frmField WHERE formId='.$id.' ORDER BY sort');
+		$db->query('SELECT id,title_'._LANG.',htmlType,data_'._LANG.',required FROM frm_field WHERE formId='.$id.' ORDER BY sort');
 		$this->field=$rule=array();
 		while($item=$db->fetch()) {
 			$fldName=$item[0];

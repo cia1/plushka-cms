@@ -1,4 +1,4 @@
-<form action="<?=core::link('?controller=shopSetting&action=widgetFeatureSearch')?>" method="post">
+<form action="<?=core::link('admin/shopSetting/widgetFeatureSearch')?>" method="post">
 <dl class="form">
 	<dt class="checkbox">Поиск по цене</dt>
 	<dd class="checkbox">

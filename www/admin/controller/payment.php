@@ -13,12 +13,12 @@
 		$cfg=new config('payment');
 		$cfg->sandbox=!$cfg->sandbox;
 		$cfg->save('payment');
-		core::redirect('?controller=payment&action=method');
+		core::redirect('payment/method');
 	}
 
 	//Форма настройки платёжных систем
 	public function actionMethod() {
-		$this->button('?controller=payment&action=log','list','Лог');
+		$this->button('payment/log','list','Лог');
 		core::import('admin/model/payment');
 		$this->payment=payment::methodList();
 		$this->sandbox=core::config('payment');
@@ -43,7 +43,7 @@
 		if(!$f::settingSubmit($data)) return false;
 		if(!isset($data['active'])) $data['rate']=0;
 		if(!payment::saveRate($method,$data['rate'])) return;
-		core::redirect('?controller=payment&action=method','Сохранено');
+		core::redirect('payment/method','Сохранено');
 	}
 
 	//Лог последних платежей
@@ -58,7 +58,7 @@
 			$table->text($item[3]);
 			$table->text($item[4]);
 			$table->text($item[5]);
-			$table->link($item[6],'user/userItem&id='.$item[1]);
+			$table->link('user/userItem?id='.$item[1],$item[6]);
 			$table->text($item[7]);
 		}
 		return $table;

@@ -9,7 +9,7 @@ class sController extends controller {
 	/* Одиночная статья или статья блога (подробно) */
 	public function actionView() {
 		$db=core::db();
-		if($_GET['corePath'][1]=='blog' || $_GET['corePath'][1]=='list') $this->data=$db->fetchArrayOnceAssoc('SELECT a.id id,a.title title,a.metaTitle metaTitle,a.metaKeyword metaKeyword,a.metaDescription metaDescription,a.date date,a.text2 text2,a.categoryId categoryId FROM article_'._LANG.' a INNER JOIN articleCategory_'._LANG.' c ON c.id=a.categoryId AND c.alias='.$db->escape($this->url[2]).' WHERE a.alias='.$db->escape($this->url[3]));
+		if($_GET['corePath'][1]=='blog' || $_GET['corePath'][1]=='list') $this->data=$db->fetchArrayOnceAssoc('SELECT a.id id,a.title title,a.metaTitle metaTitle,a.metaKeyword metaKeyword,a.metaDescription metaDescription,a.date date,a.text2 text2,a.categoryId categoryId FROM article_'._LANG.' a INNER JOIN article_category_'._LANG.' c ON c.id=a.categoryId AND c.alias='.$db->escape($this->url[2]).' WHERE a.alias='.$db->escape($this->url[3]));
 		else $this->data=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,date,text2,categoryId FROM article_'._LANG.' WHERE alias='.$db->escape($this->url[2]));
 		if(!$this->data) core::error404();
 		if($this->data['metaTitle']) $this->metaTitle=$this->data['metaTitle']; else $this->metaTitle=$this->data['title'];
@@ -24,7 +24,7 @@ class sController extends controller {
 		if($_GET['corePath'][1]=='view') return array('{{pageTitle}}');
 		else {
 			$db=core::db();
-			return array('<a href="'.core::link('article/'.$_GET['corePath'][1].'/'.$this->url[2]).'">'.$db->fetchValue('SELECT title FROM articleCategory_'._LANG.' WHERE id='.$this->data['categoryId']).'</a>','{{pageTitle}}');
+			return array('<a href="'.core::link('article/'.$_GET['corePath'][1].'/'.$this->url[2]).'">'.$db->fetchValue('SELECT title FROM article_category_'._LANG.' WHERE id='.$this->data['categoryId']).'</a>','{{pageTitle}}');
 		}
 	}
 
@@ -44,7 +44,7 @@ class sController extends controller {
 		}
 		if(isset($this->url[2])) $categoryAlias=$this->url[2]; else $categoryAlias='blog';
 		$db=core::db();
-		$this->category=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,text1,onPage FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($categoryAlias));
+		$this->category=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,text1,onPage FROM article_category_'._LANG.' WHERE alias='.$db->escape($categoryAlias));
 		if(!$this->category) core::error404();
 		$this->category['alias']=$categoryAlias;
 		if($this->category['metaTitle']) $this->metaTitle=$this->category['metaTitle']; else $this->metaTitle=$this->category['title'];
@@ -84,7 +84,7 @@ class sController extends controller {
 		}
 		if(isset($this->url[2])) $categoryAlias=$this->url[2]; else $categoryAlias='blog';
 		$db=core::db();
-		$this->category=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,text1 FROM articleCategory_'._LANG.' WHERE alias='.$db->escape($categoryAlias));
+		$this->category=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,text1 FROM article_category_'._LANG.' WHERE alias='.$db->escape($categoryAlias));
 		if(!$this->category) core::error404();
 		$this->category['alias']=$categoryAlias;
 		if($this->category['metaTitle']) $this->metaTitle=$this->category['metaTitle']; else $this->metaTitle=$this->category['title'];

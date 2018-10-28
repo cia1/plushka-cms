@@ -41,14 +41,14 @@ class sController extends controller {
 		$cfg->avatarHeight=(int)$data['avatarHeight'];
 		$cfg->save('forum');
 		core::success('Настройки сохранены');
-		core::redirect('?controller=forum&action=setting');
+		core::redirect('forum/setting');
 	}
 
 	/* Создание/редактирование категории */
 	public function actionCategory() {
 		if(isset($_GET['id'])) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title,newTopic,newPost,metaTitle,metaKeyword,metaDescription FROM forumCategory WHERE id='.(int)$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title,newTopic,newPost,metaTitle,metaKeyword,metaDescription FROM forum_category WHERE id='.(int)$_GET['id']);
 		} else $data=array('id'=>null,'title'=>'','newTopic'=>true,'newPost'=>true,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
 		$f=core::form();
 		$f->hidden('id',$data['id']);
@@ -65,8 +65,8 @@ class sController extends controller {
 	public function actionCategorySubmit($data) {
 		core::import('core/model');
 		$db=core::db();
-		$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM forumCategory')+1;
-		$model=new model('forumCategory'); //таблица forumCategory
+		$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM forum_category')+1;
+		$model=new model('forum_category'); //таблица forum_category
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
@@ -79,46 +79,46 @@ class sController extends controller {
 			'metaDescription'=>array('string')
 		))) return false;
 		core::success('Изменения сохранены');
-		core::redirect('?controller=forum&action=category&id='.$model->id);
+		core::redirect('forum/category?id='.$model->id);
 	}
 
 	/* Сортировка категорий: выше */
 	public function actionCategoryUp() {
 		$db=core::db();
-		$sort=(int)$db->fetchValue('SELECT sort FROM forumCategory WHERE id='.(int)$_GET['id']);
-		$db->query('UPDATE forumCategory SET sort='.$sort.' WHERE sort='.($sort-1));
-		$db->query('UPDATE forumCategory SET sort='.($sort-1).' WHERE id='.(int)$_GET['id']);
+		$sort=(int)$db->fetchValue('SELECT sort FROM forum_category WHERE id='.(int)$_GET['id']);
+		$db->query('UPDATE forum_category SET sort='.$sort.' WHERE sort='.($sort-1));
+		$db->query('UPDATE forum_category SET sort='.($sort-1).' WHERE id='.(int)$_GET['id']);
 		core::success('Выполнено');
-		core::redirect('?controller=forum&action=category&id='.$_GET['id']);
+		core::redirect('forum/category?id='.$_GET['id']);
 	}
 
 	/* Сортировка категорий: ниже */
 	public function actionCategoryDown() {
 		$db=core::db();
-		$sort=(int)$db->fetchValue('SELECT sort FROM forumCategory WHERE id='.(int)$_GET['id']);
-		$db->query('UPDATE forumCategory SET sort='.$sort.' WHERE sort='.($sort+1));
-		$db->query('UPDATE forumCategory SET sort='.($sort+1).' WHERE id='.(int)$_GET['id']);
+		$sort=(int)$db->fetchValue('SELECT sort FROM forum_category WHERE id='.(int)$_GET['id']);
+		$db->query('UPDATE forum_category SET sort='.$sort.' WHERE sort='.($sort+1));
+		$db->query('UPDATE forum_category SET sort='.($sort+1).' WHERE id='.(int)$_GET['id']);
 		core::success('Выполнено');
-		core::redirect('?controller=forum&action=category&id='.$_GET['id']);
+		core::redirect('forum/category?id='.$_GET['id']);
 	}
 
 	/* Удаление категории */
 	public function actionCategoryDelete() {
 		$db=core::db();
 		$id=(int)$_GET['id'];
-		$db->query('DELETE FROM forumTopic WHERE categoryId='.$id);
-		$db->query('DELETE FROM forumCategory WHERE id='.$id);
+		$db->query('DELETE FROM forum_topic WHERE categoryId='.$id);
+		$db->query('DELETE FROM forum_category WHERE id='.$id);
 		core::success('Категория удалена');
-		core::redirect('?controller=forum&action=category');
+		core::redirect('forum/category');
 	}
 
 	/* Редактирование темы */
 	public function actionTopic() {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT id,categoryId,title,message FROM forumTopic WHERE id='.(int)$_GET['id']);
+		$data=$db->fetchArrayOnce('SELECT id,categoryId,title,message FROM forum_topic WHERE id='.(int)$_GET['id']);
 		$f=core::form();
 		$f->hidden('id',$data[0]);
-		$f->select('categoryId','Категория','SELECT id,title FROM forumCategory ORDER BY sort',$data[1]);
+		$f->select('categoryId','Категория','SELECT id,title FROM forum_category ORDER BY sort',$data[1]);
 		$f->text('title','Заголовок',$data[2]);
 		$f->textarea('message','Сообщение',$data[3]);
 		$f->submit();
@@ -127,7 +127,7 @@ class sController extends controller {
 
 	public function actionTopicSubmit($data) {
 		core::import('core/model');
-		$model=new model('forumTopic');
+		$model=new model('forum_topic');
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
@@ -136,7 +136,7 @@ class sController extends controller {
 			'message'=>array('string','сообщение',true)
 		))) return false;
 		core::success('Выполнено');
-		core::redirect('?controller=forum&action=topic&id='.$model->id);
+		core::redirect('forum/topic?id='.$model->id);
 	}
 
 	/* Удаление темы */
@@ -144,34 +144,34 @@ class sController extends controller {
 		$db=core::db();
 		$id=(int)$_GET['id'];
 		//Если администратор удаляет тему, то на это есть причина и нужно также откатить счётчик сообщений
-		$topicUserId=$db->fetchValue('SELECT userId FROM forumTopic WHERE id='.$id);
+		$topicUserId=$db->fetchValue('SELECT userId FROM forum_topic WHERE id='.$id);
 		if(!$topicUserId) core::error404();
-		$data=$db->fetchArray('SELECT userId,COUNT(userId) FROM forumPost WHERE topicId='.$id.' GROUP BY userId');
+		$data=$db->fetchArray('SELECT userId,COUNT(userId) FROM forum_post WHERE topicId='.$id.' GROUP BY userId');
 		foreach($data as $item) {
 			if($item[0]==$topicUserId) $item[1]++;
-			$db->query('UPDATE forumUser SET postCount=postCount-'.$item[1].' WHERE id='.$item[0]);
+			$db->query('UPDATE forum_user SET postCount=postCount-'.$item[1].' WHERE id='.$item[0]);
 		}
 
-		$db->query('DELETE FROM forumPost WHERE topicId='.$id);
-		$db->query('DELETE FROM forumTopic WHERE id='.$id);
+		$db->query('DELETE FROM forum_post WHERE topicId='.$id);
+		$db->query('DELETE FROM forum_topic WHERE id='.$id);
 		core::success('Тема удалена');
-		core::redirect('?controller=forum&action=topic&id='.$id);
+		core::redirect('forum/topic?id='.$id);
 	}
 
 	/* Закрыть/открыть тему */
 	public function actionTopicStatus() {
 		$db=core::db();
-		$status=$db->fetchValue('SELECT status FROM forumTopic WHERE id='.(int)$_GET['id']);
+		$status=$db->fetchValue('SELECT status FROM forum_topic WHERE id='.(int)$_GET['id']);
 		if($status===false) core::error404();
-		$db->query('UPDATE forumTopic SET status='.($status ? '0' : '1').' WHERE id='.(int)$_GET['id']);
+		$db->query('UPDATE forum_topic SET status='.($status ? '0' : '1').' WHERE id='.(int)$_GET['id']);
 		core::success(($status ? 'Тема закрыта' : 'Тема вновь открыта'));
-		core::redirect('?controller=forum&action=topic&id='.$id);
+		core::redirect('forum/topic?id='.$id);
 	}
 
 	/* Редактирование сообщения */
 	public function actionPostEdit() {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT id,message FROM forumPost WHERE id='.(int)$_GET['id']);
+		$data=$db->fetchArrayOnce('SELECT id,message FROM forum_post WHERE id='.(int)$_GET['id']);
 		if(!$data) core::error404();
 		$f=core::form();
 		$f->hidden('id',$data[0]);
@@ -182,14 +182,14 @@ class sController extends controller {
 
 	public function actionPostEditSubmit($data) {
 		core::import('core/model');
-		$model=new model('forumPost');
+		$model=new model('forum_post');
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
 			'message'=>array('html','Сообщение',true)
 		))) return false;
 		core::success('Изменения сохранены');
-		core::redirect('?controlller=forum&action=post&id='.$model->id);
+		core::redirect('forum/post?id='.$model->id);
 	}
 
 	/* Удаление сообщения */
@@ -197,25 +197,25 @@ class sController extends controller {
 		core::import('core/model');
 		$db=core::db();
 		$id=(int)$_GET['id'];
-		$data=$db->fetchArrayOnce('SELECT p1.topicId,MAX(p2.date) FROM forumPost p1 LEFT JOIN forumPost p2 ON p2.topicId=p1.topicId AND p2.id!='.$id.' WHERE p1.id='.$id);
+		$data=$db->fetchArrayOnce('SELECT p1.topicId,MAX(p2.date) FROM forum_post p1 LEFT JOIN forum_post p2 ON p2.topicId=p1.topicId AND p2.id!='.$id.' WHERE p1.id='.$id);
 		if(!$data) core::error404();
 		$data[1]=(int)$data[1];
-		$db->query('DELETE FROM forumPost WHERE id='.$id);
-		$db->query('UPDATE forumTopic SET lastDate='.$data[1].',postCount=postCount-1 WHERE id='.$data[0]);
+		$db->query('DELETE FROM forum_post WHERE id='.$id);
+		$db->query('UPDATE forum_topic SET lastDate='.$data[1].',postCount=postCount-1 WHERE id='.$data[0]);
 		core::success('Сообщение удалено');
-		core::redirect('?controller=forum&action=topic');
+		core::redirect('forum/topic');
 	}
 
 	/* Блокировка и разблокировка пользователя */
 	public function actionUserStatus() {
 		$db=core::db();
 		$id=(int)$_GET['id'];
-		$status=$db->fetchValue('SELECT status FROM forumUser WHERE id='.$id);
+		$status=$db->fetchValue('SELECT status FROM forum_user WHERE id='.$id);
 		if($status===false) core::error404();
 		if(!$status) $status=1; else $status=0;
-		$db->query('UPDATE forumUser SET status='.$status.' WHERE id='.$id);
+		$db->query('UPDATE forum_user SET status='.$status.' WHERE id='.$id);
 		core::success(($status ? 'Пользователь разблокирован' :'Пользователь заблокирован'));
-		core::redirect('?controller=forum&action=userStatus');
+		core::redirect('forum/userStatus');
 	}
 /* ----------------------------------------------------------------------------------- */
 

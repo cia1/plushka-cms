@@ -56,7 +56,7 @@ class sController extends controller {
 		$cfg->watermarkColor=$data['watermarkColor'];
 		$cfg->save('demotivator');
 		core::success('Изменения сохранены');
-		core::redirect('?controller=demotivator&action=setting');
+		core::redirect('demotivator/setting');
 	}
 
 	/* Ожидающие модерации или скрытые админом демотиваторы */
@@ -67,9 +67,9 @@ class sController extends controller {
 		$db->query('SELECT id,title,image FROM demotivator WHERE status=0 ORDER BY date DESC');
 		$url=core::url().'public/demotivator/';
 		while($item=$db->fetch()) {
-			$t->link('<img src="'.$url.$item[2].'" style="height:60px;" />','?controller=demotivator&action=edit&id='.$item[0],null,'align="center"');
-			$t->link($item[1],'?controller=demotivator&action=edit&id='.$item[0]);
-			$t->delete('?controller=demotivator&action=delete&id='.$item[0]);
+			$t->link('demotivator/edit?id='.$item[0],'<img src="'.$url.$item[2].'" style="height:60px;" />',null,'align="center"');
+			$t->link('demotivator/edit?id='.$item[0],$item[1]);
+			$t->delete('id='.$item[0]);
 		}
 
 		return $t;
@@ -103,7 +103,7 @@ class sController extends controller {
 			'status'=>array('boolean')
 		))) return false;
 		core::success('Изменения сохранены');
-		core::redirect('?controller=demotivator&action=edit&id='.$m->id);
+		core::redirect('demotivator/edit?id='.$m->id);
 	}
 
 	/* Удаление демотиватора */
@@ -113,7 +113,7 @@ class sController extends controller {
 		if(file_exists($f)) unlink($f);
 		$db->query('DELETE FROM demotivator WHERE id='.(int)$_GET['id']);
 		core::success('Демотиватор удалён');
-		core::redirect('?controller=demotivator&action=hidden');
+		core::redirect('demotivator/hidden');
 	}
 /* ----------------------------------------------------------------------------------- */
 

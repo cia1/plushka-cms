@@ -13,7 +13,7 @@ class sController extends controller {
 
 	//Список языков
 	public function actionIndex() {
-		$this->button('?controller=language&action=add','new','Добавить язык');
+		$this->button('language/add','new','Добавить язык');
 		$cfg=core::config();
 		$table=core::table();
 		$table->rowTh('Язык|');
@@ -23,7 +23,7 @@ class sController extends controller {
 				$table->text('');
 			} else {
 				$table->text($item);
-				$table->editDelete('language&id='.$item);
+				$table->editDelete('id='.$item);
 			}
 		}
 		$this->cite='Удаление языков не приводит к удалению файлов локализации, вы должны сделать это самостоятельно, если требуется.';
@@ -45,9 +45,8 @@ class sController extends controller {
 
 	public function actionAddSubmit($data) {
 		//Валидация
-		$model=core::model();
-		$model->set($data);
-		if(!$model->validate(array(
+		$validator=core::validator($data);
+		if(!$validator->validate(array(
 			'alias'=>array('latin','псевдоним',true,'max'=>2)
 		))) return false;
 		//Модифицировать СУБД
@@ -57,14 +56,14 @@ class sController extends controller {
 		core::import('admin/core/config');
 		$cfg=new config('_core');
 		$lst=$cfg->languageList;
-		if(in_array($model->alias,$lst)) {
+		if(in_array($validator->alias,$lst)) {
 			core::error('Этот язык уже используется');
 			return false;
 		}
-		$lst[]=$model->alias;
+		$lst[]=$validator->alias;
 		$cfg->languageList=$lst;
 		$cfg->save('_core');
-		core::redirect('?controller=language');
+		core::redirect('language');
 	}
 
 	//Удаление языка
@@ -85,7 +84,7 @@ class sController extends controller {
 		$lst=array_values($lst);
 		$cfg->languageList=$lst;
 		$cfg->save('_core');
-		core::redirect('?controller=language');
+		core::redirect('language');
 	}
 
 	//Правила переключения между языками
@@ -125,7 +124,7 @@ class sController extends controller {
 		$data=array_values($data);
 		$cfgLanguage->rule=$data;
 		if(!$cfgLanguage->save('language')) return false;
-		core::redirect('?controller=language&action=setting','Сохранено');
+		core::redirect('language/setting','Сохранено');
 		}
 
 }

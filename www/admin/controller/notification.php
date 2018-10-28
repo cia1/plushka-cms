@@ -34,7 +34,7 @@ class sController extends controller {
 			$cfg->{$item->getId()}=$setting;
 		}
 		if($cfg->save('notification')===false) return;
-		core::redirect('?controller=notification&action=setting','Настройки сохранены');
+		core::redirect('notification/setting','Настройки сохранены');
 	}
 
 }

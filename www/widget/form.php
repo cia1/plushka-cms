@@ -7,10 +7,10 @@ class widgetForm extends widget {
 
 	public function render($view) {
 		$db=core::db();
-		$form=$db->fetchArrayOnceAssoc('SELECT title,formView FROM frmForm WHERE id='.$this->options);
+		$form=$db->fetchArrayOnceAssoc('SELECT title,formView FROM frm_form WHERE id='.$this->options);
 		if(!$form) return;
 		//Загрузить список полей формы и загрузить их в класс form
-		$items=$db->fetchArrayAssoc('SELECT id,title,htmlType,data,defaultValue,required FROM frmField WHERE formId='.$this->options.' ORDER BY sort');
+		$items=$db->fetchArrayAssoc('SELECT id,title,htmlType,data,defaultValue,required FROM frm_field WHERE formId='.$this->options.' ORDER BY sort');
 		$cnt=count($items);
 		$f=core::form('form');
 		for($i=0;$i<$cnt;$i++) {

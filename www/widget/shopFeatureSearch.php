@@ -11,10 +11,10 @@ class widgetShopFeatureSearch extends widget {
 		//Если в браузере открыта страница магазина - вывести только те характеристики, которые относятся к текущей категории,
 		//если же категория неизвестна, то вывести все характеристики, указанные в настройках виджета
 		if($this->categoryId) {
-			$feature=$db->fetchValue('SELECT feature FROM shpCategory WHERE id='.$this->categoryId);
+			$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$this->categoryId);
 			if(!$feature) return false;
-			$this->data=$db->fetchArrayAssoc('SELECT id,title,unit,data FROM shpFeature WHERE id IN('.implode(',',array_keys($this->options['feature'])).') AND id IN('.$feature.') ORDER BY id DESC');
-		} else $this->data=$db->fetchArrayAssoc('SELECT id,title,unit,data FROM shpFeature WHERE id IN('.implode(',',array_keys($this->options['feature'])).') ORDER BY id DESC');
+			$this->data=$db->fetchArrayAssoc('SELECT id,title,unit,data FROM shp_feature WHERE id IN('.implode(',',array_keys($this->options['feature'])).') AND id IN('.$feature.') ORDER BY id DESC');
+		} else $this->data=$db->fetchArrayAssoc('SELECT id,title,unit,data FROM shp_feature WHERE id IN('.implode(',',array_keys($this->options['feature'])).') ORDER BY id DESC');
 		if(!$this->data) return false;
 		$feature=$this->options['feature'];
 
@@ -27,8 +27,8 @@ class widgetShopFeatureSearch extends widget {
 			$categoryId=$this->categoryId;
 			//Анонимная callback-функция возвращает массив уникальных значений характеристик товаров
 			$cache=core::cache('featureSearch-'.$this->categoryId,function() use($categoryId,$cache) {
-				if($categoryId) $q='SELECT DISTINCT pf.value FROM shpProductFeature pf INNER JOIN shpProduct p ON p.id=pf.productId AND p.categoryId='.$categoryId.' WHERE pf.featureId=';
-				else $q='SELECT DISTINCT value FROM shpProductFeature WHERE featureId=';
+				if($categoryId) $q='SELECT DISTINCT pf.value FROM shp_product_feature pf INNER JOIN shp_product p ON p.id=pf.productId AND p.categoryId='.$categoryId.' WHERE pf.featureId=';
+				else $q='SELECT DISTINCT value FROM shp_product_feature WHERE featureId=';
 				$db=core::db();
 				$featureValue=array();
 				foreach($cache as $featureId) {

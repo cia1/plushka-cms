@@ -8,7 +8,7 @@ class widgetShopCategory extends widget {
 			if(isset(controller::$self->category)) $id=controller::$self->category['id'];
 			else {
 				$db=core::db();
-				$id=$db->fetchValue('SELECT id FROM shpCategory WHERE alias='.$db->escape($_GET['corePath'][1]));
+				$id=$db->fetchValue('SELECT id FROM shp_category WHERE alias='.$db->escape($_GET['corePath'][1]));
 			}
 		} else $id=null;
 		core::import('model/shop');

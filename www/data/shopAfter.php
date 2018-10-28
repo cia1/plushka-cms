@@ -24,7 +24,7 @@ if($this->form['email']) {
 	$d['form'].='</table>';
 	$ids=implode(',',array_keys($_SESSION['cart']));
 	$db=core::db();
-	$db->query('SELECT id,title,price FROM shpProduct WHERE id IN('.$ids.')');
+	$db->query('SELECT id,title,price FROM shp_product WHERE id IN('.$ids.')');
 	$d['cart']='<table><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th></tr>';
 	$totalQuantity=$totalCost=0;
 	while($item=$db->fetch()) {

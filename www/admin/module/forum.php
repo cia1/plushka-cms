@@ -1,7 +1,7 @@
 <?php return array(
 'right'=>'forum.moderate,forum.category',
 'menu'=>'12,13',
-'table'=>'forumCategory,forumPost,forumTopic,forumUser',
+'table'=>'forum_category,forum_post,forum_topic,forum_user',
 'file'=>array(
 	'admin/controller/forum.php',
 	'admin/hook/userCreate.forum.php',

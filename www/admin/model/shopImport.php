@@ -17,7 +17,7 @@ class shopImport {
 		$db=core::db();
 		//Подготовить данные для цикла
 		$productField=$featureField=array();
-		$insert='INSERT INTO shpProduct (categoryId,alias';
+		$insert='INSERT INTO shp_product (categoryId,alias';
 		foreach($cfg as $key=>$value) {
 			if($key=='firstRow' || $key=='unique' || $key=='categoryTitle' || $key=='alias' || $key=='notDelete') continue;
 			if(substr($key,0,7)=='feature') $featureField[(int)substr($key,7)]=$value;
@@ -38,7 +38,7 @@ class shopImport {
 				shopLog::add($i,'Уникальное поле не имеет значения');
 				continue;
 			}
-			$id=$db->fetchValue('SELECT id FROM shpProduct WHERE '.$cfg['unique'].'='.$db->escape($uniqueId));
+			$id=$db->fetchValue('SELECT id FROM shp_product WHERE '.$cfg['unique'].'='.$db->escape($uniqueId));
 			if(!$id) { //этого товара нет в базе данных - создать его
 				//Поиск подходящей категории
 				$s=$d->val($i,$cfg['categoryTitle']);
@@ -70,9 +70,9 @@ class shopImport {
 					if($q) $q.=',';
 					$q.=$key.'='.$db->escape($d->val($i,$value));
 				}
-				$q='UPDATE shpProduct SET '.$q.' WHERE id='.$id;
+				$q='UPDATE shp_product SET '.$q.' WHERE id='.$id;
 				$db->query($q);
-				$db->query('DELETE FROM shpProductFeature WHERE productId='.$id);
+				$db->query('DELETE FROM shp_product_feature WHERE productId='.$id);
 			}
 			//Добавление характеристик
 			if($featureField) {
@@ -84,7 +84,7 @@ class shopImport {
 			if($idList) $idList.=','.$id; else $idList=$id; //Список идентификаторов добавленных/обновлённых товаров (для удаления прочих товаров)
 		}
 		if($qFeature) {
-			$q='INSERT INTO shpProductFeature (productId,featureId,value) VALUES '.$qFeature;
+			$q='INSERT INTO shp_product_feature (productId,featureId,value) VALUES '.$qFeature;
 			$db->query($q);
 		}
 		if($idList) {
@@ -104,11 +104,11 @@ class shopImport {
 		}
 		$id=substr($id,0,strlen($id)-1);
 		$data=array(substr_count($id,',')+1,0);
-		$cfg=core::configAdmin('shop');
+		$cfg=core::config('admin/shop');
 		if($cfg['notDelete']) return $data; //Надо ли удалять прочие товары?
 		//Определить список всех товаров, которые нужно удалить, добавить их ИД в $id, а также удалить изображения этих товаров
 		$db=core::db();
-		$db->query('SELECT id,image FROM shpProduct WHERE id NOT IN('.$id.')');
+		$db->query('SELECT id,image FROM shp_product WHERE id NOT IN('.$id.')');
 		$path=core::path().'public/shop-product/';
 		$id='';
 		while($item=$db->fetch()) {
@@ -124,10 +124,10 @@ class shopImport {
 			if($id) $id.=','.$item[0]; else $id=$item[0];
 		}
 		if($id) {
-			$db->query('DELETE FROM shpProductGroupItem WHERE productId IN('.$id.')');
-			$db->query('DELETE FROM shpVariant WHERE productId IN('.$id.')');
-			$db->query('DELETE FROM shpProductFeature WHERE productId IN('.$id.')');
-			$db->query('DELETE FROM shpProduct WHERE id IN('.$id.')');
+			$db->query('DELETE FROM shp_product_group_item WHERE productId IN('.$id.')');
+			$db->query('DELETE FROM shp_variant WHERE productId IN('.$id.')');
+			$db->query('DELETE FROM shp_product_feature WHERE productId IN('.$id.')');
+			$db->query('DELETE FROM shp_product WHERE id IN('.$id.')');
 			$data[]=substr_count($id,',')+1;
 		} else $data[]=0;
 		return $data;
@@ -138,7 +138,7 @@ class shopImport {
 		static $_category;
 		if($_category && isset($_category[$value])) return $_category[$value];
 		$db=core::db();
-		$id=$db->fetchValue('SELECT id FROM shpCategory WHERE title='.$db->escape($value));
+		$id=$db->fetchValue('SELECT id FROM shp_category WHERE title='.$db->escape($value));
 		if(!$id) return false;
 		$_category[$value]=$id;
 		return $id;

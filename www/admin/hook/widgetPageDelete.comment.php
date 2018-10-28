@@ -13,7 +13,7 @@ foreach($data[2] as $item) {
 	if($item[$i]=='/') $s=' LIKE '.$db->escape($s.'%');
 	elseif($item[$i]=='.') $s='='.$db->escape($s);
 	else $s=' LIKE '.$db->escape($s.'/%');
-	$id=$db->fetchArray('SELECT id FROM commentGroup WHERE link'.$s);
+	$id=$db->fetchArray('SELECT id FROM comment_group WHERE link'.$s);
 	if(!$id) continue;
 	foreach($id as $_id) {
 		if($ids) $ids.=','.$_id[0]; else $ids=$_id[0];
@@ -21,5 +21,5 @@ foreach($data[2] as $item) {
 }
 if(!$ids) return true;
 $db->query('DELETE FROM comment WHERE groupId IN('.$ids.')');
-$db->query('DELETE FROM commentGroup WHERE id IN('.$ids.')');
+$db->query('DELETE FROM comment_group WHERE id IN('.$ids.')');
 return true;

@@ -5,8 +5,8 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Список установленных модулей */
 	public function actionIndex() {
-		$this->button('?controller=module&action=installTmp','install','Установить модуль из директория');
-		$this->button('?controller=module&action=installZip','install','Установить модуль из архива');
+		$this->button('module/installTmp','install','Установить модуль из директория');
+		$this->button('module/installZip','install','Установить модуль из архива');
 		core::import('admin/model/module');
 		$items=module::getList();
 		$status=array(0=>'не установлен',1=>'установка, шаг 2',2=>'установка, шаг 3',3=>'установка, шаг 4',4=>'установка, шаг 5',5=>'установка, шаг 6',6=>'установка, шаг 7',7=>'установка, шаг 8',8=>'установка, шаг 9',100=>'работает');
@@ -23,9 +23,9 @@ class sController extends controller {
 			//Ссылка "удалить" или "отменить", "продолжить установку" в зависимости от состояния модуля
 			if($i=='core') $s='';
 			else {
-				if($item['status']==100) $s='<a href="'.core::link('?controller=module&action=uninstall&id='.$i).'" onclick="return confirm(\'Подтвердите удаление модуля\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
-				else $s='<a href="'.core::link('?controller=module&action=uninstall&id='.$i).'" onclick="return confirm(\'Подтвердите отмену установки\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
-				if($item['status']<99) $s.=' | <a href="'.core::link('?controller=module&action=installTmp&id='.$i).'">Продолжить</a>';
+				if($item['status']==100) $s='<a href="'.core::link('admin/module/uninstall?id='.$i).'" onclick="return confirm(\'Подтвердите удаление модуля\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
+				else $s='<a href="'.core::link('admin/module/uninstall?id='.$i).'" onclick="return confirm(\'Подтвердите отмену установки\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
+				if($item['status']<99) $s.=' | <a href="'.core::link('admin/module/installTmp?id='.$i).'">Продолжить</a>';
 			}
 			$table->text($s,null,'style="text-align:center;"');
 		}
@@ -112,7 +112,7 @@ class sController extends controller {
 			$cfg=new config('admin/module/'.$module['id']);
 			unset($cfg->currentVersion);
 			$cfg->save('admin/module/'.$module['id']);
-			core::redirect('?controller=module','Модуль установлен');
+			core::redirect('module','Модуль установлен');
 		}
 		return 'Info';
 	}
@@ -122,14 +122,13 @@ class sController extends controller {
 		core::import('admin/model/module');
 		if(!is_array($_GET['id'])) $_GET['id']=array($_GET['id']);
 		foreach($_GET['id'] as $id) {
-			$module=core::configAdmin('../module/'.$id); //Информация об установленном модуле
+			$module=core::config('admin/../module/'.$id); //Информация об установленном модуле
 			module::explodeData($module); //В конфигурации информация хранится в сжатом виде - разобрать её на массивы
 			$module['id']=$id; //Идентификатор модуля (строка)
 			if(!self::_uninstall($module)) return $this->actionIndex();
 			unset($module);
 		}
-die("END");
-		core::redirect('?controller=module','Модуль удалён');
+		core::redirect('module','Модуль удалён');
 	}
 /* ----------------------------------------------------------------------------------- */
 
@@ -273,7 +272,7 @@ die("END");
 		$db=core::db();
 		//Запретить удаление, если в меню есть ссылки на страницы этого модуля
 		if(is_array($module['menu'])) $s=implode(',',$module['menu']); else $s=$module['menu'];
-		if($s) $items=$db->fetchArray('SELECT title_'._LANG.' title FROM menuItem WHERE typeId IN('.$s.')'); else $items=null;
+		if($s) $items=$db->fetchArray('SELECT title_'._LANG.' title FROM menu_item WHERE typeId IN('.$s.')'); else $items=null;
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];

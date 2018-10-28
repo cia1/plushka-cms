@@ -24,25 +24,25 @@ class sController extends controller {
 	public function actionFormSubmit($data) {
 		if(!$this->_formSubmit($data)) return false;
 		core::success('Изменения сохранены');
-		core::redirect('?controller=form&action=form&id='.$data['id']);
+		core::redirect('form/form?id='.$data['id']);
 	}
 
 	/* Список полей формы */
 	public function actionField() {
-		$this->button('?controller=form&action=fieldItem&formId='.$_GET['id'],'new','Добавить поле');
+		$this->button('form/fieldItem?formId='.$_GET['id'],'new','Добавить поле');
 		//Заполнить строки в модели table
 		$t=core::table();
 		$t->rowTh('Заголовок|Тип поля|Обязательное||');
 		$db=core::db();
-		$items=$db->fetchArray('SELECT id,title_'._LANG.',htmlType,required,sort FROM frmField WHERE formId='.$_GET['id'].' ORDER BY sort');
+		$items=$db->fetchArray('SELECT id,title_'._LANG.',htmlType,required,sort FROM frm_field WHERE formId='.$_GET['id'].' ORDER BY sort');
 		$type=array('text'=>'текстовое поле','radio'=>'переключатель','select'=>'выпадающий список','checkbox'=>'да/нет','textarea'=>'многострочный текст','email'=>'E-mail','file'=>'файл','captcha'=>'каптча');
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			$item=$items[$i];
-			$t->link($item[1],'?controller=form&action=fieldItem&formId='.$_GET['id'].'&id='.$item[0]);
+			$t->link('form/fieldItem?formId='.$_GET['id'].'&id='.$item[0],$item[1]);
 			$t->text($type[$item[2]]);
 			$t->text(($item[3] ? 'да' : 'нет'));
-			$t->upDown('?controller=form&formId='.$_GET['id'].'&id='.$item[0].'&action=',$item[4],$cnt);
-			$t->itemDelete('?controller=form&formId='.$_GET['id'].'&id='.$item[0].'&action=field');
+			$t->upDown('formId='.$_GET['id'].'&id='.$item[0],$item[4],$cnt);
+			$t->itemDelete('formId='.$_GET['id'].'&id='.$item[0],'field');
 		}
 		unset($items);
 		return $t;
@@ -52,7 +52,7 @@ class sController extends controller {
 	public function actionFieldItem() {
 		if(isset($_GET['id'])) { //редактирование поля - загрузить данные по умолчанию
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frmField WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frm_field WHERE id='.$_GET['id']);
 			$data['value']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','htmlType'=>'text','required'=>0,'value'=>'','defaultValue'=>'');
 		if(isset($_POST['form'])) $formId=$_POST['form']['formId']; else $formId=$_GET['formId'];
@@ -86,40 +86,40 @@ class sController extends controller {
 		$frmField=new frmField();
 		$frmField->set($data);
 		if(!$frmField->save()) return false;
-		core::redirect('?controller=form&action=field&id='.$data['formId']);
+		core::redirect('form/field?id='.$data['formId']);
 	}
 
 	/* Изменить порядок полей: поднять выше */
 	public function actionUp() {
 		$db=core::db();
-		$current=(int)$db->fetchValue('SELECT sort FROM frmField WHERE id='.$_GET['id']);
+		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$_GET['id']);
 		if($current) {
-			$db->query('UPDATE frmField SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(--$current));
-			$db->query('UPDATE frmField SET sort='.$current.' WHERE id='.$_GET['id']);
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(--$current));
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$_GET['id']);
 		}
-		core::redirect('?controller=form&action=field&id='.$_GET['formId']);
+		core::redirect('form/field?id='.$_GET['formId']);
 	}
 
 	/* Изменить порядок полей: спустить ниже */
 	public function actionDown() {
 		$db=core::db();
-		$current=(int)$db->fetchValue('SELECT sort FROM frmField WHERE id='.$_GET['id']);
-		$max=(int)$db->fetchValue('SELECT MAX(sort) FROM frmField WHERE formId='.$_GET['formId']);
+		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$_GET['id']);
+		$max=(int)$db->fetchValue('SELECT MAX(sort) FROM frm_field WHERE formId='.$_GET['formId']);
 		if($current!=$max) {
-			$db->query('UPDATE frmField SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(++$current));
-			$db->query('UPDATE frmField SET sort='.$current.' WHERE id='.$_GET['id']);
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(++$current));
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$_GET['id']);
 		}
-		core::redirect('?controller=form&action=field&id='.$_GET['formId']);
+		core::redirect('form/field?id='.$_GET['formId']);
 	}
 
 	/* Удалить поле формы */
 	public function actionFieldDelete() {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT sort,formId FROM frmField WHERE id='.$_GET['id']);
+		$data=$db->fetchArrayOnce('SELECT sort,formId FROM frm_field WHERE id='.$_GET['id']);
 		if(!$data) core::error404();
-		$db->query('UPDATE frmField SET sort=sort-1 WHERE formId='.$data[1].' AND sort>'.$data[0]);
-		$db->query('DELETE FROM frmField WHERE id='.$_GET['id']);
-		core::redirect('?controller=form&action=field&id='.$data[1]);
+		$db->query('UPDATE frm_field SET sort=sort-1 WHERE formId='.$data[1].' AND sort>'.$data[0]);
+		$db->query('DELETE FROM frm_field WHERE id='.$_GET['id']);
+		core::redirect('form/field?id='.$data[1]);
 	}
 /* ----------------------------------------------------------------------------------- */
 
@@ -163,12 +163,12 @@ class sController extends controller {
 		//это может быть ассоциативный массив, содержащий все настройки, число - идентификатор формы или NULL
 		if($data && !is_array($data)) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script,notification FROM frmForm WHERE id='.$data);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script,notification FROM frm_form WHERE id='.$data);
 			if(!$data['email']) $data['emailSource']='no';
 			elseif($data['email']=='cfg') $data['emailSource']='cfg';
 			else $data['emailSource']='other';
 		} elseif(!$data) $data=array('id'=>null,'title'=>'','emailSource'=>'cfg','email'=>'','successMessage'=>'','redirect'=>'','formView'=>'','script'=>'','subject'=>'');
-		if($data['id']) $this->button('?controller=form&action=field&id='.$data['id'],'field','Поля формы');
+		if($data['id']) $this->button('form/field?id='.$data['id'],'field','Поля формы');
 		//Отобразить/скрыть поле e-mail при помощи JavaScript. Если $data['email']='cfg' - означает что адрес нужно взять из общих настроек сайта
 		if($data['emailSource']=='no') $this->showSubject=false; else $this->showSubject=true;
 		if($data['emailSource']=='other') $this->showEmail=true; else {
@@ -221,7 +221,7 @@ class sController extends controller {
 
 	/* Выполняет валидацию и сохранение данных формы в БД */
 	private function _formSubmit($data) {
-		$m=core::model('frmForm');
+		$m=core::model('frm_form');
 		$validate=array(
 			'id'=>array('primary'),
 			'title'=>array('string','заголовок страницы',true),

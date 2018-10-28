@@ -18,7 +18,7 @@ class sController extends controller {
 		if(file_exists(core::path().'tmp/dump.sql')) $this->backupDate=filectime(core::path().'tmp/dump.sql'); else $this->backupDate=null;
 
 		$this->formExport=core::form(); //экспорт модуля
-		$cfg=core::configAdmin('_module');
+		$cfg=core::config('admin/_module');
 		$module=array();
 		foreach($cfg as $id=>$item) {
 			if($id=='core') continue;
@@ -61,7 +61,7 @@ class sController extends controller {
 
 	/* Настройки очистки движка от контента */
 	public function actionSetting() {
-		$cfg=core::configAdmin('devTool');
+		$cfg=core::config('admin/devTool');
 		$f=core::form();
 		$struc=self::_structureDb(false);
 		$html='';
@@ -163,7 +163,7 @@ class sController extends controller {
 		$cfg=core::config();
 		$dbDriver=$cfg['dbDriver'];
 		if($dbDriver=='mysql') $structure=self::_structureMySQL(false); else $structure=self::_structureSQLite(false);
-		$cfg=core::configAdmin('devTool');
+		$cfg=core::config('admin/devTool');
 		//Очистка таблиц
 		$db=core::db();
 		foreach($structure as $item) {
@@ -212,14 +212,14 @@ class sController extends controller {
 		if($cfg['mysqlPassword']) $cmd.=' -p'.$cfg['mysqlPassword'];
 		$cmd.=' '.$cfg['mysqlDatabase'].' > '.core::path().'tmp/dump.sql';
 		exec($cmd);
-		core::redirect('?controller=devTool&t='.time());
+		core::redirect('devTool?t='.time());
 	}
 
 	/* Удаляет файл бэкапа */
 	public function actionBackupDelete() {
 		$f=core::path().'tmp/dump.sql';
 		if(file_exists($f)) unlink($f);
-		core::redirect('?controller=devTool&t='.time());
+		core::redirect('devTool?t='.time());
 	}
 
 	/* Экспорт модуля в директорий /tmp */
@@ -227,7 +227,7 @@ class sController extends controller {
 	public function actionExportSubmit($id) {
 		$id=$id['id']; //имя модуля
 		self::_unlink('tmp');
-		$m=core::configAdmin('../module/'.$id);
+		$m=core::config('admin/../module/'.$id);
 		core::import('admin/model/module');
 		module::explodeData($m);
 		$sql1=$sql2='';
@@ -236,16 +236,16 @@ class sController extends controller {
 		$db2=core::sqlite();
 		$right='';
 		foreach($m['right'] as $item) {
-			$data=$db0->fetchArrayOnce('SELECT description,groupId,picture FROM userRight WHERE module='.$db0->escape($item));
+			$data=$db0->fetchArrayOnce('SELECT description,groupId,picture FROM user_right WHERE module='.$db0->escape($item));
 			$right.='right: '.$item."\t".$data[0]."\t".$data[2]."\n";
 		}
 		foreach($m['widget'] as $item) {
-			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM widgetType WHERE name='.$db0->escape($item));
+			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM widget_type WHERE name='.$db0->escape($item));
 			$widget.='widget: '.$item."\t".$data[0]."\t".$data[1]."\t".$data[2]."\n";
 		}
 		$menu='';
 		foreach($m['menu'] as $item) {
-			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM menuType WHERE id='.$db0->escape($item));
+			$data=$db0->fetchArrayOnce('SELECT title,controller,action FROM menu_type WHERE id='.$db0->escape($item));
 			$menu.='menu: '.$data[0]."\t".$data[1]."\t".$data[2]."\n";
 		}
 		//Конструирование SQL-запроса (для двух СУБД)
@@ -295,7 +295,7 @@ class sController extends controller {
 		if(file_exists($f1)) {
 			copy($f1,core::path().'tmp/install.php');
 		}
-		$cfg=core::configAdmin('_module');
+		$cfg=core::config('admin/_module');
 		$f=fopen(core::path().'tmp/module.ini','w');
 		fwrite($f,'id: '.$id."\n");
 		fwrite($f,'name: '.$cfg[$id]['name']."\n");
@@ -315,16 +315,16 @@ class sController extends controller {
 		$cfg->file=self::_scan(core::path()); //сканирование файловой системы
 		$cfg->structure=self::_structureDb();
 		$db=core::db();
-		$db->query('SELECT name FROM widgetType');
+		$db->query('SELECT name FROM widget_type');
 		$tmp=array();
 		while($item=$db->fetch()) $tmp[]=$item[0];
 		$cfg->widgetType=$tmp;
 		$tmp=array();
-		$db->query('SELECT controller,action FROM menuType');
+		$db->query('SELECT controller,action FROM menu_type');
 		while($item=$db->fetch()) $tmp[]=$item[0].'.'.$item[1];
 		$cfg->menuType=$tmp;
 		$tmp=array();
-		$db->query('SELECT module FROM userRight');
+		$db->query('SELECT module FROM user_right');
 		while($item=$db->fetch()) $tmp[]=$item[0];
 		$cfg->userRight=$tmp;
 		$cfg->save('../admin/data/devTool-image');
@@ -335,7 +335,7 @@ class sController extends controller {
 	/* Сравнение состояния сайта со сделанным ранее снимком */
 	public function actionImageCompare() {
 		//Сканирование файловой системы
-		$cfg=core::configAdmin('../data/devTool-image');
+		$cfg=core::config('admin/../data/devTool-image');
 		if(function_exists('array_column')) { //PHP 5.5 и позже
 			$imageFile=array_column($cfg['file'],0);
 			$imageSize=array_column($cfg['file'],1);
@@ -382,7 +382,7 @@ class sController extends controller {
 		}
 		//Виджеты (только создание новых)
 		$db=core::db();
-		$db->query('SELECT name,title FROM widgetType');
+		$db->query('SELECT name,title FROM widget_type');
 		$tmp=$cfg['widgetType'];
 		$this->widgetCreate=array();
 		$moduleWidget='';
@@ -393,7 +393,7 @@ class sController extends controller {
 			$moduleWidget.=$item[0];
 		}
 		//Типы меню
-		$db->query('SELECT controller,action,title,id FROM menuType');
+		$db->query('SELECT controller,action,title,id FROM menu_type');
 		$tmp=$cfg['menuType'];
 		$this->menuCreate=array();
 		$exists=array();
@@ -409,7 +409,7 @@ class sController extends controller {
 		}
 		$this->menuDelete=array_diff($tmp,$exists); //удалённые или изменённые типы меню
 		//Сверка наборов прав доступа
-		$db->query('SELECT module,description FROM userRight');
+		$db->query('SELECT module,description FROM user_right');
 		$tmp=$cfg['userRight'];
 		$this->rightCreate=$this->rightDelete=array();
 		$moduleRight=''; //Для построения шаблона модуля
@@ -546,7 +546,7 @@ class sController extends controller {
 	private static function _structureSQLite($field=true) {
 		$data=array();
 		$db=core::sqlite();
-		$db->query('SELECT name FROM sqlite_master WHERE type="table"');
+		$db->query('SELECT name FROM sqlite_master WHERE type="table" AND name!="sqlite_sequence"');
 		if(!$field) {
 			while($item=$db->fetch()) $data[]=$item[0];
 			return $data;

@@ -51,8 +51,7 @@ class sController extends controller {
 		$cfg=new config('_core');
 		$cfg->template=$template;
 		$cfg->save('_core');
-		core::redirect('?controller=template','Информация обновлена');
+		core::redirect('template','Информация обновлена');
 	}
 
 }
-?>

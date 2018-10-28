@@ -32,6 +32,7 @@ class modelUser extends model {
 			core::error(LNGUserNotExists);
 			return false;
 		}
+		$this->groupId=(int)$this->groupId;
 		if($this->_self) { //Если класс создан через core:user() или core::userCore()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
@@ -66,7 +67,7 @@ class modelUser extends model {
 	protected function fieldList($isSave) {
 		if($isSave===true) {
 			//Если пароль строго false, то не требовать ввода пароля (регистрация oauth). Не достаточно очевидный вариант реализации, но это работает.
-			if($this->_data['password']===false) return 'id,groupId,login,status,email,code';
+			if($this->password===false) return 'id,groupId,login,status,email,code';
 			return '*';
 		}
 		return 'id,groupId,login,email';
@@ -92,6 +93,7 @@ class modelUser extends model {
 			core::error(LNGActivationCodeIsWrong);
 			return false;
 		}
+		$this->groupId=(int)$this->groupId;
 		if($this->_self) { //Если класс создан через core:user() или core::userCore()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
@@ -109,6 +111,7 @@ class modelUser extends model {
 			core::error(LNGLoginOrPasswordIsWrong);
 			return false;
 		}
+		$this->groupId=(int)$this->groupId;
 		if($this->_self) { //Если класс создан не напрямую, а через core::user()->model(), то передать в класс user данные пользователя
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
@@ -137,7 +140,7 @@ class modelUser extends model {
 			return false;
 		}
 		if(!$this->_self->id) core::redirect('user/login');
-		$db->insert('userMessage',array(
+		$db->insert('user_message',array(
 			'user1Id'=>$this->_self->id,
 			'user1Login'=>$this->_self->login,
 			'user2Id'=>$user2['id'],
@@ -156,7 +159,7 @@ class modelUser extends model {
 	/* Возвращает массив, содержащий все права пользователя (только для администраторов) */
 	public function rightData($module) {
 		$db=core::db();
-		return $db->fetchArrayOnceAssoc('SELECT description,picture FROM userRight WHERE module='.$db->escape($module));
+		return $db->fetchArrayOnceAssoc('SELECT description,picture FROM user_right WHERE module='.$db->escape($module));
 	}
 
 	//"Выход" пользователя
@@ -247,10 +250,10 @@ class modelUser extends model {
 		if($id || $this->_data['id']) $isNew=false; else $isNew=true;
 		//Сохранить в БД зашифрованный пароль, однако, в классе хранить НЕ зашифрованный
 		if(!isset($this->_data['password'])) return parent::save($validate,$id);
-		$_password=$this->_data['password'];
-		$this->_data['password']=self::_hash($_password);
+		$password=$this->_data['password'];
+		$this->_data['password']=self::_hash($password);
 		$result=parent::save($validate,$id);
-		$this->_data['password']=$_password;
+		$this->_data['password']=$password;
 		//Обработать событие изменения или создания пользователя
 		if($result) {
 			if($isNew) core::hook('userCreate',$this->_data['id'],$this->_data['login'],$this->_data['email']);
@@ -322,7 +325,7 @@ class modelUser extends model {
 	private function _userRight() {
 		if($this->groupId<200) return;
 		$right=array();
-		$this->db->query('SELECT module,groupId,picture FROM userRight');
+		$this->db->query('SELECT module,groupId,picture FROM user_right');
 		while($item=$this->db->fetch()) {
 			$group=explode(',',$item[1]);
 			if(in_array($this->groupId, $group) || $this->groupId==255) {

@@ -23,7 +23,7 @@ class sController extends controller {
 		if(!$this->categoryAlias) $this->category=array('id'=>0,'parentId'=>0,'title'=>'Каталог товаров','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
 		else {
 			$db=core::db();
-			$this->category=$db->fetchArrayOnceAssoc('SELECT id,parentId,title,text1,metaTitle,metaKeyword,metaDescription FROM shpCategory WHERE alias='.$db->escape($this->categoryAlias));
+			$this->category=$db->fetchArrayOnceAssoc('SELECT id,parentId,title,text1,metaTitle,metaKeyword,metaDescription FROM shp_category WHERE alias='.$db->escape($this->categoryAlias));
 			if(!$this->category) core::error404();
 		}
 
@@ -111,7 +111,7 @@ class sController extends controller {
 	public function actionAddToCartSubmit($data) {
 		$db=core::db();
 		$data['quantity']=(int)$data['quantity'];
-		$product=$db->fetchArrayOnce('SELECT p.title,p.price,p.alias,c.alias link FROM shpProduct p LEFT JOIN shpCategory c ON c.id=p.categoryId WHERE p.id='.(int)$data['id']);
+		$product=$db->fetchArrayOnce('SELECT p.title,p.price,p.alias,c.alias link FROM shp_product p LEFT JOIN shp_category c ON c.id=p.categoryId WHERE p.id='.(int)$data['id']);
 		if(!$product || !$data['quantity']) die(LNGProductDoesntExists);
 		if(!isset($_SESSION['cart'])) $_SESSION['cart']=array();
 		if(isset($_SESSION['cart'][$data['id']])) $_SESSION['cart'][$data['id']]['quantity']+=$data['quantity'];

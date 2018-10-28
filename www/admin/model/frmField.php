@@ -3,7 +3,7 @@ core::import('core/model');
 class frmField extends model {
 
 	function __construct($table=null,$db='db') {
-		parent::__construct('frmField');
+		parent::__construct('frm_field');
 		$this->multiLanguage();
 	}
 
@@ -28,7 +28,7 @@ class frmField extends model {
 
 	protected function beforeInsertUpdate($id=null) {
 		if(!$this->_data['id']) { //если это новое поле, то вычислить индекс сортировки (целое число)
-			$sort=$this->db->fetchValue('SELECT max(sort) FROM frmField WHERE formId='.$this->_data['formId']);
+			$sort=$this->db->fetchValue('SELECT max(sort) FROM frm_field WHERE formId='.$this->_data['formId']);
 			$this->_data['sort']=++$sort;
 		}
 		//Значения для списков задаются в текстовом поле, сохраняются в БД строкой с разделителем "|"

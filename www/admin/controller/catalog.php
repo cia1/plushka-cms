@@ -21,7 +21,7 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Настройка полей каталога */
 	public function actionLayoutData() {
-		$this->button('?controller=catalog&action=layoutDataItem&lid='.$_GET['lid'],'new','Добавить поле');
+		$this->button('catalog/layoutDataItem?lid='.$_GET['lid'],'new','Добавить поле');
 		$layout=core::config('catalogLayout/'.(int)$_GET['lid']); //конфигурация каталога
 		//Сформировать таблицу, в которой перечислены все существующие поля
 		$t=core::table();
@@ -35,9 +35,9 @@ class sController extends controller {
 			$t->text($id);
 			$t->text($item[0]);
 			$t->text(self::_typeDescription($item[1])); //текстовое описание типа поля
-			$t->itemDelete('?controller=catalog&lid='.$_GET['lid'].'&id='.$id.'&action=layoutData');
+			$t->itemDelete('lid='.$_GET['lid'].'&id='.$id,'layoutData');
 		}
-		$this->cite='Здесь представлен список всех полей записи. Серым цветом выделены системные поля, их удалить или изменить нельзя. Порядок полей задаётся на страницах &laquo;<a href="'.core::link('?controller=catalog&action=layoutView&lid='.$_GET['lid'].'&view=view1').'">Макет списка</a>&raquo; и &laquo;<a href="'.core::link('?controller=catalog&action=layoutView&lid='.$_GET['lid'].'&view=view2').'">Макет записи</a>&raquo;';
+		$this->cite='Здесь представлен список всех полей записи. Серым цветом выделены системные поля, их удалить или изменить нельзя. Порядок полей задаётся на страницах &laquo;<a href="'.core::link('admin/catalog/layoutView?lid='.$_GET['lid'].'&view=view1').'">Макет списка</a>&raquo; и &laquo;<a href="'.core::link('admin/catalog/layoutView?lid='.$_GET['lid'].'&view=view2').'">Макет записи</a>&raquo;';
 		return $t;
 	}
 
@@ -202,7 +202,7 @@ class sController extends controller {
 			}
 		}
 
-		core::redirect('?controller=catalog&action=layoutData&lid='.$layoutId);
+		core::redirect('catalog/layoutData?lid='.$layoutId);
 	}
 
 	/* Удаление поля (это не совсем верно, т.к. нужно ещё удалять изображения для image и gallery */
@@ -235,7 +235,7 @@ class sController extends controller {
 		//Удалить поле из таблицы catalog_ИД
 		$db=core::db();
 		$db->alterDrop('catalog_'.$_GET['lid'],$_GET['id']);
-		core::redirect('?controller=catalog&action=layoutData&lid='.$_GET['lid']);
+		core::redirect('catalog/layoutData?lid='.$_GET['lid']);
 	}
 
 	/* Настройка макета списка или макета элемента */
@@ -283,7 +283,7 @@ class sController extends controller {
 		}
 		$cfg->save('catalogLayout/'.$_GET['lid']);
 		core::success('Макет сохранён');
-		core::redirect('?controller=catalog&action=layoutView&lid='.$_GET['lid'].'&view='.$data['view']);
+		core::redirect('catalog/layoutView?lid='.$_GET['lid'].'&view='.$data['view']);
 	}
 
 	/* Редактирование вступительного текста на странице со списком элементов каталога */
@@ -306,7 +306,7 @@ class sController extends controller {
 			fclose($f);
 		}
 		core::success('Изменения сохранены');
-		core::redirect('?controller=catalog&lid='.$data['lid']);
+		core::redirect('catalog?lid='.$data['lid']);
 	}
 
 	/* Создание или изменение элемента каталога */
@@ -355,7 +355,7 @@ class sController extends controller {
 				if($data[$id]) $gallery=explode('|',$data[$id]); else $gallery=array();
 				$html='';
 				foreach($gallery as $i=>$g) {
-					$html.='<a href="'.core::link('?controller=catalog&action=galleryDelete&lid='.$lid.'&id='.$data['id'].'&fld='.$id.'&index='.$i).'" title="Удалить"><img src="'.core::url().'public/catalog/'.$g.'" style="width:40px;" /></a>';
+					$html.='<a href="'.core::link('admin/catalog/galleryDelete?lid='.$lid.'&id='.$data['id'].'&fld='.$id.'&index='.$i).'" title="Удалить"><img src="'.core::url().'public/catalog/'.$g.'" style="width:40px;" /></a>';
 				}
 				$f->html('<dd class="gallery"s>'.$html.'</dd>');
 				break;
@@ -489,7 +489,7 @@ class sController extends controller {
 		}
 		core::hook('modify','catalog/'.$data['lid'].'/'.$m->alias); //Обновить дату изменения страницы
 		core::success('Изменения сохранены');
-		core::redirect('?controller=catalog&action=item&lid='.$data['lid']);
+		core::redirect('catalog/item?lid='.$data['lid']);
 	}
 
 	/* Удаление изображения из галереи элемента каталога */
@@ -554,7 +554,7 @@ class sController extends controller {
 		$db->query('DELETE FROM catalog_'.$lid.' WHERE id='.$id);
 		core::hook('pageDelete','catalog/'.$lid.'/'.$alias,true);
 		core::success('Элемент каталога удалён');
-		core::redirect('?controller=catalog&lid='.$lid);
+		core::redirect('catalog?lid='.$lid);
 	}
 
 	/* Выводит HTML-форму со списком полей для настройки фильтра.
@@ -596,7 +596,7 @@ class sController extends controller {
 		//Поиск в меню всех каталогов, чтобы предоставить пользователю выбор (каталог создаётся только из меню)
 		$catalogList=array();
 		$db=core::db();
-		$db->query('SELECT link,title_'._LANG.' FROM menuItem WHERE link LIKE '.$db->escape('catalog/%'));
+		$db->query('SELECT link,title_'._LANG.' FROM menu_item WHERE link LIKE '.$db->escape('catalog/%'));
 		while($item=$db->fetch()) {
 			$catalogList[]=array((int)substr($item[0],strrpos($item[0],'/')+1),$item[1]);
 		}

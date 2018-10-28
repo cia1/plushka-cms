@@ -41,7 +41,7 @@ class sController extends controller {
 		fwrite($f,$data['htmlAnswer']);
 		fclose($f);
 		core::success('Настройки сохранены');
-		core::redirect('?controller=faq&action=setting');
+		core::redirect('faq/setting');
 	}
 
 	/* Список вопросов и ответов. Почти дублирует тот список, что в общедоступной части. */
@@ -55,8 +55,8 @@ class sController extends controller {
 			if(strlen($item[3])>50) $item[3]=mb_substr($item[3],0,47,'UTF-8').'...';
 			if(strlen($item[4])>50) $item[4]=mb_substr($item[4],0,47,'UTF-8').'...'; elseif(!$item[4]) $item[4]='( нет ответа )';
 			$t->text($item[3]);
-			$t->link($item[4],'?controller=faq&action=edit&id='.$item[0]);
-			$t->editDelete('?controller=faq&id='.$item[0].'&action=');
+			$t->link('faq/edit?id='.$item[0],$item[4]);
+			$t->editDelete('id='.$item[0]);
 		}
 		return $t;
 	}
@@ -93,7 +93,7 @@ class sController extends controller {
 		if(isset($data['send'])) {
 			core::import('core/email');
 			$e=new email();
-			$cfg=core::configAdmin();
+			$cfg=core::config('admin');
 			$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 			$e->subject('Ответ на вопрос на сайте '.$_SERVER['HTTP_HOST']);
 			$e->messageTemplate(
@@ -105,14 +105,14 @@ class sController extends controller {
 			$message='Изменения сохранены. Ответ отправлен на адрес '.$m->email;
 		} else $message='Изменения сохранены';
 		core::success($message);
-		core::redirect('?controller=faq&action=list');
+		core::redirect('faq/list');
 	}
 
 	/* Удаление вопроса */
 	public function actionDelete() {
 		$db=core::db();
 		$db->query('DELETE FROM faq WHERE id='.$_GET['id']);
-		core::redirect('?controller=faq&action=list');
+		core::redirect('faq/list');
 	}
 /* ----------------------------------------------------------------------------------- */
 

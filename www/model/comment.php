@@ -8,7 +8,7 @@ class mComment {
 		if(!$link) $link=implode('/',$_GET['corePath']); //если не задана, то использовать адрес запрошенной старницы
 		//$groupId - условный идентификатор страницы, для который выводятся комментарии
 		$db=core::db();
-		$groupId=$db->fetchValue('SELECT id FROM commentGroup WHERE link='.$db->escape($link));
+		$groupId=$db->fetchValue('SELECT id FROM comment_group WHERE link='.$db->escape($link));
 		if(!$groupId) return;
 		if(isset($_GET['comment'])) $page=(int)$_GET['comment']; else $page=0; //пагинация комментариев
 		$db->query('SELECT date,name,text,id,userId FROM comment WHERE groupId='.$groupId.' AND status>0 ORDER BY date DESC'); //,20,$page);

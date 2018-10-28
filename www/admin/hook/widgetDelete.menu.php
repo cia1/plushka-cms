@@ -1,17 +1,17 @@
 <?php
-/* Ñîáûòèå: óäàëåíèå âèäæåòà
-Ìîäóëü: ìåíþ
-Ïàðàìåòðû: string $data[0] - èìÿ âèäæåòà, int $data[1] - èäåíòèôèêàòîð âèäæåòà, mixed $data[2] - ïàðàìåòðû âèäæåòû */
+/* Ð¡Ð¾Ð±Ñ‹Ñ‚Ð¸Ðµ: ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°
+ÐœÐ¾Ð´ÑƒÐ»ÑŒ: Ð¼ÐµÐ½ÑŽ
+ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹: string $data[0] - Ð¸Ð¼Ñ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°, int $data[1] - Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°, mixed $data[2] - Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ñ‹ */
 if($data[0]!='menu') return true;
 
 core::import('admin/model/objectLink');
-//Åñëè åñòü êîïèè âèäæåòà, òî íè÷åãî íå äåëàòü
+//Ð•ÑÐ»Ð¸ ÐµÑÑ‚ÑŒ ÐºÐ¾Ð¿Ð¸Ð¸ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°, Ñ‚Ð¾ Ð½Ð¸Ñ‡ÐµÐ³Ð¾ Ð½Ðµ Ð´ÐµÐ»Ð°Ñ‚ÑŒ
 $cnt=modelObjectLink::fromSectionWidget('menu',$data[2])+modelObjectLink::fromTemplateWidget('menu',$data[2]);
 if($cnt>1) return true;
-//Èíà÷å óäàëèòü ïóíêòû ìåíþ è ñàìî ìåíþ
+//Ð˜Ð½Ð°Ñ‡Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¿ÑƒÐ½ÐºÑ‚Ñ‹ Ð¼ÐµÐ½ÑŽ Ð¸ ÑÐ°Ð¼Ð¾ Ð¼ÐµÐ½ÑŽ
 $db=core::db();
-if($db->fetchValue('SELECT 1 FROM menuItem WHERE menuId='.$data[2].' LIMIT 1')) {
-	core::error('Íåîáõîäèìî ñíà÷àëà óäàëèòü âñå ïóíêòû ìåíþ.');
+if($db->fetchValue('SELECT 1 FROM menu_item WHERE menuId='.$data[2])) {
+	core::error('ÐÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ ÑÐ½Ð°Ñ‡Ð°Ð»Ð° ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð²ÑÐµ Ð¿ÑƒÐ½ÐºÑ‚Ñ‹ Ð¼ÐµÐ½ÑŽ.');
 	return false;
 }
 $db->query('DELETE FROM menu WHERE id='.$data[2]);

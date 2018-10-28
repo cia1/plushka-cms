@@ -28,7 +28,7 @@ class sController extends controller {
 	public function actionCategory() {
 		if(isset($_GET['id'])) { //Изменение
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shpCategory WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shp_category WHERE id='.$_GET['id']);
 			if(!$data) core::error404();
 		} else $data=array('id'=>null,'parentId'=>(isset($_GET['parent']) ? $_GET['parent'] : 0),'alias'=>'','title'=>'','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
 		$f=core::form();
@@ -60,11 +60,11 @@ class sController extends controller {
 			'metaDescription'=>array('string')
 		);
 		if(!$data['id']) { //Если категория новая, то узнать индекс сортировки
-			$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM shpCategory WHERE parentId='.$data['parentId']);
+			$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM shp_category WHERE parentId='.$data['parentId']);
 			$validate['sort']=array('integer');
 		}
 		if(!$data['alias']) $data['alias']=core::translit($data['title']);
-		$model=core::model('shpCategory');
+		$model=core::model('shp_category');
 		$model->set($data);
 		if(!$model->save($validate)) return false;
 		//Обработка изображений категории (если загружены)
@@ -74,7 +74,7 @@ class sController extends controller {
 			if(core::error()) return false; //Файл не является изображением?
 			//Удалить существующее изображение, если таковое есть
 			if($data['id']) {
-				$fname=$db->fetchValue('SELECT image FROM shpCategory WHERE id='.$data['id']);
+				$fname=$db->fetchValue('SELECT image FROM shp_category WHERE id='.$data['id']);
 				if($fname) $fname=core::path().'public/shop-category/'.$fname;
 				if($fname && file_exists($fname)) unlink($fname);
 			}
@@ -82,23 +82,23 @@ class sController extends controller {
 			$picture->resize($cfg['categoryWidth'],$cfg['categoryHeight']);
 			$fname=$picture->save('public/shop-category/'.$model->id,85);
 			if(!$fname) return false;
-			$db->query('UPDATE shpCategory SET image='.$db->escape($fname).' WHERE id='.$model->id);
+			$db->query('UPDATE shp_category SET image='.$db->escape($fname).' WHERE id='.$model->id);
 		}
-		core::redirect('?controller=shopContent&action=category&id='.$data['id'],'Изменения сохранены');
+		core::redirect('shopContent/category?id='.$data['id'],'Изменения сохранены');
 	}
 
 	/* Удаление категории товаров */
 	public function actionCategoryDelete() {
 		core::import('admin/model/shop');
 		shop::deleteCategory($_GET['id']);
-		core::redirect('?controller=shop','Категория удалена');
+		core::redirect('shop','Категория удалена');
 	}
 
 	//Выводит список товаров в категории
 	public function actionProductList() {
-		$this->button('?controller=shopContent&action=productDelete','delete','Удалить',null,'onclick="document.forms.productList.action=this.href;document.forms.productList.submit();return false;"');
+		$this->button('shopContent/productDelete','delete','Удалить',null,'onclick="document.forms.productList.action=this.href;document.forms.productList.submit();return false;"');
 		$db=core::db();
-		$db->query('SELECT id,title FROM shpProduct WHERE categoryId='.(int)$_GET['id'],100);
+		$db->query('SELECT id,title FROM shp_product WHERE categoryId='.(int)$_GET['id'],100);
 		$table=core::table();
 		$table->rowTh('checkbox[id]|Название|');
 		while($item=$db->fetch()) {
@@ -114,12 +114,12 @@ class sController extends controller {
 	public function actionProduct() {
 		$db=core::db();
 		if(isset($_GET['id'])) { //Изменение - загрузить данные этого товара
-			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shpProduct WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shp_product WHERE id='.$_GET['id']);
 			if(!$data) core::error404();
-			$group=$db->fetchArray('SELECT id,title,productId AS checked FROM shpProductGroup g LEFT JOIN shpProductGroupItem i ON i.groupId=g.id AND i.productId='.$data['id']);
+			$group=$db->fetchArray('SELECT id,title,productId AS checked FROM shp_product_group g LEFT JOIN shp_product_group_item i ON i.groupId=g.id AND i.productId='.$data['id']);
 		} else {
 			$data=array('id'=>null,'categoryId'=>$_GET['category'],'brandId'=>null,'title'=>'','alias'=>'','text1'=>'','text2'=>'','price'=>0,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
-			$group=$db->fetchArray('SELECT id,title,NULL AS checked FROM shpProductGroup');
+			$group=$db->fetchArray('SELECT id,title,NULL AS checked FROM shp_product_group');
 		}
 
 		$f=core::form();
@@ -128,7 +128,7 @@ class sController extends controller {
 		$f->text('title','Заголовок (название)',$data['title']);
 		$f->text('alias','URL (псевдоним)',$data['alias']);
 		$f->text('price','Базовая цена',$data['price']);
-		$f->select('brandId','Производитель','SELECT id,title FROM shpBrand ORDER BY title',$data['brandId'],'(нет)');
+		$f->select('brandId','Производитель','SELECT id,title FROM shp_brand ORDER BY title',$data['brandId'],'(нет)');
 		$f->editor('text1','Описание 1 (краткое)',$data['text1']);
 		$f->editor('text2','Описание 2 (полное)',$data['text2']);
 		$f->text('metaTitle','meta Заголовок',$data['metaTitle']);
@@ -161,7 +161,7 @@ class sController extends controller {
 	}
 
 	public function actionProductSubmit($data) {
-		$model=core::model('shpProduct');
+		$model=core::model('shp_product');
 		if(!$data['alias']) $data['alias']='';
 		$model->set($data);
 		if(!$model->save(array(
@@ -180,7 +180,7 @@ class sController extends controller {
 		//Если псевдоним не задан, то использовать ИД товара
 		if(!$data['alias']) {
 			$db=core::db();
-			$db->query('UPDATE shpProduct SET alias='.$db->escape($model->id).' WHERE id='.$model->id);
+			$db->query('UPDATE shp_product SET alias='.$db->escape($model->id).' WHERE id='.$model->id);
 		}
 		//Обновить группы, к которым привязан этот товар
 		$query=array();
@@ -193,13 +193,13 @@ class sController extends controller {
 			}
 		}
 		$db=core::db();
-		$db->query('DELETE FROM shpProductGroupItem WHERE productId='.$model->id);
-		if($data['group']) $db->insert('shpProductGroupItem',$query);
+		$db->query('DELETE FROM shp_product_group_item WHERE productId='.$model->id);
+		if($data['group']) $db->insert('shp_product_group_item',$query);
 		unset($query);
 		//Обновить характеристики
-		$db->query('DELETE FROM shpProductFeature WHERE productId='.$model->id);
+		$db->query('DELETE FROM shp_product_feature WHERE productId='.$model->id);
 		if(isset($data['feature'])) {
-			$feature=$db->fetchArray('SELECT id,unit,type FROM shpFeature WHERE id IN('.implode(',',array_keys($data['feature'])).')');
+			$feature=$db->fetchArray('SELECT id,unit,type FROM shp_feature WHERE id IN('.implode(',',array_keys($data['feature'])).')');
 			$query=array();
 			foreach($feature as $item) {
 				$id=$item[0];
@@ -215,32 +215,32 @@ class sController extends controller {
 				);
 			}
 			unset($feature);
-			$db->insert('shpProductFeature',$query);
+			$db->insert('shp_product_feature',$query);
 			unset($query);
 		}
-		$alias=$db->fetchValue('SELECT alias FROM shpCategory WHERE id='.$model->categoryId);
+		$alias=$db->fetchValue('SELECT alias FROM shp_category WHERE id='.$model->categoryId);
 		core::hook('modify','shop/'.$alias.'/'.$model->alias);
-		core::redirect('?controller=shopContent&action=product&id='.$model->id,'Изменения сохранены');
+		core::redirect('shopContent/product?id='.$model->id,'Изменения сохранены');
 	}
 
 	/* Удаление товара */
 	public function actionProductDelete() {
 		core::import('admin/model/shop');
 		shop::deleteProduct($_GET['id']);
-		core::redirect('?controller=shop','Товар удалён');
+		core::redirect('shop','Товар удалён');
 	}
 
 	//Удаление нескольких товаров
 	public function actionProductDeleteSubmit($data) {
 		core::import('admin/model/shop');
 		shop::deleteProduct($data['id']);
-		core::redirect('?controller=shop','Товары удалены');
+		core::redirect('shop','Товары удалены');
 	}
 	/* Список изображений товара (для добавления/удаления) */
 	public function actionProductImage() {
 		$db=core::db();
 		if(isset($_POST['shopContent']['id'])) $_GET['id']=$_POST['shopContent']['id'];
-		$data=$db->fetchArrayOnce('SELECT mainImage,image FROM shpProduct WHERE id='.$_GET['id']);
+		$data=$db->fetchArrayOnce('SELECT mainImage,image FROM shp_product WHERE id='.$_GET['id']);
 		if(!$data[1]) $this->image=array(); else $this->image=explode(',',$data[1]);
 		$this->mainImage=$data[0]; //Главное изображение
 		$this->form=core::form();
@@ -252,7 +252,7 @@ class sController extends controller {
 
 	public function actionProductImageSubmit($data) {
 		$db=core::db();
-		$image=$db->fetchArrayOnce('SELECT mainImage,image FROM shpProduct WHERE id='.$data['id']);
+		$image=$db->fetchArrayOnce('SELECT mainImage,image FROM shp_product WHERE id='.$data['id']);
 		$mainImage=$image[0]; //Основное изображение
 		if($image[1]) $image=explode(',',$image[1]); else $image=array();
 		$index=count($image)+1; //Для формирования имени файла
@@ -267,17 +267,17 @@ class sController extends controller {
 		$picture->resize($cfg['productThumbWidth'],$cfg['productThumbHeight']);
 		if(!$picture->save('public/shop-product/_'.$fname,80)) return false;
 		$image[]=$fname;
-		$q='UPDATE shpProduct SET image='.$db->escape(implode(',',$image));
+		$q='UPDATE shp_product SET image='.$db->escape(implode(',',$image));
 		if(!$mainImage) $q.=',mainImage='.$db->escape($fname); //Если ранее небыло
 		$db->query($q.' WHERE id='.$data['id']);
-		core::redirect('?controller=shopContent&action=productImage&id='.$data['id']);
+		core::redirect('shopContent/productImage?id='.$data['id']);
 	}
 
 	/* Установить выбранное изображение товара главным */
 	public function actionProductImageMain() {
 		$db=core::db();
-		$db->query('UPDATE shpProduct SET mainImage='.$db->escape($_GET['image']).' WHERE id='.$_GET['id']);
-		core::redirect('?controller=shopContent&action=productImage&id='.$_GET['id']);
+		$db->query('UPDATE shp_product SET mainImage='.$db->escape($_GET['image']).' WHERE id='.$_GET['id']);
+		core::redirect('shopContent/productImage?id='.$_GET['id']);
 	}
 
 	/* Удаление изображения товара */
@@ -287,7 +287,7 @@ class sController extends controller {
 		if(file_exists($fname)) unlink($fname);
 		$fname=core::path().'public/shop-product/_'.$_GET['image'];
 		if(file_exists($fname)) unlink($fname);
-		$data=$db->fetchArrayOnce('SELECT mainImage,image FROM shpProduct WHERE id='.$_GET['id']);
+		$data=$db->fetchArrayOnce('SELECT mainImage,image FROM shp_product WHERE id='.$_GET['id']);
 		$image=explode(',',$data[1]);
 		for($i=0;$i<count($image);$i++) {
 			if($image[$i]==$_GET['image']) {
@@ -300,16 +300,16 @@ class sController extends controller {
 				break;
 			}
 		}
-		$q='UPDATE shpProduct SET image='.$db->escape(implode($image,',')).',mainImage=';
+		$q='UPDATE shp_product SET image='.$db->escape(implode($image,',')).',mainImage=';
 		if(!$data[0]) $q.='NULL'; else $q.=$db->escape($data[0]);
 		$db->query($q.' WHERE id='.$_GET['id']);
-		core::redirect('?controller=shopContent&action=productImage&id='.$_GET['id']);
+		core::redirect('shopContent/productImage?id='.$_GET['id']);
 	}
 
 	/* Переместить товар в другую категорию */
 	public function actionProductMove() {
 		$db=core::db();
-		$data=$db->fetchArrayOnce('SELECT alias,categoryId FROM shpProduct WHERE id='.$_GET['id']);
+		$data=$db->fetchArrayOnce('SELECT alias,categoryId FROM shp_product WHERE id='.$_GET['id']);
 		core::import('model/shop');
 		$list=array();
 		$in=shop::categoryTree();
@@ -325,22 +325,22 @@ class sController extends controller {
 
 	public function actionProductMoveSubmit($data) {
 		$db=core::db();
-		$db->query('UPDATE shpProduct SET categoryId='.$data['categoryId'].' WHERE id='.$data['id']);
+		$db->query('UPDATE shp_product SET categoryId='.$data['categoryId'].' WHERE id='.$data['id']);
 		core::redirectPublic('shop/category/'.$data['categoryId'].'/'.$data['alias'],'Товар перенесён');
 	}
 
 	/* Список модификаций товара */
 	public function actionVariant() {
 		$db=core::db();
-		$categoryId=$db->fetchValue('SELECT categoryId FROM shpProduct WHERE id='.$_GET['pid']); //Для определения списка характеристик
-		$this->button('?controller=shopContent&action=variantItem&cid='.$categoryId.'&pid='.$_GET['pid'],'new','Создать модификацию товара');
+		$categoryId=$db->fetchValue('SELECT categoryId FROM shp_product WHERE id='.$_GET['pid']); //Для определения списка характеристик
+		$this->button('shopContent/variantItem?cid='.$categoryId.'&pid='.$_GET['pid'],'new','Создать модификацию товара');
 		$db=core::db();
 		$t=core::table();
 		$t->rowTh('Название|');
-		$db->query('SELECT id,title FROM shpVariant WHERE productId='.$_GET['pid']);
+		$db->query('SELECT id,title FROM shp_variant WHERE productId='.$_GET['pid']);
 		while($item=$db->fetch()) {
-			$t->link($item[1],'?controller=shopContent&action=variantItem&cid='.$categoryId.'&id='.$item[0]);
-			$t->delete('?controller=shopContent&action=variantDelete&pid='.$_GET['pid'].'&id='.$item[0]);
+			$t->link('shopContent/variantItem?cid='.$categoryId.'&id='.$item[0],$item[1]);
+			$t->delete('pid='.$_GET['pid'].'&id='.$item[0],'variant');
 		}
 		return $t;
 	}
@@ -349,7 +349,7 @@ class sController extends controller {
 	public function actionVariantItem() {
 		if(isset($_GET['id'])) { //Изменение
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,productId,title,feature FROM shpVariant WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,productId,title,feature FROM shp_variant WHERE id='.$_GET['id']);
 		} else $data=array('id'=>null,'productId'=>$_GET['pid'],'title'=>'','feature'=>null);
 		if(isset($_GET['cid'])) $cid=$_GET['cid']; else $cid=$_POST['shopContent']['categoryId']; //ИД категории
 		$f=core::form();
@@ -378,10 +378,10 @@ class sController extends controller {
 	public function actionVariantItemSubmit($data) {
 		//$feature - список характеристик, заданных для категории
 		$db=core::db();
-		$feature=$db->fetchValue('SELECT c.feature f0 FROM shpProduct p INNER JOIN shpCategory c ON c.id=p.categoryId WHERE p.id='.$data['productId']);
+		$feature=$db->fetchValue('SELECT c.feature f0 FROM shp_product p INNER JOIN shp_category c ON c.id=p.categoryId WHERE p.id='.$data['productId']);
 		//Обработка характеристик варианта товара, добавление единицы измерения (по модификациям поиска нет, поэтому можно ЕИ присоединить сразу)
 		if($feature) {
-			$feature=$db->fetchArray('SELECT id,unit,type FROM shpFeature WHERE id IN('.$feature.') AND variant=1');
+			$feature=$db->fetchArray('SELECT id,unit,type FROM shp_feature WHERE id IN('.$feature.') AND variant=1');
 			$fData=array();
 			foreach($feature as $item) {
 				$id=$item[0];
@@ -395,7 +395,7 @@ class sController extends controller {
 			$data['feature']=serialize($fData);
 		} else $data['feature']=null;
 		if(!$data['id']) $isNew=true; else $isNew=false;
-		$m=core::model('shpVariant');
+		$m=core::model('shp_variant');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -403,29 +403,29 @@ class sController extends controller {
 			'title'=>array('string','название',true),
 			'feature'=>array('string')
 		))) return false;
-		if($isNew) $db->query('UPDATE shpProduct SET variant=variant+1 WHERE id='.$data['productId']); //Если новый товар, то обновить счётчик модификаций товаров
-		core::redirect('?controller=shopContent&action=variant&pid='.$data['productId']);
+		if($isNew) $db->query('UPDATE shp_product SET variant=variant+1 WHERE id='.$data['productId']); //Если новый товар, то обновить счётчик модификаций товаров
+		core::redirect('shopContent/variant?pid='.$data['productId']);
 	}
 
 	/* Удаление модификации товара */
 	public function actionVariantDelete() {
 		$db=core::db();
-		$db->query('DELETE FROM shpVariant WHERE id='.$_GET['id']);
-		$db->query('UPDATE shpProduct SET variant=variant-1 WHERE id='.$_GET['pid']);
-		core::redirect('?controller=shopContent&action=variant&pid='.$_GET['pid']);
+		$db->query('DELETE FROM shp_variant WHERE id='.$_GET['id']);
+		$db->query('UPDATE shp_product SET variant=variant-1 WHERE id='.$_GET['pid']);
+		core::redirect('shopContent/variant?pid='.$_GET['pid']);
 	}
 
 	//Упралвение производителями
 	public function actionBrand() {
-		$this->button('?controller=shopContent&action=brandItem','new','Добавить производителя');
+		$this->button('shopContent/brandItem','new','Добавить производителя');
 		$db=core::db();
-		$db->query('SELECT id,title,image FROM shpBrand ORDER BY title');
+		$db->query('SELECT id,title,image FROM shp_brand ORDER BY title');
 		$table=core::table();
 		$table->rowTh('|');
 		$url=core::url().'public/shop-brand/';
 		while($item=$db->fetch()) {
 			$table->text('<img src="'.$url.$item[2].'" /> '.$item[1],null,'style="vertical-align:middle;"');
-			$table->itemDelete('?controller=shopContent&id='.$item[0].'&action=brand');
+			$table->itemDelete('id='.$item[0],'brand');
 		}
 		return $table;
 	}
@@ -434,7 +434,7 @@ class sController extends controller {
 	public function actionBrandItem() {
 		if(isset($_GET['id'])) {
 			$db=core::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,alias,title,image,text1 FROM shpBrand WHERE id='.(int)$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,alias,title,image,text1 FROM shp_brand WHERE id='.(int)$_GET['id']);
 		} else $data=array('id'=>null,'alias'=>'','title'=>'','image'=>null,'text1'=>'');
 		$form=core::form();
 		$form->hidden('id',$data['id']);
@@ -447,7 +447,7 @@ class sController extends controller {
 	}
 
 	public function actionBrandItemSubmit($data) {
-		$model=core::model('shpBrand');
+		$model=core::model('shp_brand');
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
@@ -464,7 +464,7 @@ class sController extends controller {
 			$db=core::db();
 			//Удалить старое изображение, если загружено новое
 			if($data['id']) {
-				$oldImage=$db->fetchValue('SELECT image FROM shpBrand WHERE id='.(int)$data['id']);
+				$oldImage=$db->fetchValue('SELECT image FROM shp_brand WHERE id='.(int)$data['id']);
 				if($oldImage) {
 					$f=core::path().'/public/shop-brand/'.$oldImage;
 					if(file_exists($f)) unlink($f);
@@ -472,24 +472,24 @@ class sController extends controller {
 			}
 			$picture->resize($cfg['brandWidth'],$cfg['brandHeight']);
 			$fname=$picture->save('public/shop-brand/'.$model->id);
-			$db->query('UPDATE shpBrand SET image='.$db->escape($fname).' WHERE id='.$model->id);
+			$db->query('UPDATE shp_brand SET image='.$db->escape($fname).' WHERE id='.$model->id);
 		}
 
-		core::redirect('?controller=shopContent&action=brand');
+		core::redirect('shopContent/brand');
 	}
 
 	//Удаление производителя
 	public function actionBrandDelete() {
 		$id=(int)$_GET['id'];
 		$db=core::db();
-		$image=$db->fetchValue('SELECT image FROM shpBrand WHERE id='.$id);
+		$image=$db->fetchValue('SELECT image FROM shp_brand WHERE id='.$id);
 		if($image) {
 			$image=core::path().'public/shop-brand/'.$image;
 			if(file_exists($image)) unlink($image);
 		}
-		$db->query('UPDATE shpProduct SET brandId=null WHERE brandId='.$id);
-		$db->query('DELETE FROM shpBrand WHERE id='.$id);
-		core::redirect('?controller=shopContent&action=brand');
+		$db->query('UPDATE shp_product SET brandId=null WHERE brandId='.$id);
+		$db->query('DELETE FROM shp_brand WHERE id='.$id);
+		core::redirect('shopContent/brand');
 	}
 
 /* ----------------------------------------------------------------------------------- */

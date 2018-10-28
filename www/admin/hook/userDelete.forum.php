@@ -4,6 +4,6 @@
 Параметры: int $data[0] - ИД пользователя
 */
 $db=core::db();
-$db->query('DELETE FROM forumUser WHERE id='.$data[0]);
+$db->query('DELETE FROM forum_user WHERE id='.$data[0]);
 return true;
 ?>

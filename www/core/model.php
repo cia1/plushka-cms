@@ -1,7 +1,7 @@
 <?php
 core::import('core/validator');
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-/* Реализует универсальную модель */
+/* Реализует универсальную модель доступа к базе данных */
 class model extends validator {
 	protected $_table; //имя таблицы базы данных
 	protected $primaryAttribute; //имя первичного ключа
@@ -11,7 +11,11 @@ class model extends validator {
 	protected $_bool=array(); //список булевых полей (для корректного преобразования)
 
 	public function __construct($table=null,$db='db') {
-		if($table) $this->_table=$table; else $this->_table=$_GET['corePath'][0];
+		if($table===null) {
+			$className=preg_replace_callback('~[A-Z]~',function($letter) {
+				return '_'.strtolower($letter[0]);
+			},(new ReflectionClass($this))->getShortName());
+		} else $this->_table=$table;
 		if($db==='db') $this->db=core::db();
 		elseif($db==='sqlite') $this->db=core::sqlite();
 		elseif($db==='mysql') $this->db=core::mysql();
@@ -89,7 +93,7 @@ class model extends validator {
 		if($validate===null || $validate===true || is_string($validate)) {
 			if($validate===null || $validate===true) $validate=$this->fieldList(true);
 			if(is_string($validate)) $validate=explode(',',$validate);
-			if($validate[0]=='*') $validate=$this->rule();
+			if($validate[0]==='*') $validate=$this->rule();
 			else $validate=array_intersect_key($this->rule(),array_combine($validate,$validate));
 			if(!$this->validate($validate)) return false;
 			foreach($validate as $key=>$null) {
@@ -106,19 +110,16 @@ class model extends validator {
 		}
 		//Поиск первичного ключа (если не был определён в методе validate() )
 		if($primaryAttribute!==null) $this->primaryAttribute=$primaryAttribute;
-		if($this->primaryAttribute===null && $primaryAttribute!==false) { //ситуация: первичный ключ указан явно, но валидация не требуется
-			$validate=$this->rule();
-			foreach($validate as $attribute=>$setting) {
-				if($setting[0]==='primary') {
-					$this->primaryAttribute=$attribute;
-					break;
-				}
+		if($validate===false) { //валидация не требуется, определить список полей
+			$validate=explode(',',$this->fieldList(true));
+			if($validate[0]==='*') $validate=array_keys($this->rule());
+			foreach($validate as $i=>$item) { //оставить только поля, для которых явно задано значение
+				if(isset($this->_data[$item])===false) unset($validate[$i]);
 			}
-			unset($null);
 		}
 		if($this->primaryAttribute && isset($this->_data[$this->primaryAttribute])) $id=$this->_data[$this->primaryAttribute];
 		else $id=null;
-		if($primaryAttribute!==false) { //Удалить первичный ключ из списка полей, за исключением случая, когда нужно выполнить INSERT с заранее определённым значением первичного ключа
+		if($primaryAttribute!==null) { //Удалить первичный ключ из списка полей, за исключением случая, когда нужно выполнить INSERT с заранее определённым значением первичного ключа
 			$i=array_search($this->primaryAttribute,$validate);
 			if($i!==false) unset($validate[$i]);
 		}

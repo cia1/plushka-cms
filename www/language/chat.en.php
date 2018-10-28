@@ -14,4 +14,3 @@ define('LNGSay','Say');
 define('LNGThisLoginCannotByUse','This login cannot by use');
 define('LNGThisLoginAlreadyExists','This login already exists. Please, try another one');
 define('LNGChatCaptchaIsWrong','Validation code is incrorrect');
-?>
