@@ -7,7 +7,7 @@
 	'admin/model/notificationTransportInner.php',
 	'admin/public/icon/notification16.png',
 	'model/notification.php',
-	'model/notificationEmail.php'
-	'model/notificationInner.php',
+	'model/notificationEmail.php',
+	'model/notificationInner.php'
 )
 );

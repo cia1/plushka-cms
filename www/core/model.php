@@ -1,15 +1,47 @@
 <?php
-core::import('core/validator');
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-/* Реализует универсальную модель доступа к базе данных */
-class model extends validator {
-	protected $_table; //имя таблицы базы данных
-	protected $primaryAttribute; //имя первичного ключа
-	protected $db; //экземпляр класса базы данных (может быть отличным от заданного по умолчанию)
-	protected $_multiLanguage=false; //если true, то будут выполнены запросы для всех языков
-	protected $_languageDb; //true - мультиязычная таблица, array - мультиязычные поля, false - не мультиязычная таблица
-	protected $_bool=array(); //список булевых полей (для корректного преобразования)
 
+core::import('core/validator');
+
+/**
+ * Универсальная модель. Может использоваться динамически или как базовый класс ActiveRecord
+ * В динамическом варианте использования необходимо вызвать метод save(), передав ему правила валидации. Для статического режима, правила валидации определяются перегрузкой метода rule().
+ * Модель поддерживает мультиязычность следующим образом:
+ * Обозначения:
+ *  мультиязычная таблица - вариант, когда для каждого языка имеется своя копия таблицы (язык указан в окончании имени таблицы),
+ *  мультиязычное поле - одна таблица, но копии столбцов для каждого языка (язык указан в окончании имени столбца).
+ * - Режим мультиязычности выключен (self::multiLanguage(false) ):
+ *  для мультиязычных таблиц операции INSERT и DELETE проводятся только для одной таблицы,
+ *  для мультиязычных столбцов и операции INSERT имена столбцов необходимо указывать без суффикса языка,
+ *  для мультиязычных столбцов и операции UPDATE имена столбцов необходимо указывать с суффиксом языка.
+ * - Режим мультиязычности включён (self::multiLanguage(true) ):
+ *  операции INSERT и DELETE выполняются для всех копий таблиц, имена полей указываются без суффикса языка,
+ *  операция UPDATE выполняется для одной мультиязычной таблицы, имена полей указываются без суффикса языка.
+ */
+class model extends validator {
+
+	/** @var string Имя таблицы базы данных */
+	protected $_table;
+	/** @var string|null Имя первичного ключа (если есть) */
+	protected $primaryAttribute;
+	/** @var mysql|sqlite Экземпляр класса подключения к базе данных */
+	protected $db;
+	/** @var bool Режим мультиязычности. */
+	protected $_multiLanguage=false;
+	/**
+	 * @var bool|string[] Информация о мультиязычности таблицы (определяется явтамитически):
+	 * 	false - не мультиязычная, true - для каждого языка своя копия таблицы,
+	 * array - одна копия таблицы, массив содержит список полей, имеющих копии для каждого языка
+	 * @see model::_setLanguageDb()
+	 */
+	protected $_languageDb;
+	/** @var string[] Список полей булевого типа (необходимо для корректного преобразования) */
+	protected $_bool=array();
+
+	/**
+	 * @param string|null $table Имя таблицы базы данных, если не задано, то будет определяться из имени класса
+	 * @param string $db Используемая СУБД: "db" (основная СУБД), "mysql" или "sqlite"
+	 */
 	public function __construct($table=null,$db='db') {
 		if($table===null) {
 			$className=preg_replace_callback('~[A-Z]~',function($letter) {
@@ -22,16 +54,22 @@ class model extends validator {
 		else $this->db=$db;
 	}
 
-	//Устанавливает мультиязычный режим
+	/**
+	 * Включает или выключает режим мультиязычности
+	 * @param bool $value
+	 */
 	public function multiLanguage($value=true) {
 		$this->_multiLanguage=(bool)$value;
 	}
 
-	/* Загружает данные из БД по указанному условию
-	$where - часть SQL-запроса после WHERE;
-	$fieldList - список загружаемых полей: null - берётся из self::fieldList(), строка или массив - список полей
-	ВАЖНО! В целом нужно анализировать _languageDb и добавлять суффикс языка к именам полей, но оставлю это для следующих версий.
-	*/
+	/**
+	 * Загружает данные из базы данных в модель
+	 * Если в параметре $fieldList указана строка, то она воспринимается как список полей (допустимо указать "*").
+	 * Если $fieldList не указан, то список полей будет взят из static::fieldList(false)
+	 * @param string $where часть SQL-запроса "WHERE"
+	 * @param array|null $fieldList Список полей, которые нужно загрузить
+	 * @return bool Были или нет загружены данные модели
+	 */
 	public function load($where,$fieldList=null) {
 		if($this->_multiLanguage===true && $this->_languageDb===null) $this->_setLanguageDb();
 		if($fieldList!=='*') {
@@ -65,16 +103,25 @@ class model extends validator {
 		return true;
 	}
 
-	/* Загружает данные записи по первичному ключу */
+	/**
+	 * Загружает данные в модель по первичному ключу
+	 * @param int $id Значение первичного ключа
+	 * @param string|null Список необходимых полей
+	 * @return bool Были ли загруженны данные
+	 * @see self::load()
+	 */
 	public function loadById($id,$fieldList=null) {
 		$this->_data['id']=(int)$id;
 		return $this->load('id='.$this->_data['id'],$fieldList);
 	}
 
-	/*
-	Выполняет валидацию всех данных
-	$validate - правила валидации: null - используется fieldList()+rule(), массив - воспринимается как правила валидации
-	*/
+	/**
+	 * Выполняет валидацию данных модели
+	 * Если параметр $rule не задан, то правила будут взяты из static::rule().
+	 * @param array|null Правила валидации
+	 * @return bool TRUE - валидация прошла успешно, FALSE - во вермя проверки возникли ошибки (@see core::error())
+	 * @see /core/validator.php
+	 */
 	public function validate($rule=null) {
 		if($rule===null) {
 			$rule=explode(',',$this->fieldList(true));
@@ -85,9 +132,13 @@ class model extends validator {
 		return true;
 	}
 
-	/* Выполняет запрос INSERT или UPDATE (если есть значение первичного ключа)
-	$validate - отвечает за предварительную валидацию: null или true - будет вызван self::validate(), array - содержит правила валидации, string - валидация не проводится, поле содержит список полей для INSERT/UPDATE;
-	$primaryAttribute - имя первичного ключа (если не заданы правила валидации) - позволяет определить операцию INSERT/UPDATE: null - определяется автоматически, false - ключа нет, выполнить INSERT вместо UPDATE */
+	/**
+	 * Сохраняет модель в базу данных, выполняя запрос INSERT или UPDATE
+	 * Если режим мультиязчности включён для данной модели, то может быть выполнено несколько запросов INSERT.
+	 * @param array|null $valiadate Правила валидации (@see self::validate())
+	 * @param string|null $primaryAttribute Имя первичного ключа
+	 * @return bool Была ли сохранена запись
+	 */
 	public function save($validate=null,$primaryAttribute=null) {
 		//Валидация
 		if($validate===null || $validate===true || is_string($validate)) {
@@ -133,7 +184,13 @@ class model extends validator {
 		}
 	}
 
-	/* Удаляет запись по первичному ключу */
+	/**
+	 * Удаляет запись по первичному ключу
+	 * Если режим мультиязычности включён, удаляет запись из всех мультиязычных таблиц
+	 * @param int|null $id Значение первичного ключа, если не указано, будует использовано static::$_data['id']
+	 * @param bool $affected Если TRUE, будет возвращенно количество удалённых записей
+	 * @return bool|int Количество удалённых записей или true
+	 */
 	public function delete($id=null,$affected=false) {
 		if($id===null) $id=$this->id; else $id=(int)$id;
 		if($this->_languageDb===null) $this->_setLanguageDb();
@@ -149,25 +206,52 @@ class model extends validator {
 		if($this->db->affected()) return true; else return false;
 	}
 
+	/**
+	 * Валидатор первичного ключа
+	 * @param string $attribute Имя первичного ключа
+	 * @param mixed Настройки валидатора
+	 * @return bool
+	 */
 	protected function validatePrimary($attribute,$setting) {
 		$this->primaryAttribute=$attribute;
 		if(!isset($this->_data[$attribute]) || !$this->_data[$attribute]) $this->_data[$attribute]=null;
 		return true;
 	}
 
+	/**
+	 * Обработчик события, генерируемого после выполнения операции(й) INSERT
+	 * @param int|null $id Значение первичного ключа, если в таблице есть первичный ключ
+	 * @return bool
+	 */
 	protected function afterInsert($id=null) { return true; } //триггер, может быть перегружен
+
+	/**
+	 * Обработчик события, генерируемого после выполенения операции UPDATE
+	 * @param int|null Значение первичного ключа, если в таблице есть первичный ключ
+	 * @return bool
+	 */
 	protected function afterUpdate($id=null) { return true; } //триггер, может быть перегружен
 
+	/**
+	 * Возвращает массив правил валидации
+	 * @return array[]
+	 */
 	protected function rule() {
 		die('You have to override model::rule() to use class this way.');
 	}
 
+	/**
+	 * Возвращает список полей для операций SELECT и INSERT/UPDATE
+	 * @param bool $isSave FALSE - список полей для операции SELECT, TRUE - список полей для INSERT/UPDATE
+	 */
 	protected function fieldList($isSave) {
 		return '*';
 	}
 
-	//Возвращает информацию о мультиязычных таблицах:
-	//false - не мультиязычная, true - мультиязычная таблица, array - список полей
+	/**
+	 * Подготавливает self::$_multilanguage, содеращий информацию о мультиязычности таблицы для данной модели:
+	 * FALSE - не мультиязычная таблица, TRUE - мультиязычная таблица, ARRAY - список мультиязычных полей
+	 */
 	private function _setLanguageDb() {
 		$f=core::path().'cache/language-database.php';
 		if(!file_exists($f)) {
@@ -193,7 +277,7 @@ class model extends validator {
 				$value=($value ? '1' : '0');
 			} else $value=$this->db->escape($this->_data[$field]);
 			if(is_array($this->_languageDb) && in_array($field,$this->_languageDb)) { //это поле является мультиязычным
-				if($this->_multiLanguage) {
+				if($this->_multiLanguage===true) {
 					foreach($languageList as $lang) { //добавить поля для каждого языка
 						if($lang==_LANG) continue;
 						if($s1) {
@@ -216,7 +300,7 @@ class model extends validator {
 			}
 		}
 		//Если мультиязычная таблица (_languageDb===true), то выполнить несколько запросов
-		if(/*$this->_multiLanguage && */$this->_languageDb===true) {
+		if($this->_languageDb===true) {
 			foreach($languageList as $i=>$item) {
 				if(!$i) { //первичный ключ определить только один раз
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
@@ -248,7 +332,7 @@ class model extends validator {
 		foreach($fieldList as $name) {
 			if($s) $s.=',';
 			$s.='`'.$name;
-			if($this->_multiLanguage && is_array($this->_languageDb) && in_array($name,$this->_languageDb)) $s.='_'._LANG;
+			if($this->_multiLanguage===true && is_array($this->_languageDb) && in_array($name,$this->_languageDb)) $s.='_'._LANG;
 			if($this->_data[$name]===null) $value='null';
 			elseif($this->_data[$name]===true) $value='1';
 			elseif($this->_data[$name]===false) $value='0';

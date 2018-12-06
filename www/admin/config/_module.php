@@ -1,7 +1,7 @@
 <?php return array(
 'core'=>array(
 'name'=>'Ядро',
-'version'=>'4.2',
+'version'=>'5.0',
 'status'=>100,
 'url'=>'http://plushka-cms.ru',
 'manual'=>'http://plushka-cms.ru/manual'

@@ -1,18 +1,33 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-/* Реализует интерфейс с СУБД MySQL */
+
+/**
+ * Олицетворяет подключение к базе данных SQLite
+ * Для получения экземпляра класса использовать core::db() или core::mysql()
+ */
 class sqlite {
 
 	private static $_connectId; //идентификатор подключения (одно подключение для всех)
 	private $_queryId; //идентификатор запроса (различно для разных экземпляров класса)
 
-	/* Возвращает экранированную строку $value с добавленными кавычками */
-	public static function escape($value) { return "'".SQLite3::escapeString($value)."'"; }
+	/**
+	 * Возвращает экранированную строку, заключённую в кавычки
+	 * @param string $value Экранируемая строка
+	 * @return string
+	 */
+	public static function escape($value) {
+		return "'".SQLite3::escapeString($value)."'";
+	}
 
-	/* Возвращает экранированную строку $value */
-	public static function getEscape($value) { return SQLite3::escapeString($value); }
+	/**
+	 * Возвращает экранированную строку, в отличии от self::escape() не заключает строку в кавычки
+	 * @param string $value Экранируемая строка
+	 * @return string
+	 */
+	public static function getEscape($value) {
+		return SQLite3::escapeString($value);
+	}
 
-	/* Подключается к СУБД */
 	public function __construct($fname=null) {
 		if(!$fname) $fname=core::path().'data/database3.db';
 		self::$_connectId=new SQLite3($fname);
@@ -21,8 +36,14 @@ class sqlite {
 		},-1);
 	}
 
-	/* Выполняет SQL-запрос INSERT
-	$data может быть ассоциативным массивом или массивом ассоциативных массивов */
+	/**
+	 * Выполняет SQL-запрос INSERT
+	 * Атрибут $data должен быть в формате ключ-значение, где ключ - имя поля базы данных
+	 * или массив массивов ключ-значение для массовой вставки нескольких строк
+	 * @param string $table Имя таблицы
+	 * @param array|array[] $data Данные для вставки
+	 * @return bool
+	 */
 	public function insert($table,$data) {
 		$field=array();
 		if(isset($data[0])===false) {
@@ -52,8 +73,15 @@ class sqlite {
 		return $this->query($sql);
 	}
 
-	/* Выполняет произвольный SQL-запрос
-	$limit - количество элементов на странице (для пагинации), $page - номер страницы (для пагинации) */
+	/**
+	 * Выполняет произвольный SQL-запрос
+	 * Если параметр $limit указан, то к SQL-запросу SELECT будет добавлена инструкция LIMIT
+	 * Если параметр $limit указан, а $page - нет, то номер страницы будет определяться из $_GET['page']
+	 * @param string $query SQL-запрос
+	 * @param int|null $limit Количество строк для операции SELECT
+	 * @param int|null $page Номер страницы пагирации
+	 * @return bool
+	 */
 	public function query($query,$limit=null,$page=null) {
 		if($limit!==null) {
 			if($page) $page=(int)$page-1; else {
@@ -69,36 +97,60 @@ class sqlite {
 		return false;
 	}
 
-	/* Возвращает количество найденный строк (в основном для пагинации) */
+	/**
+	 * Возвращает общее количество найденных предыдущим запросом SELECT строк
+	 * Предварительно self::query() должен быть вызван с указанием параметра $limit
+	 * @return int
+	 */
 	public function foundRows() {
 		return $this->_total;
 	}
 
-	/* Возвращает очередную запись из выборки в виде массива */
+	/**
+	 * Возвращает очередную запись из выборки индексированную целыми числами
+	 * @see self::query()
+	 * @return string[]|null
+	 */
 	public function fetch() {
 		return $this->_queryId->fetchArray(SQLITE3_NUM);
 	}
 
-	/* Возвращает очередную запись из выборки в виде ассоциативного массива */
+	/**
+	 * Возвращает очередную запись из выборки индексированную именами столбцов
+	 * @see self::query()
+	 * @return string[]|null
+	 */
 	public function fetchAssoc() {
 		return $this->_queryId->fetchArray(SQLITE3_ASSOC);
 	}
 
-	/* Возвращает очередную запись из выборки в виде ассоциативного массива */
+	/**
+	 * Выполняет SQL-запрос и возвращает первую запись в виде массива, индексированного целыми числами
+	 * @param string $query SQL-запрос
+	 * @return string[]|null
+	 */
 	public function fetchArrayOnce($query) {
 		$query.=' LIMIT 0,1';
 		$this->query($query);
 		return $this->_queryId->fetchArray(SQLITE3_NUM);
 	}
 
-	/* Выполняет запрос $query и возвращает первую запись в виде ассоциативного массива */
+	/**
+	 * Выполняет SQL-запрос и возвращает первую запись в виде массива, индексированного именами столбцов
+	 * @param string $query SQL-запрос
+	 * @return string[]|null
+	 */
 	public function fetchArrayOnceAssoc($query) {
 		$query.=' LIMIT 0,1';
 		$this->query($query);
 		return $this->_queryId->fetchArray(SQLITE3_ASSOC);
 	}
 
-	/* Выполняет запрос $query и возвращает все записи в виде массива */
+	/**
+	 * Выполняет SQL-запрос и возвращает все найденные записи в виде массива массивов, индексированных целыми числами
+	 * @param string $query SQL-запрос
+	 * @return array[]|null
+	 */
 	public function fetchArray($query) {
 		$this->query($query);
 		$data=array();
@@ -106,7 +158,11 @@ class sqlite {
 		return $data;
 	}
 
-	/* Выполняет запрос $query и возвращает все записи в виде ассоциативного массива */
+	/**
+	 * Выполняет SQL-запрос и возвращает все найденные записи в виде массива массивов, индексированных именами столбцов
+	 * @param string $query SQL-запрос
+	 * @return array[]|null
+	 */
 	public function fetchArrayAssoc($query,$limit=null,$page=null) {
 		$this->query($query);
 		$data=array();
@@ -114,17 +170,27 @@ class sqlite {
 		return $data;
 	}
 
-	/* Выполняет запрос $query и возвращает единственное значение (первое поле первой записи) */
+	/**
+	 * Выполняет SQL-запрос и возвращает скалярное значение (первое поле первой записи)
+	 * @param string $query SQL-запрос
+	 * @return string|null
+	 */
 	public function fetchValue($query) {
 		return self::$_connectId->querySingle($query);
 	}
 
-	/* Возвращает значение первичного ключа добавленной ранее записи */
+	/**
+	 * Возвращает значение первичного ключа добавленной ранее записи
+	 * @return string|null
+	 */
 	public function insertId() {
 		return self::$_connectId->lastInsertRowID();
 	}
 
-	/* Возвращает количество изменённых и добавленных записей */
+	/**
+	 * Возвращает количество изменённых, добавленных или удалённых записей предыдущим SQL-запросом
+	 * @return int|null
+	 */
 	public function affected() {
 		return self::$_connectId->changes();
 	}

@@ -1,6 +1,9 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-/* Класс для обработки изображение (обрезка, сжатие, водный знак) */
+
+/**
+ * Предназначен для обработки изображений
+ */
 class picture {
 	private $_src; //содержит исходное изображение
 	private $_type; //расширение исходного файла, используется при сохранении в файл, если имя файла не содержит расширения
@@ -12,10 +15,6 @@ class picture {
 	private $_y1; //верхний левый угол исходного изображения (для обрезки)
 	private $_x2; //нижний правый угол исходного изображения (для обрезки)
 	private $_y2; //нижний правый угол исходного изображения (для обрезки)
-
-//	private $_dstX;
-//	private $_dstY;
-
 	private $_watermark; //содержит изображение водного знака
 	private $_wX;
 	private $_wY;
@@ -25,50 +24,53 @@ class picture {
 	/* Открывает файл изображения, проверяет что это действительно изображение
 	$file - имя файла, массив, экземпляр picture или целое число;
 	int $file и int $height - ширина и высота пустого изображения */
-	public function __construct($file,$height=null) {
-		if($file instanceof picture) {
-			$this->_src=$file->gd();
-			$this->_srcW=$file->width();
-			$this->_srcH=$file->height();
-			$this->_type=$file->type();
+	/**
+	 * @param string|array|picture|int $file Файл
+	 */
+	public function __construct($fileOrWidth,$height=null) {
+		if($fileOrWidth instanceof picture) {
+			$this->_src=$fileOrWidth->gd();
+			$this->_srcW=$fileOrWidth->width();
+			$this->_srcH=$fileOrWidth->height();
+			$this->_type=$fileOrWidth->type();
 		} elseif($height!==null) {
 			$this->_type='png';
-			$this->_src=imagecreatetruecolor($file,$height);
-			$this->_srcW=(int)$file;
+			$this->_src=imagecreatetruecolor($fileOrWidth,$height);
+			$this->_srcW=(int)$fileOrWidth;
 			$this->_srcH=(int)$height;
 			imagesavealpha($this->_src,true);
 			$color=imagecolorallocatealpha($this->_src,0,0,0,127);
 			imagefill($this->_src,0,0,$color);
-		} elseif(is_resource($file)) {
-			$this->_src=$file;
+		} elseif(is_resource($fileOrWidth)) {
+			$this->_src=$fileOrWidth;
 			$this->_type='png';
 			$this->_srcW=imagesx($this->_src);
 			$this->_srcH=imagesy($this->_src);
 		} else {
-			if(is_array($file)) {
-				$this->_type=substr($file['type'],strrpos($file['type'],'/')+1);
-				$file=$file['tmpName'];
+			if(is_array($fileOrWidth)) {
+				$this->_type=substr($fileOrWidth['type'],strrpos($fileOrWidth['type'],'/')+1);
+				$fileOrWidth=$fileOrWidth['tmpName'];
 			} else {
-				$file=core::path().$file;
-				$this->_type=substr($file,strrpos($file,'.')+1);
+				$fileOrWidth=core::path().$fileOrWidth;
+				$this->_type=substr($fileOrWidth,strrpos($fileOrWidth,'.')+1);
 			}
 			$type=strtolower($this->_type);
 			switch($type) {
 			case 'jpg': case 'jpeg':
-				$this->_src=imagecreatefromjpeg($file);
+				$this->_src=imagecreatefromjpeg($fileOrWidth);
 				break;
 			case 'gif':
-				$this->_src=imagecreatefromgif($file);
+				$this->_src=imagecreatefromgif($fileOrWidth);
 				break;
 			case 'png':
-				$this->_src=imagecreatefrompng($file);
+				$this->_src=imagecreatefrompng($fileOrWidth);
 				break;
 			default:
-				core::error(LNGFileIsNotImage.'('.$file.')');
+				core::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
 				return false;
 			}
 			if(!$this->_src) {
-				core::error(LNGFileTypeNotSupport.' ('.$file.')');
+				core::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
 				return;
 			}
 			$this->_srcW=imagesx($this->_src);
