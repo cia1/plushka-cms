@@ -253,7 +253,7 @@ class form {
 	 */
 	public function render($action=null,$html=null) {
 		if($action) $this->action=$action;
-		echo '<form action="'.($this->action ? core::link('admin/'.$this->action) : $_SERVER['REQUEST_URI']).'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
+		echo '<form action="'.($this->action ? core::link($this->action) : $_SERVER['REQUEST_URI']).'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
 		<dl class="form">';
 		echo $this->_data;
 		unset($this->_data);

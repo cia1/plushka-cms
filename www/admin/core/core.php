@@ -41,7 +41,6 @@ class core {
 	public static function template($set=null) {
 		if(isset($_GET['_front'])) return 'front';
 		if($set) self::$_template=$set;
-//		return _CLIENT_TYPE.'.'.self::$_template;
 		return self::$_template;
 	}
 

@@ -43,12 +43,12 @@ class core {
 	/**
 	 * Задаёт или возврает шаблон, используемый при генерации HTML-кода страницы.
 	 * Вызов метода имеет смысл только до выхода из действия контроллера
-	 * @param string $set|null Если задан, то будет установлен указанный шаблон (соответствующий файл должен находиться в директории /template, const _CLIENT_TYPE - тип клиента ("pc" или "pda"))
+	 * @param string $set|null Если задан, то будет установлен указанный шаблон (соответствующий файл должен находиться в директории /template)
 	 * @return string Имя текущего шаблона
 	 */
 	public static function template($set=null) {
 		if($set!==null) self::$_template=$set;
-		return (self::$_template ? _CLIENT_TYPE.'.'.self::$_template : false);
+		return (self::$_template ? self::$_template : false);
 	}
 
 	/**
@@ -925,7 +925,6 @@ if(core::debug()) {
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 }
-if(isset($_SERVER['HTTP_HOST']) && substr($_SERVER['HTTP_HOST'],0,4)=='pda.') define('_CLIENT_TYPE','pda'); else define('_CLIENT_TYPE','pc');
 
 $cfg=core::config();
 
