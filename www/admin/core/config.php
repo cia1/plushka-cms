@@ -1,5 +1,7 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\admin\core;
+
 /* Служит для создания и изменения конфигурационных файлов */
 class config implements IteratorAggregate {
 	private $_data=array(); //тут содержатся все данные
@@ -15,7 +17,7 @@ class config implements IteratorAggregate {
 	/* Загружает в $this->_data конфигурацию из указанного файла */
 	public function load($fname=null) {
 		if($fname===null && property_exists($this,'fileName')) $fname=$this->fileName;
-    $this->_data=core::config($fname);
+    $this->_data=plushka::config($fname);
     if(is_array($this->_data)===false) $this->_data=array();
 	}
 
@@ -52,10 +54,10 @@ class config implements IteratorAggregate {
 	/* Сохраняет конфигурацию в php-файл */
 	public function save($fname=null) {
 		if($fname===null && property_exists($this,'fileName')) $fname=$this->fileName;
-		if(substr($fname,0,6)=='admin/') $fname=core::path().'admin/config/'.substr($fname,6).'.php'; else $fname=core::path().'config/'.$fname.'.php';
+		if(substr($fname,0,6)=='admin/') $fname=plushka::path().'admin/config/'.substr($fname,6).'.php'; else $fname=plushka::path().'config/'.$fname.'.php';
 		$f=fopen($fname,'w');
 		if(!$f) {
-			core::error('Ошибка записи конфигурации '.$fname);
+			plushka::error('Ошибка записи конфигурации '.$fname);
 			return false;
 		}
 		fwrite($f,'<?php return '.$this->_implode($this->_data).';');

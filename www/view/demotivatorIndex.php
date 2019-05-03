@@ -1,4 +1,4 @@
-<p><?=sprintf(LNGTakePart,'<a href="'.core::link('demotivator/construct').'">тут</a>!')?></p>
+<p><?=sprintf(LNGTakePart,'<a href="'.plushka::link('demotivator/construct').'">тут</a>!')?></p>
 <div id="demList">
 <?php foreach($this->items as $item) { ?>
 	<div class="item">

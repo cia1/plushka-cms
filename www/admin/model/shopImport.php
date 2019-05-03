@@ -1,20 +1,22 @@
 <?php
+namespace plushka\admin\core;
+
 /* Осуществляет импорт данных в интернет-магазин */
 class shopImport {
 
 	/* Загружает данные из файла excel
 	array $cfg - настройки импорта, int $first - номер строки, с которой начать импорт, $count - количество загружаемых строк (за один проход) */
 	public static function loadXLS($cfg,$first,$count=1000) {
-		core::import('admin/model/excel_reader2');
-		$d=new Spreadsheet_Excel_Reader(core::path().'tmp/shopImport.xls',false,'UTF8');
+		plushka::import('admin/model/excel_reader2');
+		$d=new Spreadsheet_Excel_Reader(plushka::path().'tmp/shopImport.xls',false,'UTF8');
 		if($d->error) {
-			core::error('Ошибка загрузки документа');
+			plushka::error('Ошибка загрузки документа');
 			return false;
 		}
 		$last=$first+$count;
 		$count=$d->rowCount();
 		if($count<$last) $last=$count;
-		$db=core::db();
+		$db=plushka::db();
 		//Подготовить данные для цикла
 		$productField=$featureField=array();
 		$insert='INSERT INTO shp_product (categoryId,alias';
@@ -88,7 +90,7 @@ class shopImport {
 			$db->query($q);
 		}
 		if($idList) {
-			$f=fopen(core::path().'tmp/shopImportId.txt','a');
+			$f=fopen(plushka::path().'tmp/shopImportId.txt','a');
 			fwrite($f,$idList.',');
 			fclose($f);
 		}
@@ -97,19 +99,19 @@ class shopImport {
 
 	/* Импорт товаров завершён. Удалить товары, которых нет в excel, а также разрушить временные файлы */
 	public static function clear() {
-		$id=file_get_contents(core::path().'tmp/shopImportId.txt'); //список ид импортированных товаров
+		$id=file_get_contents(plushka::path().'tmp/shopImportId.txt'); //список ид импортированных товаров
 		if(!$id) {
-			core::error('Ничего не сделано');
+			plushka::error('Ничего не сделано');
 			return array(0,0);
 		}
 		$id=substr($id,0,strlen($id)-1);
 		$data=array(substr_count($id,',')+1,0);
-		$cfg=core::config('admin/shop');
+		$cfg=plushka::config('admin/shop');
 		if($cfg['notDelete']) return $data; //Надо ли удалять прочие товары?
 		//Определить список всех товаров, которые нужно удалить, добавить их ИД в $id, а также удалить изображения этих товаров
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,image FROM shp_product WHERE id NOT IN('.$id.')');
-		$path=core::path().'public/shop-product/';
+		$path=plushka::path().'public/shop-product/';
 		$id='';
 		while($item=$db->fetch()) {
 			if($item[1]) {
@@ -137,7 +139,7 @@ class shopImport {
 	private static function _categoryTitle($value) {
 		static $_category;
 		if($_category && isset($_category[$value])) return $_category[$value];
-		$db=core::db();
+		$db=plushka::db();
 		$id=$db->fetchValue('SELECT id FROM shp_category WHERE title='.$db->escape($value));
 		if(!$id) return false;
 		$_category[$value]=$id;
@@ -156,7 +158,7 @@ class shopLog {
 	}
 
 	public static function add($i,$message) {
-		if(!self::$_f) self::$_f=fopen(core::path().'tmp/shopImport.log','a');
+		if(!self::$_f) self::$_f=fopen(plushka::path().'tmp/shopImport.log','a');
 		fwrite(self::$_f,'<b>#'.$i.'</b> '.$message."\n");
 	}
 

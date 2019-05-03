@@ -1,16 +1,17 @@
 <?php
-if(isset($_GET['controller'])) $s=$_GET['controller'];
-if(isset($_GET['action'])) $s.='/'.$_GET['action'];
-$_GET['corePath']=$s;
-require_once('./core/core.php');
-
-$name=core::path().'controller/'.$_GET['corePath'][0].'.php';
-if(!file_exists($name)) {
-	include(core::path().'controller/error.php');
-	controller::$self=new sController();
-	core::error404();
+$s='';
+if(isset($_GET['controller'])===true) {
+	$s=$_GET['controller'];
+	if(isset($_GET['action'])===true) $s.='/'.$_GET['action'];
 }
-include_once($name);
+if($s) $_GET['corePath']=$s;
+unset($s);
+require_once(__DIR__.'/core/plushka.php');
 
-runApplication(false);
-?>
+$name=plushka::path().'controller/'.ucfirst($_GET['corePath'][0]).'Controller.php';
+if(!file_exists($name)) {
+	plushka::template(false);
+	plushka::$controller=new \plushka\controller\ErrorController();
+	plushka::error404();
+}
+\plushka\core\runApplication(false);

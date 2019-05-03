@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление интернет-магазином (настройка магазина, импорт) */
 class sController extends controller {
 
@@ -25,12 +27,12 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Общие настройки */
 	public function actionSetting() {
-		$u=core::user();
+		$u=plushka::user();
 		if($u->group==255 || isset($u->right['shopSetting.feature'])) $this->button('shopSetting/featureList','layout','Характеристики товаров');
 		if($u->group==255 || isset($u->right['shopSetting.import'])) $this->button('shopSetting/import','install','Импорт товаров','Импорт');
 		if($u->group==255 || isset($u->right['shopContent.brand'])) $this->button('shopContent/brand','brand','Управление производителями','Производители');
-		$cfg=core::config('shop');
-		$this->form1=core::form();
+		$cfg=plushka::config('shop');
+		$this->form1=plushka::form();
 		//Общие
 		$this->form1->html('<fieldset><legend>Общие</legend>');
 		$this->form1->text('productOnPage','Товаров на странице',$cfg['productOnPage']);
@@ -107,7 +109,7 @@ class sController extends controller {
 		$this->form1->html('</fieldset><fieldset><legend>Шаблоны писем</legend>');
 
 		//Шаблоны писем
-		$html=file_get_contents(core::path().'data/email/shopOrder.html');
+		$html=file_get_contents(plushka::path().'data/email/shopOrder.html');
 		$this->form1->editor('htmlAdmin','Сообщение администратору',$html);
 		$this->form1->submit('Сохранить');
 		$this->form1->html('<cite>Вы можете использовать следующие теги:<br /><b>{{siteName}}</b> - имя домена сайта, <b>{{siteLink}}</b> - ссылка на главную страницу сайта, <b>{{form}}</b> - информация о заказе, <b>{{cart}}</b> - список (таблица) товаров, <b>{{totalQuantity}}</b> - общее количество товарных позиций, <b>{{totalCost}}</b> - сумма заказа.');
@@ -115,9 +117,9 @@ class sController extends controller {
 		$this->form1->html('</fieldset>');
 
 		//Группы товаров
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('|');
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,title FROM shp_product_group ORDER BY title');
 		while($item=$db->fetch()) {
 			$t->text('<a href="#" onclick="return productGroup('.$item[0].',\''.$item[1].'\');">'.$item[1].'</a>');
@@ -129,9 +131,9 @@ class sController extends controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('shop');
-		if(core::error()) return false;
+		if(plushka::error()) return false;
 		if($data['productFullWidthType']=='') $cfg->productFullWidth=null;
 		elseif($data['productFullWidthType']=='<') $cfg->productFullWidth='<'.$data['productFullWidth'];
 		else $cfg->productFullWidth=(int)$data['productFullWidth'];
@@ -161,35 +163,35 @@ class sController extends controller {
 
 		$cfg->productOnPage=(int)$data['productOnPage'];
 		if(!$cfg->save('shop')) return false;
-		$f=fopen(core::path().'data/email/shopOrder.html','w');
+		$f=fopen(plushka::path().'data/email/shopOrder.html','w');
 		fwrite($f,$data['htmlAdmin']);
 		fclose($f);
 
-		core::redirect('shopSetting/setting','Изменения сохранены');
+		plushka::redirect('shopSetting/setting','Изменения сохранены');
 	}
 
 	/* Создание или изменение группы товаров (форма находится на странице "общие настройки") */
 	public function actionProductGroupSubmit($data) {
-		$m=core::model('shp_product_group');
+		$m=plushka::model('shp_product_group');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
 			'title'=>array('string','Заголовок',true)
 		))) return false;
-		core::redirect('shopSetting/setting');
+		plushka::redirect('shopSetting/setting');
 	}
 
 	/* Удаление группы товаров */
 	public function actionProductGroupDelete() {
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('DELETE FROM shp_product_group_item WHERE groupId='.$_GET['id']);
 		$db->query('DELETE FROM shp_product_group WHERE id='.$_GET['id']);
-		core::redirect('shopSetting/setting');
+		plushka::redirect('shopSetting/setting');
 	}
 
 	/* Общий список всех характеристик товаров */
 	public function actionFeatureList() {
-		$db=core::db();
+		$db=plushka::db();
 		$this->featureGroup=$db->fetchArray('SELECT id,title FROM shp_feature_group');
 		if(isset($_GET['gid'])) $this->gid=(int)$_GET['gid']; else $this->gid=null;
 
@@ -198,12 +200,12 @@ class sController extends controller {
 			//Если выбрана категория характеристик, то добавить кнопки
 			$this->button('#','delete','Удалить категорию','Удалить','onclick="featureGroupDelete();return false;"');
 			$this->button('shopSetting/featureItem?gid='.$_GET['gid'],'layoutNew','Создать характеристику');
-			core::import('admin/model/shop');
+			plushka::import('admin/model/shop');
 			$data=shop::featureList($_GET['gid']);
 			if(!$data) $this->null=true; //Признак пустого списка
 			else {
 				$this->null=false;
-				$t=core::table();
+				$t=plushka::table();
 				$t->rowTh('|');
 				foreach($data as $item) {
 					$t->text($item['title']);
@@ -217,7 +219,7 @@ class sController extends controller {
 	}
 
 	public static function actionFeatureGroupItemSubmit($data) {
-		$db=core::db();
+		$db=plushka::db();
 		if(isset($data['id'])) {
 			$db->query('UPDATE shp_feature_group SET title='.$db->escape($data['title']).' WHERE id='.(int)$data['id']);
 			echo "OK\n".$data['id'];
@@ -232,7 +234,7 @@ class sController extends controller {
 
 	/* Удаление группы характеристик товаров */
 	public static function actionFeatureGroupDeleteSubmit($data) {
-		core::import('admin/model/shop');
+		plushka::import('admin/model/shop');
 		shop::featureGroupDelete($data['id']);
 		echo 'OK';
 		exit;
@@ -241,12 +243,12 @@ class sController extends controller {
 	/* Создание или изменение характеристики товаров */
 	public function actionFeatureItem() {
 		if(isset($_GET['id'])) { //Изменение
-			$db=core::db();
+			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title,type,unit,variant,data FROM shp_feature WHERE id='.$_GET['id']);
 			$data['data']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','type'=>'text','unit'=>'','variant'=>false,'data'=>'');
 		if(isset($_GET['gid'])) $gid=(int)$_GET['gid']; else $gid=$_POST['shopSetting']['groupId']; //Группа характеристик
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('groupId',$gid);
 		$f->text('title','Название',$data['title']);
@@ -264,10 +266,10 @@ class sController extends controller {
 		//Если снят чекбокс "модификации" (характеристика также для модификаций товаров), то, возможно, нужно удалить характеристики модификаций существующих товаров
 		$variantDelete=false;
 		if($data['id'] && !isset($data['variant'])) {
-			$db=core::db();
+			$db=plushka::db();
 			if($db->fetchValue('SELECT variant FROM shp_feature WHERE id='.$data['id'])=='1') $variantDelete=true;
 		}
-		$m=core::model('shp_feature');
+		$m=plushka::model('shp_feature');
 		if($data['type']!='select') $data['data']=null; else $data['data']=str_replace(array("\r","\n"),array('','|'),$data['data']);
 		$m->set($data);
 		if(!$m->save(array(
@@ -280,25 +282,25 @@ class sController extends controller {
 			'data'=>array('string')
 		))) return false;
 		if($variantDelete) {
-			core::import('admin/model/shop');
+			plushka::import('admin/model/shop');
 			shop::featureCategoryDelete($data['id']);
 		}
-		core::redirect('shopSetting/featureList?gid='.$data['groupId']);
+		plushka::redirect('shopSetting/featureList?gid='.$data['groupId']);
 	}
 
 	/* Удаление характеристики */
 	public function actionFeatureDelete() {
-		core::import('admin/model/shop');
+		plushka::import('admin/model/shop');
 		shop::featureDelete($_GET['id']);
-		core::redirect('shopSetting/featureList?gid='.$_GET['gid']);
+		plushka::redirect('shopSetting/featureList?gid='.$_GET['gid']);
 	}
 
 	/* Сопоставление характеристик товаров для категории */
 	public function actionCategoryFeature() {
 		$this->scriptAdmin('shop');
-		core::import('admin/model/shop');
+		plushka::import('admin/model/shop');
 		if(isset($_GET['id'])) $this->id=$_GET['id']; else $this->id=$_POST['shopSetting']['categoryId'];
-		$db=core::db();
+		$db=plushka::db();
 		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$this->id);
 		$this->feature2=shop::featureList(null,$feature); //Уже отмеченные для категории
 		$this->feature1=shop::featureList(null,null,$this->feature2); //Не отмеченные
@@ -308,23 +310,23 @@ class sController extends controller {
 	public function actionCategoryFeatureSubmit($data) {
 		//$lst1 - отмеченные в форме
 		$lst1=explode(',',$data['feature']);
-		$db=core::db();
+		$db=plushka::db();
 		//$lst2 - отмеченные ранее
 		$lst2=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$data['categoryId']);
 		if($lst2) $lst2=explode(',',$lst2); else $lst2=array();
 		//$lst - характеристики, которые были сняты
 		$lst=array_diff($lst2,$lst1);
 		if($lst) {
-			core::import('admin/model/shop');
+			plushka::import('admin/model/shop');
 			shop::featureCategoryDelete(implode(',',$lst),false,$data['categoryId']); //Убрать у всех товаров и модификаций (в будущем будет чекбоксе на форме)
 		}
 		$db->query('UPDATE shp_category SET feature='.$db->escape($data['feature']).' WHERE id='.$data['categoryId']);
-		core::redirect('shopSetting/categoryFeature?cid='.$data['categoryId'],'Изменения сохранены');
+		plushka::redirect('shopSetting/categoryFeature?cid='.$data['categoryId'],'Изменения сохранены');
 	}
 
 	/* Настраиваемый импорт данных из Excel. В будущем нужно вынести настройки отдельно. */
 	public function actionImport() {
-		$cfg=core::config('admin/shop'); //Конфигурация в /admin/config/shop.php
+		$cfg=plushka::config('admin/shop'); //Конфигурация в /admin/config/shop.php
 		$field=array( //Основные поля
 //			array('categoryId','Категория (идентификатор)',false),
 //			array('categoryAlias','Категория (псевдоним)',false),
@@ -339,7 +341,7 @@ class sController extends controller {
 			array('metaKeyword','meta Ключевые слова',false),
 			array('quantity','Остаток на складе',false)
 		);
-		$f=core::form();
+		$f=plushka::form();
 		$f->file('file','Файл с данными');
 		$f->text('firstRow','Первая строка с данными',$cfg['firstRow']);
 		$f->checkbox('notDelete','Не удалять товары',$cfg['notDelete']);
@@ -352,7 +354,7 @@ class sController extends controller {
 			if($item[2]) $unique[]=array($item[0],$item[1]);
 		}
 		//Добавить к форме, а также к списку уникальный полей все характеристики
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT g.title gTitle,f.id,f.title FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId ORDER BY g.title,f.title');
 		$gTitle='';
 		while($item=$db->fetch()) {
@@ -374,15 +376,15 @@ class sController extends controller {
 
 	public function actionImportSubmit($data) {
 		//Переместить загруженный файл во временный директорий (/tmp/shopImport.xls)
-		if(!move_uploaded_file($data['file']['tmpName'],core::path().'tmp/shopImport.xls')) {
-			core::error('Не удалось загрузить excel-файл');
+		if(!move_uploaded_file($data['file']['tmpName'],plushka::path().'tmp/shopImport.xls')) {
+			plushka::error('Не удалось загрузить excel-файл');
 			return false;
 		}
 		//Сохранить настройки импорта в файл конфигурации
-		$cfg=core::config('admin/shop'); // /admin/config/shop.php
+		$cfg=plushka::config('admin/shop'); // /admin/config/shop.php
 		unset($data['file']); //это не нужно
 		if($data!=$cfg) { //А были ли изменения в конфигурации?
-			core::import('admin/core/config');
+			plushka::import('admin/core/config');
 			$cfg=new config();
 			foreach($data as $key=>$value) {
 				if(!$value) continue;
@@ -392,25 +394,25 @@ class sController extends controller {
 			$cfg->save('admin/shop');
 		}
 		//Удалить временные файлы
-		$f=core::path().'tmp/shopImport.log';
+		$f=plushka::path().'tmp/shopImport.log';
 		if(file_exists($f)) unlink($f);
-		$f=core::path().'tmp/shopImportId.txt';
+		$f=plushka::path().'tmp/shopImportId.txt';
 		if(file_exists($f)) unlink($f);
-		core::redirect('shopSetting/importStart');
+		plushka::redirect('shopSetting/importStart');
 	}
 
 	/* Запуск импорта */
 	public function actionImportStart() {
-		$this->link=core::url().'admin/index2.php?controller=shopSetting&action=importProcess&stage=load&row=0&_front';
+		$this->link=plushka::url().'admin/index2.php?controller=shopSetting&action=importProcess&stage=load&row=0&_front';
 		return 'ImportStart';
 	}
 
 	/* Процесс импорта (очередная "пачка" строк). Позиция определяется из параметра $_GET['row'] */
 	public function actionImportProcess() {
-		core::import('admin/model/shopImport');
+		plushka::import('admin/model/shopImport');
 	 	if($_GET['stage']=='load') { //"В работе"
 			define('ROW_LIMIT',100); //Обрабатывать по 100 товаров за раз
-			$cfg=core::config('admin/shop');
+			$cfg=plushka::config('admin/shop');
 			$start=(int)$_GET['row']; //Строка, с которой начинать обработку
 			if(!$start) $start=$cfg['firstRow'];
 			$count=shopImport::loadXLS($cfg,$start,ROW_LIMIT);
@@ -423,7 +425,7 @@ class sController extends controller {
 			$data=shopImport::clear();
 			$this->rowCount=$data[0];
 			$this->deleteCount=$data[1];
-			$f=core::path().'tmp/shopImport.log';
+			$f=plushka::path().'tmp/shopImport.log';
 			if(file_exists($f)) $this->log=nl2br(file_get_contents($f)); else $this->log=null; //Тут содержится лог импорта
 			return 'ImportEnd';
 	 	}
@@ -437,7 +439,7 @@ class sController extends controller {
 	public function actionMenuCategory() {
 		$categoryAlias=strrpos($_GET['link'],'/');
 		if($categoryAlias) $categoryAlias=substr($_GET['link'],$categoryAlias+1);
-		$f=core::form();
+		$f=plushka::form();
 		$f->select('categoryAlias','Категория','SELECT alias,title FROM shp_category WHERE parentId=0',$categoryAlias,'- все категории -');
 		$f->submit('Продолжить');
 
@@ -451,7 +453,7 @@ class sController extends controller {
 
 	/* Главная страница сайта (пока нет таковой) */
 	public function actionMenuIndex() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->submit('Продолжить');
 		return $f;
 	}
@@ -465,7 +467,7 @@ class sController extends controller {
 /* ---------- WIDGET ----------------------------------------------------------------- */
 	/* Дерево категорий */
 	public function actionWidgetCategory() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->submit('Продолжить','submit');
 		return $f;
 	}
@@ -477,7 +479,7 @@ class sController extends controller {
 	/* Список товаров, находящихся в заданной группе
 	Параметры: (int) categoryId - ИД категории */
 	public function actionWidgetProductGroup($data=null) {
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('cacheTime','30'); //Время кеширования
 		$f->select('categoryId','Категория','SELECT id,title FROM shp_product_group',$data);
 		$f->submit('Продолжить');
@@ -493,7 +495,7 @@ class sController extends controller {
 	bool $checkout - выводить ссылку на страницу оформления заказа */
 	public function actionWidgetCart($data=null) {
 		if(!$data) $data=array('total'=>true,'checkout'=>true,'product'=>null);
-		$f=core::form();
+		$f=plushka::form();
 		$f->checkbox('product','Список товаров',$data['product']);
 		$f->checkbox('total','Итоговые значения',$data['total']);
 		$f->checkbox('checkout','Ссылка на оформление заказа',$data['checkout']);
@@ -520,7 +522,7 @@ class sController extends controller {
 			$this->brand=$data['brand'];
 			$dataFeature=$data['feature'];
 		}
-		core::import('admin/model/shop');
+		plushka::import('admin/model/shop');
 		$this->feature=shop::featureList();
 		foreach($this->feature as $groupId=>&$groupData) {
 			foreach($groupData['data'] as &$featureData) {

@@ -1,7 +1,9 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\admin\core;
+
 /* Реализует интерфейс с СУБД SQLite3. Расширенная версия */
-core::import('core/sqlite3');
+plushka::import('core/sqlite3');
 class sqliteExt extends sqlite {
 
 	/* Создаёт таблицу в соответствии с описанной в $structure структурой (формат MySQL) */
@@ -140,7 +142,7 @@ class sqliteExt extends sqlite {
 
 	private function _rollback() {
 		$this->query('ROLLBACK');
-		core::error('SQLite: не удалось изменить структуру таблицы');
+		plushka::error('SQLite: не удалось изменить структуру таблицы');
 		return false;
 	}
 

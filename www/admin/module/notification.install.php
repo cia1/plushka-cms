@@ -1,6 +1,6 @@
 <?php
 function installAfter($version) {
-	core::import('admin/core/config');
+	plushka::import('admin/core/config');
 	$cfg=new config('notification');
 	$group=$cfg->group;
 	if($group===null) $group=array();
@@ -12,6 +12,6 @@ function installAfter($version) {
 }
 
 function uninstallAfter() {
-	$f=core::path().'config/notification.php';
+	$f=plushka::path().'config/notification.php';
 	if(file_exists($f)) unlink($f);
 }

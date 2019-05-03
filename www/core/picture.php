@@ -1,10 +1,11 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\core;
 
 /**
  * Предназначен для обработки изображений
  */
-class picture {
+class Picture {
 	private $_src; //содержит исходное изображение
 	private $_type; //расширение исходного файла, используется при сохранении в файл, если имя файла не содержит расширения
 	private $_srcW; //шинира исходного изображения
@@ -51,7 +52,7 @@ class picture {
 				$this->_type=substr($fileOrWidth['type'],strrpos($fileOrWidth['type'],'/')+1);
 				$fileOrWidth=$fileOrWidth['tmpName'];
 			} else {
-				$fileOrWidth=core::path().$fileOrWidth;
+				$fileOrWidth=plushka::path().$fileOrWidth;
 				$this->_type=substr($fileOrWidth,strrpos($fileOrWidth,'.')+1);
 			}
 			$type=strtolower($this->_type);
@@ -66,11 +67,11 @@ class picture {
 				$this->_src=imagecreatefrompng($fileOrWidth);
 				break;
 			default:
-				core::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
+				plushka::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
 				return false;
 			}
 			if(!$this->_src) {
-				core::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
+				plushka::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
 				return;
 			}
 			$this->_srcW=imagesx($this->_src);
@@ -176,7 +177,7 @@ class picture {
 			$this->_watermark=$f->gd();
 		} elseif(is_string($f)) {
 			$ext=strtolower(substr($f,strrpos($f,'.')+1));
-	    $f=core::path().$f;
+	    $f=plushka::path().$f;
 			switch($ext) {
 			case 'jpg': case 'jpeg':
 				$this->_watermark=imagecreatefromjpeg($f);
@@ -189,7 +190,7 @@ class picture {
 				imagealphablending($this->_watermark,true);
 				break;
 			default:
-				core::error(LNGFileIsNotImage);
+				plushka::error(LNGFileIsNotImage);
 				return false;
 			}
 		} else {
@@ -261,13 +262,13 @@ class picture {
 		$dst=$this->gd();
 		switch($this->_type) {
 		case 'jpg': case 'jpeg':
-			imagejpeg($dst,core::path().$fileName,$quality);
+			imagejpeg($dst,plushka::path().$fileName,$quality);
 			break;
 		case 'gif':
-			imagegif($dst,core::path().$fileName);
+			imagegif($dst,plushka::path().$fileName);
 			break;
 		case 'png':
-			imagepng($dst,core::path().$fileName);
+			imagepng($dst,plushka::path().$fileName);
 			break;
 		}
 		$i=strrpos($fileName,'/');

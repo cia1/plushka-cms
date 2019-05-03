@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 //Управление виджетами интерактивных карт Google
 class sController extends controller {
 
@@ -13,7 +15,7 @@ class sController extends controller {
 	//Список меток на карте; добавление, редактирование и удаление меток.
 	public function actionMarker() {
 		//Найти требуемый виджет. К сожалению его ID неизвестен.
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,data FROM widget WHERE name='.$db->escape('map').' ORDER BY id DESC');
 		while($widget=$db->fetch()) {
 			$this->id=$widget[0];
@@ -26,7 +28,7 @@ class sController extends controller {
 		$this->button('html','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
 		$this->button('','delete','Удалить выбранную метку','Удалить','id="markerDelete" style="display:none;" onclick="return mapMarker.delete();"');
 		//Форма карты
-		$form=core::form();
+		$form=plushka::form();
 		$form->hidden('id',$this->id);
 		$form->hidden('marker','');
 		$form->select('provider','Источник карт',array(array('google','Google'),array('osm','Open Street Maps')),$widget['provider']);
@@ -43,7 +45,7 @@ class sController extends controller {
 		$form->submit('Сохранить');
 		$this->formMap=$form;
 		//Форма изменения/добавления точки
-		$form=core::form('marker');
+		$form=plushka::form('marker');
 		$form->text('title','Заголовок');
 		$form->text('latitude','Широта');
 		$form->text('longitude','Долгота');
@@ -53,10 +55,10 @@ class sController extends controller {
 	}
 
 	public function actionMarkerSubmit($data) {
-		$db=core::db();
+		$db=plushka::db();
 		$id=(int)$data['id'];
 		$widget=unserialize($db->fetchValue('SELECT data FROM widget WHERE id='.$id)); //id - это уже первичный ключ
-		if(!$widget) core::error404();
+		if(!$widget) plushka::error404();
 		$widget['marker']=json_decode($data['marker'],true);
 		$widget['provider']=$data['provider'];
 		$widget['centerLatitude']=(float)$data['centerLatitude'];
@@ -65,21 +67,21 @@ class sController extends controller {
 		$widget['type']=$data['type'];
 		$widget['apiKey']=($data['apiKey'] ? trim($data['apiKey']) : null);
 		$db->query('UPDATE widget SET data='.$db->escape(serialize($widget)).' WHERE id='.$id);
-		core::success('Изменения сохранены');
-		core::redirect('map/marker?id='.$data['id']);
+		plushka::success('Изменения сохранены');
+		plushka::redirect('map/marker?id='.$data['id']);
 	}
 
 	//Рисует карту, это действие загружается во фрейме
 	public function actionMap() {
 		$f='_providerGoogle';
-		if(method_exists($this,$f)===false) core::error404();
+		if(method_exists($this,$f)===false) plushka::error404();
 		return $this->$f();
 	}
 
 	//Виджет карты
 	public function actionWidgetMap($data=null) {
 		if(!$data) {
-			$db=core::db();
+			$db=plushka::db();
 			$data=array(
 				'id'=>($db->fetchValue('SELECT MAX(id) FROM widget')+1), //не обязан совпадать с ИД виджета
 				'centerLatitude'=>41.88179139990236,
@@ -90,7 +92,7 @@ class sController extends controller {
 				'apiKey'=>null
 			);
 		}
-		$form=core::form();
+		$form=plushka::form();
 		$form->hidden('id',$data['id']); //нужен для выбора нужного виджета, т.к. нет способа получить ИД.
 		$form->hidden('centerLatitude',$data['centerLatitude']);
 		$form->hidden('centerLongitude',$data['centerLongitude']);

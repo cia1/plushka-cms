@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Установка и удаление модулей. Выполняется по шагам, чтобы при возникновении ошибок в любой момент можно было сделать откат */
 class sController extends controller {
 
@@ -7,11 +9,11 @@ class sController extends controller {
 	public function actionIndex() {
 		$this->button('module/installTmp','install','Установить модуль из директория');
 		$this->button('module/installZip','install','Установить модуль из архива');
-		core::import('admin/model/module');
+		plushka::import('admin/model/module');
 		$items=module::getList();
 		$status=array(0=>'не установлен',1=>'установка, шаг 2',2=>'установка, шаг 3',3=>'установка, шаг 4',4=>'установка, шаг 5',5=>'установка, шаг 6',6=>'установка, шаг 7',7=>'установка, шаг 8',8=>'установка, шаг 9',100=>'работает');
 		//Сформировать таблицу (список модулей)
-		$table=core::table();
+		$table=plushka::table();
 		$table->rowTh('ID|Модуль|Версия|Состояние|URL|<input type="submit" class="buttom" value="Удалить">|');
 		foreach($items as $i=>$item) {
 			$table->text($i);
@@ -23,9 +25,9 @@ class sController extends controller {
 			//Ссылка "удалить" или "отменить", "продолжить установку" в зависимости от состояния модуля
 			if($i=='core') $s='';
 			else {
-				if($item['status']==100) $s='<a href="'.core::link('admin/module/uninstall?id='.$i).'" onclick="return confirm(\'Подтвердите удаление модуля\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
-				else $s='<a href="'.core::link('admin/module/uninstall?id='.$i).'" onclick="return confirm(\'Подтвердите отмену установки\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
-				if($item['status']<99) $s.=' | <a href="'.core::link('admin/module/installTmp?id='.$i).'">Продолжить</a>';
+				if($item['status']==100) $s='<a href="'.plushka::link('admin/module/uninstall?id='.$i).'" onclick="return confirm(\'Подтвердите удаление модуля\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
+				else $s='<a href="'.plushka::link('admin/module/uninstall?id='.$i).'" onclick="return confirm(\'Подтвердите отмену установки\');">'.($item['status']==0 || $item['status']==100 ? 'Удалить' : 'Отменить установку').'</a>';
+				if($item['status']<99) $s.=' | <a href="'.plushka::link('admin/module/installTmp?id='.$i).'">Продолжить</a>';
 			}
 			$table->text($s,null,'style="text-align:center;"');
 		}
@@ -40,7 +42,7 @@ class sController extends controller {
 
 	//Начало установки модуля: загрузка архива модуля
 	public function actionInstallZip() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->file('archive','.zip-архив');
 		$f->submit('Продолжить','submit');
 		return $f;
@@ -52,24 +54,24 @@ class sController extends controller {
 
 	public function actionInstallZipSubmit($data) {
 		if(!class_exists('ZipArchive')) {
-			core::error('Расширение ZipArchive не установлено на вашем сервере. Самостоятельно распакуйте архив в директорий '.$_SERVER['DOCUMENT_ROOT'].'/tmp и установите модуль.');
+			plushka::error('Расширение ZipArchive не установлено на вашем сервере. Самостоятельно распакуйте архив в директорий '.$_SERVER['DOCUMENT_ROOT'].'/tmp и установите модуль.');
 			return false;
 		}
 		if(!$data['archive']['size']) {
-			core::error('Архив не загружен.');
+			plushka::error('Архив не загружен.');
 			return false;
 		}
 		//Очистить директорий /tmp
-		core::import('admin/model/module');
-		module::clearDirectory(core::path().'tmp',false);
+		plushka::import('admin/model/module');
+		module::clearDirectory(plushka::path().'tmp',false);
 		//Извлечь содержимое архива в /tmp
 		$zip=new ZipArchive();
 		if($zip->open($data['archive']['tmpName'])!==true) {
-			core::error('Ошибка при попытке открыть архив');
+			plushka::error('Ошибка при попытке открыть архив');
 			return false;
 		}
-		if(!$zip->extractTo(core::path().'tmp')) {
-			core::error('Ошибка при попытке распаковать архив');
+		if(!$zip->extractTo(plushka::path().'tmp')) {
+			plushka::error('Ошибка при попытке распаковать архив');
 			return false;
 		}
 		$this->url[1]='installTmp';
@@ -78,10 +80,10 @@ class sController extends controller {
 
 	/* Начало установки модуля: выводит информацию о модуле. Он должен быть помещён в директорий /tmp */
 	public function actionInstallTmp() {
-		core::import('admin/model/module');
+		plushka::import('admin/model/module');
 		$module=module::info(); //Информация о найденном в директории /tmp модуле
 		if(!$module) {
-			core::error('В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?');
+			plushka::error('В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?');
 			return '_empty';
 		} elseif($module['status']==100) $this->moduleExists=true; //такой модуль уже установлен
 		else $this->moduleExists=false;
@@ -96,10 +98,10 @@ class sController extends controller {
 
 	/* Непосредственно начинает процесс установки */
 	public function actionInstallStart() {
-		core::import('admin/model/module');
+		plushka::import('admin/model/module');
 		$module=module::info(); //Информация о модуле
 		//Обновить права текущего пользователя, чтобы не нужно было делать "выйти-войти"
-		$u=core::user();
+		$u=plushka::user();
 		foreach($module['right'] as $item) {
 			if(isset($item[2])) $group=explode(',',$item[2]); else $group=array();
 			if(in_array($u->group,$group)) $u->right[$item[0]]=($item[3] ? true : false);
@@ -108,27 +110,27 @@ class sController extends controller {
 		$s='_install'.$module['status']; //Этап установки (если была прервана)
 		if($this->$s($module)) {
 			//Удалить атрибут currentVersion
-			core::import('admin/core/config');
+			plushka::import('admin/core/config');
 			$cfg=new config('admin/module/'.$module['id']);
 			unset($cfg->currentVersion);
 			$cfg->save('admin/module/'.$module['id']);
-			core::redirect('module','Модуль установлен');
+			plushka::redirect('module','Модуль установлен');
 		}
 		return 'Info';
 	}
 
 	/* Начинает процесс удаления модуля */
 	public function actionUninstall() {
-		core::import('admin/model/module');
+		plushka::import('admin/model/module');
 		if(!is_array($_GET['id'])) $_GET['id']=array($_GET['id']);
 		foreach($_GET['id'] as $id) {
-			$module=core::config('admin/../module/'.$id); //Информация об установленном модуле
+			$module=plushka::config('admin/../module/'.$id); //Информация об установленном модуле
 			module::explodeData($module); //В конфигурации информация хранится в сжатом виде - разобрать её на массивы
 			$module['id']=$id; //Идентификатор модуля (строка)
 			if(!self::_uninstall($module)) return $this->actionIndex();
 			unset($module);
 		}
-		core::redirect('module','Модуль удалён');
+		plushka::redirect('module','Модуль удалён');
 	}
 /* ----------------------------------------------------------------------------------- */
 
@@ -137,7 +139,7 @@ class sController extends controller {
 	private static function _uninstall($module) {
 		//Сразу же убрать права текущего пользователя, чтоб не пришлось делать "выйти-войти"
 		if(!$module['currentVersion']) {
-			$u=core::user();
+			$u=plushka::user();
 			foreach($module['right'] as $item) {
 				if(isset($u->right[$item])) unset($u->right[$item]);
 			}
@@ -156,11 +158,11 @@ class sController extends controller {
 				$version1=(int)str_replace('.','',trim(substr($item,$i+3)));
 				$version2=module::version($m);
 				if(!$version2) {
-					core::error('Устанавливаемый модуль требует наличия зависимого модуля &laquo;'.$m.'&raquo; (версия  '.trim(substr($item,$i+3)).').');
+					plushka::error('Устанавливаемый модуль требует наличия зависимого модуля &laquo;'.$m.'&raquo; (версия  '.trim(substr($item,$i+3)).').');
 					return false;
 				}
 				if($version1>(int)str_replace('.','',$version2)) {
-					core::error('Зависимый модуль &laquo;'.$m.'&raquo; имеет версию '.$version2.', но устанавливаемый модуль требует версию '.trim(substr($item,$i+3)).'.');
+					plushka::error('Зависимый модуль &laquo;'.$m.'&raquo; имеет версию '.$version2.', но устанавливаемый модуль требует версию '.trim(substr($item,$i+3)).'.');
 					return false;
 				}
 			}
@@ -178,12 +180,12 @@ class sController extends controller {
 
 	/* Выполняет специальный скрипт установки, если он есть у данного модуля */
 	private static function _install2(&$module) {
-		$s=core::path().'tmp/install.php'; //Должен вернуть false, если установить модуль нельзя и true, если всё нормально
+		$s=plushka::path().'tmp/install.php'; //Должен вернуть false, если установить модуль нельзя и true, если всё нормально
 		if(file_exists($s)) {
 			include($s);
 			if(function_exists('installBefore')) { //"перед установкой"
 				if(!installBefore($module['currentVersion'])) {
-					if(!core::error()) core::error('По неизвестной причине установка модуля невозможна');
+					if(!plushka::error()) plushka::error('По неизвестной причине установка модуля невозможна');
 					return false;
 				}
 			}
@@ -231,7 +233,7 @@ class sController extends controller {
 	private static function _install8(&$module) {
 		$exists=module::fileList($module['id'],(bool)$module['currentVersion']);
 		if(is_array($exists) && !$module['currentVersion']) {
-			core::error('Установка невозможна, так как некоторые файлы уже существуют. Список конфликтов:<ul><li>'.implode('</li><li>',$exists).'</li></ul>');
+			plushka::error('Установка невозможна, так как некоторые файлы уже существуют. Список конфликтов:<ul><li>'.implode('</li><li>',$exists).'</li></ul>');
 			return false;
 		}
 		module::status($module['id'],8);
@@ -247,9 +249,9 @@ class sController extends controller {
 
 	/* Выполняет специальный скрипт, выполняющий какие-либо действия после завершения установки модуля */
 	private static function _install10(&$module) {
-		$f1=core::path().'tmp/install.php';
+		$f1=plushka::path().'tmp/install.php';
 		if(file_exists($f1)) {
-			$f2=core::path().'admin/module/'.$module['id'].'.install.php';
+			$f2=plushka::path().'admin/module/'.$module['id'].'.install.php';
 			copy($f1,$f2);
 			include_once($f1);
 			if(function_exists('installAfter')) { //"после установки"
@@ -262,21 +264,21 @@ class sController extends controller {
 
 	//Первый этап удаления: возможно ли сейчас удалить модуль? */
 	private static function _uninstall1(&$module) {
-		core::import('admin/model/module');
+		plushka::import('admin/model/module');
 		//Запретить удаление, если этот модуль необходим для работы других
 		$depend=module::dependSearch($module['id']);
 		if($depend) {
-			core::error('Этот модуль используется другими модулями: &laquo;'.implode('&raquo;,&laquo;',$depend).'&raquo;. Удаление невозможно.');
+			plushka::error('Этот модуль используется другими модулями: &laquo;'.implode('&raquo;,&laquo;',$depend).'&raquo;. Удаление невозможно.');
 			return false;
 		}
-		$db=core::db();
+		$db=plushka::db();
 		//Запретить удаление, если в меню есть ссылки на страницы этого модуля
 		if(is_array($module['menu'])) $s=implode(',',$module['menu']); else $s=$module['menu'];
 		if($s) $items=$db->fetchArray('SELECT title_'._LANG.' title FROM menu_item WHERE typeId IN('.$s.')'); else $items=null;
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];
-			core::error('Удаление модуля невозможно: существуют ссылки в меню (пункты &laquo;'.$s.'&raquo;). Удалите эти пункты мени и повторите попытку.');
+			plushka::error('Удаление модуля невозможно: существуют ссылки в меню (пункты &laquo;'.$s.'&raquo;). Удалите эти пункты мени и повторите попытку.');
 			return false;
 		}
 		//Запретить удаление, если существуют виджеты этого модуля (по хорошему нужно ещё проверять .ini-файл шаблона)
@@ -289,7 +291,7 @@ class sController extends controller {
 		if($items) {
 			$s='';
 			foreach($items as $item) if($s) $s.='&raquo;,&laquo;'.$item[0]; else $s=$item[0];
-			core::error('Удаление модуля невозможно: существуют созданные виджеты (&laquo;'.$s.'&raquo;). Сначала удалите их.');
+			plushka::error('Удаление модуля невозможно: существуют созданные виджеты (&laquo;'.$s.'&raquo;). Сначала удалите их.');
 			return false;
 		}
 		module::status($module['id'],99);
@@ -299,7 +301,7 @@ class sController extends controller {
 	/* Выполняет непосредственно удаление модуля */
 	private static function _uninstall2(&$module) {
 		//Если существует специальный скрипт удаления, то выполнить сначала его
-		$f=core::path().'admin/module/'.$module['id'].'.install.php';
+		$f=plushka::path().'admin/module/'.$module['id'].'.install.php';
 		if(file_exists($f)) {
 			include($f);
 			if(function_exists('uninstallBefore')) { //"перед удалением"

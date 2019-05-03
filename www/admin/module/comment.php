@@ -12,7 +12,7 @@
 	'controller/comment.php',
 	'public/js/comment.js',
 	'view/widgetComment.php',
-	'model/comment.php',
+	'model/mComment.php',
 	'widget/comment.php'
 )
 );

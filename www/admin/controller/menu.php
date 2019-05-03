@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление меню, скрытым меню и пунктами меню. Виджеты не имеют жёсткой привязки к меню - чтобы дать возможность размещать несколько виджетов одного и того же меню */
 class sController extends controller {
 
@@ -19,10 +21,10 @@ class sController extends controller {
 	/* Создание нового меню. Вызывается при нажатии на "новое меню" при создании виджета "меню" */
 	public function actionItemMenu() {
 		if(isset($_GET['id'])) { //Идентификатор пункта меню задан - загрузить данные
-			$db=core::db();
+			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM menu WHERE id='.(int)$_GET['id']);
 		} else $data=array('id'=>null,'title'=>''); //ИД пункта меню нет - пустой массив
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->text('title','Название',$data['title']);
 		$f->submit('Сохранить');
@@ -30,13 +32,13 @@ class sController extends controller {
 	}
 
 	public function actionItemMenuSubmit($data) {
-		$m=core::model('menu');
+		$m=plushka::model('menu');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
 			'title'=>array('string',true)
 		))) return false;
-		core::redirect('menu/items?menuId='.$data['id']);
+		plushka::redirect('menu/items?menuId='.$data['id']);
 	}
 
 	/* Список пунктов меню */
@@ -44,7 +46,7 @@ class sController extends controller {
 		$menuId=$_GET['menuId'];
 		$this->button('menu/item?menuId='.$menuId,'new','Создать новый пункт меню','Создать');
 		//Подготовить древовидный массив пунктов меню (меню может быть многоуровневым)
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,parentId,link,title_'._LANG.',sort FROM menu_item WHERE menuId='.$db->escape($menuId).' ORDER BY sort');
 		$data=array();
 		while($item=$db->fetch()) {
@@ -52,7 +54,7 @@ class sController extends controller {
 			$data[$item[1]][]=$item;
 		}
 		//Теперь сформировать таблицу рекурсивным вызовом.
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('Заголовок|Ссылка|Порядок|'); //Заголовок таблицы (<tr><th>...</tr>)
 		$this->_buildViewTable($data,$t);
 		return $t;
@@ -69,7 +71,7 @@ class sController extends controller {
 		$data=$d[$parentId];
 		$cnt=count($data);
 		for($i=0;$i<$cnt;$i++) {
-			$table->text(str_repeat("&nbsp;&nbsp; - ",$level).'<a href="'.core::link('admin/menu&action=item&id='.$data[$i][0]).'">'.$data[$i][3].'</a>');
+			$table->text(str_repeat("&nbsp;&nbsp; - ",$level).'<a href="'.plushka::link('admin/menu&action=item&id='.$data[$i][0]).'">'.$data[$i][3].'</a>');
 			$table->text($data[$i][2]);
 			$table->upDown('id='.$data[$i][0],$data[$i][4],$cnt); //Кнопки сортировки (выше/ниже)
 			$table->delete('id='.$data[$i][0],'delete','Подтвердите удаление.\n\nУдаление пункта меню может повлечь удаление соответствующих данных, на которые ссылается это меню.');
@@ -78,7 +80,7 @@ class sController extends controller {
 	}
 
 	public function actionItem() {
-		$db=core::db();
+		$db=plushka::db();
 		if(isset($_GET['id'])) { //Редактирование - загрузить данные
 			$this->data=$db->fetchArrayOnceAssoc('SELECT i.id id,i.parentId parentId,i.menuId menuId,i.link link,i.title_'._LANG.' title,i.typeId typeId,t.controller controller,t.action action FROM menu_item i LEFT JOIN menu_type t ON t.id=i.typeId WHERE i.id='.$_GET['id']);
 			$this->data['type']=array($this->data['typeId'],$this->data['controller'],$this->data['action']);
@@ -100,9 +102,9 @@ class sController extends controller {
 
 	public function actionItemSubmit($data) {
 		unset($_SESSION['_menuId']);
-		$model=core::model('menu_item');
+		$model=plushka::model('menu_item');
 		$model->multiLanguage();
-		$db=core::db();
+		$db=plushka::db();
 		if(!$data['parentId']) $data['parentId']='0';
 		//Подготовить массив с правилами валидации
 		$validate=array(
@@ -130,14 +132,14 @@ class sController extends controller {
 		}
 		$model->set($data);
 		if(!$model->save($validate)) return false;
-		core::success('Изменения сохранены');
-		core::redirect('menu/items?menuId='.$data['menuId']);
+		plushka::success('Изменения сохранены');
+		plushka::redirect('menu/items?menuId='.$data['menuId']);
 	}
 
 	/* Порядок пунктов меню (выше) */
 	public function actionUp() {
 		$id=$_GET['id'];
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT menuId,sort,parentId FROM menu_item WHERE id='.$id);
 		$sort=$data[1]-1;
 		if($data[1]) {
@@ -145,13 +147,13 @@ class sController extends controller {
 			$db->query('UPDATE menu_item SET sort='.$sort.' WHERE id='.$id);
 		}
 		if($data[0]) $menuId='&menuId='.$data[0]; else $menuId='';
-		core::redirect('menu/items'.$menuId);
+		plushka::redirect('menu/items'.$menuId);
 	}
 
 	/* Порядок пунктов меню (ниже) */
 	public function actionDown() {
 		$id=$_GET['id'];
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT menuId,sort,parentId FROM menu_item WHERE id='.$id);
 		$maxSort=$db->fetchValue('SELECT max(sort) FROM menu_item WHERE menuId='.$db->escape($data[0]).' AND parentId='.$data[2]);
 		$sort=$data[1]+1;
@@ -160,24 +162,24 @@ class sController extends controller {
 			$db->query('UPDATE menu_item SET sort='.$sort.' WHERE id='.$id);
 		}
 		if($data[0]) $menuId='&menuId='.$data[0]; else $menuId='';
-		core::redirect('menu/items'.$menuId);
+		plushka::redirect('menu/items'.$menuId);
 	}
 
 	/* Удаление пункта меню */
 	public function actionDelete() {
 		$id=$_GET['id'];
-		$db=core::db();
+		$db=plushka::db();
 		if($db->fetchValue('SELECT 1 FROM menu_item WHERE parentId='.$id)) {
-			core::error('Меню содержит вложенные пункты меню. Удаление невозможно.');
+			plushka::error('Меню содержит вложенные пункты меню. Удаление невозможно.');
 			return false;
 		}
 		$data=$db->fetchArrayOnce('SELECT menuId,link,sort FROM menu_item WHERE id='.$id);
-		if(core::hook('menuItemDelete',$data[1],$data[0])===false) return false; //Очень важное прерывание, которое позволяет модулям удалить неиспользуемые более данные
+		if(plushka::hook('menuItemDelete',$data[1],$data[0])===false) return false; //Очень важное прерывание, которое позволяет модулям удалить неиспользуемые более данные
 		$db->query('UPDATE menu_item SET sort=sort-1 WHERE menuId='.$data[0].' AND sort>'.$data[2]); //Чтобы числа сортировки были "ровными"
 		$db->query('DELETE FROM menu_item WHERE id='.$id);
 		if($data[0]) $menuId='&menuId='.$data[0]; else $menuId='';
-		core::success('Пункт меню удалён');
-		core::redirect('menu/items'.$menuId);
+		plushka::success('Пункт меню удалён');
+		plushka::redirect('menu/items'.$menuId);
 	}
 
 	/* Выводит пункты скрытого меню */
@@ -198,7 +200,7 @@ class sController extends controller {
 	public function actionWidgetList($menuId) {
 		$this->menuId=$menuId;
 		//Ссылка для создания нового меню с последующим возвратом к виджету */
-		$this->newItemLink=core::link('admin/menu&action=itemMenu').'&backlink='.urlencode('admin/section/widget?type=menu&section='.$_GET['section']);
+		$this->newItemLink=plushka::link('admin/menu&action=itemMenu').'&backlink='.urlencode('admin/section/widget?type=menu&section='.$_GET['section']);
 		return 'WidgetList';
 	}
 

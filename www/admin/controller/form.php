@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Контактные формы */
 class sController extends controller {
 
@@ -23,17 +25,17 @@ class sController extends controller {
 
 	public function actionFormSubmit($data) {
 		if(!$this->_formSubmit($data)) return false;
-		core::success('Изменения сохранены');
-		core::redirect('form/form?id='.$data['id']);
+		plushka::success('Изменения сохранены');
+		plushka::redirect('form/form?id='.$data['id']);
 	}
 
 	/* Список полей формы */
 	public function actionField() {
 		$this->button('form/fieldItem?formId='.$_GET['id'],'new','Добавить поле');
 		//Заполнить строки в модели table
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('Заголовок|Тип поля|Обязательное||');
-		$db=core::db();
+		$db=plushka::db();
 		$items=$db->fetchArray('SELECT id,title_'._LANG.',htmlType,required,sort FROM frm_field WHERE formId='.$_GET['id'].' ORDER BY sort');
 		$type=array('text'=>'текстовое поле','radio'=>'переключатель','select'=>'выпадающий список','checkbox'=>'да/нет','textarea'=>'многострочный текст','email'=>'E-mail','file'=>'файл','captcha'=>'каптча');
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
@@ -51,13 +53,13 @@ class sController extends controller {
 	/* Создание или редактирование одного поля формы */
 	public function actionFieldItem() {
 		if(isset($_GET['id'])) { //редактирование поля - загрузить данные по умолчанию
-			$db=core::db();
+			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frm_field WHERE id='.$_GET['id']);
 			$data['value']=str_replace('|',"\n",$data['data']);
 		} else $data=array('id'=>null,'title'=>'','htmlType'=>'text','required'=>0,'value'=>'','defaultValue'=>'');
 		if(isset($_POST['form'])) $formId=$_POST['form']['formId']; else $formId=$_GET['formId'];
 		//Сформировать HTML-форму
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('formId',$formId);
 		$f->text('title','Название',$data['title']);
@@ -82,44 +84,44 @@ class sController extends controller {
 	}
 
 	public function actionFieldItemSubmit($data) {
-		core::import('admin/model/frmField');
+		plushka::import('admin/model/frmField');
 		$frmField=new frmField();
 		$frmField->set($data);
 		if(!$frmField->save()) return false;
-		core::redirect('form/field?id='.$data['formId']);
+		plushka::redirect('form/field?id='.$data['formId']);
 	}
 
 	/* Изменить порядок полей: поднять выше */
 	public function actionUp() {
-		$db=core::db();
+		$db=plushka::db();
 		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$_GET['id']);
 		if($current) {
 			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(--$current));
 			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$_GET['id']);
 		}
-		core::redirect('form/field?id='.$_GET['formId']);
+		plushka::redirect('form/field?id='.$_GET['formId']);
 	}
 
 	/* Изменить порядок полей: спустить ниже */
 	public function actionDown() {
-		$db=core::db();
+		$db=plushka::db();
 		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$_GET['id']);
 		$max=(int)$db->fetchValue('SELECT MAX(sort) FROM frm_field WHERE formId='.$_GET['formId']);
 		if($current!=$max) {
 			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(++$current));
 			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$_GET['id']);
 		}
-		core::redirect('form/field?id='.$_GET['formId']);
+		plushka::redirect('form/field?id='.$_GET['formId']);
 	}
 
 	/* Удалить поле формы */
 	public function actionFieldDelete() {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT sort,formId FROM frm_field WHERE id='.$_GET['id']);
-		if(!$data) core::error404();
+		if(!$data) plushka::error404();
 		$db->query('UPDATE frm_field SET sort=sort-1 WHERE formId='.$data[1].' AND sort>'.$data[0]);
 		$db->query('DELETE FROM frm_field WHERE id='.$_GET['id']);
-		core::redirect('form/field?id='.$data[1]);
+		plushka::redirect('form/field?id='.$data[1]);
 	}
 /* ----------------------------------------------------------------------------------- */
 
@@ -162,7 +164,7 @@ class sController extends controller {
 		//Загрузить данные формы в зависимости от того, что содержится в $data:
 		//это может быть ассоциативный массив, содержащий все настройки, число - идентификатор формы или NULL
 		if($data && !is_array($data)) {
-			$db=core::db();
+			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script,notification FROM frm_form WHERE id='.$data);
 			if(!$data['email']) $data['emailSource']='no';
 			elseif($data['email']=='cfg') $data['emailSource']='cfg';
@@ -177,7 +179,7 @@ class sController extends controller {
 		}
 		if($data['notification']==='') $data['notification']=array('transport'=>null,'userId'=>null);
 		else $data['notification']=json_decode($data['notification'],true);
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('cacheTime',30);
 		$f->text('title','Заголовок страницы',$data['title']);
@@ -188,7 +190,7 @@ class sController extends controller {
 		$f->text('redirect','Редирект после отправки формы',$data['redirect']);
 		$s='<b>Редирект</b> - URL адрес, на который будет осуществлён переход после успешной отправки формы.';
 		//Только для суперпользователя показывать поля, связанные со сложной обработкой данных формы
-		if(core::userGroup()==255) {
+		if(plushka::userGroup()==255) {
 			$f->text('formView','Индивидуальное представление',$data['formView']);
 			$f->text('script','PHP-скрипт',$data['script'],'id="script"');
 			$s.='<br />Не меняйте содержимое полей <b>индивидуальное представление</b> и <b>PHP-скрипт</b> если вы не уверены в их предназначении.';
@@ -197,9 +199,9 @@ class sController extends controller {
 			$f->hidden('script',$data['script']);
 		}
 
-		if(core::moduleExists('notification')) {
-			core::import('model/notification');
-			$transport=notification::transportList(core::userId(),true);
+		if(plushka::moduleExists('notification')) {
+			plushka::import('model/notification');
+			$transport=notification::transportList(plushka::userId(),true);
 			//исключить уведомления e-mail
 			foreach($transport as $i=>$item) if($item->id()==='email') {
 				unset($transport[$i]);
@@ -221,7 +223,7 @@ class sController extends controller {
 
 	/* Выполняет валидацию и сохранение данных формы в БД */
 	private function _formSubmit($data) {
-		$m=core::model('frm_form');
+		$m=plushka::model('frm_form');
 		$validate=array(
 			'id'=>array('primary'),
 			'title'=>array('string','заголовок страницы',true),

@@ -1,4 +1,9 @@
-<?php class notificationEmail extends notification {
+<?php
+namespace plushka\model;
+use plushka;
+use plushka\core\Email;
+
+class NotificationEmail extends Notification {
 
 	public function title() {
 		return 'E-mail';
@@ -9,17 +14,16 @@
 	}
 
 	public function send($message) {
-		core::import('core/email');
-		$email=new email();
-		if($this->userId==core::userId()) $recepient=core::user()->email;
-		else $recepient=core::db()->fetchValue('SELECT email FROM user WHERE id='.(int)$this->userId);
+		$email=new Email();
+		if($this->userId==plushka::userId()) $recepient=plushka::user()->email;
+		else $recepient=plushka::db()->fetchValue('SELECT email FROM user WHERE id='.(int)$this->userId);
 		if(!$recepient) return false;
 		if($user->email) {
 			$fromEmail=$user->email;
 			$fromName=$user->login;
 		} else {
-			if($this->fromEmail==='cfg') $fromEmail=core::config('_core','adminEmailEmail'); else $fromEmail=$this->fromEmail;
-			if($this->fromName==='cfg') $fromName=core::config('_core','adminEmailName'); else $fromName=$this->fromName;
+			if($this->fromEmail==='cfg') $fromEmail=plushka::config('_core','adminEmailEmail'); else $fromEmail=$this->fromEmail;
+			if($this->fromName==='cfg') $fromName=plushka::config('_core','adminEmailName'); else $fromName=$this->fromName;
 		}
 		$email->from($fromEmail,$fromName);
 		$email->replyTo($fromEmail,$fromName);

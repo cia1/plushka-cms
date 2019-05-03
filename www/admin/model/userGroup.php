@@ -1,6 +1,8 @@
 <?php
+namespace plushka\admin\core;
+
 /* Объект "группа пользователей */
-core::import('core/model');
+plushka::import('core/model');
 class userGroup extends model {
 
 	public function __construct() {
@@ -46,7 +48,7 @@ class userGroup extends model {
 	/* Удаляет группу пользователей */
 	public function delete($id=null,$affected=false) {
 		$id=(int)$id;
-		if(!$id) core::redirect('user/group');
+		if(!$id) plushka::redirect('user/group');
 		$items=$this->db->fetchArray('SELECT module,groupId FROM user_right');
 		foreach($items as $item) {
 			$group=explode(',',$item[1]);

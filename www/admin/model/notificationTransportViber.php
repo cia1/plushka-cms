@@ -1,4 +1,7 @@
-<?php class notificationTransportViber extends notificationTransport {
+<?php
+namespace plushka\admin\core;
+
+class notificationTransportViber extends notificationTransport {
 
 	public function formAppend($form) {
 		$form->text('viber][groupId','ID группы Viber',$this->groupId);
@@ -9,17 +12,17 @@
 
 	public function form2Setting($data) {
 		if(!isset($data['status']['viber'])) return null;
-		$url=core::url(false,true);
+		$url=plushka::url(false,true);
 		if(substr($url,0,8)!=='https://') {
-			core::error('Необходимо чтобы сайт работал по протоколу HTTPS');
+			plushka::error('Необходимо чтобы сайт работал по протоколу HTTPS');
 			return;
 		}
-		$cfg=core::config('viber');
-		core::import('model/request');
+		$cfg=plushka::config('viber');
+		plushka::import('model/request');
 		$request=new request();
 		$request->custom('X-Viber-Auth-Token',$data['viber']['token'],true);
 		$result=$request->post('https://chatapi.viber.com/pa/set_webhook',json_encode(array(
-			'url'=>core::url(false,true).'index2.php?controller=viber&action=hook',
+			'url'=>plushka::url(false,true).'index2.php?controller=viber&action=hook',
 			'event_types'=>array(
 //				'subscribed',
 //				'unsubscribed',
@@ -30,7 +33,7 @@
 		)));
 		$answer=json_decode($request->content(),true);
 		if($answer['status']!==0) {
-			core::error('Ошибка Viber: '.$answer['status_message']);
+			plushka::error('Ошибка Viber: '.$answer['status_message']);
 			return null;
 		}
 

@@ -1,5 +1,8 @@
 <?php
-abstract class payment {
+namespace plushka\model;
+use plushka;
+
+abstract class Payment {
 
 	abstract public function formData($paymentId,$amount=null); //Воздващает массив, описывающй HTML-форму для отправки на платёжный сервер
 	abstract public function getPaymentId($action); //Должен вернуть номер платежа, извлекая его из _POST-данных
@@ -12,7 +15,7 @@ abstract class payment {
 	//Если $form=true, то будут возвращены формы для каждого вида платежа, в противном случае только список методов платежей
 	public static function getList($form=true,$additionalData=null) {
 		$data=array();
-		$cfg=core::config('payment');
+		$cfg=plushka::config('payment');
 		foreach($cfg as $id=>$item) {
 			if($item['rate']<=0) continue;
 			if($form) {
@@ -27,11 +30,11 @@ abstract class payment {
 
 	//Возвращает экземпляр класса платёжного метода с именем $name
 	public static function instance($name,$additionalData=null) {
-		$name=core::translit($name);
-		$f=core::path().'model/payment-'.$name.'.php';
+		$name=plushka::translit($name);
+		$f=plushka::path().'model/Payment'.ucfirst($name).'.php';
 		if(!file_exists($f)) {
-			core::language('payment');
-			core::error(LNGPaymentMethodIsNotValid);
+			plushka::language('payment');
+			plushka::error(LNGPaymentMethodIsNotValid);
 			return false;
 		}
 		include_once($f);
@@ -45,7 +48,7 @@ abstract class payment {
 	public static function getInfo($id) {
 		$id=(int)$id;
 		if(!$id) return false;
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnceAssoc('SELECT * FROM payment WHERE id='.$id);
 		if($data['data'] && $data['data'][0]=='{') $data['data']=json_decode($data['data'],true);
 		return $data;
@@ -53,7 +56,7 @@ abstract class payment {
 
 	//Обновляет сохранённую ранее в базе данных информацию о платеже
 	public static function updatePaymentInfo($paymentInfo) {
-		$db=core::db();
+		$db=plushka::db();
 		$query='';
 		if(isset($paymentInfo['method']) && $paymentInfo['method']) {
 			if($query) $query.=',';
@@ -79,13 +82,13 @@ abstract class payment {
 	protected $sandbox;
 
 	function __construct() {
-		$cfg=core::config('payment');
+		$cfg=plushka::config('payment');
 		$this->sandbox=$cfg['sandbox'];
 	}
 
 	//Генерирует HTML-форму кнопки "оплатить"
 	public function formRender($amount=null,$commission=true) {
-		core::language('payment');
+		plushka::language('payment');
 		$rate=$this->config();
 		$rate=$rate['rate'];
 		$amount=$amount*$rate;
@@ -122,14 +125,14 @@ abstract class payment {
 
 	protected function config() {
 		$system=lcfirst(substr(get_class($this),7));
-		$cfg=core::config('payment');
+		$cfg=plushka::config('payment');
 		if(!isset($cfg[$system])) return null;
 		return $cfg[$system];
 	}
 
 	//Генерирует и возвращает номер платежа (первичный ключ таблицы payment), сохраняет сопутствующую платежу информацию
 	private static function _initPaymentId($additionalData=null) {
-		$db=core::db();
+		$db=plushka::db();
 		if(isset($_SESSION['paymentId'])) { //если статус платежа не "request", то инициализировать новый платёж
 			if(!$db->fetchValue('SELECT 1 FROM payment WHERE id='.$_SESSION['paymentId'].' AND status='.$db->escape('request'))) {
 				unset($_SESSION['paymentId']);
@@ -146,7 +149,7 @@ abstract class payment {
 			$_SESSION['paymentId']=$db->insertId();
 			return $_SESSION['paymentId'];
 		} elseif($additionalData) {
-			$db=core::db();
+			$db=plushka::db();
 			$db->query('UPDATE payment SET data='.$db->escape(json_encode($additionalData)).' WHERE id='.$_SESSION['paymentId']);
 		}
 		return $_SESSION['paymentId'];

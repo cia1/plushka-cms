@@ -1,2 +1,2 @@
 <p><?=LNGRequestHasGot?></p>
-<p><a href="<?=core::url()?>"><?=LNGToMain?></a></p>
+<p><a href="<?=plushka::url()?>"><?=LNGToMain?></a></p>

@@ -1,5 +1,7 @@
 <?php
-core::import('core/form');
+namespace plushka\admin\core;
+
+plushka::import('core/form');
 class formEx extends form {
 
 	//Добавляет к форме часто используемые поля (title, alias, metaTitle, metaDescription, metaKeyword)

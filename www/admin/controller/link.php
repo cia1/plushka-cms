@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Реализует произвольную ссылку в меню */
 class sController extends controller {
 
@@ -11,7 +13,7 @@ class sController extends controller {
 /* ---------- MENU ------------------------------------------------------------------- */
 /* Произвольная ссылка в меню */
 public function actionMenuLink() {
-	$f=core::form();
+	$f=plushka::form();
 	$f->text('link','Ссылка',$_GET['link']);
 	$f->submit('Продолжить');
 	return $f;

@@ -1,17 +1,20 @@
 <?php
 //Этот файл является частью фреймворка. Внесение изменений не рекомендуется.
+namespace plushka\admin\core;
+require_once(__DIR__.'/../../core/core.php');
+
 error_reporting(E_ALL);
 ini_set('display_errors',1);
 
 /* ---------- CORE ------------------------------------------------------------------- */
 /* Базовый класс, содержит основные статические методы */
-class core {
+class core extends \plushka\core\core {
 
 	private static $_template='default'; //Имя используемого шаблона
 
 	//Возвращает true, если модуль с указанным ID установлен
 	public static function moduleExists($id) {
-		$f=core::path().'admin/module/'.self::translit($id).'.php';
+		$f=plushka::path().'admin/module/'.self::translit($id).'.php';
 		return file_exists($f);
 	}
 
@@ -58,7 +61,7 @@ class core {
 
 	/* Возвращает true если включён отладочный режим и false в противном случае */
 	public static function debug() {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		if(isset($cfg['debug']) && $cfg['debug']) return true; else return false;
 	}
 
@@ -67,9 +70,9 @@ class core {
 	public static function &config($name='_core',$attribute=null) {
 		static $_cfg;
 		if(!isset($_cfg[$name])) {
-			if($name==='admin') $f=core::path().'admin/config/_core.php';
-			elseif(substr($name,0,6)==='admin/') $f=core::path().'admin/config/'.substr($name,6).'.php';
-			else $f=core::path().'config/'.$name.'.php';
+			if($name==='admin') $f=plushka::path().'admin/config/_core.php';
+			elseif(substr($name,0,6)==='admin/') $f=plushka::path().'admin/config/'.substr($name,6).'.php';
+			else $f=plushka::path().'config/'.$name.'.php';
 			if(file_exists($f)) $_cfg[$name]=include($f); else $_cfg[$name]=null;
 		}
 		if($attribute===null) return $_cfg[$name];
@@ -80,7 +83,7 @@ class core {
 
 	/* Подключает указанный php-скрипт */
 	public static function import($name) {
-		include_once(core::path().$name.'.php');
+		include_once(plushka::path().$name.'.php');
 	}
 
 	//Возвращает относительный URL до корня сайта.
@@ -92,23 +95,23 @@ class core {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
 				$_url=str_replace(array('\\','admin'),array('/',''),dirname($_SERVER['SCRIPT_NAME']));
 			} else { //CGI-запрос
-				$cfg=core::config('cgi');
+				$cfg=plushka::config('cgi');
 				$_url=$cfg['url'];
 			}
 		}
 		$url=$_url;
 		if($lang===true) {
-			$cfg=core::config();
+			$cfg=plushka::config();
 			if($cfg['languageDefault']!=_LANG) $url.=_LANG.'/';
 		} elseif($lang) {
-			$cfg=core::config();
+			$cfg=plushka::config();
 			if($cfg['languageDefault']!=$lang) $url.=$lang.'/';
 		}
 		if($domain) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
 				$url='://'.$_SERVER['HTTP_HOST'].$url;
 			} else {
-				$cfg=core::config('cgi');
+				$cfg=plushka::config('cgi');
 				$url=$cfg['host'].$_url;
 			}
 			if(isset($_SERVER['HTTPS'])) {
@@ -138,7 +141,7 @@ class core {
 	}
 
 	/* Возвращает "истинного" пользователя несмотря на режим подмены пользователя */
-	public static function userCore() { return self::user(); }
+	public static function &userCore() { return self::user(); }
 
 	/* Возвращает идентификатор текущего пользователя и "0" если пользователь не авторизован */
 	public static function userId() {
@@ -151,20 +154,20 @@ class core {
 	Если задан $newQuery, то будет открыто новое подключение */
 	public static function sqlite($newQuery=false) {
 		static $_sqlite;
-		if(!$_sqlite) core::import('admin/core/sqlite3');
-		if($newQuery) return new sqliteExt(core::path().'data/database3.db');
-		if(!$_sqlite) $_sqlite=new sqliteExt(core::path().'data/database3.db');
+		if(!$_sqlite) plushka::import('admin/core/sqlite3');
+		if($newQuery) return new sqliteExt(plushka::path().'data/database3.db');
+		if(!$_sqlite) $_sqlite=new sqliteExt(plushka::path().'data/database3.db');
 		return $_sqlite;
 	}
 
 	/* Возвращает экземпляр класса для работы с базой данных MySQL
 	Если задан $newQuery, то будет открыто новое подключение */
 	public static function mysql($newQuery=false) {
-		static $_mysql;
-		if(!$_mysql) core::import('admin/core/mysqli');
-		if($newQuery) return new mysqlExt();
-		if(!$_mysql) $_mysql=new mysqlExt();
-		return $_mysql;
+		static $_mysqli;
+		if(!$_mysqli) plushka::import('admin/core/mysqli');
+		if($newQuery) return new mysqlExti();
+		if(!$_mysqli) $_mysqli=new mysqlExti();
+		return $_mysqli;
 	}
 
 	/* Возвращает экземпляр класса для работы СУБД, указанной в настройках
@@ -186,13 +189,13 @@ class core {
 
 	/* Возвращает группу пользователей, к которой относится текущий пользователь */
 	public static function userGroup() {
-		$u=core::user();
+		$u=plushka::user();
 		return $u->group;
 	}
 
 	/* Возвращает права пользователя */
 	public static function userRight() {
-		$u=core::user();
+		$u=plushka::user();
 		return $u->right;
 	}
 
@@ -224,7 +227,7 @@ class core {
 	public static function linkPublic($link,$lang=true,$domain=false) {
 		static $_link;
 		static $_main;
-		if(!$link) return core::url($lang,$domain);
+		if(!$link) return plushka::url($lang,$domain);
 		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://' || $link[0]=='/') return $link;
 		if(!isset($_link)) {
 			$cfg=self::config();
@@ -261,7 +264,7 @@ class core {
 				foreach($options as $index=>$value) $f.=$index.$value;
 			} else $f=$options;
 			$f=md5($f);
-			$cacheFile=core::path().'admin/cache/widget/'.$name.'.'.$f.'.html';
+			$cacheFile=plushka::path().'admin/cache/widget/'.$name.'.'.$f.'.html';
 			if(file_exists($cacheFile)) {
 				$f=filemtime($cacheFile)+$cacheTime*60;
 				if($f>time()) {
@@ -272,13 +275,13 @@ class core {
 			ob_start();
 		}
 		$f='widget'.$name;
-		include_once(core::path().'widget/'.$name.'.php');
+		include_once(plushka::path().'widget/'.$name.'.php');
 		$w=new $f($options,$link);
 		$view=$w();
 		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
 			echo '<section class="widget'.$name.'">';
 			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
-//			$user=core::userCore();
+//			$user=plushka::userCore();
 //			if($user->group>=200) {
 //				$admin=new admin();
 //				$link=$w->adminLink();
@@ -300,19 +303,19 @@ class core {
 
 	/* Возвращает экземпляр класса form (конструктор HTML-форм). Если $namespace не задан, то будет использовано имя запрошенного контроллера */
 	public static function form($url=null) {
-		if(class_exists('formEx')===false) include(core::path().'admin/core/form.php');
+		if(class_exists('formEx')===false) include(plushka::path().'admin/core/form.php');
 		return new formEx($url);
 	}
 
 	/* Возвращает экземпляр класса table, служащего для генерации HTML-таблиц (<table>) */
 	public static function table($html=null) {
-		if(!class_exists('table')) include(core::path().'admin/core/html.php');
+		if(!class_exists('table')) include(plushka::path().'admin/core/html.php');
 		return new table($html);
 	}
 
 	//Возвращает экземляр класса валидатора и инициализирует атрибутами, если $attribute указан
 	public static function validator($attribute=null) {
-		core::import('core/validator');
+		plushka::import('core/validator');
 		$validator=new $validator();
 		if($attribute) $validator->set($attribute);
 		return $validator;
@@ -322,15 +325,15 @@ class core {
 	public static function model($table,$db='db') {
 		if(substr($table,0,6)==='admin/') {
 			$table=substr($table,6);
-			core::import('admin/model/'.$table);
+			plushka::import('admin/model/'.$table);
 			return new $table();
 		}
-		$f=core::path().'model/'.$table.'.php';
+		$f=plushka::path().'model/'.$table.'.php';
 		if(file_exists($f)) {
 			include_once($f);
 			return new $table();
 		}
-		if(!class_exists('modelEx')) include(core::path().'admin/core/modelEx.php');
+		if(!class_exists('modelEx')) include(plushka::path().'admin/core/modelEx.php');
 		return new modelEx($table,$db);
 	}
 
@@ -342,25 +345,25 @@ class core {
 			unset($_GET['backlink']);
 			$message='';
 		}
-		if($message) core::success($message);
-		if($message || core::success()) {
+		if($message) plushka::success($message);
+		if($message || plushka::success()) {
 			if(isset($_GET['_front'])) {
 				echo '<div id="content">';
-				echo '<div class="messageSuccess">'.core::success(false).'</div>';
+				echo '<div class="messageSuccess">'.plushka::success(false).'</div>';
 				echo '</div>';
-				echo '<link href="'.core::url().'admin/public/template/front.css" rel="stylesheet" type="text/css" media="screen" /><script type="text/javascript" src="'.core::url().'public/js/jquery.min.js"></script>
-				<script type="text/javascript" src="'.core::url().'admin/public/js/front.js"></script>
+				echo '<link href="'.plushka::url().'admin/public/template/front.css" rel="stylesheet" type="text/css" media="screen" /><script type="text/javascript" src="'.plushka::url().'public/js/jquery.min.js"></script>
+				<script type="text/javascript" src="'.plushka::url().'admin/public/js/front.js"></script>
 				<script>setTimeout(function() { top.window.location=top.window.location.href; },2000);</script>';
 				exit;
 			}
 		}
-		header('Location: '.core::link('admin/'.$url),true,$code);
+		header('Location: '.plushka::link('admin/'.$url),true,$code);
 		exit;
 	}
 
 	/* Выполняет редирект в общедоступной части сайта */
 	public static function redirectPublic($url) {
-		if($url[0]!='/') $url=core::url().$url;
+		if($url[0]!='/') $url=plushka::url().$url;
 		if(isset($_GET['_front'])) {
 			echo '<script>top.document.location="'.$url.'";</script>';
 			exit;
@@ -374,10 +377,10 @@ class core {
 		if(isset($_GET['_front'])) echo '<div class="messageError">Запрошенная страница не существует :(</div>';
 		else {
 			header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
-			controller::$self->url[0]='error';
-			controller::$self->error(404);
+			plushka::$controller->url[0]='error';
+			plushka::$controller->error(404);
 			$code=404;
-			controller::$self->render($code);
+			plushka::$controller->render($code);
 		}
 		exit;
 	}
@@ -404,48 +407,40 @@ class core {
 		return (isset($_SESSION['messageSuccess']) ? $_SESSION['messageSuccess'] : null);
 	}
 
-	/* Возвращает HTML-тег <script src...> или пустую строку, если скрипт уже подключен. Используется чтобы избежать повторного подключение JavaScript.
-	$name - имя скрипта, если скрипт находится на сайте, то указывать относительный путь от /public/js, имя должно быть без ".js" */
-	public static function js($name) {
-		static $_js;
-		if(!$_js) $_js=array();
-		if(in_array($name,$_js)) return '';
-		$_js[]=$name;
-		if(substr($name,0,5)!='http:') $name=core::url().'public/js/'.$name.'.js';
-		return '<script type="text/javascript" src="'.$name.'"></script>';
-	}
-
 	public static function scriptAdmin($name) {
 		static $_script;
 		if(!$_script) $_script=array();
 		if(in_array($name,$_script)) return '';
 		$_script[]=$name;
-		return '<script type="text/javascript" src="'.core::url().'admin/public/js/'.$name.'.js"></script>';
+		return '<script type="text/javascript" src="'.plushka::url().'admin/public/js/'.$name.'.js"></script>';
 	}
 
-	/* Генерирует событие (прерывание).
-	Параметры: 1й - системное имя события, 2й и последующие - индивидуальны для каждого события */
-	public static function hook() {
-		$data=func_get_args();
-		$name=array_shift($data);
-		$d=opendir(core::path().'admin/hook');
+	/**
+	 * Генерирует событие
+	 * Обработчики события - это файлы /hook/$name.{module}.php
+	 * @param string $name Имя события (файлы )
+	 * @param mixed ...$data Произвольные данные, которые будут доступны в обработчике события
+	 * @return mixed|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
+	 */
+	public static function hook($name,...$data) {
+		$d=opendir(plushka::path().'admin/hook');
 		$result=array();
 		$len=strlen($name);
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..') continue;
 			if(substr($f,0,$len)!=$name) continue;
 			$tmp=self::_hook($f,$data);
-			if($tmp===false || $tmp===null) {
+			if($tmp===false) {
 				closedir($d);
 				return false;
-			}
-			$result[]=$tmp;
+			} elseif($tmp!==null) $result[]=$tmp;
 		}
+		closedir($d);
 		return $result;
 	}
 
 	private static function _hook($name,$data) {
-		if(!include(core::path().'admin/hook/'.$name)) return false; else return true;
+		if(!include(plushka::path().'admin/hook/'.$name)) return false; else return true;
 	}
 
 }
@@ -459,7 +454,6 @@ class controller {
 	public $url; //предназначен для сохранения запрошенного URL (в виде массива, содержащего два элемента)
 	protected $metaTitle='';
 	public $pageTitle=''; //отображаемый заголовок, если задан, то будет выведен в теге <H1 class="pageTitle">
-	public static $self; //содержит ссылку на контроллер, чтобы предоставить к нему доступ всем желающим
 	protected $cite=''; //краткий комментарий
 	private $_button=''; //HTML код кнопок
 
@@ -472,18 +466,18 @@ class controller {
 
 	/* Служит для подключения JavaScript или других тегов в область <head> */
 	public function js($text) {
-		if($text[0]!='<') $text=core::js($text);
+		if($text[0]!='<') $text=plushka::js($text);
 		$this->_head.=$text;
 	}
 
 	public function scriptAdmin($text) {
-		if($text[0]!='<') $text=core::scriptAdmin($text);
+		if($text[0]!='<') $text=plushka::scriptAdmin($text);
 		$this->_head.=$text;
 	}
 
 	/* Служит для подключения CSS или других тегов в область <head> */
 	protected function style($text) {
-		if($text[0]!='<') $text='<link type="text/css" rel="stylesheet" href="'.core::url().'admin/public/css/'.$text.'.css" />';
+		if($text[0]!='<') $text='<link type="text/css" rel="stylesheet" href="'.plushka::url().'admin/public/css/'.$text.'.css" />';
 		$this->_head.=$text;
 	}
 
@@ -492,20 +486,19 @@ class controller {
 	public function button($link,$image,$title='',$alt='',$html='') {
 		if($link==='html') $this->_button.=$image;
 		else {
-			$this->_button.='<a href="'.core::link('admin/'.$link).'"'.($html ? ' '.$html : '').'><img src="'.core::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
+			$this->_button.='<a href="'.plushka::link('admin/'.$link).'"'.($html ? ' '.$html : '').'><img src="'.plushka::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
 		}
 	}
 
 	/* Генерирует HTML-код (шаблон, теги в <head>, кнопки админки, представление)
 	$view - представление (null, строка или объект); $renderTemplate - если true, то выводится контент без шаблона (для AJAX-запросов) */
 	public function render($view,$renderTemplate=true) {
-		if(!core::template()) $renderTemplate=false;
+		if(!plushka::template()) $renderTemplate=false;
 		if(!$view) return; //Если нет представления, то ничего не выводить
 		if($renderTemplate) { //Вывести верхнюю часть шаблона
-			$s=core::path().'admin/cache/template/'.core::template().'Head.php';
-			if(!file_exists($s) || core::debug()) {
-				core::import('core/cache');
-				cache::template(core::template());
+			$s=plushka::path().'admin/cache/template/'.plushka::template().'Head.php';
+			if(!file_exists($s) || plushka::debug()) {
+				\plushka\core\cache::template(plushka::template());
 			}
 			include($s);
 			if($this->pageTitle) echo '<h1 class="pageTitle">'.$this->pageTitle.'</h1>';
@@ -513,19 +506,18 @@ class controller {
 		if($this->_button) echo '<div class="_operation">'.$this->_button.'</div>'; //Кнопки
 		//Сообщение об ошибке (если есть)
 		if(isset($_SESSION['messageError'])) {
-			echo '<div class="messageError">'.core::error(false).'</div>';
+			echo '<div class="messageError">'.plushka::error(false).'</div>';
 		}
 
 		//Сообщение об успехе (если был редирект с сообщением)
 		if(isset($_SESSION['messageSuccess'])) {
-			echo '<div class="messageSuccess">'.core::success(false).'</div>';
+			echo '<div class="messageSuccess">'.plushka::success(false).'</div>';
 		}
-//		if(is_object($view)) $view->render('?controller='.$this->url[0].'&action='.$this->url[1]);
 		if(is_object($view)) $view->render();
-		elseif($view=='_empty') include(core::path().'admin/view/_empty.php');
-		else include(core::path().'admin/view/'.$this->url[0].$view.'.php');
+		elseif($view=='_empty') include(plushka::path().'admin/view/_empty.php');
+		else include(plushka::path().'admin/view/'.$this->url[0].$view.'.php');
 		if($this->cite) echo '<cite>'.$this->cite.'</cite>'; //Поясняющий текст
-		if($renderTemplate) include(core::path().'admin/cache/template/'.core::template().'Footer.php'); //Нижняя часть шаблона
+		if($renderTemplate) include(plushka::path().'admin/cache/template/'.plushka::template().'Footer.php'); //Нижняя часть шаблона
 		elseif(!isset($_GET['_front'])) echo '<div style="clear:both;"></div>';
 		if($renderTemplate && isset($_GET['_front'])) {
 			$f='help'.$this->url[1];
@@ -563,12 +555,12 @@ class widget {
 //	public function adminLink() { return array(); }
 
 	public function render($view) {
-		if($view!==true) include(core::path().'view/widget'.$view.'.php');
+		if($view!==true) include(plushka::path().'view/widget'.$view.'.php');
 	}
 
 	/* Выводит HTML-код кнопок админки для ЭЛЕМЕНТА СПИСКА */
 //	public function admin($data) {
-//		$u=core::userCore();
+//		$u=plushka::userCore();
 //		if($u->group<200) return;
 //		$admin=new admin();
 //		$link=$this->adminLink2($data);
@@ -582,7 +574,7 @@ class widget {
 
 
 /* --- USER --- */
-//Класс "пользователь" всегда находится в сессии, получить экземляр можно при помощи core::user() и core::usercore()
+//Класс "пользователь" всегда находится в сессии, получить экземляр можно при помощи plushka::user() и plushka::usercore()
 class user {
 	public $id;
 	public $login;
@@ -597,7 +589,7 @@ class user {
 	public function model($id=null) {
 		static $model;
 		if(!isset($model)) {
-			core::import('model/user');
+			plushka::import('model/user');
 			$model=new modelUser($id,$this);
 		}
 		return $model;
@@ -610,36 +602,36 @@ class user {
 /* С этой функции начинается вся основная работа */
 function runApplication($renderTemplate=true) {
 	session_start();
-	controller::$self=new sController($_GET['corePath'][1]);
-	$alias=controller::$self->url[0];
+	plushka::$controller=new sController($_GET['corePath'][1]);
+	$alias=plushka::$controller->url[0];
 	//Проверка прав доступа к запрошенной странице
-	$user=core::user();
-	if($alias!='user' || controller::$self->url[1]!='Login') {
-		if($user->group<200) core::redirect('user/login');
+	$user=plushka::user();
+	if($alias!='user' || plushka::$controller->url[1]!='Login') {
+		if($user->group<200) plushka::redirect('user/login');
 		if($user->group!=255) {
-			if(!method_exists(controller::$self,'right')) {
-				core::error('Недостаточно прав для доступа к разделу');
-				core::redirect('user/login');
+			if(!method_exists(plushka::$controller,'right')) {
+				plushka::error('Недостаточно прав для доступа к разделу');
+				plushka::redirect('user/login');
 			}
-			$right=controller::$self->right();
-			if(!isset($right[controller::$self->url[1]])) {
-				core::error('Недостаточно прав для доступа к разделу');
-				core::redirect('user/login');
+			$right=plushka::$controller->right();
+			if(!isset($right[plushka::$controller->url[1]])) {
+				plushka::error('Недостаточно прав для доступа к разделу');
+				plushka::redirect('user/login');
 			}
-			$right=explode(',',$right[controller::$self->url[1]]);
+			$right=explode(',',$right[plushka::$controller->url[1]]);
 			foreach($right as $item) {
 				if($item=='*') continue;
 				if(!isset($user->right[$item])) {
-					core::error('Недостаточно прав для доступа к разделу');
-					core::redirect('user/login');
+					plushka::error('Недостаточно прав для доступа к разделу');
+					plushka::redirect('user/login');
 				}
 			}
 		}
 	}
 	//Запуск submit-действия
 	if(isset($_POST[$alias])) {
-		$s='action'.controller::$self->url[1].'Submit';
-		if(method_exists('sController',$s)===false) core::error404();
+		$s='action'.plushka::$controller->url[1].'Submit';
+		if(method_exists('sController',$s)===false) plushka::error404();
 		//Подготовить данные _POST и _FILES для передачи submit-действию
 		if(isset($_FILES[$alias])) {
 			$f1=$_FILES[$alias];
@@ -652,11 +644,11 @@ function runApplication($renderTemplate=true) {
 				} else $_POST[$alias][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
 			}
 		}
-		$post=$_POST[controller::$self->url[0]];
-		@$data=controller::$self->$s($post);
+		$post=$_POST[plushka::$controller->url[0]];
+		@$data=plushka::$controller->$s($post);
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
 		if(isset($_GET['_serialize'])) {
-			if(core::error()) die(core::error(false));
+			if(plushka::error()) die(plushka::error(false));
 			echo "OK\n";
 			if(isset($post['cacheTime']) || (is_array($data) && isset($data['cacheTime']))) {
 				echo $post['cacheTime'];
@@ -668,16 +660,16 @@ function runApplication($renderTemplate=true) {
 		}
 	} else $data=null;
 	//Запуск "обычного" действия
-	if(controller::$self->url[1]) {
-		$s='action'.sController::$self->url[1];
-		if(method_exists('sController',$s)===false) core::error404();
+	if(plushka::$controller->url[1]) {
+		$s='action'.splushka::$controller->url[1];
+		if(method_exists('sController',$s)===false) plushka::error404();
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
 		if(isset($_GET['_serialize'])===true && isset($_POST['data'])===true) {
-			if(substr($_POST['data'],0,2)=='a:' && $_POST['data'][strlen($_POST['data'])-1]=='}') $view=controller::$self->$s(unserialize($_POST['data']));
-			else $view=controller::$self->$s($_POST['data']);
-		} else $view=controller::$self->$s($data);
+			if(substr($_POST['data'],0,2)=='a:' && $_POST['data'][strlen($_POST['data'])-1]=='}') $view=plushka::$controller->$s(unserialize($_POST['data']));
+			else $view=plushka::$controller->$s($_POST['data']);
+		} else $view=plushka::$controller->$s($data);
 	}
-	controller::$self->render($view,$renderTemplate);
+	plushka::$controller->render($view,$renderTemplate);
 }
 
 /* --- INITIALIZE _GET-variables --- */
@@ -685,7 +677,7 @@ header('Content-type:text/html; Charset=utf-8');
 
 //Обработать запрошенный URL и положить его в $_GET['corePath']
 if(!isset($_GET['controller'])) {
-	$cfg=core::config('admin');
+	$cfg=plushka::config('admin');
 	$_GET['corePath']=explode('/',$cfg['mainPath']);
 	if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]='Index';
 	unset($cfg);
@@ -693,9 +685,3 @@ if(!isset($_GET['controller'])) {
 	$_GET['corePath']=array($_GET['controller']);
 	if(isset($_GET['action'])) $_GET['corePath'][1]=$_GET['action']; else $_GET['corePath'][1]='Index';
 }
-if(isset($_GET['_lang'])) define('_LANG',$_GET['_lang']); else {
-	$cfg=core::config();
-	define('_LANG',$cfg['languageDefault']);
-	unset($cfg);
-}
-core::import('language/global.'._LANG);

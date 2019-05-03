@@ -1,5 +1,5 @@
-<?=core::js('jquery.min')?>
-<?=core::js('viberSetting')?>
+<?=plushka::js('jquery.min')?>
+<?=plushka::js('viberSetting')?>
 <div id="viberSettingButton">
 	<p>Чтобы получать уведомления через Viber, необходимо подключить ваш телефон.</p>
 	<input type="button" onclick="viberSettingInit();" value="Подключить уведомления Viber" class="button">

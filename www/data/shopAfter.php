@@ -12,7 +12,7 @@ function formatPrice($price) {
 
 if($this->form['email']) {
 	if(!$this->form['subject']) $this->form['subject']='Сообщение с сайта '.$_SERVER['HTTP_HOST'];
-	core::import('core/email');
+	plushka::import('core/email');
 	$e=new email();
 	$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 	$e->subject($this->form['subject']);
@@ -23,7 +23,7 @@ if($this->form['email']) {
 	}
 	$d['form'].='</table>';
 	$ids=implode(',',array_keys($_SESSION['cart']));
-	$db=core::db();
+	$db=plushka::db();
 	$db->query('SELECT id,title,price FROM shp_product WHERE id IN('.$ids.')');
 	$d['cart']='<table><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th></tr>';
 	$totalQuantity=$totalCost=0;
@@ -41,6 +41,6 @@ if($this->form['email']) {
 	$e->send($this->form['email']);
 }
 unset($_SESSION['cart']);
-$cfg=core::config('shop');
-core::redirect('form/'.$cfg['formId'].'/success');
+$cfg=plushka::config('shop');
+plushka::redirect('form/'.$cfg['formId'].'/success');
 ?>

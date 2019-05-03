@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\core;
+
 /* Библиотека для установки и удаления модулей */
 class module {
 
@@ -27,12 +29,12 @@ class module {
 
 	/* Возвращает список установленных модулей */
 	public static function getList() {
-		return core::config('admin/_module');
+		return plushka::config('admin/_module');
 	}
 
 	/* Возвращает массив с информацией о модуле, находящемся в директории /tmp */
 	public static function info() {
-		$f=core::path().'tmp/module.ini';
+		$f=plushka::path().'tmp/module.ini';
 		if(!file_exists($f)) return false;
 		$f=file($f);
 		$cnt=count($f);
@@ -57,7 +59,7 @@ class module {
 		if(!isset($data['author'])) $data['author']=null;
 		if(!isset($data['description'])) $data['description']=null;
 		if(!isset($data['depend'])) $data['depend']=null;
-		$cfg=core::config('admin/_module');
+		$cfg=plushka::config('admin/_module');
 		if(isset($cfg[$data['id']])) {
 			$data['status']=$cfg[$data['id']]['status'];
 			if(isset($cfg[$data['id']]['verstion'])) $data['currentVersion']=$cfg[$data['id']]['version'];
@@ -72,7 +74,7 @@ class module {
 	/* Создаёт конфигурацию нового модуля
 	string $id - системное имя модуля; string $name - название модуля; string $version - версия модуля; string $url - веб-старица модуля */
 	public static function create($id,$name,$version,$url='',$currentVersion=null) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config();
 		$cfg->right='';
 		$cfg->widget='';
@@ -93,7 +95,7 @@ class module {
 	/* Устанавливает статус $status для модуля с именем $id */
 	public static function status($id,$status) {
 		if(!self::$_config) {
-			core::import('admin/core/config');
+			plushka::import('admin/core/config');
 			self::$_config=new config('admin/_module');
 		}
 		$s=self::$_config->get($id);
@@ -106,7 +108,7 @@ class module {
 	/* Устанавливает зависимости от других модулей $depend для модуля с именем $id */
 	public static function depend($id,$depend) {
 		if(!$depend) return true;
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('../admin/module/'.$id);
 		$cfg->depend=$depend;
 		$cfg->save('../admin/module/'.$id);
@@ -115,8 +117,8 @@ class module {
 
 	/* Создаёт набор прав доступа $right для модуля с именем $id и обновляет конфигурацию модуля */
 	public static function right($id,$right) {
-		core::import('admin/core/config');
-		$db=core::db();
+		plushka::import('admin/core/config');
+		$db=plushka::db();
 		//Построить SQL-запросы
 		$s1=$s2='';
 		foreach($right as $i=>$item) {
@@ -147,8 +149,8 @@ class module {
 
 	/* Создаёт типы виджетов в базе данных и обновляет конфигурацию модуля */
 	public static function widget($id,$widget) {
-	core::import('admin/core/config');
-		$db=core::db();
+	plushka::import('admin/core/config');
+		$db=plushka::db();
 		//Построить SQL-запросы для удаления типов виджетов (если есть) и создания их вновь
 		$s1=$s2='';
 		foreach($widget as $i=>$item) {
@@ -179,8 +181,8 @@ class module {
 
 	/* Создаёт типы меню, а также обновляет конфигурацию модуля с именем $id */
 	public static function menu($id,$menu) {
-		core::import('admin/core/config');
-		$db=core::db();
+		plushka::import('admin/core/config');
+		$db=plushka::db();
 		//Составить и выполнить SQL-запросы для удаления создания вновь типов меню
 		$s='';
 		foreach($menu as $item) {
@@ -209,10 +211,10 @@ class module {
 
 	/* Выполняет SQL-запросы установки модуля (/tmp/instal.СУБД.sql) и сохраняет информацию о созданных таблицах */
 	public static function sql($id) {
-		$cfg0=core::config();
-		$f=core::path().'tmp/install.'.$cfg0['dbDriver'].'.sql'; //это файл для установки модуля
+		$cfg0=plushka::config();
+		$f=plushka::path().'tmp/install.'.$cfg0['dbDriver'].'.sql'; //это файл для установки модуля
 		if(!file_exists($f)) return true;
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$sql=file_get_contents($f);
 		//Извлечь имена создаваемых таблиц и записать в файл
 		preg_match_all('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))`?([a-zA-Z0-9_]+)`?\s/is',$sql,$table);
@@ -222,7 +224,7 @@ class module {
 		$cfg->save('../admin/module/'.$id);
 
 		//Теперь поочерёдно выполнить все SQL-запросы
-		$db=core::db();
+		$db=plushka::db();
 		$cnt=strlen($sql);
 		$quote=$escape=false;
 		$i0=0;
@@ -240,7 +242,7 @@ class module {
 				if(!$quote) $quote=$sql[$i]; else $quote=null;
 			} elseif($sql[$i]==';' && !$quote) { //конец очередного sql-запроса
 				if(!self::_executeLanguage(trim(substr($sql,$i0,($i-$i0))))) {
-					core::error('Ошибка выполнения SQL-запросов');
+					plushka::error('Ошибка выполнения SQL-запросов');
 					return false;
 				}
 				$i0=$i+1;
@@ -251,10 +253,10 @@ class module {
 
 	//Выполняет SQL-запрос с учётом мультиязынчх преобразований
 	private static function _executeLanguage($sql) {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		$lang=$cfg['languageList'];
 		//Если это создание мультиязычной таблицы
-		$db=core::db();
+		$db=plushka::db();
 		if(preg_match('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))`?([a-zA-Z0-9_]+_LANG)`?\s/is',$sql,$table)) {
 			$table=$table[1];
 			$langTable=substr($table,0,strlen($table)-4); //имя таблицы без префикса языка
@@ -289,7 +291,7 @@ class module {
 		$exists=array();
 		$data=self::_scanDirectory('',$exists);
 		if($exists && !$continueIfExists) return $exists; //Если какие-то файлы уже существуют, то прервать установку
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('../admin/module/'.$id);
 		$cfg->file=$data;
 		$cfg->save('../admin/module/'.$id);
@@ -298,9 +300,9 @@ class module {
 
 	/* Копирует файлы из /tmp в директории движка */
 	public static function copy($id) {
-		$file=core::config('admin/../module/'.$id);
+		$file=plushka::config('admin/../module/'.$id);
 		$file=$file['file'];
-		$path2=str_replace('\\','/',core::path());
+		$path2=str_replace('\\','/',plushka::path());
 		$path1=$path2.'tmp/';
 		foreach($file as $i=>$item) {
 			$f1=$path1.$item;
@@ -312,8 +314,8 @@ class module {
 
 	/* Разрушает все таблицы, созданные модулем, а также удаляет информцию о типах меню и виджетах */
 	public static function dropDb($module) {
-		$db=core::db();
-		$lang=core::config();
+		$db=plushka::db();
+		$lang=plushka::config();
 		$lang=$lang['languageList'];
 		foreach($module['table'] as $item) {
 			if(substr($item,strlen($item)-5)=='_LANG') {
@@ -340,7 +342,7 @@ class module {
 	/* Удаляет список файлов $file */
 	public static function unlink($file) {
 		$cnt=count($file)-1;
-		$path=core::path();
+		$path=plushka::path();
 		$languageFile=array();
 		for($i=$cnt;$i>=0;$i--) {
 			if(substr($file[$i],0,11)=='data/email/' || substr($file[$i],0,9)=='language/') {
@@ -352,7 +354,7 @@ class module {
 				if(!self::clearDirectory($s)) return false;
 			} elseif(file_exists($s)) {
 				if(!unlink($s)) {
-					core::error('Не удаётся удалить файл &laquo;'.$s.'&raquo;');
+					plushka::error('Не удаётся удалить файл &laquo;'.$s.'&raquo;');
 					return false;
 				}
 			}
@@ -362,9 +364,9 @@ class module {
 
 	/* Удаляет информацию о модуле и его конфигурационный файл */
 	public static function delete($id) {
-		unlink(core::path().'admin/module/'.$id.'.php');
+		unlink(plushka::path().'admin/module/'.$id.'.php');
 		if(!self::$_config) {
-			core::import('admin/core/config');
+			plushka::import('admin/core/config');
 			self::$_config=new config('admin/_module');
 		}
 		unset(self::$_config->$id);
@@ -374,18 +376,18 @@ class module {
 
 	/* Возвращает версию модуля $name или false, если модуль не установлен */
 	public static function version($name) {
-		$cfg=core::config('admin/_module');
+		$cfg=plushka::config('admin/_module');
 		if(!isset($cfg[$name]) || $cfg[$name]['status']!=100) return false;
 		return $cfg[$name]['version'];
 	}
 
 	/* Возвращает список модулей, которые завият от модуля с именем $module */
 	public static function dependSearch($module) {
-		$cfg=core::config('admin/_module');
+		$cfg=plushka::config('admin/_module');
 		$found=array();
 		foreach($cfg as $id=>$data) {
 			if($id=='core') continue;
-			$m=core::config('admin/../module/'.$id);
+			$m=plushka::config('admin/../module/'.$id);
 			if(!isset($m['depend'])) continue;
 			$s=explode(',',$m['depend']);
 			foreach($s as $item) {
@@ -399,7 +401,7 @@ class module {
 
 	/* Возвращает список файлов и директориев в /tmp/$path, в $exists сохраняет список уже существующих файлов */
 	private static function _scanDirectory($path,&$exists) {
-		$path1=core::Path();
+		$path1=plushka::Path();
 		$path0=$path1.'tmp/'.$path;
 		$d=opendir($path0);
 		$data=array();
@@ -429,7 +431,7 @@ class module {
 				if(!self::clearDirectory($f)) return false;
 			} else {
 				if(!unlink($f)) {
-					core::error('Не удаётся удалить файл &laquo;'.$f.'&raquo;');
+					plushka::error('Не удаётся удалить файл &laquo;'.$f.'&raquo;');
 					return false;
 				}
 			}
@@ -437,7 +439,7 @@ class module {
 		closedir($d);
 		if($self) {
 			if(!rmdir($path)) {
-				core::error('Не удаётся удалить директорий &laquo;'.$path.'&raquo;');
+				plushka::error('Не удаётся удалить директорий &laquo;'.$path.'&raquo;');
 				return false;
 			}
 		}
@@ -449,7 +451,7 @@ class module {
 		$i=strrpos($f,'/')+1;
 		$name=preg_replace('|\.[a-z][a-z]\.|','.??.',substr($f,$i));
 		$f=substr($f,0,$i).$name;
-		$f=glob(core::path().$f,GLOB_NOSORT);
+		$f=glob(plushka::path().$f,GLOB_NOSORT);
 		foreach($f as $item) unlink($item);
 	}
 }

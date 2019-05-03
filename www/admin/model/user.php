@@ -1,7 +1,9 @@
 <?php
+namespace plushka\admin\core;
+
 /* Объект "пользователь". */
-core::import('model/user');
-core::language('user');
+plushka::import('model/user');
+plushka::language('user');
 
 class userAdmin extends modelUser {
 
@@ -32,7 +34,7 @@ class userAdmin extends modelUser {
 
 	/* Удаляет пользователя */
 	public function delete($id=null,$affected=false) {
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('DELETE FROM user_message WHERE user1Id='.$id.' OR user2Id='.$id);
 		$db->query('DELETE FROM user WHERE id='.$id);
 		return true;

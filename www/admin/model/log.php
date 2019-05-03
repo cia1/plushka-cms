@@ -1,15 +1,17 @@
 <?php
+namespace plushka\admin\core;
+
 define('LOG_LIMIT_ON_PAGE',300); //Количество строк на одной странице
 class log implements Iterator {
 
 	//Возвращает список настроенных журналов (файлы /tmp/*.log, имеющие соответствующий конфигурационный файл)
 	public static function getList() {
-		$path=core::path().'tmp/';
+		$path=plushka::path().'tmp/';
 		$d=opendir($path);
 		$data=array();
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..' || substr($f,-4)!='.log') continue;
-			$cfg=core::path().'admin/config/'.$f.'.php';
+			$cfg=plushka::path().'admin/config/'.$f.'.php';
 			if(!file_exists($cfg)) continue;
 			$cfg=include($cfg);
 			$data[]=array('file'=>$f,'title'=>$cfg['title']);
@@ -27,10 +29,10 @@ class log implements Iterator {
 
 	function __construct($file,$keyword=null,$page=-1,$limit=LOG_LIMIT_ON_PAGE) {
 		//Анализ конфигурационного файла (/admin/config/$file.log.php), подготовка формата
-		$file=core::translit($file); //фильтр имени файла
-		$field=core::config('admin/'.$file);
+		$file=plushka::translit($file); //фильтр имени файла
+		$field=plushka::config('admin/'.$file);
 		if(!$field) {
-			core::error('Журнал '.$file.' не настроен');
+			plushka::error('Журнал '.$file.' не настроен');
 			return false;
 		}
 		//Подготовка $field - список полей с описанием типа.
@@ -48,14 +50,14 @@ class log implements Iterator {
 			case 'callback':
 				$y=strrpos($param,'.');
 				$f=substr($param,0,$y);
-				core::import($f);
+				plushka::import($f);
 				$param=substr($param,$y+1);
 			}
 			$field[$i]=array($field[$i][0],$type,$param);
 		}
 		$this->_field=$field;
 		//Перенести указатель чтения на нужную позицию в файле
-		$this->_file=fopen(core::path().'tmp/'.$file,'r');
+		$this->_file=fopen(plushka::path().'tmp/'.$file,'r');
 		$this->_count=self::_foundRows($this->_file,$keyword);
 		if($page===null) $this->_offset=$this->_count-$limit;
 		elseif($page==0) $this->_offset=0;

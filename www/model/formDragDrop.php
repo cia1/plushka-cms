@@ -1,7 +1,10 @@
 <?php
+namespace plushka\model;
+use plushka;
+use plushka\core\Form;
+
 //Расширенная форма: содержит drag&drop поле для загрузки файлов
-core::import('core/form');
-class formDragDrop extends form {
+class FormDragDrop extends \plushka\core\Form {
 
 	public function __construct($namespace=null) {
 		parent::__construct($namespace);
@@ -10,11 +13,11 @@ class formDragDrop extends form {
 	/* Поле для загрузки файла (<input type="file")
 	$name - имя поля формы, $label - отображаемый заголовок, $fileCount - разрешить выбирать несколько файлов, $html - произвольный текст, который будет присоединён к тегу <input> */
 	public function fileDragDrop($name,$label,$fileCount=1,$jsCallBack=null) {
-		controller::$self->js('jquery.min','defer');
-		controller::$self->js('formDragDrop','defer');
-		core::language('formDragDrop');
-		controller::$self->js('LNGFileAlreadyUploaded');
-		controller::$self->js('LNGFileMaximumAlreadyUploaded');
+		plushka::$controller->js('jquery.min','defer');
+		plushka::$controller->js('formDragDrop','defer');
+		plushka::language('formDragDrop');
+		plushka::$controller->js('LNGFileAlreadyUploaded');
+		plushka::$controller->js('LNGFileMaximumAlreadyUploaded');
 		$this->_data.='<dt class="fileDragDrop">'.$label.':</dt><dd class="fileDragDrop">'.$this->getFileDragDrop($name,$fileCount,$jsCallBack).'</dd>';
 	}
 
@@ -22,13 +25,13 @@ class formDragDrop extends form {
 	public function getFileDragDrop($name,$fileCount=1,$jsCallBack=null) {
 		static $_index;
 		if(!$_index) {
-			$html='<link href="'.core::url().'public/css/formDragDrop.css" rel="stylesheet" />';
-			core::language('formDragDrop');
-			echo core::js('jquery.min','defer');
-			echo core::js('formDragDrop','defer');
-			echo core::js('LNGFileAlreadyUploaded');
-			echo core::js('LNGFileMaximumAlreadyUploaded');
-			$path=core::path().'tmp/upload/';
+			$html='<link href="'.plushka::url().'public/css/formDragDrop.css" rel="stylesheet" />';
+			plushka::language('formDragDrop');
+			echo plushka::js('jquery.min','defer');
+			echo plushka::js('formDragDrop','defer');
+			echo plushka::js('LNGFileAlreadyUploaded');
+			echo plushka::js('LNGFileMaximumAlreadyUploaded');
+			$path=plushka::path().'tmp/upload/';
 			$d=opendir($path);
 			$time=time()-3600;
 			while($f=readdir($d)) {
@@ -42,7 +45,7 @@ class formDragDrop extends form {
 			$_SESSION['_uploadFolder']='tmp/upload/';
 			$_SESSION['_uploadList']=array();
 		} else $html='';
-		$path=core::path().'tmp/upload/';
+		$path=plushka::path().'tmp/upload/';
 		if(!is_dir($path)) mkdir($path);
 		$_index++;
 		$html.='<div class="fileDropBox" id="fileDropBox_'.$_index.'">'.LNGDropOrClick.'.<br /><input type="file"';

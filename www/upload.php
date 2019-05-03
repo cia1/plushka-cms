@@ -6,8 +6,8 @@ if(isset($_SESSION['_uploadTimeLimit'])) {
 }
 
 include(__DIR__.'/core/core.php');
-core::language('global');
-$fileName=core::translit($_FILES['upload']['name']);
+plushka::language('global');
+$fileName=plushka::translit($_FILES['upload']['name']);
 $ext=strtolower(substr($fileName,strrpos($fileName,'.')+1));
 switch($ext) {
 case 'jpeg': case 'jpg': case 'png': case 'gif': case 'xls': case 'docx': case 'doc': case 'zip': case 'gzip': case 'rar': case '7zip': case 'pdf':
@@ -16,19 +16,19 @@ default:
 	_die('You cannot upload this file');
 }
 
-$f=core::path().$_SESSION['_uploadFolder'].$fileName;
+$f=plushka::path().$_SESSION['_uploadFolder'].$fileName;
 if(file_exists($f)) {
 	$fileName=str_replace(array('.',' '),'',microtime()).'_'.$fileName;
-	$f=core::path().$_SESSION['_uploadFolder'].$fileName;
+	$f=plushka::path().$_SESSION['_uploadFolder'].$fileName;
 }
-if(!move_uploaded_file($_FILES['upload']['tmp_name'],core::path().$_SESSION['_uploadFolder'].$fileName)) _die('Cannot move file');
+if(!move_uploaded_file($_FILES['upload']['tmp_name'],plushka::path().$_SESSION['_uploadFolder'].$fileName)) _die('Cannot move file');
 if(isset($_SESSION['_uploadList'])) {
-	$_SESSION['_uploadList'][$fileName]=array('tmpName'=>core::path().$_SESSION['_uploadFolder'].$fileName,'type'=>$_FILES['upload']['type'],'size'=>$_FILES['upload']['size']);
+	$_SESSION['_uploadList'][$fileName]=array('tmpName'=>plushka::path().$_SESSION['_uploadFolder'].$fileName,'type'=>$_FILES['upload']['type'],'size'=>$_FILES['upload']['size']);
 }
 die(json_encode(array(
 	'uploaded'=>1,
 	'fileName'=>$fileName,
-	'url'=>core::url().$_SESSION['_uploadFolder'].$fileName
+	'url'=>plushka::url().$_SESSION['_uploadFolder'].$fileName
 )));
 
 function _die($message) {

@@ -10,7 +10,7 @@ return true;
 
 /* Удаляет статью или блог, если на них больше нет ссылок */
 function _articleDelete($link) {
-	$db=core::db();
+	$db=plushka::db();
 	if($db->fetchValue('SELECT count(id) FROM menu_item WHERE link='.$db->escape($link))!='1') return true;
 	$alias=substr($link,13);
 	$db->query('DELETE FROM article WHERE alias='.$db->escape($alias));
@@ -19,16 +19,16 @@ function _articleDelete($link) {
 
 /* Удаляет категорию статей, если на неё есть только одна ссылка $link */
 function _blogDelete($link) {
-	$db=core::db();
+	$db=plushka::db();
 	if($db->fetchValue('SELECT count(id) FROM menu_item WHERE link='.$db->escape($link))!='1') return true;
 	$alias=substr($link,13);
 	$id=$db->fetchValue('SELECT id FROM article_category_'._LANG.' WHERE alias='.$db->escape($alias));
 
-	core::import('admin/model/objectLink');
+	plushka::import('admin/model/objectLink');
 	$param=array('categoryId'=>$id);
 	$cnt=modelObjectLink::fromSectionWidget('blog',$param)+modelObjectLink::fromTemplateWidget('blog',$param);
 	if($cnt) return true;
-	$cfg=core::config();
+	$cfg=plushka::config();
 	if(isset($cfg['languageList'])) $languageList=$cfg['languageList']; else $languageList=array($cfg['languageDefault']);
 	foreach($languageList as $item) {
 		$db->query('DELETE FROM article_category_'.$item.' WHERE id='.$id);

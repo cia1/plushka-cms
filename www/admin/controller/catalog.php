@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Универсальный каталог */
 class sController extends controller {
 
@@ -22,9 +24,9 @@ class sController extends controller {
 	/* Настройка полей каталога */
 	public function actionLayoutData() {
 		$this->button('catalog/layoutDataItem?lid='.$_GET['lid'],'new','Добавить поле');
-		$layout=core::config('catalogLayout/'.(int)$_GET['lid']); //конфигурация каталога
+		$layout=plushka::config('catalogLayout/'.(int)$_GET['lid']); //конфигурация каталога
 		//Сформировать таблицу, в которой перечислены все существующие поля
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('#|Заголовок|Тип|');
 		$t->row('<tr><td style="color:gray;width:120px;">title</td><td style="color:gray">Заголовок/название</td><td style="color:gray;">специальный</td><td></td></tr>');
 		$t->row('<tr><td style="color:gray">alias</td><td style="color:gray">Псевдоним</td><td style="color:gray;">специальный</td><td></td></tr>');
@@ -37,14 +39,14 @@ class sController extends controller {
 			$t->text(self::_typeDescription($item[1])); //текстовое описание типа поля
 			$t->itemDelete('lid='.$_GET['lid'].'&id='.$id,'layoutData');
 		}
-		$this->cite='Здесь представлен список всех полей записи. Серым цветом выделены системные поля, их удалить или изменить нельзя. Порядок полей задаётся на страницах &laquo;<a href="'.core::link('admin/catalog/layoutView?lid='.$_GET['lid'].'&view=view1').'">Макет списка</a>&raquo; и &laquo;<a href="'.core::link('admin/catalog/layoutView?lid='.$_GET['lid'].'&view=view2').'">Макет записи</a>&raquo;';
+		$this->cite='Здесь представлен список всех полей записи. Серым цветом выделены системные поля, их удалить или изменить нельзя. Порядок полей задаётся на страницах &laquo;<a href="'.plushka::link('admin/catalog/layoutView?lid='.$_GET['lid'].'&view=view1').'">Макет списка</a>&raquo; и &laquo;<a href="'.plushka::link('admin/catalog/layoutView?lid='.$_GET['lid'].'&view=view2').'">Макет записи</a>&raquo;';
 		return $t;
 	}
 
 	/* Создание/изменение поля */
 	public function actionLayoutDataItem() {
 		if(isset($_GET['lid'])) $layoutId=(int)$_GET['lid']; else $layoutId=(int)$_POST['catalog']['lid'];
-		$cfg=core::config('catalogLayout/'.$layoutId);
+		$cfg=plushka::config('catalogLayout/'.$layoutId);
 		if(isset($_GET['id'])) { //изменение
 			$data=$cfg['data'][$_GET['id']];
 			$id=$_GET['id'];
@@ -56,7 +58,7 @@ class sController extends controller {
 			}
 			$id='fld'.$id;
 		}
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('layoutId',$layoutId);
 		if($data[1]=='image' || $data[1]=='gallery') {
 			if($data['width'][0]=='<') {
@@ -120,11 +122,11 @@ class sController extends controller {
 
 	public function actionLayoutDataItemSubmit($data) {
 		$layoutId=(int)$data['layoutId'];
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('catalogLayout/'.$layoutId);
 		$layoutData=$cfg->data;
 		if(!$data['title']) {
-			core::error('Поле &laquo;заголовок&raquo; не может быть пустым');
+			plushka::error('Поле &laquo;заголовок&raquo; не может быть пустым');
 			return false;
 		}
 		//Проверить уникальность и валидность идентификатора, если он был изменён
@@ -133,26 +135,26 @@ class sController extends controller {
 		if($id!=$oldId) {
 			$id=trim($id);
 			if(!preg_match('/^[a-zA-Z0-9_]+$/',$id)) {
-				core::error('Поле &laquoидентификатор&raquo; может содержать только латинские буквы, цифры и знак "_"');
+				plushka::error('Поле &laquoидентификатор&raquo; может содержать только латинские буквы, цифры и знак "_"');
 				return false;
 			}
 			$_id=strtoupper($id);
 			if(in_array($_id,array('ID','ALIAS','TITLE','METATITLE','METAKEYWORD','METADESCRIPTION','SELECT','UPDATE','ALTER','DROP','ASC','DESC','AS','LIMIT','NULL','IN','DISTINCT','FROM','BETWEEN','JOIN','LEFT','RIGHT','WHERE','ORDER','BY','HAVING','GROUP'))) {
-				core::error('Идентификатор не может быть '.$_id);
+				plushka::error('Идентификатор не может быть '.$_id);
 				return false;
 			}
 			if(isset($cfg->data[$id])) {
-				core::error('Поле с таким идентификатором уже существует');
+				plushka::error('Поле с таким идентификатором уже существует');
 				return false;
 			}
 		}
 		if(isset($cfg->data[$oldId])) $isNew=false; else $isNew=true;
 		//Обновить структуру таблицы catalog_ИД - изменить тип поля
-		$db=core::db();
+		$db=plushka::db();
 		if($isNew) {
 			$db->alterAdd('catalog_'.$layoutId,$id,self::_type($data['type']));
 		} else $db->alterChange('catalog_'.$layoutId,$oldId,$id,self::_type($data['type']));
-		if(core::error()) return false;
+		if(plushka::error()) return false;
 		//Обновить данные о поле в конфигурации каталога
 		$fld=$cfg->data;
 		$d=array($data['title'],$data['type']);
@@ -202,13 +204,13 @@ class sController extends controller {
 			}
 		}
 
-		core::redirect('catalog/layoutData?lid='.$layoutId);
+		plushka::redirect('catalog/layoutData?lid='.$layoutId);
 	}
 
 	/* Удаление поля (это не совсем верно, т.к. нужно ещё удалять изображения для image и gallery */
 	public function actionLayoutDataDelete() {
 		//Удалить поле из конфигурации (список всех полей)
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('catalogLayout/'.$_GET['lid']);
 		$data=$cfg->data;
 		unset($data[$_GET['id']]);
@@ -233,14 +235,14 @@ class sController extends controller {
 		$cfg->view2=$view;
 		$cfg->save('catalogLayout/'.$_GET['lid']);
 		//Удалить поле из таблицы catalog_ИД
-		$db=core::db();
+		$db=plushka::db();
 		$db->alterDrop('catalog_'.$_GET['lid'],$_GET['id']);
-		core::redirect('catalog/layoutData?lid='.$_GET['lid']);
+		plushka::redirect('catalog/layoutData?lid='.$_GET['lid']);
 	}
 
 	/* Настройка макета списка или макета элемента */
 	public function actionLayoutView() {
-		$cfg=core::config('catalogLayout/'.(int)$_GET['lid']); //конфигурация каталога
+		$cfg=plushka::config('catalogLayout/'.(int)$_GET['lid']); //конфигурация каталога
 		$this->layout=array();
 		$tmpIndex=array();
 		//Загрузить в $this->layout отмеченные поля
@@ -269,7 +271,7 @@ class sController extends controller {
 	}
 
 	public function actionLayoutViewSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('catalogLayout/'.$_GET['lid']);
 		$view=array();
 		foreach($data['index'] as $index) {
@@ -282,15 +284,15 @@ class sController extends controller {
 			$cfg->sort=$data['sort'];
 		}
 		$cfg->save('catalogLayout/'.$_GET['lid']);
-		core::success('Макет сохранён');
-		core::redirect('catalog/layoutView?lid='.$_GET['lid'].'&view='.$data['view']);
+		plushka::success('Макет сохранён');
+		plushka::redirect('catalog/layoutView?lid='.$_GET['lid'].'&view='.$data['view']);
 	}
 
 	/* Редактирование вступительного текста на странице со списком элементов каталога */
 	public function actionText() {
-		$text1=core::path().'data/catalog/'.$_GET['lid'].'.html'; //текст хранится в этом файле
+		$text1=plushka::path().'data/catalog/'.$_GET['lid'].'.html'; //текст хранится в этом файле
 		if(file_exists($text1)) $text1=file_get_contents($text1); else $text1='';
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('lid',$_GET['lid']);
 		$f->editor('text1','Введение',$text1);
 		$f->submit('Сохранить');
@@ -298,27 +300,27 @@ class sController extends controller {
 	}
 
 	public function actionTextSubmit($data) {
-		$f=core::path().'data/catalog/'.$data['lid'].'.html';
+		$f=plushka::path().'data/catalog/'.$data['lid'].'.html';
 		if(!$data['text1']) unlink($f);
 		else {
 			$f=fopen($f,'w');
 			fwrite($f,$data['text1']);
 			fclose($f);
 		}
-		core::success('Изменения сохранены');
-		core::redirect('catalog?lid='.$data['lid']);
+		plushka::success('Изменения сохранены');
+		plushka::redirect('catalog?lid='.$data['lid']);
 	}
 
 	/* Создание или изменение элемента каталога */
 	public function actionItem() {
 		if(isset($_GET['lid'])) $lid=$_GET['lid']; else $lid=$_POST['catalog']['lid'];
 		if(isset($_GET['id'])) { //редактирование элемента - загрузить данные
-			$db=core::db();
+			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM catalog_'.$lid.' WHERE id='.$_GET['id']);
 		} else $data=array('id'=>null,'title'=>'','alias'=>null,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
 		//Настоить форму
-		$cfg=core::config('catalogLayout/'.$lid);
-		$f=core::form();
+		$cfg=plushka::config('catalogLayout/'.$lid);
+		$f=plushka::form();
 		$f->hidden('lid',$lid);
 		$f->hidden('id',$data['id']);
 		$f->text('title','Заголовок/название',$data['title']);
@@ -341,7 +343,7 @@ class sController extends controller {
 				break;
 			case 'image':
 				$f->file($id,$item[0]);
-				$f->html('<dt style="height:102px;"></dt><dd style="height:102px;"><img src="'.core::url().'public/catalog/'.$data[$id].'" style="max-height:100px;" /></dd>');
+				$f->html('<dt style="height:102px;"></dt><dd style="height:102px;"><img src="'.plushka::url().'public/catalog/'.$data[$id].'" style="max-height:100px;" /></dd>');
 				$data[$id]=false;
 				break;
 			case 'list':
@@ -355,7 +357,7 @@ class sController extends controller {
 				if($data[$id]) $gallery=explode('|',$data[$id]); else $gallery=array();
 				$html='';
 				foreach($gallery as $i=>$g) {
-					$html.='<a href="'.core::link('admin/catalog/galleryDelete?lid='.$lid.'&id='.$data['id'].'&fld='.$id.'&index='.$i).'" title="Удалить"><img src="'.core::url().'public/catalog/'.$g.'" style="width:40px;" /></a>';
+					$html.='<a href="'.plushka::link('admin/catalog/galleryDelete?lid='.$lid.'&id='.$data['id'].'&fld='.$id.'&index='.$i).'" title="Удалить"><img src="'.plushka::url().'public/catalog/'.$g.'" style="width:40px;" /></a>';
 				}
 				$f->html('<dd class="gallery"s>'.$html.'</dd>');
 				break;
@@ -372,8 +374,8 @@ class sController extends controller {
 
 	public function actionItemSubmit($data) {
 		$oldId=(int)$data['id'];
-		$cfg=core::config('catalogLayout/'.$data['lid']);
-		$m=core::model('catalog_'.$data['lid']);
+		$cfg=plushka::config('catalogLayout/'.$data['lid']);
+		$m=plushka::model('catalog_'.$data['lid']);
 		$m->set($data);
 		$validate=array(
 			'id'=>array('primary'),
@@ -384,7 +386,7 @@ class sController extends controller {
 			'metaDescription'=>array('string')
 		);
 		$uploadImage=$uploadGallery=array(); //тут будет информация о загруженных изображениях, заполняется в процессе перебора всех полей
-		$db=core::db();
+		$db=plushka::db();
 		$old=''; //SQL-запрос на выборку старых данных для удаления файлов изображений, если они будут заменены
 		//Теперь перебрать все поля и настроить валидатор
 		foreach($cfg['data'] as $id=>$item) {
@@ -413,7 +415,7 @@ class sController extends controller {
 				if(!$img['size']) continue;
 				$ext=strtolower(substr($img['name'],strrpos($img['name'],'.')+1));
 				if($ext!='gif' && $ext!='jpg' && $ext!='jpeg' && $ext!='png') {
-					core::error('Файл в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должен быть изображением');
+					plushka::error('Файл в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должен быть изображением');
 					return false;
 				}
 				$uploadImage[]=$id;
@@ -427,7 +429,7 @@ class sController extends controller {
 				for($i=0,$cnt=count($img);$i<$cnt;$i++) {
 					$ext=strtolower(substr($img[$i]['name'],strrpos($img[$i]['name'],'.')+1));
 					if($ext!='gif' && $ext!='jpg' && $ext!='jpeg' && $ext!='png') {
-						core::error('Файлы в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должны быть изображениями');
+						plushka::error('Файлы в поле &laquo;'.$cfg['data'][$id][0].'&raquo; должны быть изображениями');
 						return false;
 					}
 					if(!in_array($id,$uploadGallery)) $uploadGallery[]=$id;
@@ -440,10 +442,10 @@ class sController extends controller {
 		//Запись сохранена в БД. Теперь загрузить новые изображения и удалить старые (для полей типа "image" и "gallery")
 		$q='';
 		if($old) $old=$db->fetchArrayOnceAssoc('SELECT '.$old.' FROM catalog_'.$data['lid'].' WHERE id='.$oldId);
-		if($uploadImage || $uploadGallery) core::import('core/picture');
+		if($uploadImage || $uploadGallery) plushka::import('core/picture');
 		foreach($uploadImage as $id) {
 			if($oldId) { //удалить сначала старый файл изображения
-				$f=core::path().'public/catalog/'.$oldImage[$id];
+				$f=plushka::path().'public/catalog/'.$oldImage[$id];
 				if(file_exists($f)) unlink($f);
 			}
 			$p=new picture($data[$id]);
@@ -487,14 +489,14 @@ class sController extends controller {
 			$q='UPDATE catalog_'.$data['lid'].' SET '.$q.' WHERE id='.$m->id;
 			$db->query($q);
 		}
-		core::hook('modify','catalog/'.$data['lid'].'/'.$m->alias); //Обновить дату изменения страницы
-		core::success('Изменения сохранены');
-		core::redirect('catalog/item?lid='.$data['lid']);
+		plushka::hook('modify','catalog/'.$data['lid'].'/'.$m->alias); //Обновить дату изменения страницы
+		plushka::success('Изменения сохранены');
+		plushka::redirect('catalog/item?lid='.$data['lid']);
 	}
 
 	/* Удаление изображения из галереи элемента каталога */
 	public function actionGalleryDelete() {
-		$db=core::db();
+		$db=plushka::db();
 		$lid=(int)$_GET['lid']; //ИД каталога
 		$id=(int)$_GET['id']; //ИД записи
 		$fld=$_GET['fld']; //Имя поля галереи
@@ -502,9 +504,9 @@ class sController extends controller {
 		$data=$db->fetchArrayOnce('SELECT '.$fld.' FROM catalog_'.$lid.' WHERE id='.$id);
 		if(!$data) return;
 		$data=explode('|',$data[0]);
-		$f=core::path().'public/catalog/'.$data[$index];
+		$f=plushka::path().'public/catalog/'.$data[$index];
 		if(file_exists($f)) unlink($f);
-		$f=core::path().'public/catalog/_'.$data[$index];
+		$f=plushka::path().'public/catalog/_'.$data[$index];
 		if(file_exists($f)) unlink($f);
 		unset($data[$index]);
 		$db->query('UPDATE catalog_'.$lid.' SET '.$fld.'='.$db->escape(implode('|',$data)).' WHERE id='.$id);
@@ -516,8 +518,8 @@ class sController extends controller {
 		$lid=(int)$_GET['lid'];
 		$id=(int)$_GET['id'];
 		//Нужно удалить все изображения элемента каталога
-		$db=core::db();
-		$cfg=core::config('catalogLayout/'.$lid); //конфигурация каталога
+		$db=plushka::db();
+		$cfg=plushka::config('catalogLayout/'.$lid); //конфигурация каталога
 		$q='';
 		//В $fld выбрать все поля типа "image" и "gallery"
 		$fld=array();
@@ -535,12 +537,12 @@ class sController extends controller {
 				$item=$img[$id0];
 				$type=$cfg['data'][$id0][1];
 				if($type=='image') {
-					$item=core::path().'public/catalog/'.$item;
+					$item=plushka::path().'public/catalog/'.$item;
 					if(file_exists($item)) unlink($item);
 				} else {
 					if(!$item) continue;
 					$item=explode('|',$item);
-					$path=core::path().'public/catalog/';
+					$path=plushka::path().'public/catalog/';
 					foreach($item as $f) {
 						$f=$path.$f;
 						if(file_exists($f)) unlink($f);
@@ -552,16 +554,16 @@ class sController extends controller {
 		}
 		$alias=$db->fetchValue('SELECT alias FROM catalog_'.$lid.' WHERE id='.$id);
 		$db->query('DELETE FROM catalog_'.$lid.' WHERE id='.$id);
-		core::hook('pageDelete','catalog/'.$lid.'/'.$alias,true);
-		core::success('Элемент каталога удалён');
-		core::redirect('catalog?lid='.$lid);
+		plushka::hook('pageDelete','catalog/'.$lid.'/'.$alias,true);
+		plushka::success('Элемент каталога удалён');
+		plushka::redirect('catalog?lid='.$lid);
 	}
 
 	/* Выводит HTML-форму со списком полей для настройки фильтра.
 	Вызывается AJAX-запросом при настройке виджета поиск (фильтр). Вероятно это нужно было сделать в submit-действии. */
 	public function actionField() {
 		$fld=json_decode($_GET['fld'],true); //Настройки и данные полей
-		$cfg=core::config('catalogLayout/'.(int)$_GET['id']); //конфигурация каталога
+		$cfg=plushka::config('catalogLayout/'.(int)$_GET['id']); //конфигурация каталога
 		$this->data=array(); //Тут будут подготовленные данные для формирования HTML-формы
 		//Просто формирует в $this->data удобочитаемый массив информации
 		foreach($cfg['data'] as $i=>$field) {
@@ -595,14 +597,14 @@ class sController extends controller {
 		if(!$data) $data=array('id'=>null,'fld'=>array('title'=>false)); //новый виджет
 		//Поиск в меню всех каталогов, чтобы предоставить пользователю выбор (каталог создаётся только из меню)
 		$catalogList=array();
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT link,title_'._LANG.' FROM menu_item WHERE link LIKE '.$db->escape('catalog/%'));
 		while($item=$db->fetch()) {
 			$catalogList[]=array((int)substr($item[0],strrpos($item[0],'/')+1),$item[1]);
 		}
-		$this->f=core::form();
+		$this->f=plushka::form();
 		if(!count($catalogList)) {
-			core::error('На сайте нет ни одного каталога.');
+			plushka::error('На сайте нет ни одного каталога.');
 			return 'WidgetSearch';
 		}
 		$this->f->select('id','Каталог',$catalogList,$data['id']);
@@ -636,10 +638,10 @@ class sController extends controller {
 /* ---------- MENU ------------------------------------------------------------------- */
 	/* Ссылка на каталог из меню */
 	public function actionMenuCatalog() {
-		$f=core::form();
+		$f=plushka::form();
 		if(isset($_GET['link']) && $_GET['link']) { //пункт меню уже существует: данные по умолчанию
 			$lid=(int)substr($_GET['link'],strpos($_GET['link'],'/')+1); //ИД каталога
-			$cfg=core::config('catalogLayout/'.$lid); //конфигурация каталога
+			$cfg=plushka::config('catalogLayout/'.$lid); //конфигурация каталога
 			$f->hidden('lid',$lid);
 		} else $f->hidden('lid',0);
 		$f->submit('Продолжить');
@@ -647,10 +649,10 @@ class sController extends controller {
 	}
 
 	public function actionMenuCatalogSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		if($data['lid']==0) { //новая ссылка (новый каталог)
 			//Найти следующий номер каталога (ИД)
-			$path=core::path().'config/catalogLayout/';
+			$path=plushka::path().'config/catalogLayout/';
 			$d=opendir($path);
 			$index=1;
 			while($f=readdir($d)) {
@@ -658,7 +660,7 @@ class sController extends controller {
 				if($f>=$index) $index=$f+1;
 			}
 			//Создать таблицу в БД (для SQLite будет выполнено преобразование описаний полей MySQL)
-			$db=core::db();
+			$db=plushka::db();
 			$db->create('catalog_'.$index,array(
 				'id'=>array('INT UNSIGNED NOT NULL','primary',true),
 				'alias'=>'CHAR(30) NOT NULL',

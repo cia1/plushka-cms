@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление часто задаваемыми вопросами. На сайте может быть только один раздел ЧаВо. */
 class sController extends controller {
 
@@ -15,10 +17,10 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Общие настройки модуля */
 	public function actionSetting() {
-		$cfg=core::config('faq'); //конфигурация модуля
-		$htmlAdmin=file_get_contents(core::path().'admin/data/email/faq.html'); //шаблон письма администрации
-		$htmlAnswer=file_get_contents(core::path().'/data/email/'._LANG.'.faqAnswer.html'); //шаблон письма ответа на вопрос пользователя
-		$f=core::form();
+		$cfg=plushka::config('faq'); //конфигурация модуля
+		$htmlAdmin=file_get_contents(plushka::path().'admin/data/email/faq.html'); //шаблон письма администрации
+		$htmlAnswer=file_get_contents(plushka::path().'/data/email/'._LANG.'.faqAnswer.html'); //шаблон письма ответа на вопрос пользователя
+		$f=plushka::form();
 		$f->html('<div class="tab"><fieldset><legend>Meta-теги</legend>');
 		$f->text('keyword','meta Ключевые слова',$cfg['keyword']);
 		$f->text('description','meta Описание',$cfg['description']);
@@ -32,22 +34,22 @@ class sController extends controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('faq');
 		$cfg->keyword=$data['keyword'];
 		$cfg->description=$data['description'];
 		if(!$cfg->save('faq')) return false;
-		$f=fopen(core::path().'admin/data/email/faqAnswer.html','w');
+		$f=fopen(plushka::path().'admin/data/email/faqAnswer.html','w');
 		fwrite($f,$data['htmlAnswer']);
 		fclose($f);
-		core::success('Настройки сохранены');
-		core::redirect('faq/setting');
+		plushka::success('Настройки сохранены');
+		plushka::redirect('faq/setting');
 	}
 
 	/* Список вопросов и ответов. Почти дублирует тот список, что в общедоступной части. */
 	public function actionList() {
-		$db=core::db();
-		$t=core::table();
+		$db=plushka::db();
+		$t=plushka::table();
 		$t->rowTh('Имя|Вопрос|Ответ|');
 		$db->query('SELECT id,name,email,question,answer FROM faq ORDER BY date DESC');
 		while($item=$db->fetch()) {
@@ -63,10 +65,10 @@ class sController extends controller {
 
 	/* Редактирование вопроса, также можно написать ответ */
 	public function actionEdit() {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnceAssoc('SELECT name,email,question,answer,date FROM faq WHERE id='.(int)$_GET['id']);
-		if(!$data) core::error404();
-		$f=core::form();
+		if(!$data) plushka::error404();
+		$f=plushka::form();
 		$f->hidden('id',$_GET['id']);
 		$f->date('date','Дата',date('d.m.Y',$data['date']));
 		$f->text('name','Имя',$data['name']);
@@ -79,7 +81,7 @@ class sController extends controller {
 	}
 
 	public function actionEditSubmit($data) {
-		$m=core::model('faq');
+		$m=plushka::model('faq');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -91,9 +93,9 @@ class sController extends controller {
 		))) return false;
 		//Если администратор отметил, что нужно отправить ответ пользователю
 		if(isset($data['send'])) {
-			core::import('core/email');
+			plushka::import('core/email');
 			$e=new email();
-			$cfg=core::config('admin');
+			$cfg=plushka::config('admin');
 			$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 			$e->subject('Ответ на вопрос на сайте '.$_SERVER['HTTP_HOST']);
 			$e->messageTemplate(
@@ -104,15 +106,15 @@ class sController extends controller {
 			$e->send($m->email);
 			$message='Изменения сохранены. Ответ отправлен на адрес '.$m->email;
 		} else $message='Изменения сохранены';
-		core::success($message);
-		core::redirect('faq/list');
+		plushka::success($message);
+		plushka::redirect('faq/list');
 	}
 
 	/* Удаление вопроса */
 	public function actionDelete() {
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('DELETE FROM faq WHERE id='.$_GET['id']);
-		core::redirect('faq/list');
+		plushka::redirect('faq/list');
 	}
 /* ----------------------------------------------------------------------------------- */
 
@@ -120,7 +122,7 @@ class sController extends controller {
 /* ---------- MENU ------------------------------------------------------------------- */
 	/* Ссылка на список вопросов-ответов */
 	public function actionMenuList() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->submit('Продолжить','submit'); //чтобы в $_POST были какие-либо данные
 		return $f;
 	}

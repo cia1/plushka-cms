@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Индивидуальные шаблоны для разных страниц сайта */
 class sController extends controller {
 
@@ -11,18 +13,18 @@ class sController extends controller {
 	/* Соответствие шаблонов страницам сайта */
 	public function actionIndex() {
 		//Настройки хранятся в основном конфигурационном файле (_core.php)
-		$t=core::config();
+		$t=plushka::config();
 		$t=$t['template'];
 		$s='';
 		foreach($t as $link=>$template) {
 			$s.=$link.'='.$template."\n";
 		}
-		$f=core::form();
+		$f=plushka::form();
 		$f->textarea('link','Шаблоны',$s);
 		$f->submit();
 		$this->cite='В списке выше вы можете указать какой использовать шаблон для каждой отдельной страницы. Шаблон &laquo;default&raquo; используется по умолчанию, его указывать не нужно.<br />Строки должны быть в следующем виде: <b>ОТНОСИТЕЛЬНАЯ_ССЫЛКА=НАЗВАНИЕ_ШАБЛОНА</b>.<br />Доступные шаблоны: ';
 		//Список шаблонов составить просто исходя из имён файлов в директории /template
-		$d=opendir(core::path().'template');
+		$d=opendir(plushka::path().'template');
 		$i=0;
 		while($t=readdir($d)) {
 			if($t=='.' || $t=='..') continue;
@@ -47,11 +49,11 @@ class sController extends controller {
 			if(!$item[0] || !$item[1]) continue;
 			$template[$item[0]]=$item[1];
 		}
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('_core');
 		$cfg->template=$template;
 		$cfg->save('_core');
-		core::redirect('template','Информация обновлена');
+		plushka::redirect('template','Информация обновлена');
 	}
 
 }

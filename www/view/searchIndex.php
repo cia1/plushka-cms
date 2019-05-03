@@ -1,4 +1,4 @@
-<form action="<?=core::link('search')?>">
+<form action="<?=plushka::link('search')?>">
 <dl class="form">
 	<dt class="text keyword"><?=LNGSearch?>:</dt>
 	<dd class="text keyword"><input type="text" name="keyword" value="<?=$this->keyword?>" /></dd>
@@ -8,6 +8,6 @@
 <?php
 if($this->keyword) {
 	echo '<div style="clear:both;"></div><h2>'.LNGSerachResults.'</h2>';
-	core::hook('search',$this->keyword);
+	plushka::hook('search',$this->keyword);
 }
 ?>

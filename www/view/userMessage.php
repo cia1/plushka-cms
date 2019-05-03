@@ -12,7 +12,7 @@ echo '</i></center></p>';
 	echo '</div>';
 	if($item['direct']=='1') {
 		echo '<div class="answer" id="answer'.$index.'" style="display:none;">';
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('replyTo',$item['id']);
 		$f->textarea('message','');
 		$f->submit(LNGSend);

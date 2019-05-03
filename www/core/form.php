@@ -1,10 +1,12 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\core;
+use plushka;
 
 /**
  * Конструктор HTML-форм. Автоматически подставляет значения из $_POST, если такие имеются
  */
-class form {
+class Form {
 
 	/** @var string Адрес отправки (action) данных формы */
 	public $action;
@@ -217,7 +219,7 @@ class form {
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function captcha($name,$label,$html='') {
-		$this->_data.='<dt class="captcha">'.$label.':<img src="'.core::url().'captcha.php" alt="'.strip_tags($label).'" title="'.strip_tags($label).'"></dt><dd class="captcha"><input type="text" name="'.$this->_namespace.'['.$name.']" '.$html.' /></dd>';
+		$this->_data.='<dt class="captcha">'.$label.':<img src="'.plushka::url().'captcha.php" alt="'.strip_tags($label).'" title="'.strip_tags($label).'"></dt><dd class="captcha"><input type="text" name="'.$this->_namespace.'['.$name.']" '.$html.' /></dd>';
 	}
 
 	/**
@@ -253,7 +255,7 @@ class form {
 	 */
 	public function render($action=null,$html=null) {
 		if($action) $this->action=$action;
-		echo '<form action="'.($this->action ? core::link($this->action) : $_SERVER['REQUEST_URI']).'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
+		echo '<form action="'.($this->action ? plushka::link($this->action) : $_SERVER['REQUEST_URI']).'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
 		<dl class="form">';
 		echo $this->_data;
 		unset($this->_data);
@@ -333,7 +335,7 @@ class form {
 			$s.='>'.$nullTitle.'</option>';
 		}
 		if(is_string($items)) {
-			$db=core::db();
+			$db=plushka::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
 				$s.='<option value="'.$item[0].'"';
@@ -368,7 +370,7 @@ class form {
 		if($value===null || $value==='') $s.=' selected="selected"';
 		$s.='>'.$nullTitle.'</option>';
 		if(is_string($items)) {
-			$db=core::db();
+			$db=plushka::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
 				$s.='<option value="'.$item[0].'"';
@@ -398,7 +400,7 @@ class form {
 		}
 		$s='';
 		if(is_string($items)) {
-			$db=core::db();
+			$db=plushka::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
 				$s.='<label><input type="radio" name="'.$this->_namespace.'['.$name.']" value="'.$item[0].'"';
@@ -464,7 +466,7 @@ class form {
 	 * @param array $config Массив настроек редактора
 	 */
 	public function getEditor($name,$value='',$config=array()) {
-		$userGroup=core::userGroup();
+		$userGroup=plushka::userGroup();
 		if(!$config) $config=array();
 		if($userGroup>=200 && !isset($config['uploadTo'])) $config['uploadTo']='public/'; //для админки по умолчанию разрешить загружать изображения куда угодно в пределах директория /public
 		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
@@ -472,15 +474,15 @@ class form {
 		}
 		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
 		$html='<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'"'.(isset($config['html']) && $config['html'] ? ' '.$html : '').'>'.$value.'</textarea>';
-		if(!isset($_GET['_lang'])) $html.=core::js('ckeditor/ckeditor');
+		if(!isset($_GET['_lang'])) $html.=plushka::js('ckeditor/ckeditor');
 		$html.='<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();
 		if(document.ckeditor["'.$name.'"]!=undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
 		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{
-			customConfig:"'.(isset($_GET['_lang']) ? core::url().'admin/public/js/ckeditor-config.js' : core::url().'public/js/ckeditor-config.js').'"';
+			customConfig:"'.(isset($_GET['_lang']) ? plushka::url().'admin/public/js/ckeditor-config.js' : plushka::url().'public/js/ckeditor-config.js').'"';
 		if(isset($config['uploadTo'])) {
-			$html.=',uploadUrl:"'.core::url().'upload.php"';
-//				',filebrowserUploadUrl:"'.core::url().$config['uploadTo'].'"';
+			$html.=',uploadUrl:"'.plushka::url().'upload.php"';
+//				',filebrowserUploadUrl:"'.plushka::url().$config['uploadTo'].'"';
 			$_SESSION['_uploadFolder']=$config['uploadTo']; //запомнить, куда разрешено загружать файлы, поддерживается только один директорий
 		}
 		$html.='});</script>';

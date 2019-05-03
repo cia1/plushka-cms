@@ -1,1 +1,1 @@
-<?php core::widget('oauth'); ?>
+<?php plushka::widget('oauth'); ?>

@@ -6,8 +6,8 @@ $link=$data[0];
 
 if(substr($link,0,8)!='catalog/') return true;
 $id=substr($link,strrpos($link,'/')+1);
-$db=core::db();
+$db=plushka::db();
 $db->query('DROP TABLE catalog_'.$id);
-unlink(core::path().'config/catalogLayout/'.$id.'.php');
+unlink(plushka::path().'config/catalogLayout/'.$id.'.php');
 return true;
 ?>

@@ -1,6 +1,6 @@
 <?php
 if(!class_exists('core')) exit;
-if(core::userGroup()!=255) exit;
+if(plushka::userGroup()!=255) exit;
 //
 //	Project: phpLiteAdmin (http://www.phpliteadmin.org/)
 //	Version: 1.9.7.1
@@ -49,7 +49,7 @@ if(core::userGroup()!=255) exit;
 $password = 'masterkey';
 
 //directory relative to this file to search for databases (if false, manually list databases in the $databases variable)
-$directory=core::path().'data/';
+$directory=plushka::path().'data/';
 
 //whether or not to scan the subdirectories of the above directory infinitely deep
 $subdirectories = false;

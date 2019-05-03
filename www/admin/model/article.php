@@ -1,5 +1,7 @@
 <?php
-core::import('admin/core/modelEx');
+namespace plushka\admin\core;
+
+plushka::import('admin/core/modelEx');
 class article extends modelEx {
 
 	private $_oldAlias;
@@ -20,7 +22,7 @@ class article extends modelEx {
 		if($data[0]) $this->multiLanguage(false);
 		if(!parent::delete($id)) return false;
 		$this->multiLanguage(true);
-		core::hook('pageDelete','article/view/'.$data[1],!$this->_multiLanguage);
+		plushka::hook('pageDelete','article/view/'.$data[1],!$this->_multiLanguage);
 		return true;
 	}
 
@@ -42,7 +44,7 @@ class article extends modelEx {
 		if($this->_data['id']) $this->_oldAlias=$this->db->fetchValue('SELECT alias FROM article_'._LANG.' WHERE id='.$this->_data['id']);
 		else $this->_data['oldAlias']=null;
 		if($this->_data['alias']!==$this->_oldAlias && $this->db->fetchValue('SELECT 1 FROM article_'._LANG.' WHERE categoryId='.$this->_data['categoryId'].' AND alias='.$this->db->escape($this->_data['alias']).($this->_data['id'] ? ' AND id!='.$this->_data['id'] : ''))) {
-			core::error('Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.');
+			plushka::error('Статья с таким псевдонимом уже существует. Совпадение псевдонимов допустимо только для статей, находящихся в разных категориях.');
 			return false;
 		}
 		if($this->_data['categoryId']) $this->multiLanguage(false);
@@ -51,17 +53,17 @@ class article extends modelEx {
 
 	protected function afterInsert($id=null) {
 		$this->multiLanguage(true);
-		core::hook('modify','article/view/'.$this->alias); //Обновить дату изменения статьи
+		plushka::hook('modify','article/view/'.$this->alias); //Обновить дату изменения статьи
 		return true;
 	}
 
 	//Обновляет меню, а также проверять URI главной страницы. Вообще это нужно вынести в отдельный класс.
 	protected function afterUpdate($id=null) {
 		if($this->_oldAlias!=$this->_data['alias']) {
-			$cfg1=core::config();
+			$cfg1=plushka::config();
 			$s='article/view/'.$this->_oldAlias;
 			if($cfg1['mainPath']==$s || isset($cfg1['link'][$s])) {
-				core::import('admin/core/config');
+				plushka::import('admin/core/config');
 				$cfg2=new config('_core');
 				if($cfg1['mainPath']==$s) $cfg2->mainPath='article/view/'.$this->_data['alias'];
 				if(isset($cfg1['link'][$s])) {

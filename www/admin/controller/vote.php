@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Социальный опрос */
 class sController extends controller {
 
@@ -20,12 +22,12 @@ class sController extends controller {
 
 	public function actionIndexSubmit($data) {
 		if(!$this->_submit($data)) return false;
-		core::redirect('vote/index?id='.$data['id'],'Изменения сохранены');
+		plushka::redirect('vote/index?id='.$data['id'],'Изменения сохранены');
 	}
 
 	/* Сброс результатов опроса */
 	public function actionReset() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$_GET['id']);
 		$f->html('Результаты голосования, а также список проголосовавших будет очищен. Подтвердите операцию.');
 		$f->submit('Продолжить');
@@ -33,15 +35,15 @@ class sController extends controller {
 	}
 
 	public function actionResetSubmit($data) {
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('UPDATE vote SET ip='.$db->escape('').',result='.$db->escape('').' WHERE id='.$data['id']);
-		core::redirect('vote/result?id='.$data['id'],'Результаты очищены.');
+		plushka::redirect('vote/result?id='.$data['id'],'Результаты очищены.');
 	}
 
 	/* Таблица с результатами опроса */
 	public function actionResult() {
 		$this->button('vote/reset?id='.$_GET['id'],'refresh','Сбросить результаты');
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT question,answer,result FROM vote WHERE id='.$_GET['id']);
 		$this->question=$data[0];
 		//$this->answer - массив, содержащий количество голосов для каждого из вопросов
@@ -80,11 +82,11 @@ class sController extends controller {
 		if($id) { //Уже существующий опрос
 			$this->button('vote/reset?id='.$id,'refresh','Сбросить результаты');
 			$this->button('vote/result?id='.$id,'graph','Результаты опроса');
-			$db=core::db();
+			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,question,answer FROM vote WHERE id='.$id);
 			if(!$data['answer']) $data['answer']=''; else $data['answer']=str_replace('|',"\n",$data['answer']);
 		} else $data=array('id'=>null,'question'=>'','answer'=>''); //Новый опрос
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('cacheTime',10);
 		$f->text('question','Вопрос',$data['question']);
@@ -105,7 +107,7 @@ class sController extends controller {
 			'result'=>array('string')
 		);
 		if($data['id']) {
-			$db=core::db();
+			$db=plushka::db();
 			$result=$db->fetchArrayOnce('SELECT answer,result FROM vote WHERE id='.$data['id']);
 			if($result[0]==$data['answer']) $result=$result[1]; else {
 				$result=array_fill(0,substr_count($data['answer'],'|')+1,'0');
@@ -120,7 +122,7 @@ class sController extends controller {
 		}
 		if(is_array($result)) $result=implode('|',$result);
 		$data['result']=$result;
-		$m=core::model('vote');
+		$m=plushka::model('vote');
 		$m->set($data);
 		if(!$m->save($validate)) return false;
 		return $m->id;

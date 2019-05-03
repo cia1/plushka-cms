@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\core;
+
 /* Конструктор HTML-таблиц (<table>) */
 class table {
 
@@ -68,7 +70,7 @@ class table {
 
 	/* Добавляет ячейку, содержащую ссылку на какую-либо страницу админки */
 	public function link($link,$title,$colspan=0,$html=null) {
-		return $this->text('<a href="'.core::linkAdmin($link).'">'.$title.'</a>',$colspan,$html);
+		return $this->text('<a href="'.plushka::linkAdmin($link).'">'.$title.'</a>',$colspan,$html);
 	}
 
 	/* Добавляет ячейку, содержащую кнопки "выше" и "ниже" */
@@ -76,12 +78,12 @@ class table {
 		$this->_data.='<td width="60px" align="center">';
 		$params='&'.$params;
 		if($index>1 || $index===null) {
-			$link=controller::$self->url[0].'/'.($actionAlias===null ? 'up' : $actionAlias.'Up');
-			$this->_data.='<a href="'.core::linkAdmin($link.$params).'"><img src="'.core::url().'admin/public/icon/up16.png" alt="Выше" title="Поднять выше" /></a>';
+			$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'up' : $actionAlias.'Up');
+			$this->_data.='<a href="'.plushka::linkAdmin($link.$params).'"><img src="'.plushka::url().'admin/public/icon/up16.png" alt="Выше" title="Поднять выше" /></a>';
 		}
 		if($count===null || $index<$count) {
-			$link=controller::$self->url[0].'/'.($actionAlias===null ? 'down' : $actionAlias.'Down');
-			$this->_data.='&nbsp;<a href="'.core::linkAdmin($link.$params).'"><img src="'.core::url().'admin/public/icon/down16.png" alt="Ниже" title="Спустить ниже" /></a>';
+			$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'down' : $actionAlias.'Down');
+			$this->_data.='&nbsp;<a href="'.plushka::linkAdmin($link.$params).'"><img src="'.plushka::url().'admin/public/icon/down16.png" alt="Ниже" title="Спустить ниже" /></a>';
 		}
 		$this->_data.='</td>';
 		$this->_index++;
@@ -90,9 +92,9 @@ class table {
 	/* Добавляет ячейку, содержащую кнопку "удалить" */
 	public function delete($params,$actionAlias='delete',$confirm='Подтвердите удаление') {
 		$params='&'.$params;
-		$link=controller::$self->url[0].'/'.($actionAlias===null ? 'delete' : $actionAlias.'Delete');
+		$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'delete' : $actionAlias.'Delete');
 		$this->_data.='<td width="40px" align="center">'
-		.'<a href="'.core::linkAdmin($link.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+		.'<a href="'.plushka::linkAdmin($link.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}
@@ -100,7 +102,7 @@ class table {
 	/* Добавляет ячейку, сдержащую две кнопки "изменить" и "удалить" */
 	public function editDelete($params,$actionAlias='edit',$confirm='Подтвердите удаление') {
 		$params='&'.$params;
-		$linkEdit=$linkDelete=controller::$self->url[0].'/';
+		$linkEdit=$linkDelete=plushka::$controller->url[0].'/';
 		if($actionAlias===null) {
 			$linkEdit.='item';
 			$linkDelete.='delete';
@@ -109,8 +111,8 @@ class table {
 			$linkDelete.=$actionAlias.'Delete';
 		}
 		$this->_data.='<td width="40px" align="center">'
-		.'<a href="'.core::linkAdmin($linkEdit.$params).'"><img src="'.core::url().'admin/public/icon/edit16.png" alt="изменить" title="Редактировать..." /></a>'
-		.'<a href="'.core::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+		.'<a href="'.plushka::linkAdmin($linkEdit.$params).'"><img src="'.plushka::url().'admin/public/icon/edit16.png" alt="изменить" title="Редактировать..." /></a>'
+		.'<a href="'.plushka::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}
@@ -118,7 +120,7 @@ class table {
 	/* Добавляет ячейку, содержащую две кнопки "изменить" и "удалить", отличается от $this->editDelete() видом формируемой ссылки */
 	public function itemDelete($params,$actionAlias=null,$confirm='Подтвердите удаление') {
 		$params='&'.$params;
-		$linkItem=$linkDelete=controller::$self->url[0].'/';
+		$linkItem=$linkDelete=plushka::$controller->url[0].'/';
 		if($actionAlias===null) {
 			$linkItem.='item';
 			$linkDelete.='delete';
@@ -127,8 +129,8 @@ class table {
 			$linkDelete.=$actionAlias.'Delete';
 		}
 		$this->_data.='<td width="60px" align="center">'
-		.'<a href="'.core::linkAdmin($linkItem.$params).'"><img src="'.core::url().'admin/public/icon/edit16.png" alt="Изменить" title="Редактировать" /></a>'
-		.'&nbsp;<a href="'.core::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.core::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+		.'<a href="'.plushka::linkAdmin($linkItem.$params).'"><img src="'.plushka::url().'admin/public/icon/edit16.png" alt="Изменить" title="Редактировать" /></a>'
+		.'&nbsp;<a href="'.plushka::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}

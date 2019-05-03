@@ -1,8 +1,8 @@
-<form action="<?=core::link('demotivator/construct')?>" method="post" onkeydown="if(event.keyCode==13) return false;" onsubmit="return prepareSize();">
+<form action="<?=plushka::link('demotivator/construct')?>" method="post" onkeydown="if(event.keyCode==13) return false;" onsubmit="return prepareSize();">
 	<input type="hidden" name="demotivator[step2]" value="1" />
 	<input type="hidden" name="demotivator[size]" id="demSize" value="" />
 	<div id="background" style="padding:<?=$this->cfg['paddingTop'].'px '.$this->cfg['paddingX'].'px '.$this->cfg['paddingBottom'].'px '.$this->cfg['paddingX']?>px;background:#<?=$this->cfg['backgroundColor']?>">
-		<img src="<?=core::url()?>public/demotivator/tmp/<?=$this->image?>" style="margin-bottom:<?=$this->cfg['paddingY']?>px;" /><br />
+		<img src="<?=plushka::url()?>public/demotivator/tmp/<?=$this->image?>" style="margin-bottom:<?=$this->cfg['paddingY']?>px;" /><br />
 		<div id="demText" style="width:<?=$this->imageWidth?>px;">
 			<input type="text" name="demotivator[text][]" onkeyup="return inputKeyUp(this);" ondblclick="return changeFontSize(this);" value="Ваш текст..." id="demLine1" rel="1" style="<?=$this->defaultInputStyle?>" />
 		</div>

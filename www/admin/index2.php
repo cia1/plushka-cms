@@ -1,11 +1,11 @@
 <?php
 require_once('./core/core.php');
 
-$name=core::path().'admin/controller/'.$_GET['corePath'][0].'.php';
+$name=plushka::path().'admin/controller/'.$_GET['corePath'][0].'.php';
 if(!file_exists($name)) {
-	include(core::path().'admin/controller/error.php');
-	controller::$self=new sController();
-	core::error404();
+	include(plushka::path().'admin/controller/error.php');
+	plushka::$controller=new sController();
+	plushka::error404();
 }
 include_once($name);
 

@@ -1,7 +1,10 @@
-<?php class sController extends controller {
+<?php
+namespace plushka\admin\controller;
+
+class sController extends controller {
 
 	public function actionWidget() {
-		$form=core::form();
+		$form=plushka::form();
 		$form->submit('Продолжить','submit');
 		return $form;
 	}

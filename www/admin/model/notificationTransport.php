@@ -1,7 +1,10 @@
-<?php abstract class notificationTransport {
+<?php
+namespace plushka\admin\core;
+
+abstract class notificationTransport {
 
 	public static function getList() {
-		$path=core::path().'admin/model/';
+		$path=plushka::path().'admin/model/';
 		$d=opendir($path);
 		$transport=array();
 		while($f=readdir($d)) {
@@ -14,15 +17,15 @@
 
 	public static function instance($className) {
 		$cfg=strtolower($className[21]).substr($className,22);
-		$cfg=core::config('notification',$cfg);
-		core::import('admin/model/'.$className);
+		$cfg=plushka::config('notification',$cfg);
+		plushka::import('admin/model/'.$className);
 		return new $className($cfg);
 	}
 
 	public static function title($className) {
 		$className=str_replace('Transport','',$className);
-		core::import('model/notification');
-		core::import('model/'.$className);
+		plushka::import('model/notification');
+		plushka::import('model/'.$className);
 		$public=new $className();
 		return $public->title();
 	}

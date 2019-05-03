@@ -1,4 +1,7 @@
-<?php class sController extends controller {
+<?php
+namespace plushka\admin\controller;
+
+class sController extends controller {
 
 	public function right() {
 		return array(
@@ -9,7 +12,7 @@
 
 	//Список журналов регистрации
 	public function actionIndex() {
-		$table=core::table();
+		$table=plushka::table();
 		$table->rowTh('Журналы регистраций');
 		$data=log::getList();
 		foreach($data as $item) {
@@ -21,11 +24,11 @@
 	//Лог журнала регистрации
 	public function actionLog() {
 		if(isset($_GET['keyword'])) $this->keyword=$_GET['keyword']; else $this->keyword=null;
-		core::import('admin/model/log');
+		plushka::import('admin/model/log');
 		$log=new log($_GET['id'],$this->keyword,(isset($_GET['page']) ? $_GET['page'] : null));
-		if(core::error(false)) core::error404();
+		if(plushka::error(false)) plushka::error404();
 		$title=$log->title();
-		$table=core::table();
+		$table=plushka::table();
 		foreach($title as $item) $table->th($item);
 		unset($title);
 		$this->table=$table;

@@ -1,7 +1,7 @@
 <div class="post postStart">
 	<div class="userInfo">
 		<img src="<?=$this->topic['avatar']?>"  class="avatar" alt="<?=$this->topic['login']?>" />
-		<br /><a href="<?=core::link('forum/profile/'.$this->topic['userId'])?>"><?=$this->topic['login']?></a>
+		<br /><a href="<?=plushka::link('forum/profile/'.$this->topic['userId'])?>"><?=$this->topic['login']?></a>
 	</div>
 	<p class="date"><?=date('d.m.Y H:i',$this->topic['date'])?></p>
 	<div class="message"><?=$this->topic['message']?></div>
@@ -12,7 +12,7 @@
 		<?php $this->admin($item); ?>
 		<div class="userInfo">
 			<img src="<?=$item['avatar']?>"  class="avatar" alt="<?=$item['login']?>" />
-			<br /><a href="<?=core::link('forum/profile/'.$item['userId'])?>"><?=$item['login']?></a>
+			<br /><a href="<?=plushka::link('forum/profile/'.$item['userId'])?>"><?=$item['login']?></a>
 		</div>
 		<p class="date"><?=date('d.m.Y H:i',$item['date'])?></p>
 		<div class="message"><?=$item['message']?></div>
@@ -28,4 +28,4 @@
 	<?php $this->formReply->render(); ?>
 <?php } ?>
 <div style="clear:both;"></div>
-<?php core::widget('pagination',array('count'=>$this->postTotal,'limit'=>$this->onPage)); ?>
+<?php plushka::widget('pagination',array('count'=>$this->postTotal,'limit'=>$this->onPage)); ?>

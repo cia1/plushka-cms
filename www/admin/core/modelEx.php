@@ -1,5 +1,7 @@
 <?php
-core::import('core/model');
+namespace plushka\admin\core;
+
+plushka::import('core/model');
 class modelEx extends model {
 
 	protected function commonRuleAppend($rule,$attribute=null) {

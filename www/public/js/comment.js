@@ -5,5 +5,5 @@ $('form#comment').ajaxForm({success:function(data) {
 	}
 	$('form#comment').remove();
 	alert(document._lang['commentMessage']);
-	$("#commentList").load('<?=core::url()?>index2.php?controller=comment&action=list&link=<?=$this->link?>');
+	$("#commentList").load('<?=plushka::url()?>index2.php?controller=comment&action=list&link=<?=$this->link?>');
 } });

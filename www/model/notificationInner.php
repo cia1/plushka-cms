@@ -1,7 +1,11 @@
-<?php class notificationInner extends notification {
+<?php
+namespace plushka\model;
+use plushka;
+
+class NotificationInner extends Notification {
 
 	public function title() {
-		core::language('notification');
+		plushka::language('notification');
 		return LNGMessageInner;
 	}
 
@@ -10,8 +14,8 @@
 	}
 
 	public function send($message) {
-		$db=core::db();
-		$user=core::user();
+		$db=plushka::db();
+		$user=plushka::user();
 		if($this->userId==$user->id) $recepient=array($this->userId,$user->login);
 		else {
 			$login=$db->fetchValue('SELECT login FROM user WHERE id='.(int)$this->userId);

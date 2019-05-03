@@ -1,5 +1,5 @@
-<?php if(core::error()) { ?>
-	<link href="<?=core::url()?>admin/public/template/front.css" rel="stylesheet" type="text/css" />
+<?php if(plushka::error()) { ?>
+	<link href="<?=plushka::url()?>admin/public/template/front.css" rel="stylesheet" type="text/css" />
 	<p>Импорт прерван.</p>
 	<?php
 	return;

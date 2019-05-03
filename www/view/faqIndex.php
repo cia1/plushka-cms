@@ -21,7 +21,7 @@ else foreach($this->items as $item) { ?>
 <script>
 function connectFAQForm() {
 	jQuery('#newQuestion form').ajaxForm({
-		url:'<?=core::url()?>index2.php?controller=faq&action=index',
+		url:'<?=plushka::url()?>index2.php?controller=faq&action=index',
 		success:function(html) {
 			if(html!='OK') {
 				$('#newQuestion > div > div').html(html+'<div style="clear:both;"></div>');

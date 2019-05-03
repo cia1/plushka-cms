@@ -1,15 +1,19 @@
-<?php abstract class notification {
+<?php
+namespace plushka\model;
+use plushka;
+use plushka\model\User;
+
+abstract class Notification {
 
 	//Возвращает массив notification для пользователя $userId
 	public static function transportList($userId,$available=null) {
-		$cfg=core::config('notification');
+		$cfg=plushka::config('notification');
 		$transport=array();
 		$userId=(int)$userId;
 		foreach($cfg as $attribute=>$item) {
 			if($attribute==='group') continue;
 			if($item['status']===false) continue;
-			$class='notification'.ucfirst($attribute);
-			core::import('model/'.$class);
+			$class='Notification'.ucfirst($attribute);
 			$class=new $class($userId);
 			if($available!==null && $class->available()!=$available) continue;
 			$transport[]=$class;
@@ -19,7 +23,7 @@
 
 	//Возвращает плоский список включённых транспортов
 	public static function transportListFloat() {
-		$cfg=core::config('notification');
+		$cfg=plushka::config('notification');
 		$transport=array();
 		foreach($cfg as $attribute=>$item) {
 			if($attribute==='group') continue;
@@ -31,7 +35,7 @@
 
 	//Возвращает список групп (типов) уведомлений
 	public static function groupList($userId=null) {
-		$group=core::config('notification','group');
+		$group=plushka::config('notification','group');
 		if($userId===null) $setting=null;
 		else $setting=self::userAttribute($userId);
 		if($setting===null) $setting=array();
@@ -50,22 +54,21 @@
 
 	//Возвращает экземпляр класса транспорта для указанной группы или null, если для этой группы уведомления отключены
 	public static function userTransport($userId,$group) {
-		if($userId===core::userId()) $notification=core::user()->model()->attribute('notification');
+		if($userId===plushka::userId()) $notification=plushka::user()->model()->attribute('notification');
 		else {
-			core::import('model/user');
-			$notification=new modelUser();
+			plushka::import('model/user');
+			$notification=new User();
 			$notification->id=$userId;
 			$notification=$notification->attribute('notification');
 		}
 		if(isset($notification[$group])===false) return null;
-		return notification::instance($notification[$group],$userId);
+		return Notification::instance($notification[$group],$userId);
 	}
 
 	//Возвращает класс транспорта, создавая его по ИД
 	public static function instance($id,$userId,$available=true) {
-		$transport='notification'.ucfirst(core::translit($id));
-		if(file_exists(core::path().'model/'.$transport.'.php')===false) return null;
-		core::import('model/'.$transport);
+		$transport='notification'.ucfirst(plushka::translit($id));
+		if(file_exists(plushka::path().'model/'.$transport.'.php')===false) return null;
 		$transport=new $transport($userId);
 		if($transport->status===false) return null;
 		if($available!==null) if($transport->available()!==$available) return null;
@@ -86,7 +89,7 @@
 	private $_setting;
 
 	public function __construct($userId=null) {
-		if($userId===null) $this->userId=core::userId(); else $this->userId=(int)$userId;
+		if($userId===null) $this->userId=plushka::userId(); else $this->userId=(int)$userId;
 	}
 
 	//Возвращает идентификатор транспорта
@@ -98,17 +101,16 @@
 	//Возвращает атрибут транспорта из конфигурационного файла
 	public function __get($attribute) {
 		if($this->_setting===null) {
-			$this->_setting=core::config('notification',$this->id());
+			$this->_setting=plushka::config('notification',$this->id());
 		}
 		return (isset($this->_setting[$attribute]) ? $this->_setting[$attribute] : null);
 	}
 
 	//Возвращает дополнительный атрибут $attribute для пользователя с ID $userId
 	protected static function userAttribute($userId,$attribute='notification') {
-		if($userId==core::userId()) $user=core::user()->model();
+		if($userId==plushka::userId()) $user=plushka::user()->model();
 		else {
-			core::import('model/user');
-			$user=new modelUser();
+			$user=new User();
 			$user->id=$userId;
 		}
 		return $user->attribute($attribute);

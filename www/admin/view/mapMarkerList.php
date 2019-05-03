@@ -1,4 +1,4 @@
-<iframe style="display:block;width:95%;height:250px;margin:0 auto;border:1px solid black;" src="<?=core::url()?>admin/index2.php?controller=map&action=map&provider=<?=$this->data['provider']?>&centerLatitude=<?=$this->data['centerLatitude']?>&centerLongitude=<?=$this->data['centerLongitude']?>&zoom=<?=$this->data['zoom']?>&type=<?=$this->data['type']?>&key=<?=$this->data['apiKey']?>" onliad="alert('eeeee');"></iframe>
+<iframe style="display:block;width:95%;height:250px;margin:0 auto;border:1px solid black;" src="<?=plushka::url()?>admin/index2.php?controller=map&action=map&provider=<?=$this->data['provider']?>&centerLatitude=<?=$this->data['centerLatitude']?>&centerLongitude=<?=$this->data['centerLongitude']?>&zoom=<?=$this->data['zoom']?>&type=<?=$this->data['type']?>&key=<?=$this->data['apiKey']?>" onliad="alert('eeeee');"></iframe>
 <br /><br />
 <fieldset id="markerForm" style="display:none;">
 	<legend>Выбранная метка</legend>

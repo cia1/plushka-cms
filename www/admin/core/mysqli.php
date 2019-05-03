@@ -1,8 +1,12 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\admin\core;
+
+use plushka\core\mysqli;
 /* Реализует интерфейс с СУБД MySQL. Расширенная версия */
-core::import('core/mysqli');
-class mysqlExt extends mysql {
+var_dump(mysqli);
+die("CCCCCCCCCCCCCDDDDDDDDDDDD");
+class mysqliExt extends mysqli {
 
 	/* Создаёт таблицу в соответствии с описанной в $structure структурой */
 	public function create($table,$structure) {
@@ -77,7 +81,7 @@ class mysqlExt extends mysql {
 
 	private function _rollback() {
 		$this->query('ROLLBACK');
-		core::error('MySQLi: не удалось изменить структуру таблицы');
+		plushka::error('MySQLi: не удалось изменить структуру таблицы');
 		return false;
 	}
 

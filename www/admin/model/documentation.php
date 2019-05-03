@@ -1,5 +1,7 @@
 <?php
-core::import('admin/core/model');
+namespace plushka\admin\core;
+
+plushka::import('admin/core/model');
 class documentation extends modelEx {
 
 	function __construct($db=null) {
@@ -22,11 +24,7 @@ class documentation extends modelEx {
 		foreach($path as $i=>$item) if($item===null) unset($path[$i]);
 		if($path) $path=implode('/',$path).'/'; else $path='';
 		$path='documentation/'.$path.$this->alias;
-
-	var_dumP($path);
-	var_dump(core::linkPublic($path));
-die("E");
-		core::hook('modify','documentation/view/'.$this->alias); //Обновить дату изменения статьи
+		plushka::hook('modify','documentation/view/'.$this->alias); //Обновить дату изменения статьи
 	}
 	protected function afterUpdate($id=null) {
 		return $this->afterInsert($id);

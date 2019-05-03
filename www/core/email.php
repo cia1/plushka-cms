@@ -1,10 +1,11 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\core;
 
 /**
  * Реализует отправку электронных писем
  */
-class email {
+class Email {
 
 	/** @var string[] Массив MIME-частей письма */
 	private $_parts=array();
@@ -28,7 +29,7 @@ class email {
 	public $_returnPath;
 
 	public function __construct() {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		if(isset($cfg['smtpHost'])===true) {
 			$this->_smtpHost=$cfg['smtpHost'];
 			$this->_smtpPort=$cfg['smtpPort'];
@@ -67,11 +68,11 @@ class email {
 	 * @param string[] $data Данные в формате "ключ-значение" для подстановки в шаблон письма
 	 */
 	public function messageTemplate($fileName,$data) {
-		if(substr($fileName,0,6)=='admin/') $fileName=core::path().'admin/data/email/'.substr($fileName,6).'.html';
-		else $fileName=core::path().'data/email/'.$fileName.'.'._LANG.'.html';
+		if(substr($fileName,0,6)=='admin/') $fileName=plushka::path().'admin/data/email/'.substr($fileName,6).'.html';
+		else $fileName=plushka::path().'data/email/'.$fileName.'.'._LANG.'.html';
 		$this->_message=file_get_contents($fileName);
 		$this->_message=str_replace(array('{{siteLink}}','{{siteName}}'),
-			array('http://'.$_SERVER['HTTP_HOST'].core::url(),$_SERVER['HTTP_HOST']),
+			array('http://'.$_SERVER['HTTP_HOST'].plushka::url(),$_SERVER['HTTP_HOST']),
 			$this->_message
 		);
 		foreach($data as $tag=>$value) $this->_message=str_replace('{{'.$tag.'}}',$value,$this->_message);
@@ -160,7 +161,7 @@ class email {
 		$message=$this->_buildMultipart($boundary);
 		if($this->_smtpHost) return $this->sendSmtp($email,$message,$header);
 		if(!mail($email,'=?UTF-8?B?'.base64_encode($this->_subject).'?=',$message,$header)) {
-			core::error(LNGCouldnotSendLetter);
+			plushka::error(LNGCouldnotSendLetter);
 			return false;
 		}
 		return true;
@@ -179,55 +180,55 @@ class email {
 		.'To: '.$email."\r\n";
 		$s.=$header.PHP_EOL.PHP_EOL.$message;
 		if(!$socket=fsockopen($this->_smtpHost,$this->_smtpPort,$errno,$errstr,30)) {
-			core::error($errno."&lt;br&gt;".$errstr);
+			plushka::error($errno."&lt;br&gt;".$errstr);
 			return false;
 		}
 		if(!$this->_parseAnswer($socket,'220')) return false;
 		if(substr($this->_smtpHost,0,6)=='ssl://') $this->_smtpHost=substr($this->_smtpHost,6);
 		fputs($socket,'EHLO '.$this->_smtpHost."\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250');
+			plushka::error(LNGSMTPError.' #250');
 			return false;
 		}
 		fputs($socket,"AUTH LOGIN\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			core::error(LNGSMTPError.' #334-1');
+			plushka::error(LNGSMTPError.' #334-1');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpUser)."\r\n");
 		if(!$this->_parseAnswer($socket,'334')) {
-			core::error(LNGSMTPError.' #334-2');
+			plushka::error(LNGSMTPError.' #334-2');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,base64_encode($this->_smtpPassword)."\r\n");
 		if(!$this->_parseAnswer($socket,'235')) {
-			core::error(LNGSMTPError.' #235');
+			plushka::error(LNGSMTPError.' #235');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'MAIL FROM: <'.$this->_smtpUser.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250-1');
+			plushka::error(LNGSMTPError.' #250-1');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,'RCPT TO: <'.$email.">\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250-2');
+			plushka::error(LNGSMTPError.' #250-2');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,"DATA\r\n");
 		if(!$this->_parseAnswer($socket,'354')) {
-			core::error(LNGSMTPError.' #354');
+			plushka::error(LNGSMTPError.' #354');
 			fclose($socket);
 			return false;
 		}
 		fputs($socket,$s."\r\n.\r\n");
 		if(!$this->_parseAnswer($socket,'250')) {
-			core::error(LNGSMTPError.' #250-3');
+			plushka::error(LNGSMTPError.' #250-3');
 			fclose($socket);
 			return false;
 		}

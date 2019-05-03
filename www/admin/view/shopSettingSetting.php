@@ -31,7 +31,7 @@
 		<?php $this->productGroup->render(); ?><br />
 		<h3 id="groupHeading">Новая группа</h3>
 		<?php
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id','','id="groupId"');
 		$f->text('title','Название группы','','id="groupTitle"');
 		$f->reset('Очистить','id="groupReset"');

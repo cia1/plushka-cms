@@ -1,9 +1,9 @@
 <?php
 /* Событие: удаление страницы (URL)
 Параметры: string $data[0] - псевдоним языка */
-$db=core::db();
+$db=plushka::db();
 $link=$data[0];
-$cfg=core::config();
+$cfg=plushka::config();
 if(isset($data[1]) && $data[1]) {
 	$link=array();
 	foreach($cfg['languageList'] as $item) {

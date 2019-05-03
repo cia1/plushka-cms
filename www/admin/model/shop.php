@@ -1,10 +1,12 @@
 <?php
+namespace plushka\admin\core;
+
 /* Библиотека, содержащая наиболее часто используемые инструменты для административной части интернет-магазина */
 class shop {
 
 	/* Рекурсивно удаляет категорию товаров с ИД $id со всеми товарами */
 	public static function deleteCategory($id) {
-		$db=core::db();
+		$db=plushka::db();
 		$id=(int)$id;
 		$alias=$db->fetchValue('SELECT alias FROM shp_category WHERE id='.$id);
 		if(!$alias) return false;
@@ -20,11 +22,11 @@ class shop {
 		//Удалить изображение категории
 		$img=$db->fetchValue('SELECT image FROM shp_category WHERE id='.$id);
 		if($img) {
-			$f=core::path().'public/shop-category/'.$img;
+			$f=plushka::path().'public/shop-category/'.$img;
 			if(file_exists($f)) unlink($f);
 		}
 		$db->query('DELETE FROM shp_category WHERE id='.$id);
-		core::hook('pageDelete','shop/'.$alias,true);
+		plushka::hook('pageDelete','shop/'.$alias,true);
 		return true;
 	}
 
@@ -32,7 +34,7 @@ class shop {
 	array $image - список изображений товара (позволяет сэкономить один SQL-запрос, если указано) */
 	public static function deleteProduct($id,$image=null) {
 		if(is_array($id)) $id=implode(',',$id);
-		$db=core::db();
+		$db=plushka::db();
 		//Удалить изображения товара
 		if(!$image) {
 			$db->query('SELECT image FROM shp_product WHERE id IN('.$id.')');
@@ -44,7 +46,7 @@ class shop {
 		}
 		if($image) {
 			$image=explode(',',$image);
-			$path=core::path().'public/shop-product/';
+			$path=plushka::path().'public/shop-product/';
 			foreach($image as $item) {
 				$f=$path.$item;
 				if(file_exists($f)) unlink($f);
@@ -57,14 +59,14 @@ class shop {
 		$db->query('DELETE FROM shp_product_feature WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shp_product_group_item WHERE productId IN('.$id.')');
 		$db->query('DELETE FROM shp_product WHERE id IN('.$id.')');
-		core::hook('pageDelete','shop/'.$data[0].'/'.$data[1],true);
+		plushka::hook('pageDelete','shop/'.$data[0].'/'.$data[1],true);
 		return true;
 	}
 
 	/* Возвращает массив, содержащий список характеристик по указанным условиям.
 	int $groupId - группа характеристик, int $category - категория товаров, array $out - характеристики, котрые нужно пропустить */
 	public static function featureList($groupId=null,$category=null,$out=null) {
-		$db=core::db();
+		$db=plushka::db();
 		//Построить SQL-запрос в соответствии с заданными условиями
 		if($category==='') $category='999999999';
 		if($groupId) { //От этого параметра зависит, какие требуются данные
@@ -114,7 +116,7 @@ class shop {
 
 	/* Возвращает список характеристик товара для категории $categoryId. Если задан $productId, то также будут загружены значения характеристик */
 	public static function featureProduct($categoryId,$productId=0) {
-		$db=core::db();
+		$db=plushka::db();
 		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$categoryId);
 		if(!$feature) return array();
 		if($productId) $db->query('SELECT f.id f0,f.title f1,g.id f2,g.title f3,f.type f4,p.value f5,f.unit f6,f.data f7 FROM shp_feature f INNER JOIN shp_feature_group g ON g.id=f.groupId LEFT JOIN shp_product_feature p ON p.featureId=f.id AND p.productId='.$productId.' WHERE f.id IN('.$feature.')');
@@ -143,7 +145,7 @@ class shop {
 
 	/* Возвращает характеристики для модификаций товаров для категории $categoryId, если $variant задан, то к результату будут добавлены значения характеристик модификации */
 	public function featureVariant($categoryId,$variant=null) {
-		$db=core::db();
+		$db=plushka::db();
 		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$categoryId);
 		if(!$feature) return array();
 		if($variant) $variant=unserialize($variant);
@@ -171,7 +173,7 @@ class shop {
 	/* Удаляет группу характеристик со всеми характеристиками */
 	public static function featureGroupDelete($id) {
 		$id=(int)$id;
-		$db=core::db();
+		$db=plushka::db();
 		//Удалить все характеристики этой группы
 		$s='';
 		$db->query('SELECT id FROM shp_feature WHERE groupId='.$id);
@@ -186,7 +188,7 @@ class shop {
 
 	/* Удаляет характеристики с ИД $id (список через запятую), а также разрушает все зависимости */
 	public static function featureDelete($id) {
-		$db=core::db();
+		$db=plushka::db();
 		if(!self::featureCategoryDelete($id,true)) return false;
 		$db->query('DELETE FROM shp_feature WHERE id IN('.$id.')');
 //		$db->query('DELETE FROM shp_product_feature WHERE id IN('.$id.')');
@@ -198,7 +200,7 @@ class shop {
 	public static function featureCategoryDelete($id,$update=false,$categoryId=null) {
 		$id0=explode(',',$id);
 		if(!self::featureVariantDelete($id)) return false; //Удалить характеристику из всех модификаций товаров
-		$db=core::db();
+		$db=plushka::db();
 		if($update) {
 			$data=$db->fetchArray('SELECT id,feature FROM shp_category WHERE feature!='.$db->escape(''));
 			foreach($data as $item) {
@@ -224,7 +226,7 @@ class shop {
 
 	/* Удаляет характеристики $id (строка через запятую) из всех модификаций товаров (shp_variant.feature) */
 	public static function featureVariantDelete($id) {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArray('SELECT id,feature FROM shp_variant');
 		$cnt=count($id);
 		foreach($data as $item) {

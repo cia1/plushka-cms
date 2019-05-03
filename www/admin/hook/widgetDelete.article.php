@@ -5,11 +5,11 @@
 
 if($data[0]!='blog') return true;
 //Ќичего не делать, если ссылка на эту категорию есть в одном из пунктов меню.
-$db=core::db();
+$db=plushka::db();
 $alias=$db->fetchValue('SELECT alias FROM article_category_'._LANG.' WHERE id='.$data[2]['categoryId']);
 
 //Ќичего не делать, если есть другие виджеты с этой категорией.
-core::import('admin/model/objectLink');
+plushka::import('admin/model/objectLink');
 $param=array('categoryId'=>$data[2]['categoryId']);
 $cnt=modelObjectLink::fromSectionWidget('blog',$param)+modelObjectLink::fromTemplateWidget('blog',$param);
 if($cnt>1) return true;

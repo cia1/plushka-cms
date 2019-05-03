@@ -1,3 +1,5 @@
 <?php
-/* Для HTTP-ошибок. Скорее всего изменять не требуется. */
+namespace plushka\admin\controller;
+use plushka\admin\core\controller;
+
 class sController extends controller { }

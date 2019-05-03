@@ -1,6 +1,9 @@
 <?php
+namespace plushka\model;
+use plushka;
+
 /* Библиотека с часто используемыми функциями модуля "catalog" */
-class catalog {
+class Catalog {
 
 	/* Выводит HTML-представление одного из полей каталога. $data содержит описание поля и его значение */
 	public static function render($data) {
@@ -37,7 +40,7 @@ class catalog {
 	public static function renderGalleryWithoutThumbnail($data) {
 		if(!$data) return;
 		$data=explode('|',$data);
-		$url=core::url().'public/catalog/';
+		$url=plushka::url().'public/catalog/';
 		echo '<br /><img src="'.$url.implode('" alt="" /><img src="'.$url,$data).'" alt="" />';
 	}
 
@@ -46,8 +49,8 @@ class catalog {
 		$_index++;
 		if(!$data) return;
 		$data=explode('|',$data);
-		$url=core::url().'public/catalog/';
-		core::widget('shadowbox');
+		$url=plushka::url().'public/catalog/';
+		plushka::widget('shadowbox');
 		echo '<br />';
 		foreach($data as $item) { ?>
 			<a href="<?=$url.$item?>" rel="shadowbox[gal-<?=$_index?>]">

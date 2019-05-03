@@ -1,4 +1,7 @@
-<?php class sController extends controller {
+<?php
+namespace plushka\admin\controller;
+
+class sController extends controller {
 
 	protected function right() {
 		return array(
@@ -10,12 +13,12 @@
 
 	//Настройки чата
 	public function actionSetting() {
-		$cfg=core::config('chat');
-		$form=core::form();
+		$cfg=plushka::config('chat');
+		$form=plushka::form();
 		$form->text('messageCount','Количество сообщений в истории',$cfg['messageCount']);
 		$alias='';
 		foreach($cfg['loginAlias'] as $real=>$virtual) $alias.=$real.'='.$virtual."\n";
-		$blacklist=implode("\n",core::config('chat-blacklist'));
+		$blacklist=implode("\n",plushka::config('chat-blacklist'));
 		$form->checkbox('linkFilter','Запрещать внешние ссылки',$cfg['linkFilter']);
 		$form->textarea('blacklist','Чёрный список (стоп-фразы)',$blacklist);
 		$form->textarea('loginAlias','Псевдонимы логинов зарегистрированных пользователей',$alias);
@@ -29,7 +32,7 @@
 	}
 
 	public function actionSettingSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('chat');
 		$cfg->messageCount=(int)$data['messageCount'];
 		$cfg->linkFilter=isset($data['linkFilter']);
@@ -52,25 +55,25 @@
 		for($i=0,$cnt=count($blacklist);$i<$cnt;$i++) $blacklist[$i]=trim($blacklist[$i]);
 		$cfg->setData($blacklist);
 		$cfg->save('chat-blacklist');
-		core::redirect('chat/setting','Настройки обновлены');
+		plushka::redirect('chat/setting','Настройки обновлены');
 	}
 
 	//Модерирование сообщений, выводит список сообщений с кнопками управления
 	public function actionMessage() {
 		$chatId=$_GET['chatId'];
-		core::import('model/chat');
+		plushka::import('model/chat');
 		$content=chat::content($chatId);
-		$table=core::table();
+		$table=plushka::table();
 		$table->rowTh('Время|Кто, кому|Сообщение|');
 		foreach($content as $item) {
 			$table->text(date('d.m.Y H:i:s',$item['time']));
-			if($item['fromId']) $who='<a href="'.core::link('admin/user/userItem?id='.$item['fromId']).'">'; else $who='';
+			if($item['fromId']) $who='<a href="'.plushka::link('admin/user/userItem?id='.$item['fromId']).'">'; else $who='';
 			$who.=$item['fromLogin'];
 			if($item['fromId']) $who.='</a>';
 			else $who=$item['fromLogin'];
 			if($item['toLogin']) {
 				$who.=' => ';
-				if($item['toId']) $who.'<a href="'.core::link('admin/user/userItem?id='.$item['toId']).'</a>';
+				if($item['toId']) $who.'<a href="'.plushka::link('admin/user/userItem?id='.$item['toId']).'</a>';
 				$who.=$item['toLogin'];
 				if($item['toId']) $who.='</a>';
 			}
@@ -83,13 +86,13 @@
 
 	//Удаление сообщение (сразу действие, без формы)
 	public function actionDelete() {
-		core::import('admin/model/chat');
+		plushka::import('admin/model/chat');
 		if(!chat::delete($_GET['chatId'],$_GET['time'])) return '_empty';
-		core::redirect('chat/message?chatId='.$_GET['chatId']);
+		plushka::redirect('chat/message?chatId='.$_GET['chatId']);
 	}
 
 	public function actionMenu() {
-		$form=core::form();
+		$form=plushka::form();
 		$form->submit(LNGSend,'submit');
 		return $form;
 	}
@@ -99,7 +102,7 @@
 	}
 
 	public function actionWidget() {
-		$form=core::form();
+		$form=plushka::form();
 		$form->submit(LNGSend,'submit');
 		return $form;
 	}

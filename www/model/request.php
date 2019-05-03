@@ -1,4 +1,7 @@
-<?php class request {
+<?php
+namespace plushka\model;
+
+class Request {
 
 	private $_ch;
 	private $_charset;

@@ -1,16 +1,19 @@
 <?php
+namespace plushka\model;
+use plushka;
+
 define('MAIN_CHAT_ID','default');
 define('CHAT_LOGIN_FILTER','root,admin,fuck');
 /*
 Формат файла /data/chat/{ID}.txt:
 ВРЕМЯ \t ЛОГИН|ИД_ПОЛЬЗОВАТЕЛЯ \t ЛОГИН_КОМУ|ИД_КОМУ \t ТЕКСТ_СООБЩЕНИЯ \t АТРИБУТЫ_ТЕКСТА
 */
-class chat {
+class Chat {
 
 	//Возвращает массив сообщений: если $limit<1000, то последние $limit сообщений, иначе начиная с $limit (если не указано, то возвращает все сообщения)
 	public static function content($chatId,$limit=0) {
-		$chatId=core::translit($chatId);
-		$f=core::path().'data/chat/'.$chatId.'.txt';
+		$chatId=plushka::translit($chatId);
+		$f=plushka::path().'data/chat/'.$chatId.'.txt';
 		if(!file_exists($f)) return array();
 		$f=fopen($f,'r');
 		$data=array();
@@ -32,9 +35,9 @@ class chat {
 
 	//Возвращает список смайлов
 	public static function smile() {
-		$d=opendir(core::path().'public/chat-smile');
+		$d=opendir(plushka::path().'public/chat-smile');
 		$smile=array();
-		$url=core::url().'public/chat-smile/';
+		$url=plushka::url().'public/chat-smile/';
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..' || substr($f,-4)!='.gif') continue;
 			$smile[substr($f,0,strlen($f)-4)]=$url.$f;
@@ -46,11 +49,11 @@ class chat {
 	//$data: message, login, captcha
 	public static function submit($chatId,$data) {
 		//Определить логин пользвателя
-		$user=core::user();
+		$user=plushka::user();
 		if($user->id) $login=$user->login;
 		elseif(isset($_SESSION['chatLogin'])) $login=$_SESSION['chatLogin'];
 		else $login=self::filterLogin($data['login'],$data['captcha']);
-		if(!$login) die(strip_tags(core::error(false)));
+		if(!$login) die(strip_tags(plushka::error(false)));
 		$message=self::filterMessage($data['message']);
 		if(!$message) return false;
 		$line=self::post($chatId,$login,$message);
@@ -60,35 +63,35 @@ class chat {
 
 	//Проверяет и фильтрует логин (вводится посетителем вручную)
 	public static function filterLogin($login,$captcha) {
-		core::language('chat');
+		plushka::language('chat');
 		if(!$captcha || $captcha!=$_SESSION['captcha']) {
-			core::error(LNGChatCaptchaIsWrong);
+			plushka::error(LNGChatCaptchaIsWrong);
 			return false;
 		}
 		$login=trim(strip_tags($login));
 		if(!$login) {
-			core::error(LNGLoginCannotByEmpty);
+			plushka::error(LNGLoginCannotByEmpty);
 			return false;
 		}
 		//Фильтр запрещённых слов (частичное совпадение)
 		$filter=explode(',',CHAT_LOGIN_FILTER);
 		foreach($filter as $item) {
 			if(strpos($login,$item)!==false) {
-				core::error(LNGThisLoginCannotByUse);
+				plushka::error(LNGThisLoginCannotByUse);
 				return false;
 			}
 		}
 		$filter=explode(',',LNGLoginFilter);
 		foreach($filter as $item) {
 			if(strpos($login,$item)!==false) {
-				core::error(LNGThisLoginCannotByUse);
+				plushka::error(LNGThisLoginCannotByUse);
 				return false;
 			}
 		}
 		//Логин не должен совпадать с именем зарегистрированного пользователя
-		$db=core::db();
+		$db=plushka::db();
 		if($db->fetchValue('SELECT 1 FROM user WHERE login='.$db->escape($login))) {
-			core::error(LNGThisLoginAlreadyExists);
+			plushka::error(LNGThisLoginAlreadyExists);
 			return false;
 		}
 		return $login;
@@ -96,32 +99,32 @@ class chat {
 
 	//Проверяет и фильтрует текст сообщения, добавляет смайлы
 	public static function filterMessage($message) {
-		core::language('chat');
+		plushka::language('chat');
 		//Проверка длины сообщения
 		if(mb_strlen($message,'UTF-8')<2) {
-			core::error(LNGMessageTooShort);
+			plushka::error(LNGMessageTooShort);
 			return false;
 		}
 		if(mb_strlen($message,'UTF-8')>420) {
-			core::error(LNGMessageTooLong);
+			plushka::error(LNGMessageTooLong);
 			return false;
 		}
 		//Чёрный список (стоп-слова)
-		$blacklist=core::config('chat-blacklist');
+		$blacklist=plushka::config('chat-blacklist');
 		foreach($blacklist as $item) {
 			$i=mb_stripos($message,$item,0);
 			if($i!==false) {
-				core::error(LNGChatBlacklist);
+				plushka::error(LNGChatBlacklist);
 				return false;
 			}
 		}
 		//Фильтр адресов сайтов
-			$cfg=core::config('chat');
+			$cfg=plushka::config('chat');
 			if($cfg['linkFilter']) {
 				$cnt=preg_match_all('~[^\s]+[a-z0-9_\.-]+\.(?:ru|com|net|org|name|su|biz|info|us|cc)\b~i',$message,$tmp);
 				for($i=0;$i<$cnt;$i++) {
 					if($tmp[0][$i]!=$_SERVER['HTTP_HOST']) {
-						core::error(LNGDontWriteAnyLinks);
+						plushka::error(LNGDontWriteAnyLinks);
 						return false;
 					}
 				}
@@ -143,23 +146,23 @@ class chat {
 	//Добавляет сообщение в чат и возвращает строку сообщения
 	public static function post($chatId,$from,$message,$toLogin=null,$toId=null) {
 		$message=trim(str_replace(array("\n","\r","\t",'|'),array(' ','',' ','/'),strip_tags($message)));
-		$chatId=core::translit($chatId);
+		$chatId=plushka::translit($chatId);
 		if(is_array($from)===true) {
 			$userId=$from[1];
 			$fromLogin=$from[0];
 		} else {
 			$fromLogin=$from;
-			$userId=core::userId();
+			$userId=plushka::userId();
 			if(!$userId) $_SESSION['chatLogin']=$from;
 			elseif(isset($cfg['loginAlias'][$from])) $fromLogin=$cfg['loginAlias'][$from];
 		}
 		unset($from);
 
-		$cfg=core::config('chat');
+		$cfg=plushka::config('chat');
 
 		$s=microtime(true)."\t".$fromLogin."|".$userId."\t".$toLogin.'|'.$toId."\t".$message."\t";
-		$data=file(core::path().'data/chat/'.$chatId.'.txt');
-		$f=fopen(core::path().'data/chat/'.$chatId.'.txt','w');
+		$data=file(plushka::path().'data/chat/'.$chatId.'.txt');
+		$f=fopen(plushka::path().'data/chat/'.$chatId.'.txt','w');
 		fwrite($f,$s."\n");
 		for($i=0,$cnt=count($data);$i<$cnt && $i<$cfg['messageCount'];$i++) {
 			fwrite($f,$data[$i]);

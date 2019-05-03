@@ -1,13 +1,16 @@
 <?php
+namespace plushka\model;
+use plushka;
+
 /* Библиотека часто используемых функций модуля "shop" (интернет-магазин) */
-class shop {
+class Shop {
 
 	private static $_foundRows;
 
 	/* Для кеширования дерева каталогов */
 	public static function cacheCategoryTree() {
-		$data=core::cache('shopCategoryList',function() {
-			$db=core::db();
+		$data=plushka::cache('shopCategoryList',function() {
+			$db=plushka::db();
 			$db->query('SELECT id,alias,parentId,title,image FROM shp_category ORDER BY parentId,sort,id');
 			$data=array(0=>array('child'=>array()));
 			while($item=$db->fetch()) $data[$item[0]]=array('id'=>$item[0],'alias'=>$item[1],'title'=>$item[3],'parentId'=>$item[2],'image'=>$item[4],'child'=>array());
@@ -26,11 +29,11 @@ class shop {
 
 	/* Возвращает список дочерних категорий для категории с идентификатором $id */
 	public static function categoryList($id) {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayAssoc('SELECT id,alias,title,image FROM shp_category WHERE parentId='.$id.' ORDER BY sort,id');
 		for($i=0;$i<count($data);$i++) {
-			$data[$i]['link']=core::link('shop/'.$data[$i]['alias']);
-			if($data[$i]['image']) $data[$i]['image']=core::url().'public/shop-category/'.$data[$i]['image'];
+			$data[$i]['link']=plushka::link('shop/'.$data[$i]['alias']);
+			if($data[$i]['image']) $data[$i]['image']=plushka::url().'public/shop-category/'.$data[$i]['image'];
 		}
 		return $data;
 	}
@@ -52,7 +55,7 @@ class shop {
 		} else $qSelect.=' FROM shp_product p';
 		$qSelect.=' INNER JOIN shp_category c ON c.id=p.categoryId';
 		//Задан отбор по характеристикам
-		$db=core::db();
+		$db=plushka::db();
 		if(isset($_GET['feature'])) {
 			foreach($_GET['feature'] as $id=>$item) {
 				if(!$item) continue;
@@ -84,7 +87,7 @@ class shop {
 		if(isset($_GET['price1']) && $_GET['price1']) $q.=' AND p.price>='.(float)$_GET['price1'];
 		if(isset($_GET['price2']) && $_GET['price2']) $q.=' AND p.price<='.(float)$_GET['price2'];
 		$qSelect.=' ORDER BY '.$db->getEscape($sort);
-		$cfg=core::config('shop');
+		$cfg=plushka::config('shop');
 		if(isset($_GET['page']) && $_GET['page']>1) $page=$_GET['page']-1; else $page=0;
 		$qSelect.=' LIMIT '.($page*$cfg['productOnPage']).','.$cfg['productOnPage'];
 		self::$_foundRows=$db->fetchValue($qCount);
@@ -102,7 +105,7 @@ class shop {
 
 	/* Возвращает полную информацию о товаре по его идентификатору */
 	public static function productById($id) {
-		$db=core::db();
+		$db=plushka::db();
 		$id=(int)$id;
 		if(!$id) return null;
 		$data=$db->fetchArrayOnceAssoc('SELECT p.*,b.title brand FROM shp_product p LEFT JOIN shp_brand b ON b.id=p.brandId WHERE id='.$id);
@@ -116,7 +119,7 @@ class shop {
 	/* Возвращает полную информацию о товаре по его псевдониму
 	string $alias - псевдоним товара; bool $variant - также извлечь вариатны товаров*/
 	public static function productByAlias($alias,$variant=false) {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnceAssoc('SELECT p.id,p.categoryId,p.title,p.text1,p.text2,p.price,p.mainImage,p.image,p.metaTitle,p.metaKeyword,p.metaDescription'.($variant ? ',p.variant variantCount' : '').',c.title categoryTitle,c.feature,b.title brand FROM shp_product p LEFT JOIN shp_category c ON c.id=p.categoryId LEFT JOIN shp_brand b ON b.id=p.brandId WHERE p.alias='.$db->escape($alias));
 		if(!$data) return false;
 		if(!$data['image']) $data['image']=array(); else {
@@ -148,11 +151,11 @@ class shop {
 
 	/* Возвращает обработанный список товаров, выбранных по SQL-запросу $query */
 	private static function _loadList($query) {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayAssoc($query);
-		$uri=core::url().'public/shop-brand/';
+		$uri=plushka::url().'public/shop-brand/';
 		for($i=0,$cnt=count($data);$i<$cnt;$i++) {
-			$data[$i]['link']=core::link('shop/'.$data[$i]['categoryAlias'].'/'.$data[$i]['alias']);
+			$data[$i]['link']=plushka::link('shop/'.$data[$i]['categoryAlias'].'/'.$data[$i]['alias']);
 			$data[$i]['price']=self::_price($data[$i]['price']);
 			if(!$data[$i]['mainImage']) $data[$i]['mainImage']='noimage.jpg';
 		}
@@ -168,7 +171,7 @@ class shop {
 
 	/* Присоединяет к переданному массиву, содержащему информацию о товаре, все характеристики этого товара */
 	private static function _appendFeature(&$product) {
-		$db=core::db();
+		$db=plushka::db();
 		if(!$product['feature']) {
 			$product['feature']=array();
 			return;

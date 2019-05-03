@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\core;
+
 //Модель произвольный HTML-код
 class html {
 
@@ -9,7 +11,7 @@ class html {
 	//Генерирует имя файла для указанной секции
 	public static function fileNameBySection($section) {
 		$fileName=$section;
-		$d=opendir(core::path().'data/widgetHtml');
+		$d=opendir(plushka::path().'data/widgetHtml');
 		$index=1;
 		$len=strlen($section)+1;
 		while($f=readdir($d)) {
@@ -34,10 +36,10 @@ class html {
 	public function load($fileName) {
 		$fileName=str_replace(array('/','..'),'',$fileName);
 		$this->_fileName=$fileName;
-		$f=core::path().'data/widgetHtml/'.$fileName.'_'._LANG.'.html';
+		$f=plushka::path().'data/widgetHtml/'.$fileName.'_'._LANG.'.html';
 		if(!file_exists($f)) {
-			$cfg=core::config();
-			$f=core::path().'data/widgetHtml/'.$fileName.'_'.$cfg['languageDefault'].'.html';
+			$cfg=plushka::config();
+			$f=plushka::path().'data/widgetHtml/'.$fileName.'_'.$cfg['languageDefault'].'.html';
 		}
 		if(file_exists($f)) $this->html=file_get_contents($f); else $this->html='';
 		return true;
@@ -45,7 +47,7 @@ class html {
 
 	//Возвращает экземпляр класса form для редактирования текста
 	public function form() {
-		$form=core::form();
+		$form=plushka::form();
 		$form->hidden('section',$this->section);
 		$form->hidden('fileName',$this->_fileName);
 		$form->editor('html','Текст',$this->html);
@@ -55,7 +57,7 @@ class html {
 
 	//Сохраняет текс в файл
 	public function save($fileName=null) {
-		$f=fopen(core::path().'data/widgetHtml/'.$fileName.'_'._LANG.'.html','w');
+		$f=fopen(plushka::path().'data/widgetHtml/'.$fileName.'_'._LANG.'.html','w');
 		fwrite($f,$this->html);
 		fclose($f);
 		return true;

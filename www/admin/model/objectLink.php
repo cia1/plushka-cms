@@ -1,11 +1,11 @@
 <?php
-/* Предназначен для определения количества ссылок на тот или иной элемент сайта (меню, виджет).
-Используется при удалении контента при удалении виджета или пункта меню. Работает, конечно, не идеально, но достаточно эффективно. */
+namespace plushka\admin\core;
+
 class modelObjectLink {
 
 	/* Возвращает количество виджетов с именем $name во всех секциях и имеющих заданные настройки $data */
 	public static function fromSectionWidget($name,$data=null) {
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT data FROM widget WHERE name='.$db->escape($name));
 		$cnt=0;
 		while($item=$db->fetch()) $cnt+=modelObjectLink::_compareData($data,$item[0]);
@@ -15,7 +15,7 @@ class modelObjectLink {
 	/* Возвращает количество виджетов с именем $name, определённых в шаблоне с именем $template и заданных настройках виджета $data */
 	public static function fromTemplateWidget($name,$data=null,$template=null) {
 		//.ini-файлы создаются во время кеширвания шаблона
-		$basedir=core::path().'cache/template/';
+		$basedir=plushka::path().'cache/template/';
 		if($template) $template=array($template.'.ini'); else {
 			$d=opendir($basedir);
 			$template=array();

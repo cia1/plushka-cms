@@ -11,7 +11,7 @@ function getHTMLMenu($data,$level=0) {
 	}
 	return $html;
 }
-$f=core::form();
+$f=plushka::form();
 $f->hidden('id',$this->data['id']);
 $f->hidden('name',$this->data['name'],'id="widgetName"');
 $f->hidden('data',null,'id="widgetData"');
@@ -20,7 +20,7 @@ $f->hidden('cache','','id="cacheTime"');
 $f->label('Секция',$this->data['section']);
 $f->text('title','Название',$this->data['title'],'id="widgetTitle"');
 $f->checkbox('publicTitle','Публиковать название виджета',$this->data['publicTitle']);
-$user=core::user();
+$user=plushka::user();
 if($user->group==255) $f->text('cssClass','CSS класс виджета',$this->data['cssClass']);
 //Сформировать список чекбоксов
 $f->html('<dt>Страницы</dt><dd id="_admPageCheck" style="height:auto;">'.getHTMLMenu($this->pageMenu).'</dd>');
@@ -48,7 +48,7 @@ if(!$this->data['name']) {
 <script>
 function loadForm(name,controller,action) {
 	jQuery('#widgetName').val(name);
-	var url='<?=core::url()?>admin/index2.php?controller='+controller+'&action='+action<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&section=<?=$this->data['section']?>&_serialize";
+	var url='<?=plushka::url()?>admin/index2.php?controller='+controller+'&action='+action<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&section=<?=$this->data['section']?>&_serialize";
 	jQuery('#_type').load(url,{'data':'<?=$this->data['data']?>'},function() {
 			var f=$('#_type form');
 			var action=f.attr('action')+'&_serialize';

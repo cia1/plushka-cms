@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление секциями */
 class scontroller extends controller {
 
@@ -17,12 +19,12 @@ class scontroller extends controller {
 	public function actionIndex() {
 		$this->section=$_GET['name']; //Имя секции
 		$this->button('section/widget?section='.$this->section,'new','Добавить новый виджет','Создать');
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('Пользователи|Виджет|Тип||');
-		$db=core::db();
+		$db=plushka::db();
 		$items=$db->fetchArray('SELECT w.id,w.title_'._LANG.',t.title,s.sort,COUNT(s.widgetId) cnt,w.groupId FROM widget w LEFT JOIN section s ON s.widgetId=w.id LEFT JOIN widget_type t ON t.name=w.name WHERE w.section='.$db->escape($this->section).' GROUP BY w.id,t.title,s.sort ORDER BY s.sort');
 		if($items) for($i=0,$cnt=count($items);$i<$cnt;$i++) {
-			if($items[$i][4]==0) $items[$i][1].='<img src="'.core::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
+			if($items[$i][4]==0) $items[$i][1].='<img src="'.plushka::url().'admin/public/icon/attention16.png" alt="не используется" title="Данный виджет не отображается ни на одной странице!" />';
 			$t->text(($items[$i][5] ? $items[$i][5] : 'все'));
 			$t->link('section/widget?id='.$items[$i][0].'&section='.$_GET['name'],$items[$i][1]);
 			$t->text($items[$i][2]);
@@ -41,20 +43,20 @@ class scontroller extends controller {
 	/* Изменение порядка виджетов (выше) */
 	public function actionUp() {
 		$id=(int)$_GET['id']; //Идентификатор
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT name,sort FROM section WHERE widgetId='.$id);
 		if($data[1]>=2) {
 			$newSort=$data[1]-1;
 			$db->query('UPDATE section SET sort='.$data[1].' WHERE name='.$db->escape($data[0]).' AND sort='.$newSort);
 			$db->query('UPDATE section SET sort='.$newSort.' WHERE widgetId='.$id);
 		}
-		core::redirect('section?name='.$data[0]);
+		plushka::redirect('section?name='.$data[0]);
 	}
 
 	/* Изменение порядка виджетов (ниже) */
 	public function actionDown() {
 		$id=(int)$_GET['id'];
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT name,sort FROM section WHERE widgetId='.$id);
 		$lastSort=$db->fetchValue('SELECT max(sort) FROM section WHERE name='.$db->escape($data[0]));
 		if($data[1]<$lastSort) {
@@ -62,18 +64,18 @@ class scontroller extends controller {
 			$db->query('UPDATE section SET sort='.$data[1].' WHERE name='.$db->escape($data[0]).' AND sort='.$newSort);
 			$db->query('UPDATE section SET sort='.$newSort.' WHERE widgetId='.$id);
 		}
-		core::redirect('section?name='.$data[0]);
+		plushka::redirect('section?name='.$data[0]);
 	}
 
 	/* Удаление виджета */
 	public function actionDelete() {
 		$id=(int)$_GET['id'];
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT id,name,data FROM widget WHERE id='.$id);
 		//Спровоцировать событие "widgetDelete" чтобы дать возможность разрушить зависимые данные виджета.
 		//Параметры: (string) имя виджета, (int) его ИД, (mixed) настройки виджета
 		if(substr($data[2],0,2)=='a:' && $data[2][strlen($data[2])-1]=='}') $data[2]=unserialize($data[2]);
-		if(core::hook('widgetDelete',$data[1],$data[0],$data[2])===false) return $this->actionIndex();
+		if(plushka::hook('widgetDelete',$data[1],$data[0],$data[2])===false) return $this->actionIndex();
 		//Удалить из БД, а также "сдвинуть" виджеты в секции (изменить сортировку)
 		$data=$db->fetchArrayOnce('SELECT name,sort FROM section WHERE widgetId='.$id);
 		if($data) { //бывает, что виджет не опубликован ни на одной странице
@@ -81,12 +83,12 @@ class scontroller extends controller {
 		}
 		$db->query('DELETE FROM section WHERE widgetId='.$id);
 		$db->query('DELETE FROM widget WHERE id='.$id);
-		core::redirect('section?name='.$_GET['name'],'Виджет удалён');
+		plushka::redirect('section?name='.$_GET['name'],'Виджет удалён');
 	}
 
 	/* Создание или изменение виджета секции */
 	public function actionWidget() {
-		$db=core::db();
+		$db=plushka::db();
 		if(isset($_GET['id'])) { //Изменение
 			$this->data=$db->fetchArrayOnceAssoc('SELECT w.id id,w.name name,w.data data,w.title_'._LANG.' title,w.cache cache,w.publicTitle publicTitle,t.controller controller,t.action action,w.section,w.groupId,w.cssClass FROM widget w INNER JOIN widget_type t ON t.name=w.name WHERE w.id='.$_GET['id']);
 			$this->data['type']=array($this->data['id'],$this->data['controller'],$this->data['action']); //Нужен для загрузки (ajax) формы модуля.
@@ -130,7 +132,7 @@ class scontroller extends controller {
 	}
 
 	public function actionWidgetSubmit($data) {
-		$model=core::model('widget');
+		$model=plushka::model('widget');
 		$model->set($data);
 		$model->multiLanguage();
 		if($data['id']) $isNew=false; else $isNew=true;
@@ -144,7 +146,7 @@ class scontroller extends controller {
 			'title'=>array('string','Описание',true),
 			'publicTitle'=>array('boolean')
 		);
-		$user=core::user();
+		$user=plushka::user();
 		if($user->group==255) $rule['cssClass']=array('string');
 		if(!$model->save($rule)) return false;
 		//Проверить правильность ссылок, перечисленных в поле "другие страницы"
@@ -159,7 +161,7 @@ class scontroller extends controller {
 				if($s=='/' || $s=='.') $a=array(1=>true); else $a=array();
 				if($s=='/' || $s=='*') $a[2]=true;
 				if($s!='/' && $s!='.' && $s!='*') {
-					core::error('Все ссылки в списке <b>другие URL</b> должны заканчиваться символами &laquo;/&raquo;,&laquo;.&raquo; или &laquo;*&raquo;');
+					plushka::error('Все ссылки в списке <b>другие URL</b> должны заканчиваться символами &laquo;/&raquo;,&laquo;.&raquo; или &laquo;*&raquo;');
 					return false;
 				}
 				$s=substr($item,0,$i2);
@@ -174,7 +176,7 @@ class scontroller extends controller {
 			else $link.='*';
 			$url[]=$link;
 		}
-		$db=core::db();
+		$db=plushka::db();
 		//Если виджет уже существует, то выяснить с каких страниц был убран этот виджет - это нужно для того, чтобы корректно обработать событие "widgetPageDelete"
 		if(!$isNew) {
 			$db->query('SELECT url,sort FROM section WHERE widgetId='.$model->id);
@@ -216,7 +218,7 @@ class scontroller extends controller {
 				//Если есть страницы, с которых виджет был удалён, то спровоцировать событие "удаление виджета со страниц". Это позволит виджетам удалить сопутствующий контент
 				//Параметры: (string) - имя виджета; (int) - ИД виджета; (array) - список страниц, с которых был убран виджет
 				if($delete) {
-					if(!core::hook('widgetPageDelete',$data['name'],$model->id,$delete)) return false;
+					if(!plushka::hook('widgetPageDelete',$data['name'],$model->id,$delete)) return false;
 				}
 				$db->query('DELETE FROM section WHERE widgetId='.$model->id.' AND url IN ("'.implode('","',$delete0).'")');
 			}
@@ -225,7 +227,7 @@ class scontroller extends controller {
 			$sort=(int)$db->fetchValue('SELECT max(sort) FROM section WHERE name='.$db->escape($data['section']));
 			$sort++;
 		}
-		if($url) core::hook('widgetPageAdd',$data['name'],$model->id,$url); //Событие "виджет добавлен на страницы сайта
+		if($url) plushka::hook('widgetPageAdd',$data['name'],$model->id,$url); //Событие "виджет добавлен на страницы сайта
 		if($add) {
 			for($i=0,$cnt=count($add);$i<$cnt;$i++) {
 				$add[$i]=array(
@@ -248,7 +250,7 @@ class scontroller extends controller {
 			}
 			$db->insert('section',$url);
 		}
-		core::redirect('section/widget?id='.$data['section'],'Изменения сохранены');
+		plushka::redirect('section/widget?id='.$data['section'],'Изменения сохранены');
 	}
 /* ----------------------------------------------------------------------------------- */
 

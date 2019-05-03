@@ -14,9 +14,9 @@
 	}
 	echo '</div>';
 } ?>
-<a href="<?=core::url().'public/shop-product/'.$this->product['mainImage']?>" rel="shadowbox[gallery]"><img src="<?=core::url().'public/shop-product/'.$this->product['mainImage']?>" alt="<?=$this->product['title']?>" class="mainImage" /></a>
+<a href="<?=plushka::url().'public/shop-product/'.$this->product['mainImage']?>" rel="shadowbox[gallery]"><img src="<?=plushka::url().'public/shop-product/'.$this->product['mainImage']?>" alt="<?=$this->product['title']?>" class="mainImage" /></a>
 <div class="otherImage">
-<?php foreach($this->product['image'] as $item) echo '<a href="'.core::url().'public/shop-product/'.$item.'" rel="shadowbox[gallery]"><img src="'.core::url().'public/shop-product/_'.$item.'" alt="'.$this->product['title'].'" /></a>'; ?>
+<?php foreach($this->product['image'] as $item) echo '<a href="'.plushka::url().'public/shop-product/'.$item.'" rel="shadowbox[gallery]"><img src="'.plushka::url().'public/shop-product/_'.$item.'" alt="'.$this->product['title'].'" /></a>'; ?>
 </div>
 <div style="clear:both;"></div>
 
@@ -27,7 +27,7 @@
 		echo '<p>'.$item['title'].': '.$item['value'].'</p>';
 	}
 } ?>
-<form action="<?=core::url()?>index2.php?controller=shop&amp;action=addToCart" onsubmit="return addToCart(this);" method="post" class="addToCart">
+<form action="<?=plushka::url()?>index2.php?controller=shop&amp;action=addToCart" onsubmit="return addToCart(this);" method="post" class="addToCart">
 <input type="hidden" name="shop[id]" value="<?=$this->product['id']?>" />
 <input type="hidden" name="shop[quantity]" value="1" />
 <button type="submit" value="<?=LNGToCart?>" class="button"><?=LNGToCart?></button>

@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Общие настройки сайта */
 class sController extends controller {
 
@@ -14,7 +16,7 @@ class sController extends controller {
 	/* Общие основные настройки сайта */
 	public function actionCore() {
 		$this->button('setting/cache','delete','Очистить кеш');
-		$cfg=core::config();
+		$cfg=plushka::config();
 		if(isset($cfg['smtpHost'])) {
 			$method='smtp';
 		} else {
@@ -24,7 +26,7 @@ class sController extends controller {
 			$cfg['smtpUser']=null;
 			$cfg['smtpPassword']=null;
 		}
-		$f=core::form();
+		$f=plushka::form();
 		$f->checkbox('debug','Режим отладки',$cfg['debug']);
 		$f->text('adminEmailEmail','E-mail администрации',$cfg['adminEmailEmail']);
 		$f->text('adminEmailName','Имя администрации (e-mail)',$cfg['adminEmailName']);
@@ -43,9 +45,9 @@ class sController extends controller {
 	}
 
 	public function actionCoreSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('_core');
-		if(core::error()) return false;
+		if(plushka::error()) return false;
 		if(isset($data['debug'])) $cfg->debug=true; else $cfg->debug=false;
 		$cfg->adminEmailEmail=$data['adminEmailEmail'];
 		$cfg->adminEmailName=$data['adminEmailName'];
@@ -61,15 +63,15 @@ class sController extends controller {
 			unset($cfg->smtpPassword);
 		}
 		if(!$cfg->save('_core')) return false;
-		core::redirect('setting','Изменения сохранены');
+		plushka::redirect('setting','Изменения сохранены');
 	}
 
 	/* Настройка подмены ссылок (настройка ЧПУ) */
 	public function actionUrl() {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		$link='';
 		foreach($cfg['link'] as $src=>$dst) $link.=$src.'='.$dst."\n";
-		$f=core::form();
+		$f=plushka::form();
 		$f->text('mainPath','Главная страница (относительный url)',$cfg['mainPath']);
 		$f->textarea('link','Преобразование URL',$link);
 		$f->submit('Сохранить');
@@ -82,7 +84,7 @@ class sController extends controller {
 	}
 
 	public function actionUrlSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('_core');
 		$cfg->mainPath=$data['mainPath'];
 		$link=explode("\n",$data['link']);
@@ -97,13 +99,13 @@ class sController extends controller {
 		}
 		$cfg->link=$newLink;
 		$cfg->save('_core');
-		core::redirect('setting/url','Изменения сохранены');
+		plushka::redirect('setting/url','Изменения сохранены');
 	}
 
 	/* Очищает весь кеш */
 	public function actionCache() {
-		$this->_clearFolder(core::path().'cache/');
-		core::redirect('setting','Кеш очищен');
+		$this->_clearFolder(plushka::path().'cache/');
+		plushka::redirect('setting','Кеш очищен');
 	}
 /* ----------------------------------------------------------------------------------- */
 

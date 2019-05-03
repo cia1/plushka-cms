@@ -1,4 +1,4 @@
-<form action="<?=core::link('catalog/'.$this->catalogId)?>" method="get">
+<form action="<?=plushka::link('catalog/'.$this->catalogId)?>" method="get">
 <dl class="form search">
 	<?php foreach($this->data as $id=>$item) { ?>
 		<dt class="text <?=$item['type']?> fld<?=$id?>"><?=$item['title']?></dt>

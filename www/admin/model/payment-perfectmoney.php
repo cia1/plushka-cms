@@ -1,4 +1,7 @@
-<?php class paymentPerfectmoney implements paymentSetting {
+<?php
+namespace plushka\admin\core;
+
+class paymentPerfectmoney implements paymentSetting {
 
 	public static function settingForm($cfg) {
 		$form=payment::form($cfg);
@@ -17,7 +20,7 @@
 	}
 
 	public static function settingSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('payment');
 		$payment=$cfg->perfectmoney;
 		$payment['id']=$data['id'];

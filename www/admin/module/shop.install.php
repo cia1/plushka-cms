@@ -1,8 +1,8 @@
 <?php
 function installAfter($version) {
 	if($version) return true;
-	core::import('admin/model/form');
-	core::import('admin/core/config');
+	plushka::import('admin/model/form');
+	plushka::import('admin/core/config');
 	$f=new mForm();
 	$id=$f->create('Оформление заказа','Заказ с сайта','shop');
 	if(!$id) return false;
@@ -18,8 +18,8 @@ function installAfter($version) {
 }
 
 function uninstallBefore() {
-	$cfg=core::config('shop');
-	core::import('admin/model/form');
+	$cfg=plushka::config('shop');
+	plushka::import('admin/model/form');
 	return mForm::drop($cfg['formId']);
 }
 ?>

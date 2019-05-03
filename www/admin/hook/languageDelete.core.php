@@ -1,7 +1,7 @@
 <?php
 /* Событие: удаление языка
 Параметры: string string $data[0] - псевдоним языка */
-$path=core::path().'data/widgetHtml/';
+$path=plushka::path().'data/widgetHtml/';
 $d=opendir($path);
 while($f=readdir($d)) {
 	if($f=='.' || $f=='..') continue;

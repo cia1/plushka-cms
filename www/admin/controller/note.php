@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Заметки для администрации */
 class sController extends controller {
 
@@ -14,10 +16,10 @@ class sController extends controller {
 	/* Список доступных пользователю заметок */
 	public function actionIndex() {
 		$this->button('note/item','new','Добавить заметку');
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('Тема|');
-		$db=core::db();
-		$myGroup=core::userGroup();
+		$db=plushka::db();
+		$myGroup=plushka::userGroup();
 		$db->query('SELECT id,groupView,groupEdit,title FROM admin_note WHERE groupView<='.$myGroup);
 		while($item=$db->fetch()) {
 			$t->link('note/view?id='.$item[0],$item[3]);
@@ -30,15 +32,15 @@ class sController extends controller {
 
 	/* Редактирование заметки */
 	public function actionItem() {
-		$myGroup=core::userGroup();
-		$db=core::db();
+		$myGroup=plushka::userGroup();
+		$db=plushka::db();
 		if(isset($_GET['id'])) {
 			$data=$db->fetchArrayOnceAssoc('SELECT id,groupView,title,html FROM admin_note WHERE id='.$_GET['id'].' AND groupEdit<='.$myGroup);
-			if(!$data) core::redirect('note');
+			if(!$data) plushka::redirect('note');
 		} else $data=array('id'=>null,'groupView'=>$myGroup,'title'=>'','html'=>'');
 		$userGroup=$db->fetchArray('SELECT id,name FROM user_group WHERE id>=200 AND id<='.$myGroup.' ORDER BY id');
 		for($i=0,$cnt=count($userGroup);$i<$cnt;$i++) $userGroup[$i][1].=' ('.$userGroup[$i][0].')';
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->label('Ваша группа пользователей',$myGroup);
 		$f->select('groupView','Доступно для просмотра',$userGroup,$data['groupView']);
@@ -51,8 +53,8 @@ class sController extends controller {
 	}
 
 	public function actionItemSubmit($data) {
-		$data['groupEdit']=$myGroup=core::userGroup();
-		$m=core::model('admin_note');
+		$data['groupEdit']=$myGroup=plushka::userGroup();
+		$m=plushka::model('admin_note');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -61,20 +63,20 @@ class sController extends controller {
 			'title'=>array('string','тема',true),
 			'html'=>array('html')
 		))) return false;
-		core::redirect('note');
+		plushka::redirect('note');
 	}
 
 	/* Удалить заметку */
 	public function actionDelete() {
-		$db=core::db();
-		$db->query('DELETE FROM admin_note WHERE id='.(int)$_GET['id'].' AND groupEdit<='.core::userGroup());
-		core::redirect('note');
+		$db=plushka::db();
+		$db->query('DELETE FROM admin_note WHERE id='.(int)$_GET['id'].' AND groupEdit<='.plushka::userGroup());
+		plushka::redirect('note');
 	}
 
 	/* Просмотр текста заметки */
 	public function actionView() {
-		$db=core::db();
-		$this->data=$db->fetchArrayOnceAssoc('SELECT title,html FROM admin_note WHERE id='.(int)$_GET['id'].' AND groupView<='.core::userGroup());
+		$db=plushka::db();
+		$this->data=$db->fetchArrayOnceAssoc('SELECT title,html FROM admin_note WHERE id='.(int)$_GET['id'].' AND groupView<='.plushka::userGroup());
 		$this->data['html']=nl2br($this->data['html']);
 		return 'View';
 	}

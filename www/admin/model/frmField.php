@@ -1,5 +1,7 @@
 <?php
-core::import('core/model');
+namespace plushka\admin\core;
+
+plushka::import('core/model');
 class frmField extends model {
 
 	function __construct($table=null,$db='db') {

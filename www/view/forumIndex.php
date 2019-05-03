@@ -6,7 +6,7 @@ foreach($this->data as $i=>$item) {
 	?>
 	<div class="item">
 		<?php $this->admin($item); ?>
-		<p><a href="<?=core::link('forum/'.$item['id'])?>"><?=$item['title']?></a></p>
+		<p><a href="<?=plushka::link('forum/'.$item['id'])?>"><?=$item['title']?></a></p>
 	</div>
 <?php } ?>
 </div>

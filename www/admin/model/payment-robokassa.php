@@ -1,4 +1,7 @@
-<?php class paymentRobokassa implements paymentSetting {
+<?php
+namespace plushka\admin\core;
+
+class paymentRobokassa implements paymentSetting {
 
 	public static function settingForm($cfg) {
 		$form=payment::form($cfg);
@@ -20,7 +23,7 @@
 	}
 
 	public static function settingSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config('payment');
 		$payment=$cfg->robokassa;
 		$payment['id']=$data['id'];

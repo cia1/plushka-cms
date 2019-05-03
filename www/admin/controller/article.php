@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление статьями, блогами, списками статей.
 Это один из случаев, когда категории статей не создаются/удаляются при создании/удалении виджета/пункта меню.
 Несомненно это неправильно и нужно использовать внешнюю ссылку в меню. Но что делать с виджетом, если нужен блог уже существующей категории? */
@@ -22,15 +24,15 @@ class sController extends controller {
 	/* Создание или редактирование категории статей */
 	public function actionCategory($category=null) {
 		if($category===null) {
-			$category=core::model('admin/articleCategory');
+			$category=plushka::model('admin/articleCategory');
 			if(isset($_GET['id'])) { //Выбрать категорию по ИД
-				if($category->loadById($_GET['id'])===false) core::error404();
+				if($category->loadById($_GET['id'])===false) plushka::error404();
 			} elseif(isset($_GET['link']) && $_GET['link']) { //Выбрать категорию по псевдониму
-				if($category->loadByAlias(substr($_GET['link'],strrpos($_GET['link'],'/')+1))===false) core::error404();
+				if($category->loadByAlias(substr($_GET['link'],strrpos($_GET['link'],'/')+1))===false) plushka::error404();
 			} else $category->init();
 			if(isset($_GET['parent'])) $category->parentId=intVal($_GET['parent']);
 		}
-		$form=core::form();
+		$form=plushka::form();
 		$form->hidden('id',$category->id);
 		$form->hidden('parentId',$category->parentId);
 		$form->commonAppend($category,'title, alias, metaTitle, metaDescription, metaKeyword');
@@ -42,16 +44,16 @@ class sController extends controller {
 	}
 
 	public function actionCategorySubmit($data) {
-		$category=core::model('admin/articleCategory');
+		$category=plushka::model('admin/articleCategory');
 		$category->set($data);
 		if($category->save()===false) return $category;
-		core::redirect('article/category?id='.$category->id,'Изменения сохранены');
+		plushka::redirect('article/category?id='.$category->id,'Изменения сохранены');
 	}
 
 	//Список не опубликованных статей
 	public function actionFeature() {
-		core::import('admin/model/articleCategory');
-		$table=core::table();
+		plushka::import('admin/model/articleCategory');
+		$table=plushka::table();
 		$table->rowTh(array('Дата','Заголовок',''));
 		foreach(articleCategory::featureList($_GET['categoryId']) as $item) {
 			$table->text($item['date']);
@@ -68,17 +70,17 @@ class sController extends controller {
 	/* Создание или редактирование статьи (отдельной или в составе блога) */
 	public function actionArticle($article=null) {
 		if($article===null) {
-			core::import('admin/model/article');
+			plushka::import('admin/model/article');
 			$article=new article();
 			if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
 			elseif(isset($_GET['id'])) {
-				if(!$article->loadById($_GET['id'])) core::error404();
+				if(!$article->loadById($_GET['id'])) plushka::error404();
 			} elseif(isset($_GET['alias'])) {
-				if(!$article->loadByAlias($_GET['alias'])) core::error404();
+				if(!$article->loadByAlias($_GET['alias'])) plushka::error404();
 			}
 			elseif(isset($_GET['categoryId'])) $article->categoryId=$_GET['categoryId'];
 		}
-		$form=core::form();
+		$form=plushka::form();
 		$form->hidden('id',$article->id);
 		$form->hidden('categoryId',$article->categoryId);
 		$form->commonAppend($article,'title,alias,metaTitle,metaDescription,metaKeyword');
@@ -92,19 +94,19 @@ class sController extends controller {
 	}
 
 	public function actionArticleSubmit($data) {
-		$article=core::model('admin/article');
+		$article=plushka::model('admin/article');
 		$article->set($data);
 		if($article->save()===false) return $article;
-		core::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));
-		core::redirect('article/article?id='.$article->id);
+		plushka::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));
+		plushka::redirect('article/article?id='.$article->id);
 	}
 
 	/* Удаление статьи (форма подтверждения) */
 	public function actionArticleDelete() {
-		core::import('admin/model/article');
+		plushka::import('admin/model/article');
 		$article=new article();
 		$article->delete($_GET['id']);
-		core::redirect('article/article');
+		plushka::redirect('article/article');
 	}
 /* --------------------------------------------------------------------------------------------- */
 
@@ -118,7 +120,7 @@ class sController extends controller {
 	}
 
 	public function actionMenuArticleSubmit($data) {
-		$article=core::model('admin/article');
+		$article=plushka::model('admin/article');
 		$article->set($data);
 		if($article->save()===false) return false;
 		return 'article/view/'.$article->alias;
@@ -130,7 +132,7 @@ class sController extends controller {
 	}
 
 	public function actionMenuBlogSubmit($data) {
-		$category=core::model('admin/articleCategory');
+		$category=plushka::model('admin/articleCategory');
 		$category->set($data);
 		if($category->save()===false) return $category;
 		return 'article/blog/'.$category->alias;
@@ -142,7 +144,7 @@ class sController extends controller {
 	}
 
 	public function actionMenuListSubmit($data) {
-		$category=core::model('admin/articleCategory');
+		$category=plushka::model('admin/articleCategory');
 		$category->set($data);
 		if($category->save()===false) return $category;
 		return 'article/list/'.$category->alias;
@@ -157,8 +159,8 @@ class sController extends controller {
 	int countPreview - количество записей в виде блога; int countLink - количество записей в виде ссылок; */
 	public function actionWidgetBlog($data=null) {
 		if(!$data) $data=array('categoryId'=>null,'countPreview'=>0,'countLink'=>0,'linkType'=>'blog');
-		$form=core::form();
-		$newCategoryLink=core::link('admin/article&action=category').'&backlink='.urlencode('admin/section/widget?section='.$_GET['section'].'&type=blog&lang='._LANG);
+		$form=plushka::form();
+		$newCategoryLink=plushka::link('admin/article&action=category').'&backlink='.urlencode('admin/section/widget?section='.$_GET['section'].'&type=blog&lang='._LANG);
 		$form->listBox('categoryId','Категория','SELECT id,title FROM article_category_'._LANG,$data['categoryId'],'< создать новую категорию >','onclick="if(this.value==\'\') document.location=\''.$newCategoryLink.'\';"');
 		$form->select('linkType','Вид ссылок на статьи',array(array('blog','article/blog/...'),array('list','article/list/...')),$data['linkType']);
 		$form->text('countPreview','Количество анонсов статей',$data['countPreview']);

@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление пользователями и группами */
 class sController extends controller {
 
@@ -22,9 +24,9 @@ class sController extends controller {
 	/* Список групп пользователей */
 	public function actionGroup() {
 		$this->button('user/groupItem','new','Создать новую группу пользователей');
-		$t=core::table();
+		$t=plushka::table();
 		$t->rowTh('Группа|Описание|');
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,name FROM user_group ORDER BY id');
 		while($item=$db->fetch()) {
 			$t->link('user/groupItem?id='.$item[0],$item[0]);
@@ -42,13 +44,13 @@ class sController extends controller {
 
 	/* Создание или изменение группы пользователей */
 	public function actionGroupItem() {
-		$db=core::db();
+		$db=plushka::db();
 		if(isset($_GET['id'])) { //Редактирование
 			$data=array('id'=>$_GET['id'],'name'=>$db->fetchValue('SELECT name FROM user_group WHERE id='.$_GET['id']));
 		} else { //Создание
 			$data=array('id'=>null,'name'=>'');
 		}
-		$f=core::form();
+		$f=plushka::form();
 		if($data['id']) {
 			$f->label('Группа',$data['id']);
 			$f->hidden('id',$data['id']);
@@ -73,27 +75,27 @@ class sController extends controller {
 	}
 
 	public function actionGroupItemSubmit($data) {
-		core::import('admin/model/userGroup');
+		plushka::import('admin/model/userGroup');
 		$userGroup=new userGroup();
 		$userGroup->set($data);
 		if(!$userGroup->save()) return false;
-		core::redirect('user/group');
+		plushka::redirect('user/group');
 	}
 
 	/* Удаление группы */
 	public function actionGroupDelete() {
-		core::import('admin/model/userGroup');
+		plushka::import('admin/model/userGroup');
 		$model=new userGroup();
 		if(!$model->delete($_GET['id'])) return false;
-		core::redirect('user/group','Группа пользователей удалена');
+		plushka::redirect('user/group','Группа пользователей удалена');
 	}
 
 	/* Список пользователей */
 	public function actionUser() {
 		$this->button('user/userItem','new','Создать нового пользователя');
 		//Построить SQL-запрос в зависимости от параметров фильтра
-		$db=core::db();
-		$s='SELECT id,login,groupId,status,email FROM user WHERE groupId<='.core::userGroup();
+		$db=plushka::db();
+		$s='SELECT id,login,groupId,status,email FROM user WHERE groupId<='.plushka::userGroup();
 		if(isset($_GET['group']) && $_GET['group']) {
 			$this->group=(int)$_GET['group'];
 			$s.=' AND groupId='.$this->group;
@@ -110,11 +112,11 @@ class sController extends controller {
 		$this->data=$db->fetchArrayAssoc($s);
 		$cnt=count($this->data);
 		for($i=0;$i<$cnt;$i++) {
-			if($this->data[$i]['status']!=0 && $this->data[$i]['status']!=2) $s='<a href="'.core::link('admin/user/replace?id='.$this->data[$i]['id']).'"><img src="'.core::url().'admin/public/icon/login16.png" alt="войти" title="Переключиться на этого пользователя" /></a> '; else $s='';
-			$this->data[$i]['login']=$s.'<a href="'.core::link('admin/user/userItem?id='.$this->data[$i]['id']).'">'.$this->data[$i]['login'].'</a>';
-			if($this->data[$i]['status']=='0') $this->data[$i]['status']='<a href="'.core::link('admin/user/status?id='.$this->data[$i]['id']).'"><img src="'.core::url().'admin/public/icon/status016.png" alt="E-mail  не подтверждён" title="E-mail  не подтверждён" /></a>';
-			elseif($this->data[$i]['status']=='1') $this->data[$i]['status']='<a href="'.core::link('admin/user/status?id='.$this->data[$i]['id']).'"><img src="'.core::url().'admin/public/icon/status116.png" alt="Активен" title="Активен" /></a>';
-			elseif($this->data[$i]['status']=='2') $this->data[$i]['status']='<a href="'.core::link('admin/user/status?id='.$this->data[$i]['id']).'"><img src="'.core::url().'admin/public/icon/status016.png" alt="Заблокирован" title="Заблокирован" /></a>';
+			if($this->data[$i]['status']!=0 && $this->data[$i]['status']!=2) $s='<a href="'.plushka::link('admin/user/replace?id='.$this->data[$i]['id']).'"><img src="'.plushka::url().'admin/public/icon/login16.png" alt="войти" title="Переключиться на этого пользователя" /></a> '; else $s='';
+			$this->data[$i]['login']=$s.'<a href="'.plushka::link('admin/user/userItem?id='.$this->data[$i]['id']).'">'.$this->data[$i]['login'].'</a>';
+			if($this->data[$i]['status']=='0') $this->data[$i]['status']='<a href="'.plushka::link('admin/user/status?id='.$this->data[$i]['id']).'"><img src="'.plushka::url().'admin/public/icon/status016.png" alt="E-mail  не подтверждён" title="E-mail  не подтверждён" /></a>';
+			elseif($this->data[$i]['status']=='1') $this->data[$i]['status']='<a href="'.plushka::link('admin/user/status?id='.$this->data[$i]['id']).'"><img src="'.plushka::url().'admin/public/icon/status116.png" alt="Активен" title="Активен" /></a>';
+			elseif($this->data[$i]['status']=='2') $this->data[$i]['status']='<a href="'.plushka::link('admin/user/status?id='.$this->data[$i]['id']).'"><img src="'.plushka::url().'admin/public/icon/status016.png" alt="Заблокирован" title="Заблокирован" /></a>';
 		}
 		return 'User';
 	}
@@ -125,10 +127,10 @@ class sController extends controller {
 
 	/* Создание или изменение пользователя */
 	public function actionUserItem() {
-		core::import('model/user');
+		plushka::import('model/user');
 		$user=new modelUser();
 		if(isset($_GET['id'])) $user->loadById($_GET['id'],'*'); //Если редактирование, то загрузить данные пользователя
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$user->id);
 		$f->text('login','Логин',$user->login);
 		$f->password('password','Пароль');
@@ -146,10 +148,10 @@ class sController extends controller {
 
 	public function actionUserItemSubmit($data) {
 		if($data['password'] && $data['password']!=$data['password2']) {
-			core::error('Введённые пароли не совпадают');
+			plushka::error('Введённые пароли не совпадают');
 			return false;
 		}
-		core::import('admin/model/user');
+		plushka::import('admin/model/user');
 		$user=new userAdmin();
 		$user->set($data);
 		if(!$user->save()) return false;
@@ -159,42 +161,42 @@ class sController extends controller {
 			$user->sendMail('info');
 			$s.='<br />Регистрационные данные отправлены на адрес '.$data['email'];
 		}
-		core::redirect('user/user',$s);
+		plushka::redirect('user/user',$s);
 	}
 
 	/* Смена статуса пользователя (активен/заблокирован) */
 	public function actionStatus() {
-		core::import('admin/model/user');
+		plushka::import('admin/model/user');
 		$user=new userAdmin();
 		$user->status($_GET['id']);
-		core::redirect('user/user');
+		plushka::redirect('user/user');
 	}
 
 	/* Удаление пользователя.
 	Обработку события удаления пользователя добавлю при первой необходимости */
 	public function actionUserDelete() {
-		core::import('model/user');
+		plushka::import('model/user');
 		$model=new modelUser();
 		$model->delete($_GET['id']);
-		core::redirect('user/user');
+		plushka::redirect('user/user');
 	}
 
 	/* Вход в режим подмены пользователя */
 	public function actionReplace() {
 		$_SESSION['userCore']=new user($_GET['id']);
-		core::redirectPublic('/');
+		plushka::redirectPublic('/');
 	}
 
 	/* Выход из режима подмены пользователя */
 	public function actionReturn() {
 		unset($_SESSION['userCore']);
-		core::redirectPublic('/');
+		plushka::redirectPublic('/');
 	}
 
 	/* Отправка личного сообщения */
 	public function actionMessage() {
 		$u=new user($_GET['id']); //ИД пользователя, которому нужно отправить сообщение
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('user2Id',$u->id);
 		$f->hidden('user2Login',$u->login);
 		$f->hidden('user2Email',$u->email);
@@ -207,10 +209,10 @@ class sController extends controller {
 	}
 
 	public function actionMessageSubmit($data) {
-		core::import('model/user');
-		$user=core::user();
+		plushka::import('model/user');
+		$user=plushka::user();
 		if(!$user->model()->message($data['user2Id'],$data['user2Login'],$data['message'])) return false;
-		core::redirect('user','Сообщение отправлено');
+		plushka::redirect('user','Сообщение отправлено');
 	}
 /* ----------------------------------------------------------------------------------- */
 

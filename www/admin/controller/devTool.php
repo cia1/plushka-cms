@@ -1,24 +1,26 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Инструменты разработчика */
 class sController extends controller {
 
 	/* Запрос выбора нужной операции */
 	public function actionIndex() {
-		$this->config=core::config();
-		$this->formDbCompare=core::form(); //сравнение структуры баз данных
+		$this->config=plushka::config();
+		$this->formDbCompare=plushka::form(); //сравнение структуры баз данных
 		$this->formDbCompare->submit('Сравнить структуру баз данных MySQL ('.$this->config['mysqlDatabase'].') и SQLite');
-		$this->formDbMove=core::form(); //копирование данных базы данных
+		$this->formDbMove=plushka::form(); //копирование данных базы данных
 		$this->formDbMove->select('src','Направление:',array(
 			array('mysql','MySQL ('.$this->config['mysqlDatabase'].') -> SQLite'),
 			array('sqlite','SQLite -> MySQL ('.$this->config['mysqlDatabase'].')')
 		));
 		$this->formDbMove->submit('Скопировать');
-		$this->formClear=core::form(); //удалине контента
+		$this->formClear=plushka::form(); //удалине контента
 		$this->formClear->submit('Очистить');
-		if(file_exists(core::path().'tmp/dump.sql')) $this->backupDate=filectime(core::path().'tmp/dump.sql'); else $this->backupDate=null;
+		if(file_exists(plushka::path().'tmp/dump.sql')) $this->backupDate=filectime(plushka::path().'tmp/dump.sql'); else $this->backupDate=null;
 
-		$this->formExport=core::form(); //экспорт модуля
-		$cfg=core::config('admin/_module');
+		$this->formExport=plushka::form(); //экспорт модуля
+		$cfg=plushka::config('admin/_module');
 		$module=array();
 		foreach($cfg as $id=>$item) {
 			if($id=='core') continue;
@@ -26,16 +28,16 @@ class sController extends controller {
 		}
 		$this->formExport->select('id','Модуль',$module);
 		$this->formExport->submit('Экспорт модуля в директорий /tmp');
-		$f=core::path().'admin/data/devTool-image.php';
+		$f=plushka::path().'admin/data/devTool-image.php';
 		if(file_exists($f)) {
 			$this->imageDate=filemtime($f);
-			$this->formImageCompare=core::form(); //сравнение текущего состояния системы со сделанным ранее снимком
+			$this->formImageCompare=plushka::form(); //сравнение текущего состояния системы со сделанным ранее снимком
 			$this->formImageCompare->submit('Сравнить');
 		} else $this->imageDate=null;
-		$this->formImageMake=core::form(); //создание снимка состояния системы
+		$this->formImageMake=plushka::form(); //создание снимка состояния системы
 		$this->formImageMake->submit('Сделать снимок');
 		//Форма генератора кода модели
-		$form=core::form();
+		$form=plushka::form();
 		$form->select('dbDriver','СУБД',array(array('mysql','MySQLi'),array('sqlite','SQLite')),$this->config['dbDriver'],null,'id="dbDriver"');
 		$form->select('table','Таблица',array());
 		$form->checkbox('comment','Комментарии',true);
@@ -43,7 +45,7 @@ class sController extends controller {
 		$form->submit();
 		$this->formCodeModel=$form;
 		//Форма генератора кода прав доступа
-		$d=opendir(core::path().'admin/controller');
+		$d=opendir(plushka::path().'admin/controller');
 		$controller=array();
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..') continue;
@@ -52,7 +54,7 @@ class sController extends controller {
 		}
 		unset($f);
 		unset($d);
-		$form=core::form();
+		$form=plushka::form();
 		$form->select('controller','Контроллер',$controller);
 		$form->submit();
 		$this->formCodeRight=$form;
@@ -61,8 +63,8 @@ class sController extends controller {
 
 	/* Настройки очистки движка от контента */
 	public function actionSetting() {
-		$cfg=core::config('admin/devTool');
-		$f=core::form();
+		$cfg=plushka::config('admin/devTool');
+		$f=plushka::form();
 		$struc=self::_structureDb(false);
 		$html='';
 		foreach($struc as $item) {
@@ -78,15 +80,15 @@ class sController extends controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config();
 		$cfg->noClearTable=$data['noClearTable'];
 		$cfg->clearFile=explode("\n",$data['clearFile']);
 		$cfg->dropTable=explode("\n",$data['dropTable']);
 		$cfg->unlinkFile=explode("\n",$data['unlinkFile']);
 		$cfg->save('admin/devTool');
-		core::success('Настройки сохранены');
-		core::redirect('devTool');
+		plushka::success('Настройки сохранены');
+		plushka::redirect('devTool');
 	}
 
 
@@ -119,12 +121,12 @@ class sController extends controller {
 		set_time_limit(0);
 		if($data['src']=='mysql') {
 			$struc=self::_structureMySQL();
-			$dbSrc=core::mysql();
-			$dbDst=core::sqlite();
+			$dbSrc=plushka::mysql();
+			$dbDst=plushka::sqlite();
 		} elseif($data['src']=='sqlite') {
 			$struc=self::_structureSQLite();
-			$dbSrc=core::sqlite();
-			$dbDst=core::mysql();
+			$dbSrc=plushka::sqlite();
+			$dbDst=plushka::mysql();
 		}
 		$error=array();
 		foreach($struc as $table=>$field) {
@@ -160,12 +162,12 @@ class sController extends controller {
 
 	/*Очистка сайта от всего контента */
 	public function actionClear() {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		$dbDriver=$cfg['dbDriver'];
 		if($dbDriver=='mysql') $structure=self::_structureMySQL(false); else $structure=self::_structureSQLite(false);
-		$cfg=core::config('admin/devTool');
+		$cfg=plushka::config('admin/devTool');
 		//Очистка таблиц
-		$db=core::db();
+		$db=plushka::db();
 		foreach($structure as $item) {
 			if(in_array($item,$cfg['noClearTable'])) continue;
 			$db->query('DELETE FROM `'.$item.'`');
@@ -190,13 +192,13 @@ class sController extends controller {
 					continue;
 				}
 			}
-			$item=glob(core::path().$item);
+			$item=glob(plushka::path().$item);
 			foreach($item as $item2) {
 				if(file_exists($item2)) unlink($item2);
 			}
 		}
 		//Удаление конкретных файлов
-		$path=core::path();
+		$path=plushka::path();
 		foreach($cfg['unlinkFile'] as $item) {
 			if(file_exists($path.$item)) unlink($path.$item);
 		}
@@ -205,21 +207,21 @@ class sController extends controller {
 
 	/* Создание бэкапа MySQL */
 	public function actionBackupCreate() {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		$cmd='mysqldump';
 		if($cfg['mysqlHost']!='127.0.0.1' && $cfg['mysqlHost']!='localhost') $cmd.=' -h '.$cfg['mysqlHost'];
 		$cmd.=' -u'.$cfg['mysqlUser'];
 		if($cfg['mysqlPassword']) $cmd.=' -p'.$cfg['mysqlPassword'];
-		$cmd.=' '.$cfg['mysqlDatabase'].' > '.core::path().'tmp/dump.sql';
+		$cmd.=' '.$cfg['mysqlDatabase'].' > '.plushka::path().'tmp/dump.sql';
 		exec($cmd);
-		core::redirect('devTool?t='.time());
+		plushka::redirect('devTool?t='.time());
 	}
 
 	/* Удаляет файл бэкапа */
 	public function actionBackupDelete() {
-		$f=core::path().'tmp/dump.sql';
+		$f=plushka::path().'tmp/dump.sql';
 		if(file_exists($f)) unlink($f);
-		core::redirect('devTool?t='.time());
+		plushka::redirect('devTool?t='.time());
 	}
 
 	/* Экспорт модуля в директорий /tmp */
@@ -227,13 +229,13 @@ class sController extends controller {
 	public function actionExportSubmit($id) {
 		$id=$id['id']; //имя модуля
 		self::_unlink('tmp');
-		$m=core::config('admin/../module/'.$id);
-		core::import('admin/model/module');
+		$m=plushka::config('admin/../module/'.$id);
+		plushka::import('admin/model/module');
 		module::explodeData($m);
 		$sql1=$sql2='';
-		$db0=core::db();
-		$db1=core::mysql();
-		$db2=core::sqlite();
+		$db0=plushka::db();
+		$db1=plushka::mysql();
+		$db2=plushka::sqlite();
 		$right='';
 		foreach($m['right'] as $item) {
 			$data=$db0->fetchArrayOnce('SELECT description,groupId,picture FROM user_right WHERE module='.$db0->escape($item));
@@ -249,7 +251,7 @@ class sController extends controller {
 			$menu.='menu: '.$data[0]."\t".$data[1]."\t".$data[2]."\n";
 		}
 		//Конструирование SQL-запроса (для двух СУБД)
-		$lang=core::config();
+		$lang=plushka::config();
 		$lang=$lang['languageDefault'];
 		foreach($m['table'] as $item) { //перебор таблиц из конфигурационного файла модуля
 			$i=strpos($item,'(');
@@ -276,27 +278,27 @@ class sController extends controller {
 			$sql2.=$data;
 		}
 
-		$path1=str_replace('\\','/',core::path());
+		$path1=str_replace('\\','/',plushka::path());
 		$path2=$path1.'tmp/';
 		foreach($m['file'] as $item) {
 			$f1=$path1.$item;
 			$f2=$path2.$item;
 			if(is_dir($f1)) mkdir($f2); else self::_copy($f1,$f2);
 		}
-		$f=fopen(core::path().'tmp/install.mysql.sql','w');
+		$f=fopen(plushka::path().'tmp/install.mysql.sql','w');
 		fwrite($f,$sql1);
 		fclose($f);
 		unset($sql1);
-		$f=fopen(core::path().'tmp/install.sqlite.sql','w');
+		$f=fopen(plushka::path().'tmp/install.sqlite.sql','w');
 		fwrite($f,$sql2);
 		fclose($f);
 		unset($sql2);
-		$f1=core::path().'admin/module/'.$id.'.install.php';
+		$f1=plushka::path().'admin/module/'.$id.'.install.php';
 		if(file_exists($f1)) {
-			copy($f1,core::path().'tmp/install.php');
+			copy($f1,plushka::path().'tmp/install.php');
 		}
-		$cfg=core::config('admin/_module');
-		$f=fopen(core::path().'tmp/module.ini','w');
+		$cfg=plushka::config('admin/_module');
+		$f=fopen(plushka::path().'tmp/module.ini','w');
 		fwrite($f,'id: '.$id."\n");
 		fwrite($f,'name: '.$cfg[$id]['name']."\n");
 		fwrite($f,'version: '.$cfg[$id]['version']."\n");
@@ -310,11 +312,11 @@ class sController extends controller {
 
 	/* Создаёт снимок */
 	public function actionImageMake() {
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config();
-		$cfg->file=self::_scan(core::path()); //сканирование файловой системы
+		$cfg->file=self::_scan(plushka::path()); //сканирование файловой системы
 		$cfg->structure=self::_structureDb();
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT name FROM widget_type');
 		$tmp=array();
 		while($item=$db->fetch()) $tmp[]=$item[0];
@@ -328,18 +330,18 @@ class sController extends controller {
 		while($item=$db->fetch()) $tmp[]=$item[0];
 		$cfg->userRight=$tmp;
 		$cfg->save('../admin/data/devTool-image');
-		core::success('Снимок создан');
-		core::redirect('devTool');
+		plushka::success('Снимок создан');
+		plushka::redirect('devTool');
 	}
 
 	/* Сравнение состояния сайта со сделанным ранее снимком */
 	public function actionImageCompare() {
 		//Сканирование файловой системы
-		$cfg=core::config('admin/../data/devTool-image');
+		$cfg=plushka::config('admin/../data/devTool-image');
 		if(function_exists('array_column')) { //PHP 5.5 и позже
 			$imageFile=array_column($cfg['file'],0);
 			$imageSize=array_column($cfg['file'],1);
-			$tmp=self::_scan(core::path());
+			$tmp=self::_scan(plushka::path());
 			$currentFile=array_column($tmp,0);
 			$currentSize=array_column($tmp,1);
 		} else { //до PHP 5.5
@@ -348,7 +350,7 @@ class sController extends controller {
 				$imageFile[]=$item[0];
 				$imageSize[]=$item[1];
 			}
-			$tmp=self::_scan(core::path());
+			$tmp=self::_scan(plushka::path());
 			$currentFile=$currentSize=array();
 			foreach($tmp as $item) {
 				$currentFile[]=$item[0];
@@ -356,7 +358,7 @@ class sController extends controller {
 			}
 		}
 		$this->fileCreate=$this->fileDelete=$this->fileChange=array();
-		$pathLength=strlen(core::path());
+		$pathLength=strlen(plushka::path());
 		foreach($currentFile as $i=>$item) { //перебор существующих файлов
 			$y=array_search($item,$imageFile);
 			if($y===false) $this->fileCreate[]=$item;
@@ -381,7 +383,7 @@ class sController extends controller {
 			if(!isset($structure[$table])) $this->tableDrop[]=$table;
 		}
 		//Виджеты (только создание новых)
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT name,title FROM widget_type');
 		$tmp=$cfg['widgetType'];
 		$this->widgetCreate=array();
@@ -448,17 +450,17 @@ class sController extends controller {
 	}
 
 	public function actionCodeModel() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->textarea('html',$this->table.(isset($_POST['devTool']['save']) ? '<br />Модель сохранена в файл /model/'.$this->table.'.php' : '').'.php',$this->template);
 		return $f;
 	}
 
 	public function actionCodeModelSubmit($data) {
-		$template=file_get_contents(core::path().'admin/data/devTool-model.php.txt');
+		$template=file_get_contents(plushka::path().'admin/data/devTool-model.php.txt');
 		if(isset($data['comment'])) $template=str_replace(array('{{comment}}','{{/comment}}'),'',$template);
 		else $template=preg_replace('|\{\{comment\}\}.*?\{\{/comment\}\}|is','',$template);
 
-		if($_GET['driver']=='sqlite') $db=core::sqlite(); else $db=core::mysql();
+		if($_GET['driver']=='sqlite') $db=plushka::sqlite(); else $db=plushka::mysql();
 		$structure=$db->getCreateTableQuery($data['table']);
 		if(preg_match('|PRIMARY\s+KEY\s?\(([^)]+)|is',$structure,$primary)) {
 			$primary=str_replace(array("'",'"','`'),'',trim($primary[1]));
@@ -484,7 +486,7 @@ class sController extends controller {
 			$template
 		);
 		if(isset($data['save'])) {
-			$f=fopen(core::path().'model/'.$data['table'].'.php','w');
+			$f=fopen(plushka::path().'model/'.$data['table'].'.php','w');
 			fwrite($f,$template);
 			fclose($f);
 		}
@@ -494,7 +496,7 @@ class sController extends controller {
 
 	public function actionCodeRight() {
 		if(!$this->data) return '_empty';
-		$f=core::form();
+		$f=plushka::form();
 		$code="\tpublic function right() {\n\t\treturn array(\n\t\t\t'".
 		implode($this->data,"'=>'',\n\t\t\t'").
 		"'=>''\n\t\t);\n\t}";
@@ -502,9 +504,9 @@ class sController extends controller {
 		return $f;
 	}
 	public function actionCodeRightSubmit($data) {
-		$f=file_get_contents(core::path().'admin/controller/'.$data['controller'].'.php');
+		$f=file_get_contents(plushka::path().'admin/controller/'.$data['controller'].'.php');
 		if(!$f) {
-			core::error('Не могу прочитать файл /admin/controller/'.$data['controller'].'.php');
+			plushka::error('Не могу прочитать файл /admin/controller/'.$data['controller'].'.php');
 			return;
 		}
 		preg_match_all('~function\s+action([a-zA-Z0-9_]+)~',$f,$f);
@@ -521,14 +523,14 @@ class sController extends controller {
 
 /* --- PRIVALTE -------------------------------------------------------------------------------- */
 	private static function _structureDb($field=true) {
-		$cfg=core::config();
+		$cfg=plushka::config();
 		if($cfg['dbDriver']=='mysql') return self::_structureMySQL($field); else return self::_structureSQLite($field);
 	}
 
 	/* Возвращает массив, содержащий структуру базы данных MySQL */
 	private static function _structureMySQL($field=true) {
 		$data=array();
-		$db=core::mysql();
+		$db=plushka::mysql();
 		$db->query('SHOW TABLES');
 		if(!$field) {
 			while($item=$db->fetch()) $data[]=$item[0];
@@ -545,7 +547,7 @@ class sController extends controller {
 	/* Возвращает массив, содержащий структуру базы данных SQLite */
 	private static function _structureSQLite($field=true) {
 		$data=array();
-		$db=core::sqlite();
+		$db=plushka::sqlite();
 		$db->query('SELECT name FROM sqlite_master WHERE type="table" AND name!="sqlite_sequence"');
 		if(!$field) {
 			while($item=$db->fetch()) $data[]=$item[0];
@@ -596,7 +598,7 @@ class sController extends controller {
 	/* Рекурсивно удаляет файлы и директории */
 	private static function _unlink($path) {
 		if($path[strlen($path)-1]!='/') $path.='/';
-		$s=core::path().$path;
+		$s=plushka::path().$path;
 		if(!is_dir($s)) return;
 		$d=opendir($s);
 		while($f=readdir($d)) {
@@ -628,7 +630,7 @@ class sController extends controller {
 
 	private static function _scan($path) {
 		$data=array();
-		$pathRoot=substr($path,strlen(core::path()));
+		$pathRoot=substr($path,strlen(plushka::path()));
 		$d=opendir($path);
 		while($f=readdir($d)) {
 			if($f=='.' || $f=='..' || $f=='cache' || $f=='database3.db' || $f=='tmp' || $f=='devTool-image.php') continue;

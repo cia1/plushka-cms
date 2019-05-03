@@ -1,4 +1,10 @@
-<?php class notificationViber extends notification {
+<?php
+namespace plushka\model;
+use plushka;
+use plushka\model\User;
+use plushka\model\Request;
+
+class NotificationViber extends Notification {
 
 	public function title() {
 		return 'Viber';
@@ -11,18 +17,17 @@
 	}
 
 	public function send($message) {
-		core::import('model/user');
-		if($this->userId===core::userId()) $user=core::user()->model();
+		plushka::import('model/user');
+		if($this->userId===plushka::userId()) $user=plushka::user()->model();
 		else {
-			$user=new modelUser();
+			$user=new User();
 			$user->id=$this->userId;
 		}
 		$recipient=$user->attribute('viber');
 		unset($user);
 		if(!$recipient || strlen($recipient)!==24) return false;
 
-		core::import('model/request');
-		$request=new request();
+		$request=new Request();
 		$request->custom('X-Viber-Auth-Token',$this->token,true);
 		if($request->post('https://chatapi.viber.com/pa/send_message',json_encode(array(
 			'receiver'=>$recipient,

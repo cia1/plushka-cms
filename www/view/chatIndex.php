@@ -1,1 +1,1 @@
-<?php core::widget('chatForm'); ?>
+<?php plushka::widget('chatForm'); ?>

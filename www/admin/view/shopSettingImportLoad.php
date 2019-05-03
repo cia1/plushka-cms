@@ -1,5 +1,5 @@
-<?php if(core::error()) { ?>
-	<link href="<?=core::url()?>admin/public/template/front.css" rel="stylesheet" type="text/css" />
+<?php if(plushka::error()) { ?>
+	<link href="<?=plushka::url()?>admin/public/template/front.css" rel="stylesheet" type="text/css" />
 	<p>Импорт прерван.</p>
 	<?php
 	return;
@@ -8,6 +8,6 @@
 <p>Обработано <b><?=$this->total?></b> записей.</p>
 <script>
 setTimeout(function() {
-	document.location='<?=core::url().'admin/'.$this->link?>&_front';
+	document.location='<?=plushka::url().'admin/'.$this->link?>&_front';
 },7000);
 </script>

@@ -1,9 +1,6 @@
 <?php
-/* Событие: срабатывает перед началом вывода контента. Подменяет имя шаблона, если для запрошенной страницы указан индивидуальный шаблон
-Модуль: template (индивидуальные шаблоны для разных страниц сайта)
-Параметры: bool $data[0] - будет или нет обработан шаблон */
 if(!$data[0]) return true;
-$t=core::config();
+$t=plushka::config();
 $t=$t['template'];
 $link='';
 $cntGet=count($_GET['corePath']);
@@ -25,6 +22,6 @@ foreach($t as $item=>$template) {
 		if($cntItem==$cntGet) break;
 	}
 }
-if($tmplName) core::template($tmplName);
+if($tmplName) plushka::template($tmplName);
 return true;
 ?>

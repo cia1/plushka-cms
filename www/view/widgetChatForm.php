@@ -1,8 +1,8 @@
 <?php
-echo core::js('jquery.min','defer');
-echo core::js('jquery.form','defer');
+echo plushka::js('jquery.min','defer');
+echo plushka::js('jquery.form','defer');
 ?>
-<link type="text/css" rel="stylesheet" href="<?=core::url()?>public/css/chat.css" />
+<link type="text/css" rel="stylesheet" href="<?=plushka::url()?>public/css/chat.css" />
 <div id="chatConsole"><?php foreach($this->content as $item) { ?>
 	<p>
 		<span class="time"><?=date('d.m.Y H:i:s',$item['time'])?></span>
@@ -15,13 +15,13 @@ echo core::js('jquery.form','defer');
 		</span>
 	</p>
 <?php } ?></div>
-<form action="<?=core::link($this->options['urlSubmit'])?>" class="chatMessage" method="post" name="chatMessage">
+<form action="<?=plushka::link($this->options['urlSubmit'])?>" class="chatMessage" method="post" name="chatMessage">
 <?php if(!$this->fromLogin) { ?>
 	<p class="hideMe"><input type="text" name="chat[login]" placeholder="<?=LNGEnterYourName?>...	" style="width:98px;" />
 	&nbsp;&nbsp;&nbsp;
-	<img src="<?=core::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" placeholder="<?=LNGCaptcha?>" style="width:112px;" />
+	<img src="<?=plushka::url()?>captcha.php" alt="captcha" /> <input type="text" name="chat[captcha]" placeholder="<?=LNGCaptcha?>" style="width:112px;" />
 	&nbsp;&nbsp;
-	или <a href="<?=core::link('user/login')?>"><?=LNGlogIn?></a></p>
+	или <a href="<?=plushka::link('user/login')?>"><?=LNGlogIn?></a></p>
 <?php } ?>
 <div class="messageLine">
 	<input type="text" name="chat[message]" class="message" />
@@ -36,4 +36,4 @@ echo core::js('jquery.form','defer');
 <?php } ?>
 </form>
 <script>document.chatTime=<?=microtime(true)?>;document.chatUrlContent='<?=$this->options['urlContent']?>';</script>
-<?=core::js('jquery.chat','defer')?>
+<?=plushka::js('jquery.chat','defer')?>

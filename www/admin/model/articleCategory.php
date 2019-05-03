@@ -1,11 +1,13 @@
 <?php
-core::import('admin/core/modelEx');
+namespace plushka\admin\core;
+
+plushka::import('admin/core/modelEx');
 class articleCategory extends modelEx {
 
 	//Возвращает список ещё не опубликованных статей в категории $categoryId
 	public static function featureList($categoryId) {
 		$categoryId=(int)$categoryId;
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,date,title FROM article_'._LANG.' WHERE categoryId='.$categoryId.' AND date>'.time());
 		$data=array();
 		while($item=$db->fetchAssoc()) {
@@ -48,15 +50,15 @@ class articleCategory extends modelEx {
 		$sql='SELECT 1 FROM article_category_'._LANG.' WHERE alias='.$this->db->escape($data['alias']);
 		if($this->id) $sql.=' AND id<>'.$this->id;
 		if($this->db->fetchValue($sql)) {
-			core::error('Такой псевдоним уже используется для другой категории');
+			plushka::error('Такой псевдоним уже используется для другой категории');
 			return false;
 		}
 		return true;
 	}
 
 	protected function afterInsert($id=null) {
-		core::hook('modify','article/blog/'.$this->alias);
-		core::hook('modify','article/list/'.$this->alias);
+		plushka::hook('modify','article/blog/'.$this->alias);
+		plushka::hook('modify','article/list/'.$this->alias);
 		return true;
 	}
 
@@ -67,8 +69,8 @@ class articleCategory extends modelEx {
 	public function delete($id=null,$affected=false) {
 		if($id!==null) $this->load((int)$id,'id,alias');
 		if(!parent::delete($id)) return false;
-		core::hook('pageDelete','article/blog/'.$this->alias);
-		core::hook('pageDelete','article/list/'.$this->alias);
+		plushka::hook('pageDelete','article/blog/'.$this->alias);
+		plushka::hook('pageDelete','article/list/'.$this->alias);
 		return true;
 	}
 

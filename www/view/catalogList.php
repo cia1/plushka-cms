@@ -1,3 +1,6 @@
+<?php
+use plushka\model\catalog;
+?>
 <div id="catalog" itemscope itemtype="https://schema.org/DataCatalog">
 <?php if($this->text1) echo '<div class="text1" itemprop="about">',$this->text1,'</div>'; ?>
 <?php if(!$this->data) {
@@ -18,4 +21,4 @@
 	</div>
 <?php } ?>
 </div>
-<?php core::widget('pagination',array('limit'=>$this->onPage,'count'=>$this->foundRows)); ?>
+<?php plushka::widget('pagination',array('limit'=>$this->onPage,'count'=>$this->foundRows)); ?>

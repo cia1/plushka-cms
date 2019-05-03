@@ -1,6 +1,6 @@
 <?php
 //Форма с основными данными
-$f=core::form();
+$f=plushka::form();
 $f->hidden('menuId',$this->data['menuId']);
 $f->hidden('typeId',$this->data['typeId'],'id="typeId"'); //Обновляется при выборе какого-либо типа (для новых пунктов меню)
 $f->hidden('id',$this->data['id']);
@@ -33,7 +33,7 @@ if(!$this->data['type']) {
 <script>
 function loadForm(id,controller,action) {
 	jQuery('#typeId').val(id);
-	var url='<?=core::url()?>admin/index2.php?controller='+controller+'&action='+action+'&_lang=<?=_LANG?>'<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&link=<?=urlencode($this->data['link'])?>";
+	var url='<?=plushka::url()?>admin/index2.php?controller='+controller+'&action='+action+'&_lang=<?=_LANG?>'<?php if(isset($_GET['_front'])) echo '+"&_front"'; ?>+"&link=<?=urlencode($this->data['link'])?>";
 	$('#_type').load(url,function(data) { //После загрузки формы модуля
 		setTimeout(function() {
 			var f=$('#_type form');
@@ -54,7 +54,7 @@ function loadForm(id,controller,action) {
 			});
 		},51);
 	});
-	jQuery('#menuUrl').html('<?=core::url()?>'+controller);
+	jQuery('#menuUrl').html('<?=plushka::url()?>'+controller);
 }
 jQuery('form[name=menu]').submit(function() {
 	if(!jQuery('#menuLink').val()) return false;

@@ -1,10 +1,11 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\core;
 
 /**
  * Отвечает за генерацию кнопок административного интерфейса
  */
-class admin {
+class Admin {
 
 	/** @var int Порядковый номер кнопки в группе */
 	private $_index=0;
@@ -32,11 +33,11 @@ class admin {
 		if($item===null) return;
 		$_count++;
 		$link=$item[1];
-		if($link[0]=='?') $link=core::url().'admin/index.php'.$link; else $link=core::url().'admin/'.$link;
+		if($link[0]=='?') $link=plushka::url().'admin/index.php'.$link; else $link=plushka::url().'admin/'.$link;
 		$link.='&_front&_lang='._LANG;
 		echo '<a href="',$link,'" onclick="';
 		if(isset($item[5]) && $item[5]) echo $item[5],';';
-		echo 'return $.adminDialog(this);" class="_adminItem"><img src="',core::url(),'admin/public/icon/',$item[2],'16.png" alt="';
+		echo 'return $.adminDialog(this);" class="_adminItem"><img src="',plushka::url(),'admin/public/icon/',$item[2],'16.png" alt="';
 		if(isset($item[4]) && $item[4]!==null) echo str_replace('"','',$item[4]); else echo str_replace('"','',$item[3]);
 		echo '" title="',str_replace('"','',$item[3]),'" index="',($this->_index++),'" style="width:16px;height:16px;" id="_adminButton',$_count,'" /></a>';
 	}

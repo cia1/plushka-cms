@@ -1,4 +1,4 @@
-<link href="<?=core::url()?>public/css/chat.css" rel="stylesheet" type="text/css" />
+<link href="<?=plushka::url()?>public/css/chat.css" rel="stylesheet" type="text/css" />
 <?php foreach($this->content as $item) { ?>
 	<p>
 		<span class="time"><?=date('d.m.Y H:i:s',$item['time'])?></span>
@@ -11,4 +11,4 @@
 		</span>
 	</p>
 <?php } ?>
-<p><a href="<?=core::link('chat')?>"><?=LNGToChat?>...</a></p>
+<p><a href="<?=plushka::link('chat')?>"><?=LNGToChat?>...</a></p>

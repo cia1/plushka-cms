@@ -1,8 +1,12 @@
-<?php class oauth {
+<?php
+namespace plushka\model;
+use plushka;
+
+class Oauth {
 
 	//Выполняет редирект пользователя на сервер OAuth
 	public static function redirect($id,$backlink) {
-		$data=core::config('oauth');
+		$data=plushka::config('oauth');
 		if(!isset($data[$id])) return false;
 		$data=$data[$id];
 		header('Location: '.self::_linkCode($id,$data[0],$backlink));
@@ -12,13 +16,13 @@
 	//Возвращет массив с данными авторизации или false, если авторизация не удалась
 	// Возвращаемые данные: id, email, и д.р.
 	public static function getAnswer($id,$backlink) {
-		core::language('oauth');
+		plushka::language('oauth');
 		if(isset($_REQUEST['error'])) {
-			if(isset($_REQUEST['error_description'])) core::error(urldecode($_REQUEST['error_description']));
-			else core::error(LNGLogInFailed);
+			if(isset($_REQUEST['error_description'])) plushka::error(urldecode($_REQUEST['error_description']));
+			else plushka::error(LNGLogInFailed);
 			return false;
 		}
-		$data=core::config('oauth');
+		$data=plushka::config('oauth');
 		if(!isset($data[$id])) return false;
 		$data=$data[$id];
 		$answer=self::_load(self::_linkToken($id,$data[0],$data[1],$_REQUEST['code'],$backlink)); //запрос токена
@@ -34,7 +38,7 @@
 
 	//Возвращает информацию о пользователе, если он был зарегистрирован ранее или false
 	public static function getUser($socialId,$answerId) {
-		$db=core::db();
+		$db=plushka::db();
 		return $db->fetchArrayOnceAssoc('SELECT u.id,u.groupId,u.login,u.email FROM oauth o LEFT JOIN user u ON u.id=o.userId WHERE o.id='.$db->escape($answerId).' AND o.social='.$db->escape($socialId));
 	}
 
@@ -47,13 +51,13 @@
 			$data=curl_exec($ch);
 		} else $data=file_get_contents($link);
 		if(!$data) {
-			core::error(LNGLogInFailed);
+			plushka::error(LNGLogInFailed);
 			return false;
 		}
 		if($data[0]=='{') $data=json_decode($data,true); else parse_str($data,$data);
 		if(isset($data['error'])) {
-			if(isset($data['error_description'])) core::error($data['error_description']);
-			else core::error(LNGLogInFailed);
+			if(isset($data['error_description'])) plushka::error($data['error_description']);
+			else plushka::error(LNGLogInFailed);
 			return false;
 		}
 		if(isset($data['user_id'])) { //разные соц. сети именуют это поле по разному
@@ -65,7 +69,7 @@
 
 	//Возвращает URL страницы соц.сети, открывающей сессию авторизации (первый запрос)
 	private static function _linkCode($id,$appId,$backlink) {
-		$backlink=urlencode(core::link($backlink,true,true));
+		$backlink=urlencode(plushka::link($backlink,true,true));
 		switch($id) {
 		case 'vk':
 			return 'https://oauth.vk.com/authorize?client_id='.$appId.'&scope=email&redirect_uri='.$backlink.'&response_type=code';
@@ -76,7 +80,7 @@
 
 	//Возвращает URL страницы соц.сети, возвращающей токен (второй запрос)
 	private static function _linkToken($id,$appId,$secret,$code,$backlink) {
-		$backlink=urlencode(core::link($backlink,true,true));
+		$backlink=urlencode(plushka::link($backlink,true,true));
 		switch($id) {
 		case 'vk':
 			return 'https://oauth.vk.com/access_token?client_id='.$appId.'&client_secret='.$secret.'&code='.$code.'&redirect_uri='.$backlink;

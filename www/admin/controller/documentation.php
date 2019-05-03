@@ -1,9 +1,12 @@
-<?php class sController extends controller {
+<?php
+namespace plushka\admin\controller;
+
+class sController extends controller {
 
 	public function actionIndex() {
 		if(isset($_GET['path'])===false) $path=array(null,'index');
 		else $path=explode('/',$_GET['path']);
-		$link=core::config('admin/_module','core');
+		$link=plushka::config('admin/_module','core');
 		$link=str_replace('manual','documentation',$link['manual']);
 		$path[0]=$link;
 		$path=implode('/',$path);
@@ -20,14 +23,14 @@
 
 	/* Создание или редактирование статьи */
 	public function actionArticle() {
-		core::import('admin/model/documentation');
+		plushka::import('admin/model/documentation');
 		$article=new documentation();
 		if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
 		elseif(isset($_GET['id'])) {
-			if(!$article->loadById($_GET['id'])) core::error404();
+			if(!$article->loadById($_GET['id'])) plushka::error404();
 		}
 		elseif(isset($_GET['parentId'])) $article->parentId=$_GET['parentIdId'];
-		$form=core::form();
+		$form=plushka::form();
 		$form->hidden('id',$article->id);
 		$form->hidden('parentId',$article->parentId);
 		$form->commonAppend($article,'title,alias,metaTitle,metaDescription,metaKeyword');
@@ -39,12 +42,12 @@
 	}
 
 	public function actionArticleSubmit($data) {
-		core::import('admin/model/documentation');
+		plushka::import('admin/model/documentation');
 		$documentation=new documentation();
 		$documentation->set($data);
 		if(!$documentation->save()) return false;
-		core::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));
-		core::redirect('documentation/article?id='.$documentation->id);
+		plushka::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));
+		plushka::redirect('documentation/article?id='.$documentation->id);
 	}
 
 }

@@ -30,7 +30,7 @@ echo '<option value="#'.$id.'" class="head">'.$data['title'].'</option>';
 option.head {background:#eee;}
 </style>
 
-<form action="<?=core::link('admin/shopSetting/categoryFeature')?>" method="post" onSubmit="featureCategorySubmit();">
+<form action="<?=plushka::link('admin/shopSetting/categoryFeature')?>" method="post" onSubmit="featureCategorySubmit();">
 <input type="hidden" name="shopSetting[categoryId]" value="<?=$this->id?>" />
 <input type="hidden" name="shopSetting[feature]" value="" id="featureField" />
 <input type="submit" class="button" value="Продолжить" style="margin-top:20px;" />

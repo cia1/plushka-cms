@@ -1,4 +1,10 @@
-<?php class validator {
+<?php
+//Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\core;
+use plushka;
+use plushka\core\Picture;
+
+class Validator {
 
 	protected $_bool=array(); //список булевых полей (для корректного преобразования)
 	protected $_data=array(); //содержит набор данных
@@ -34,12 +40,12 @@
 	rule: [type, title, required]
 	*/
 	public function validate($rule=null) {
-		core::language('global');
+		plushka::language('global');
 		if($rule===null) $rule=$this->rule();
 		foreach($rule as $attribute=>$item) {
 			$value=isset($this->_data[$attribute]) ? $this->_data[$attribute] : null;
 			if(isset($item[2]) && $item[2] && ($value===null || $value==='')) { //required=true
-				core::error(sprintf(LNGFieldCannotByEmpty,$item[1]));
+				plushka::error(sprintf(LNGFieldCannotByEmpty,$item[1]));
 				return false;
 			}
 			if($this->{'validate'.ucfirst($item[0])}($attribute,$item)===false) return false;
@@ -57,7 +63,7 @@
 
 	protected function validateCaptcha($attribute,$setting) {
 		if((int)$this->_data[$attribute]!==$_SESSION['captcha']) {
-			core::error($setting[1].' '.LNGwroteWrong);
+			plushka::error($setting[1].' '.LNGwroteWrong);
 			return;
 		}
 		return true;
@@ -65,7 +71,7 @@
 
 	protected function validateCallback($attribute,$setting) {
 		$this->_data[$attribute]=call_user_func_array($setting[3],array($this->$attribute,$attribute));
-		if(core::error()) return false;
+		if(plushka::error()) return false;
 		return true;
 	}
 
@@ -77,7 +83,7 @@
 		}
 		if(!is_numeric($value)) $value=strtotime($value);
 		if($value<1) {
-			core::error(sprintf(LNGFieldHasBeDate,$setting[1]));
+			plushka::error(sprintf(LNGFieldHasBeDate,$setting[1]));
 			return false;
 		}
 		return true;
@@ -86,7 +92,7 @@
 	protected function validateEmail($attribute,$setting) {
 		$value=$this->_data[$attribute];
 		if(filter_var($value,FILTER_VALIDATE_EMAIL)===false) {
-			core::error(sprintf(LNGFieldHasBeEMail,$setting[1]));
+			plushka::error(sprintf(LNGFieldHasBeEMail,$setting[1]));
 			return false;
 		}
 		return true;
@@ -97,11 +103,11 @@
 		if($value==='') $value=null; else $value=(float)$value;
 		if($value) {
 			if(isset($setting['min']) && $setting['min']>$value) {
-				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 			if(isset($setting['max']) && $setting['max']<$value) {
-				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 		}
@@ -113,7 +119,6 @@
 
 	protected function validateImage($attribute,$setting) {
 		//setting[]: 'minWidth','minHeight','maxWidth','maxHeight'
-		core::import('core/picture');
 		$value=&$this->_data[$attribute];
 		if(is_array($value) && !$setting[2] && !$setting['size']) {
 			$value=null;
@@ -135,11 +140,11 @@
 		if($value==='') $value=null; elseif($value!==null) $value=(int)$value;
 		if($value) {
 			if(isset($setting['min']) && $setting['min']>$value) {
-				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 			if(isset($setting['max']) && $setting['max']<$value) {
-				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 		}
@@ -149,11 +154,11 @@
 		$value=$this->_data[$attribute];
 		$i=preg_match('/^[a-zA-Z0-9\-_]*?$/',$value);
 		if(!$i) {
-			core::error(sprintf(LNGFieldCanByLatin,$setting[1]));
+			plushka::error(sprintf(LNGFieldCanByLatin,$setting[1]));
 			return false;
 		}
 		if(isset($setting['max']) && strlen($value)>$setting['max']) {
-			core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+			plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 			return false;
 		}
 		return true;
@@ -163,7 +168,7 @@
 		$value=$this->_data[$attribute];
 		if($value) {
 			if(!preg_match('%'.$setting[3].'%',$value)) {
-				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 		}
@@ -176,11 +181,11 @@
 		if(!isset($setting['trim']) || $setting['trim']) $value=trim($value);
 		if($value) {
 			if(isset($setting['min']) && $setting['min']>mb_strlen($value,'UTF-8')) {
-					core::error(sprintf(LNGFieldTextTooShort,$setting[1]));
+					plushka::error(sprintf(LNGFieldTextTooShort,$setting[1]));
 					return false;
 			}
 			if(isset($setting['max']) && $setting['max']<mb_strlen($value,'UTF-8')) {
-				core::error(sprintf(LNGFieldTextTooLong,$setting[1]));
+				plushka::error(sprintf(LNGFieldTextTooLong,$setting[1]));
 				return false;
 			}
 		}
@@ -190,25 +195,25 @@
 
 
 	private function _picture($image,$setting) {
-		$picture=new picture($image);
-		if(core::error()) return false;
+		$picture=new Picture($image);
+		if(plushka::error()) return false;
 		if(isset($setting['minWidth']) || isset($setting['maxWidth'])) {
 			$w=$picture->width();
 			$h=$picture->height();
 			if(isset($setting['minWidth']) && $w<$setting['minWidth']) {
-				core::error(sprintf(LNGImageWidthCannotBeLessPixels,$setting['minWidth']));
+				plushka::error(sprintf(LNGImageWidthCannotBeLessPixels,$setting['minWidth']));
 				return false;
 			}
 			if(isset($setting['maxWidth']) && $w>$setting['maxWidth']) {
-				core::error(sprintf(LNGImageWidthCannotBeMorePixels,$setting['maxWidth']));
+				plushka::error(sprintf(LNGImageWidthCannotBeMorePixels,$setting['maxWidth']));
 				return false;
 			}
 			if(isset($setting['minHeight']) && $h<$setting['minHeight']) {
-				core::error(sprintf(LNGImageHeightCannotBeLessPixels,$setting['minHeight']));
+				plushka::error(sprintf(LNGImageHeightCannotBeLessPixels,$setting['minHeight']));
 				return false;
 			}
 			if(isset($setting['maxHeight']) && $h>$setting['maxHeight']) {
-				core::error(sprintf(LNGImageHeightCannotBeMorePixels,$setting['maxHeight']));
+				plushka::error(sprintf(LNGImageHeightCannotBeMorePixels,$setting['maxHeight']));
 				return false;
 			}
 		}

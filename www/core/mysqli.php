@@ -1,11 +1,13 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+namespace plushka\core;
+use plushka;
 
 /**
  * Олицетворяет подключение к базе данных MySQL
- * Для получения экземпляра класса использовать core::db() или core::mysql()
+ * Для получения экземпляра класса использовать plushka::db() или plushka::mysql()
  */
-class mysql {
+class Mysqli {
 
 	private static $_connectId; //идентификатор подключения (одно подключение для всех)
 	private $_queryId; //идентификатор запроса (различно для разных экземпляров класса)
@@ -29,8 +31,8 @@ class mysql {
 	}
 
 	public function __construct() {
-		$cfg=core::config();
-		@self::$_connectId=new mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
+		$cfg=\plushka::config();
+		@self::$_connectId=new \mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
 		if(self::$_connectId->connect_errno) {
 			header('HTTP/1.1 500 Internal Server Error');
 			die('Cannot connect to database.');
@@ -94,7 +96,7 @@ class mysql {
 		}
 		$this->_queryId=self::$_connectId->query($query);
 		if($this->_queryId) return true;
-		$cfg=core::config();
+		$cfg=plushka::config();
 		if($cfg['debug']) echo '<p>MYSQL QUERY ERROR: &laquo;'.$query.'&raquo;<p>';
 		return false;
 	}

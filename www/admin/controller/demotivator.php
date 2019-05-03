@@ -1,4 +1,6 @@
 <?php
+namespace plushka\admin\controller;
+
 /* Управление демотиваторами */
 class sController extends controller {
 
@@ -17,8 +19,8 @@ class sController extends controller {
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Общие настройки модуля демотиваторов */
 	public function actionSetting() {
-		$cfg=core::config('demotivator');
-		$f=core::form();
+		$cfg=plushka::config('demotivator');
+		$f=plushka::form();
 		$f->text('imageWidthMax','Максимально допустимая ширина рисунка',$cfg['imageWidthMax']);
 		$f->text('paddingTop','Отступ сверху',$cfg['paddingTop']);
 		$f->text('paddingBottom','Отступ снизу',$cfg['paddingBottom']);
@@ -37,11 +39,11 @@ class sController extends controller {
 
 	public function actionSettingSubmit($data) {
 		$f='data/'.strtolower(str_replace(' ','-',$data['fontFamily'])).'.ttf';
-		if(!file_exists(core::path().$f)) {
-			core::error('Не найден файл /'.$f);
+		if(!file_exists(plushka::path().$f)) {
+			plushka::error('Не найден файл /'.$f);
 			return false;
 		}
-		core::import('admin/core/config');
+		plushka::import('admin/core/config');
 		$cfg=new config();
 		$cfg->imageWidthMax=(int)$data['imageWidthMax'];
 		$cfg->paddingTop=(int)$data['paddingTop'];
@@ -55,17 +57,17 @@ class sController extends controller {
 		$cfg->watermarkText=$data['watermarkText'];
 		$cfg->watermarkColor=$data['watermarkColor'];
 		$cfg->save('demotivator');
-		core::success('Изменения сохранены');
-		core::redirect('demotivator/setting');
+		plushka::success('Изменения сохранены');
+		plushka::redirect('demotivator/setting');
 	}
 
 	/* Ожидающие модерации или скрытые админом демотиваторы */
 	public function actionHidden() {
-		$t=&core::table();
+		$t=&plushka::table();
 		$t->rowTh('Изображение|Название|');
-		$db=core::db();
+		$db=plushka::db();
 		$db->query('SELECT id,title,image FROM demotivator WHERE status=0 ORDER BY date DESC');
-		$url=core::url().'public/demotivator/';
+		$url=plushka::url().'public/demotivator/';
 		while($item=$db->fetch()) {
 			$t->link('demotivator/edit?id='.$item[0],'<img src="'.$url.$item[2].'" style="height:60px;" />',null,'align="center"');
 			$t->link('demotivator/edit?id='.$item[0],$item[1]);
@@ -77,9 +79,9 @@ class sController extends controller {
 
 	/* Редактирование демотиватора */
 	public function actionEdit() {
-		$db=core::db();
+		$db=plushka::db();
 		$data=$db->fetchArrayOnceAssoc('SELECT * FROM demotivator WHERE id='.$_GET['id']);
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->text('title','Название',$data['title']);
 		$f->date('date','Дата',date('d.m.Y',$data['date']));
@@ -92,7 +94,7 @@ class sController extends controller {
 	}
 
 	public function actionEditSubmit($data) {
-		$m=core::model('demotivator');
+		$m=plushka::model('demotivator');
 		$m->set($data);
 		if(!$m->save(array(
 			'id'=>array('primary'),
@@ -102,18 +104,18 @@ class sController extends controller {
 			'metaDescription'=>array('string'),
 			'status'=>array('boolean')
 		))) return false;
-		core::success('Изменения сохранены');
-		core::redirect('demotivator/edit?id='.$m->id);
+		plushka::success('Изменения сохранены');
+		plushka::redirect('demotivator/edit?id='.$m->id);
 	}
 
 	/* Удаление демотиватора */
 	public function actionDelete() {
-		$db=core::db();
-		$f=core::path().'public/demotivator/'.$db->fetchValue('SELECT image FROM demotivator WHERE id='.(int)$_GET['id']);
+		$db=plushka::db();
+		$f=plushka::path().'public/demotivator/'.$db->fetchValue('SELECT image FROM demotivator WHERE id='.(int)$_GET['id']);
 		if(file_exists($f)) unlink($f);
 		$db->query('DELETE FROM demotivator WHERE id='.(int)$_GET['id']);
-		core::success('Демотиватор удалён');
-		core::redirect('demotivator/hidden');
+		plushka::success('Демотиватор удалён');
+		plushka::redirect('demotivator/hidden');
 	}
 /* ----------------------------------------------------------------------------------- */
 
@@ -121,7 +123,7 @@ class sController extends controller {
 /* ---------- MENU ------------------------------------------------------------------- */
 	/* Реализует ссылку на конструктор демотиваторов. Каких-либо параметров не требуется. */
 	public function actionMenuConstructor() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->submit('Продолжить','submit');
 
 		return $f;
@@ -133,7 +135,7 @@ class sController extends controller {
 
 	/* Реализует ссылку на галерею демотиваторов. Каких-либо параметров не требуется. */
 	public function actionMenuGallery() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->submit('Продолжить','submit');
 
 		return $f;
@@ -148,7 +150,7 @@ class sController extends controller {
 /* ---------- WIDGET ----------------------------------------------------------------- */
 	/* Последний добавленный демотиватор. */
 	public function actionWidgetLast() {
-		$f=core::form();
+		$f=plushka::form();
 		$f->hidden('cacheTime',10); //время кеширования виджета
 		$f->submit('Продолжить');
 		return $f;

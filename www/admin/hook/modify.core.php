@@ -2,8 +2,8 @@
 /* Обновляет Last modified
 Параметры: string $data[0] - относительный URL страницы (без указания языка);
 bool $data[1] - если true, то обновить для всех языков */
-$db=core::db();
-$cfg=core::config();
+$db=plushka::db();
+$cfg=plushka::config();
 if(isset($data[1]) && $data[1]) {
 	$link=array();
 	foreach($cfg['languageList'] as $item) {

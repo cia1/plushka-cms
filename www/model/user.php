@@ -1,9 +1,14 @@
 <?php
+namespace plushka\model;
+use plushka;
+use plushka\core\Email;
+use plushka\core\Model;
+
 /* Библиотека функций личного кабинета пользователей */
 define('_SALT','2f48uj0'); //Соль для шифрования пароля (одна на всех)
-core::import('core/model');
-core::language('user');
-class modelUser extends model {
+plushka::language('user');
+
+class User extends \plushka\core\Model {
 
 	private $_self; //указатель на класс, находящийся в сессии (содержит информацию о пользователе)
 	private $_attribute; //контейнет для массива, содержащего дополнительные данные пользователя
@@ -13,14 +18,14 @@ class modelUser extends model {
 		parent::__construct('user');
 		$this->_self=$user;
 		if($id) {
-			if(!$this->loginById($id)) core::error(LNGUserNotExists);
+			if(!$this->loginById($id)) plushka::error(LNGUserNotExists);
 		} elseif($user!==null) foreach($this->_self as $key=>$value) $this->_data[$key]=$value;
 	}
 
 	//Загружает данные пользователя по адресу электронной почты (без авторизации)
 	public function loadByEmail($email) {
 		if(!$this->load('email='.$this->db->escape($email),'id,groupId,status,login,email')) {
-			core::error(LNGUserWithEmailNotFound);
+			plushka::error(LNGUserWithEmailNotFound);
 			return false;
 		}
 		return true;
@@ -29,11 +34,11 @@ class modelUser extends model {
 	//Загружает данные, а также авторизует пользователя по указанному идентификатору
 	public function loginById($id) {
 		if(!$this->loadById($id)) {
-			core::error(LNGUserNotExists);
+			plushka::error(LNGUserNotExists);
 			return false;
 		}
 		$this->groupId=(int)$this->groupId;
-		if($this->_self) { //Если класс создан через core:user() или core::userCore()
+		if($this->_self) { //Если класс создан через core:user() или plushka::userCore()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
 			$this->_self->login=$this->login;
@@ -79,7 +84,7 @@ class modelUser extends model {
 			'id'=>array('primary'),
 			'login'=>array('callback',LNGlogin,true,array($this,'validateLogin')),
 			'password'=>array('callback',LNGpassword,true,array($this,'validatePassword')),
-			'email'=>array('callback','e-mail',core::config('_core','emailRequired'),array($this,'validateEmail')),
+			'email'=>array('callback','e-mail',plushka::config('_core','emailRequired'),array($this,'validateEmail')),
 			'code'=>array('string')
 		);
 		if(isset($this->_data['status'])) $data['status']=array('boolean');
@@ -90,11 +95,11 @@ class modelUser extends model {
 	//Загружает данные, а также авторизует пользователя по коду активации
 	public function loginByCode($code) {
 		if(!$this->load('status!=2 AND code='.$this->db->escape($code))) {
-			core::error(LNGActivationCodeIsWrong);
+			plushka::error(LNGActivationCodeIsWrong);
 			return false;
 		}
 		$this->groupId=(int)$this->groupId;
-		if($this->_self) { //Если класс создан через core:user() или core::userCore()
+		if($this->_self) { //Если класс создан через core:user() или plushka::userCore()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
 			$this->_self->login=$this->login;
@@ -108,11 +113,11 @@ class modelUser extends model {
 	public function login($login,$password) {
 		//TODO: Когда PHP 5.6 станет использоваться повсеместно, нужно переписать на hash_equals
 		if(!$this->load('login='.$this->db->escape($login).' AND password='.$this->db->escape(self::_hash($password)).' AND status!=2')) {
-			core::error(LNGLoginOrPasswordIsWrong);
+			plushka::error(LNGLoginOrPasswordIsWrong);
 			return false;
 		}
 		$this->groupId=(int)$this->groupId;
-		if($this->_self) { //Если класс создан не напрямую, а через core::user()->model(), то передать в класс user данные пользователя
+		if($this->_self) { //Если класс создан не напрямую, а через plushka::user()->model(), то передать в класс user данные пользователя
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
 			$this->_self->login=$this->login;
@@ -127,19 +132,19 @@ class modelUser extends model {
 	public function message($user2Id=null,$user2Login=null,$message) {
 		$message=trim($message);
 		if(!$message) {
-			core::error(LNGNothingToSend);
+			plushka::error(LNGNothingToSend);
 			return false;
 		}
-		$db=core::db();
+		$db=plushka::db();
 		//Даже если были бы заданы и ИД и логин, то всёравно нужно удостовериться что такой пользователь существует
 		if($user2Id) $user2=$db->fetchArrayOnceAssoc('SELECT id,login FROM user WHERE id='.$user2Id);
 		elseif($user2Login) $user2=$db->fetchArrayOnceAssoc('SELECT id,login FROM user WHERE login='.$db->escape($user2Login));
 		else $user2=null;
 		if(!$user2) {
-			core::error(LNGIncorrectRecepientData);
+			plushka::error(LNGIncorrectRecepientData);
 			return false;
 		}
-		if(!$this->_self->id) core::redirect('user/login');
+		if(!$this->_self->id) plushka::redirect('user/login');
 		$db->insert('user_message',array(
 			'user1Id'=>$this->_self->id,
 			'user1Login'=>$this->_self->login,
@@ -149,16 +154,15 @@ class modelUser extends model {
 			'date'=>time()
 		));
 		//Уведомления
-		if(core::moduleExists('notification')) {
-			core::import('model/notification');
-			notification::sendIfCan($user2['id'],'privateMessage','<p>'.sprintf(LNGYouGotNewMessageOnSite,$_SERVER['HTTP_HOST'].core::url()).'</p><hr />'.$message);
+		if(plushka::moduleExists('notification')) {
+			Notification::sendIfCan($user2['id'],'privateMessage','<p>'.sprintf(LNGYouGotNewMessageOnSite,$_SERVER['HTTP_HOST'].plushka::url()).'</p><hr />'.$message);
 		}
 		return true;
 	}
 
 	/* Возвращает массив, содержащий все права пользователя (только для администраторов) */
 	public function rightData($module) {
-		$db=core::db();
+		$db=plushka::db();
 		return $db->fetchArrayOnceAssoc('SELECT description,picture FROM user_right WHERE module='.$db->escape($module));
 	}
 
@@ -190,7 +194,7 @@ class modelUser extends model {
 		$this->password=$password;
 		$this->email=$email;
 		if (!$this->save()) return false;
-		if($this->_self) { //Если этот класс создан через core::user()->model()
+		if($this->_self) { //Если этот класс создан через plushka::user()->model()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
 			$this->_self->login=$this->login;
@@ -204,9 +208,8 @@ class modelUser extends model {
 	"restoreLink" - ссылка на страницу восстановления пароля, "restorePassword" - ответное письмо (восстановление пароля),
 	"info" (шаблон в /admin/data - регистрационная информация пользователя */
 	public function sendMail($type) {
-		core::import('core/email');
-		$e=new email();
-		$cfg=core::config();
+		$e=new Email();
+		$cfg=plushka::config();
 		$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 		$e->replyTo($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 		$template=array('login'=>$this->login);
@@ -216,7 +219,7 @@ class modelUser extends model {
 		$templateName='user'.ucfirst($type);
 		switch($type) {
 		case 'activate': //ссылка подтверждения e-mail
-			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/confirm').'?code='.$this->code;
+			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].plushka::link('user/confirm').'?code='.$this->code;
 			break;
 		case 'infoAdmin': //письмо администратору
 			$e->replyTo($this->_data['email'],$this->_data['login']);
@@ -226,14 +229,14 @@ class modelUser extends model {
 			break;
 		case 'restoreLink': //ссылка на восстановление пароля
 			$e->subject(sprintf(LNGPasswordRestoreOnSite,$_SERVER['HTTP_HOST']));
-			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].core::link('user/restore').'?code='.$this->code;
+			$template['confirmLink']='http://'.$_SERVER['HTTP_HOST'].plushka::link('user/restore').'?code='.$this->code;
 			break;
 		case 'restorePassword': //содержит новый пароль
 			$e->subject(sprintf(LNGPasswordRestoreOnSite,$_SERVER['HTTP_HOST']));
 			$template['password']=$this->_data['password'];
 			break;
 		case 'info': //информация пользователю
-			core::import('language/user.'._LANG);
+		  core::language('user');
 			$e->subject(sprintf(LNGYouAreRegisteredOnSite,$_SERVER['HTTP_HOST']));
 			if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='('.LNGknownOnlyYou.')';
 			$template['status']=($this->_data['status'] ? LNGaccountActive : LNGaccountBlocked);
@@ -256,8 +259,8 @@ class modelUser extends model {
 		$this->_data['password']=$password;
 		//Обработать событие изменения или создания пользователя
 		if($result) {
-			if($isNew) core::hook('userCreate',$this->_data['id'],$this->_data['login'],$this->_data['email']);
-			else core::hook('userModify',$this->_data['id'],$this->_data['login'],$this->_data['email']);
+			if($isNew) plushka::hook('userCreate',$this->_data['id'],$this->_data['login'],$this->_data['email']);
+			else plushka::hook('userModify',$this->_data['id'],$this->_data['login'],$this->_data['email']);
 		}
 		return $result;
 	}
@@ -267,17 +270,17 @@ class modelUser extends model {
 	public function validateLogin($value,$field) {
 		$value=trim(str_replace(array("'",'"','/','\\'),'',strip_tags($value)));
 		if(strlen($value)<3) {
-			core::error(LNGLoginCannotBeShorter3Symbols);
+			plushka::error(LNGLoginCannotBeShorter3Symbols);
 			return false;
 		}
 		if(mb_strlen($value)>35) {
-			core::error(LNGLoginCannotBeLonger35Symbols);
+			plushka::error(LNGLoginCannotBeLonger35Symbols);
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE login='.$this->db->escape($value);
 		if($this->_data['id']) $q.=' AND id!='.(int)$this->_data['id'];
 		if($this->db->fetchValue($q)) {
-			core::error(LNGThisLoginAlreadyUses);
+			plushka::error(LNGThisLoginAlreadyUses);
 			return false;
 		}
 		return $value;
@@ -286,13 +289,13 @@ class modelUser extends model {
 	/* Проверяет уникальность адреса электронной почты */
 	public function validateEmail($value,$field) {
 		if(!filter_var($value,FILTER_VALIDATE_EMAIL)) {
-			core::error(LNGEMailIsWrong);
+			plushka::error(LNGEMailIsWrong);
 			return false;
 		}
 		$q='SELECT 1 FROM user WHERE email='.$this->db->escape($value);
 		if($this->_data['id']) $q.=' AND id!='.$this->data['id'];
 		if($this->db->fetchValue($q)) {
-			core::error(LNGThisEmailAlreadyUses);
+			plushka::error(LNGThisEmailAlreadyUses);
 			return false;
 		}
 		return $value;
@@ -302,7 +305,7 @@ class modelUser extends model {
 	public function validatePassword($value,$field) {
 		$l=strlen($value);
 		if($l<3) {
-			core::error(LNGPasswordTooShort);
+			plushka::error(LNGPasswordTooShort);
 			return false;
 		}
 		return $value;
@@ -311,7 +314,7 @@ class modelUser extends model {
 	// Удаляет пользователя с указанным идентификатором
 	public function delete($id=null,$affected=false) {
 		if(!parent::delete($id,$affected)) return false;
-		core::hook('userDelete',$id);
+		plushka::hook('userDelete',$id);
 		return true;
 	}
 

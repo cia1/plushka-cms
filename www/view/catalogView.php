@@ -4,7 +4,7 @@
 	if(!$item['value']) continue;
 	echo '<div class="item item'.$i.'">';
 	if($item['title']) echo '<label>'.$item['title'].'</label>: ';
-	catalog::render($item);
+	\plushka\model\catalog::render($item);
 	echo '</div>';
 }
 ?>

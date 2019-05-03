@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-
-core::import('core/validator');
+namespace plushka\core;
 
 /**
  * Универсальная модель. Может использоваться динамически или как базовый класс ActiveRecord
@@ -18,7 +17,7 @@ core::import('core/validator');
  *  операции INSERT и DELETE выполняются для всех копий таблиц, имена полей указываются без суффикса языка,
  *  операция UPDATE выполняется для одной мультиязычной таблицы, имена полей указываются без суффикса языка.
  */
-class model extends validator {
+class Model extends Validator {
 
 	/** @var string Имя таблицы базы данных */
 	protected $_table;
@@ -48,9 +47,9 @@ class model extends validator {
 				return '_'.strtolower($letter[0]);
 			},(new ReflectionClass($this))->getShortName());
 		} else $this->_table=$table;
-		if($db==='db') $this->db=core::db();
-		elseif($db==='sqlite') $this->db=core::sqlite();
-		elseif($db==='mysql') $this->db=core::mysql();
+		if($db==='db') $this->db=plushka::db();
+		elseif($db==='sqlite') $this->db=plushka::sqlite();
+		elseif($db==='mysql') $this->db=plushka::mysql();
 		else $this->db=$db;
 	}
 
@@ -94,7 +93,7 @@ class model extends validator {
 		if(!$this->_data) return false;
 		//Если данамическое использование, мультиязычный режим и указаны все поля (*), то выбрать поля только для одного языка
 		if($this->_multiLanguage===true && $fieldList==='*' && is_array($this->_languageDb)) {
-			$lang=core::config('_core','languageList');
+			$lang=plushka::config('_core','languageList');
 			foreach($this->_languageDb as $attribute) {
 				$this->_data[$attribute]=$this->_data[$attribute.'_'._LANG];
 				foreach($lang as $item) unset($this->_data[$attribute.'_'.$item]);
@@ -119,7 +118,7 @@ class model extends validator {
 	 * Выполняет валидацию данных модели
 	 * Если параметр $rule не задан, то правила будут взяты из static::rule().
 	 * @param array|null Правила валидации
-	 * @return bool TRUE - валидация прошла успешно, FALSE - во вермя проверки возникли ошибки (@see core::error())
+	 * @return bool TRUE - валидация прошла успешно, FALSE - во вермя проверки возникли ошибки (@see plushka::error())
 	 * @see /core/validator.php
 	 */
 	public function validate($rule=null) {
@@ -196,7 +195,7 @@ class model extends validator {
 		if($this->_languageDb===null) $this->_setLanguageDb();
 
 		if($this->_multiLanguage===true && $this->_languageDb===true) {
-			$lang=core::config('_core','languageList');
+			$lang=plushka::config('_core','languageList');
 			foreach($lang as $item) {
 				$this->db->query('DELETE FROM '.$this->_table.'_'.$item.' WHERE id='.$id);
 			}
@@ -253,12 +252,9 @@ class model extends validator {
 	 * FALSE - не мультиязычная таблица, TRUE - мультиязычная таблица, ARRAY - список мультиязычных полей
 	 */
 	private function _setLanguageDb() {
-		$f=core::path().'cache/language-database.php';
-		if(!file_exists($f)) {
-			core::import('core/cache');
-			cache::languageDatabase();
-		}
-		$lang=core::config('../cache/language-database',$this->_table);
+		$f=plushka::path().'cache/language-database.php';
+		if(!file_exists($f)) Cache::languageDatabase();
+		$lang=plushka::config('../cache/language-database',$this->_table);
 		if($lang===null) $lang=false;
 		$this->_languageDb=$lang;
 	}
@@ -266,7 +262,7 @@ class model extends validator {
 	//Собирает и выполняет SQL-запрос INSERT
 	private function _insert($fieldList,$primary) {
 		if($this->_languageDb) {
-			$languageList=core::config();
+			$languageList=plushka::config();
 			$languageList=$languageList['languageList'];
 		}
 		$s1=$s2='';
