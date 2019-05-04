@@ -125,15 +125,15 @@ class plushka {
 			$cfg=plushka::config();
 			if($cfg['languageDefault']!=$lang) $url.=$lang.'/';
 		}
-		if($domain) {
+		if($domain===true) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
 				$url='://'.$_SERVER['HTTP_HOST'].$url;
 			} else {
 				$cfg=plushka::config('cgi');
 				$url=$cfg['host'].$_url;
 			}
-			if(isset($_SERVER['HTTPS'])) {
-				if($_SERVER['HTTPS']=='off') $url='http'.$url;
+			if(isset($_SERVER['HTTPS'])===true) {
+				if($_SERVER['HTTPS']==='off' || $_SERVER['HTTPS']==='') $url='http'.$url;
 				else $url='https'.$url;
 			} elseif(isset($_SERVER['REQUEST_SCHEME'])) $url=$_SERVER['REQUEST_SCHEME'].$url;
 			elseif(isset($_SERVER['SERVER_PORT'])) {
@@ -573,6 +573,8 @@ class plushka {
 	}
 }
 
+
+
 /* --- INITIALIZE --- */
 if(plushka::debug()) {
 	ini_set('error_reporting', E_ALL);
@@ -580,7 +582,9 @@ if(plushka::debug()) {
 	ini_set('display_startup_errors', 1);
 }
 
-//Регистрация автозагрузчика
+/* Регистрация автозагрузчика
+ * Исключение добавлено для более внятного описания ошибки, на пространство имён "plushka" не должны реагировать другие загрузчики.
+ */
 spl_autoload_register(function($class) {
 	if(substr($class,0,8)!=='plushka\\') return;
 	$class=substr($class,8).'.php';
@@ -595,8 +599,17 @@ spl_autoload_register(function($class) {
 
 $cfg=plushka::config();
 
+
+//Обработка URI, формирование $_GET['corePath'].
+if(substr($_SERVER['SCRIPT_NAME'],-11)==='/index2.php') $_GET['corePath']=$_GET['controller'].(isset($_GET['action'])===true ? '/'.$_GET['action'] : '') ?? false;
+else {
+	$i=strpos($_SERVER['REQUEST_URI'],'?');
+	if($i>0) $i--; else $i=9999;
+	$_GET['corePath']=substr($_SERVER['REQUEST_URI'],1,$i);
+	unset($i);
+}
 //Поиск языка в URL-адресе
-if(isset($_GET['corePath'])) {
+if($_GET['corePath']===false) {
 	$lang=substr($_GET['corePath'],0,2);
 	if(in_array($lang,$cfg['languageList'])) {
 		define('_LANG',$lang);
@@ -604,9 +617,8 @@ if(isset($_GET['corePath'])) {
 	} else define('_LANG',$cfg['languageDefault']);
 	unset($lang);
 } else define('_LANG',$cfg['languageDefault']);
-
-//Обработать запрошенный URL и положить его в $_GET['corePath']
-if(!isset($_GET['corePath']) || !$_GET['corePath']) $_GET['corePath']=$cfg['mainPath'];
+//Преобразования подмены ссылок
+if($_GET['corePath']===false || !$_GET['corePath']) $_GET['corePath']=$cfg['mainPath'];
 else {
 	$_link=array_flip($cfg['link']);
 	$link=&$_GET['corePath'];
@@ -646,9 +658,8 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 }
 
 unset($cfg);
-
 $_GET['corePath']=explode('/',$_GET['corePath']);
-if(!isset($_GET['corePath'][1])) $_GET['corePath'][1]=null; //чтобы транслятор не выдавал предупреждений
+if(isset($_GET['corePath'][1])===false) $_GET['corePath'][1]=null; //ВСЕГДА должно быть по крайней мере два элемента
 header('Content-type:text/html; Charset=UTF-8');
 
 plushka::import('core/core');
