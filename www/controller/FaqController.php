@@ -24,7 +24,7 @@ class FaqController extends \plushka\core\Controller {
 
 		$this->js('jquery.min');
 		$this->js('jquery.form');
-		$this->style('faq');
+		$this->css('faq');
 		$this->pageTitle=$this->metaTitle=LNGFAQ;
 		return 'Index';
 	}

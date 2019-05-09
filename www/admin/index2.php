@@ -1,12 +1,10 @@
 <?php
-require_once('./core/core.php');
+require_once(__DIR__.'/core/plushka.php');
 
-$name=plushka::path().'admin/controller/'.$_GET['corePath'][0].'.php';
+$name=plushka::path().'admin/controller/'.ucfirst($_GET['controller']).'Controller.php';
 if(!file_exists($name)) {
-	include(plushka::path().'admin/controller/error.php');
-	plushka::$controller=new sController();
+	plushka::template(false);
+	plushka::$controller=new \plushka\admin\controller\ErrorController();
 	plushka::error404();
 }
-include_once($name);
-
-runApplication(false);
+\plushka\admin\core\runApplication(false);

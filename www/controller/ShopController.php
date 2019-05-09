@@ -84,7 +84,7 @@ class ShopController extends \plushka\core\Controller {
 
 		$this->js('jquery.min');
 		$this->js('shadowbox/shadowbox');
-		$this->style('../js/shadowbox/shadowbox');
+		$this->css('../js/shadowbox/shadowbox');
 		if($this->product['metaTitle']) $this->metaTitle=$this->product['metaTitle']; else $this->metaTitle=$this->product['title'];
 		$this->pageTitle=$this->product['title'];
 		$this->metaKeyword=$this->product['metaKeyword'];

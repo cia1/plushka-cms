@@ -1,8 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-plushka::import('core/model');
-class modelEx extends model {
+class ModelEx extends \plushka\core\Model {
 
 	protected function commonRuleAppend($rule,$attribute=null) {
 		if($attribute===null) $attribute=array('metaTitle','metaDescription','metaKeyword');

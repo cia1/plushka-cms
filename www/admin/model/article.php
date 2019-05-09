@@ -1,8 +1,7 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
-plushka::import('admin/core/modelEx');
-class article extends modelEx {
+class Article extends \plushka\admin\core\ModelEx {
 
 	private $_oldAlias;
 

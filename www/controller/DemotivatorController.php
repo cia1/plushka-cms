@@ -27,9 +27,9 @@ class DemotivatorController extends \plushka\core\Controller {
 			$this->items[]=$item;
 		}
 		$this->pageTitle=$this->metaTitle='Демотиваторы';
-		$this->style('demotivator');
+		$this->css('demotivator');
 		$this->js('shadowbox/shadowbox');
-		$this->style('../js/shadowbox/shadowbox');
+		$this->css('../js/shadowbox/shadowbox');
 		return 'Index';
 	}
 
@@ -74,7 +74,7 @@ class DemotivatorController extends \plushka\core\Controller {
 		}
 
 		$this->pageTitle=$this->metaTitle=LNGDesigner;
-		$this->style('demotivator');
+		$this->css('demotivator');
 		return $view;
 	}
 
@@ -105,7 +105,7 @@ class DemotivatorController extends \plushka\core\Controller {
 		$this->img=(int)$this->url[2].'.jpg';
 
 		$this->pageTitle=$this->metaTitle=LNGDemotivatorCreating;
-		$this->style('demotivator');
+		$this->css('demotivator');
 		return 'Rename';
 	}
 

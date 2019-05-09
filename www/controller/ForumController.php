@@ -23,7 +23,7 @@ class ForumController extends \plushka\core\Controller {
 		} elseif($this->url[1]==='profile' && $cnt===3) {
 			$this->url[1]='user';
 		}
-		$this->style('forum');
+		$this->css('forum');
 		plushka::language('forum');
 	}
 

@@ -3,7 +3,7 @@
 namespace plushka\admin\core;
 
 /* Служит для создания и изменения конфигурационных файлов */
-class config implements IteratorAggregate {
+class Config implements IteratorAggregate {
 	private $_data=array(); //тут содержатся все данные
 
 	public function __construct($fname=null) {

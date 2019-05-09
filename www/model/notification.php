@@ -13,7 +13,7 @@ abstract class Notification {
 		foreach($cfg as $attribute=>$item) {
 			if($attribute==='group') continue;
 			if($item['status']===false) continue;
-			$class='Notification'.ucfirst($attribute);
+			$class='\plushka\model\Notification'.ucfirst($attribute);
 			$class=new $class($userId);
 			if($available!==null && $class->available()!=$available) continue;
 			$transport[]=$class;

@@ -1,9 +1,8 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 /* Объект "группа пользователей */
-plushka::import('core/model');
-class userGroup extends model {
+class UserGroup extends \plushka\core\Model {
 
 	public function __construct() {
 		parent::__construct('user_group');
