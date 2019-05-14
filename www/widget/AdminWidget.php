@@ -9,7 +9,7 @@ class AdminWidget extends \plushka\core\Widget {
 	public function __invoke() { return true; }
 
 	public function adminLink() {
-		$u=plushka::userCore();
+		$u=plushka::userReal();
 		$link=array();
 		//Загрузить общие кнопки админки для текущего пользователя
 		$q='';
@@ -26,7 +26,7 @@ class AdminWidget extends \plushka\core\Widget {
 			$module=explode('.',$item[0]);
 			$link[]=array($item[0],'?controller='.$module[0].($module[1] && $module[1]!='*' ? '&action='.$module[1] : ''),$item[2],$item[1]);
 		}
-		if(isset($_SESSION['userCore'])) $link[]=array('user.user','?controller=user&action=return','logout','Выйти из режима подмены пользователя');
+		if(isset($_SESSION['userReal'])===true) $link[]=array('user.user','?controller=user&action=return','logout','Выйти из режима подмены пользователя');
 		return $link;
 	}
 }

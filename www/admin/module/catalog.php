@@ -1,9 +1,10 @@
-<?php return array(
+<?php
+return array(
 'depend'=>'shadowbox ver 1.0',
 'right'=>'catalog.layout,catalog.item',
 'menu'=>'11',
 'file'=>array(
-	'admin/controller/catalog.php',
+	'admin/controller/CatalogController.php',
 	'admin/hook/menuItemDelete.catalog.php',
 	'admin/public/css/catalog.css',
 	'admin/public/js/catalog.js',
@@ -11,15 +12,15 @@
 	'admin/view/catalogLayoutView.php',
 	'admin/view/catalogWidgetSearch.php',
 	'config/catalogLayout/',
-	'controller/catalog.php',
+	'controller/CatalogController.php',
 	'hook/search.catalog.php',
-	'model/catalog.php',
+	'model/Catalog.php',
 	'public/catalog/',
 	'sitemap/catalog.php',
 	'view/catalogList.php',
 	'view/catalogView.php',
 	'view/widgetCatalogSearch.php',
-	'widget/catalogSearch.php'
+	'widget/CatalogSearchWidget.php'
  ),
 'widget'=>'catalogSearch'
-); ?>
+);

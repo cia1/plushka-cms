@@ -155,7 +155,7 @@ abstract class plushka extends \plushka\core\core {
 		$items=$db->fetchArray('SELECT w.name,w.data,w.cache,w.publicTitle,w.title_'._LANG.',s.url,w.groupId,w.cssClass FROM section s INNER JOIN widget w ON w.id=s.widgetId WHERE s.name='.$db->escape($name).' AND s.url IN('.$query.') ORDER BY s.sort');
 		$cnt=count($items);
 		echo '<div class="section section'.$name.'">';
-		$u=self::userCore();
+		$u=self::userReal();
 		//Если пользователь админ и имеет права управления секциями, то вывести кнопки административного интерфейса
 		if($u->group>=200 && ($u->group==255 || isset($u->right['section.*']))) {
 			$admin=new \plushka\core\Admin();
@@ -252,7 +252,7 @@ abstract class plushka extends \plushka\core\core {
 	//Выводит кнопки админки для виджета и возвращает кеш, если это необходимо.
 	//$data - экземпляр виджета или массив ссылок
 	private static function _widgetAdmin($data,$cache=false) {
-		$user=plushka::userCore();
+		$user=plushka::userReal();
 		if($user->group<200) return false;
 		$admin=new \plushka\core\Admin();
 		if(is_object($data)) $data=$data->adminLink();

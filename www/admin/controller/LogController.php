@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\model\Log;
 
 class LogController extends \plushka\admin\core\Controller {
 
@@ -14,7 +15,7 @@ class LogController extends \plushka\admin\core\Controller {
 	public function actionIndex() {
 		$table=plushka::table();
 		$table->rowTh('Журналы регистраций');
-		$data=log::getList();
+		$data=Log::getList();
 		foreach($data as $item) {
 			$table->link('log/log?id='.$item['file'],$item['title']);
 		}
@@ -24,8 +25,7 @@ class LogController extends \plushka\admin\core\Controller {
 	//Лог журнала регистрации
 	public function actionLog() {
 		if(isset($_GET['keyword'])) $this->keyword=$_GET['keyword']; else $this->keyword=null;
-		plushka::import('admin/model/log');
-		$log=new log($_GET['id'],$this->keyword,(isset($_GET['page']) ? $_GET['page'] : null));
+		$log=new Log($_GET['id'],$this->keyword,(isset($_GET['page']) ? $_GET['page'] : null));
 		if(plushka::error(false)) plushka::error404();
 		$title=$log->title();
 		$table=plushka::table();

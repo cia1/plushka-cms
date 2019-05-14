@@ -2,7 +2,7 @@
 namespace plushka\admin\core;
 
 /* Библиотека, содержащая наиболее часто используемые инструменты для административной части интернет-магазина */
-class shop {
+class Shop {
 
 	/* Рекурсивно удаляет категорию товаров с ИД $id со всеми товарами */
 	public static function deleteCategory($id) {

@@ -1,3 +1,3 @@
 <?php return array(
-	'file'=>array('core/mysqli.php','admin/core/mysqli.php')
+	'file'=>array('core/Mysqli.php','admin/core/MysqliEx.php')
 );

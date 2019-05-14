@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class notificationTransportViber extends notificationTransport {
+class NotificationTransportViber extends NotificationTransport {
 
 	public function formAppend($form) {
 		$form->text('viber][groupId','ID группы Viber',$this->groupId);

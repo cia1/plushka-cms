@@ -3,13 +3,12 @@
 'menu'=>'6',
 'table'=>'faq',
 'file'=>array(
-	'admin/controller/faq.php',
+	'admin/controller/FaqController.php',
 	'data/email/faqAnswer.ru.html',
 	'config/faq.php',
-	'controller/faq.php',
-	'controller/shop.php',
+	'controller/FaqController.php',
 	'admin/data/email/faq.html',
 	'public/css/faq.css',
 	'view/faqIndex.php',
 )
-); ?>
+);

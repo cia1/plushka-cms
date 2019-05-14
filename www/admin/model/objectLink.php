@@ -1,14 +1,14 @@
 <?php
 namespace plushka\admin\core;
 
-class modelObjectLink {
+class ObjectLink {
 
 	/* Возвращает количество виджетов с именем $name во всех секциях и имеющих заданные настройки $data */
 	public static function fromSectionWidget($name,$data=null) {
 		$db=plushka::db();
 		$db->query('SELECT data FROM widget WHERE name='.$db->escape($name));
 		$cnt=0;
-		while($item=$db->fetch()) $cnt+=modelObjectLink::_compareData($data,$item[0]);
+		while($item=$db->fetch()) $cnt+=self::_compareData($data,$item[0]);
 		return $cnt;
 	}
 
@@ -31,7 +31,7 @@ class modelObjectLink {
 			$cfg=include($basedir.$item);
 			foreach($cfg['widget'] as $widget) {
 				if($item[0]!=$name) continue;
-				$cnt+=modelObjectLink::_compareData($data,$widget[1]);
+				$cnt+=self::_compareData($data,$widget[1]);
 			}
 		}
 		return $cnt;

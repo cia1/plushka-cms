@@ -1,5 +1,7 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Config;
+use plushka\core\Model;
 
 /* Управление форумом */
 class ForumController extends \plushka\admin\core\Controller {
@@ -35,8 +37,7 @@ class ForumController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new Config();
 		$cfg->onPageTopic=(int)$data['onPageTopic'];
 		$cfg->onPagePost=(int)$data['onPagePost'];
 		$cfg->avatarWidth=(int)$data['avatarWidth'];
@@ -65,10 +66,9 @@ class ForumController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionCategorySubmit($data) {
-		plushka::import('core/model');
 		$db=plushka::db();
 		$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM forum_category')+1;
-		$model=new model('forum_category'); //таблица forum_category
+		$model=new Model('forum_category'); //таблица forum_category
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
@@ -128,8 +128,7 @@ class ForumController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionTopicSubmit($data) {
-		plushka::import('core/model');
-		$model=new model('forum_topic');
+		$model=new Model('forum_topic');
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
@@ -183,8 +182,7 @@ class ForumController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionPostEditSubmit($data) {
-		plushka::import('core/model');
-		$model=new model('forum_post');
+		$model=new Model('forum_post');
 		$model->set($data);
 		if(!$model->save(array(
 			'id'=>array('primary'),
@@ -196,7 +194,6 @@ class ForumController extends \plushka\admin\core\Controller {
 
 	/* Удаление сообщения */
 	public function actionPostDelete() {
-		plushka::import('core/model');
 		$db=plushka::db();
 		$id=(int)$_GET['id'];
 		$data=$db->fetchArrayOnce('SELECT p1.topicId,MAX(p2.date) FROM forum_post p1 LEFT JOIN forum_post p2 ON p2.topicId=p1.topicId AND p2.id!='.$id.' WHERE p1.id='.$id);

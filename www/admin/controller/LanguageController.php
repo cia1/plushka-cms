@@ -1,5 +1,7 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Config;
+use plushka\admin\model\Language;
 
 //Управление языками сайта. Модуль multilanguage
 class LanguageController extends \plushka\admin\core\Controller {
@@ -52,11 +54,9 @@ class LanguageController extends \plushka\admin\core\Controller {
 			'alias'=>array('latin','псевдоним',true,'max'=>2)
 		))) return false;
 		//Модифицировать СУБД
-		plushka::import('admin/model/language');
-		if(!language::create($data['alias'])) return false;
+		if(!Language::create($data['alias'])) return false;
 		//Обновить конфигурационный файл
-		plushka::import('admin/core/config');
-		$cfg=new config('_core');
+		$cfg=new Config('_core');
 		$lst=$cfg->languageList;
 		if(in_array($validator->alias,$lst)) {
 			plushka::error('Этот язык уже используется');
@@ -76,11 +76,9 @@ class LanguageController extends \plushka\admin\core\Controller {
 			return '_empty';
 		}
 		//Модифицировать СУБД
-		plushka::import('admin/model/language');
-		if(!language::delete($_GET['id'])) return false;
+		if(!Language::delete($_GET['id'])) return false;
 		//Обновить конфигурационный файл
-		plushka::import('admin/core/config');
-		$cfg=new config('_core');
+		$cfg=new Config('_core');
 		$lst=$cfg->languageList;
 		unset($lst[array_search($_GET['id'],$lst)]);
 		$lst=array_values($lst);
@@ -110,8 +108,7 @@ class LanguageController extends \plushka\admin\core\Controller {
 
 	public function actionSettingSubmit($data) {
 		$cfg=plushka::config();
-		plushka::import('admin/core/config');
-		$cfgLanguage=new config();
+		$cfgLanguage=new Config();
 		foreach($cfg['languageList'] as $item) $lang[$item]=$data[$item];
 		$cfgLanguage->lang=$lang;
 

@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Config;
 
 /* Реализует модуль регистрации и авторизации OAuth */
 class OauthController extends \plushka\admin\core\Controller {
@@ -42,8 +43,7 @@ class OauthController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionItemSubmit($data) {
-		plushka::import('/admin/core/config');
-		$cfg=new config('oauth');
+		$cfg=new Config('oauth');
 		if($data['appId']) $cfg->$data['id']=array($data['appId'],$data['secret']);
 		else {
 			$s=$data['id'];
@@ -65,12 +65,10 @@ class OauthController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionWidgetSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('oauth');
+		$cfg=new Config('oauth');
 		$cfg->userGroup=($data['userGroup'] ? (int)$data['userGroup'] : false);
 		$cfg->save('oauth');
 		return true;
 	}
 
 }
-?>

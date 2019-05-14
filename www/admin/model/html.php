@@ -2,7 +2,7 @@
 namespace plushka\admin\core;
 
 //Модель произвольный HTML-код
-class html {
+class Html {
 
 	private $_fileName;
 	public $html;

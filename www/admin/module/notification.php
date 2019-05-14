@@ -1,13 +1,13 @@
 <?php return array(
 'right'=>'notification.setting',
 'file'=>array(
-	'admin/controller/notification.php',
-	'admin/model/notificationTransport.php',
-	'admin/model/notificationTransportEmail.php',
-	'admin/model/notificationTransportInner.php',
+	'admin/controller/NotificationController.php',
+	'admin/model/NotificationTransport.php',
+	'admin/model/NotificationTransportEmail.php',
+	'admin/model/NotificationTransportInner.php',
 	'admin/public/icon/notification16.png',
-	'model/notification.php',
-	'model/notificationEmail.php',
-	'model/notificationInner.php'
+	'model/Notification.php',
+	'model/NotificationEmail.php',
+	'model/NotificationInner.php'
 )
 );

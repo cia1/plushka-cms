@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class notificationTransportEmail extends notificationTransport {
+class NotificationTransportEmail extends NotificationTransport {
 
 	public function formAppend($form) {
 		$form->text('email][fromEmail','От кого (e-mail)',$this->fromEmail);

@@ -1,4 +1,6 @@
 <?php
+use plushka\admin\model\ObjectLink;
+
 /* Событие: удаление пункта меню.
 Модуль: статьи
 Параметры: string $data[0] - удаляемая ссылка, int $data[1] - идентификатор пункта меню */
@@ -26,7 +28,7 @@ function _blogDelete($link) {
 
 	plushka::import('admin/model/objectLink');
 	$param=array('categoryId'=>$id);
-	$cnt=modelObjectLink::fromSectionWidget('blog',$param)+modelObjectLink::fromTemplateWidget('blog',$param);
+	$cnt=ObjectLink::fromSectionWidget('blog',$param)+ObjectLink::fromTemplateWidget('blog',$param);
 	if($cnt) return true;
 	$cfg=plushka::config();
 	if(isset($cfg['languageList'])) $languageList=$cfg['languageList']; else $languageList=array($cfg['languageDefault']);

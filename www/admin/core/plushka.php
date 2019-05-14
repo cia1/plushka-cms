@@ -254,8 +254,8 @@ abstract class plushka extends \plushka\core\core {
 	 * @return array
 	 */
 	public static function userRight() {
-		$u=plushka::userCore();
-		return $u->right;
+		$user=plushka::userReal();
+		return $user->right;
 	}
 
 	/**

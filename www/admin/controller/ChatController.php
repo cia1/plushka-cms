@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\model\Chat;
 
 class ChatController extends \plushka\admin\core\Controller {
 
@@ -32,8 +33,7 @@ class ChatController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('chat');
+		$cfg=new \plushka\admin\core\Config('chat');
 		$cfg->messageCount=(int)$data['messageCount'];
 		$cfg->linkFilter=isset($data['linkFilter']);
 		$alias=array();
@@ -50,7 +50,7 @@ class ChatController extends \plushka\admin\core\Controller {
 		$cfg->{'metaDescription_'._LANG}=trim($data['metaDescription']);
 		$cfg->{'metaKeyword_'._LANG}=trim($data['metaKeyword']);
 		$cfg->save('chat');
-		$cfg=new config();
+		$cfg=new \plushka\admin\core\Config();
 		if($data['blacklist']) $blacklist=explode("\n",$data['blacklist']); else $blacklist=array();
 		for($i=0,$cnt=count($blacklist);$i<$cnt;$i++) $blacklist[$i]=trim($blacklist[$i]);
 		$cfg->setData($blacklist);
@@ -61,8 +61,7 @@ class ChatController extends \plushka\admin\core\Controller {
 	//Модерирование сообщений, выводит список сообщений с кнопками управления
 	public function actionMessage() {
 		$chatId=$_GET['chatId'];
-		plushka::import('model/chat');
-		$content=chat::content($chatId);
+		$content=\plushka\model\Chat::content($chatId);
 		$table=plushka::table();
 		$table->rowTh('Время|Кто, кому|Сообщение|');
 		foreach($content as $item) {
@@ -86,8 +85,7 @@ class ChatController extends \plushka\admin\core\Controller {
 
 	//Удаление сообщение (сразу действие, без формы)
 	public function actionDelete() {
-		plushka::import('admin/model/chat');
-		if(!chat::delete($_GET['chatId'],$_GET['time'])) return '_empty';
+		if(!Chat::delete($_GET['chatId'],$_GET['time'])) return '_empty';
 		plushka::redirect('chat/message?chatId='.$_GET['chatId']);
 	}
 

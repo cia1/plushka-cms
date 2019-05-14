@@ -4,9 +4,9 @@
 'menu'=>'8,9',
 'table'=>'demotivator',
 'file'=>array(
-	'admin/controller/demotivator.php',
+	'admin/controller/DemotivatorController.php',
 	'config/demotivator.php',
-	'controller/demotivator.php',
+	'controller/DemotivatorController.php',
 	'data/arial.ttf',
 	'public/demotivator/',
 	'public/css/demotivator.css',
@@ -14,6 +14,6 @@
 	'view/demotivatorIndex.php',
 	'view/demotivatorRename.php',
 	'view/demotivatorSuccess.php',
-	'widget/demotivatorLast.php',
+	'widget/DemotivatorLastWidget.php',
 )
-); ?>
+);

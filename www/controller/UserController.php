@@ -194,7 +194,7 @@ class UserController extends \plushka\core\Controller {
 		//Пользователи могут только отвечать на уже существующие сообщения, но не отправлять новые
 		$data2=plushka::db()->fetchArrayOnceAssoc('SELECT user1Id,user1Login FROM user_message WHERE id='.(int)$data['replyTo']);
 		if(!$data2) plushka::error404();
-		if(!plushka::userCore()->model()->message($data2['user1Id'],$data2['user1Login'],nl2br($data['message']))) return false;
+		if(plushka::userReal()->model()->message($data2['user1Id'],$data2['user1Login'],nl2br($data['message']))===false) return false;
 		plushka::redirect('user/message',LNGMessageSent);
 	}
 

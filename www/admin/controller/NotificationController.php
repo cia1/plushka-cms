@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\model\notificationTransport;
 
 //Модуль notification. Настройки системы отправки сообщений
 class NotificationController extends \plushka\admin\core\Controller {
@@ -11,11 +12,10 @@ class NotificationController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSetting() {
-		plushka::import('admin/model/notificationTransport');
 		$form=plushka::form();
-		foreach(notificationTransport::getList() as $item) {
-			$transport=notificationTransport::instance($item);
-			$title=notificationTransport::title($item);
+		foreach(NotificationTransport::getList() as $item) {
+			$transport=NotificationTransport::instance($item);
+			$title=NotificationTransport::title($item);
 			$form->html('<p><b>'.$title.'</b>','a');
 			$form->checkbox('status]['.$transport->getId(),'Модуль включён',$transport->status);
 			$transport->formAppend($form);
@@ -25,11 +25,9 @@ class NotificationController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/model/notificationTransport');
-		plushka::import('admin/core/config');
-		$cfg=new config('notification');
-		foreach(notificationTransport::getList() as $item) {
-			$item=notificationTransport::instance($item);
+		$cfg=new \plushka\admin\core\Config('notification');
+		foreach(NotificationTransport::getList() as $item) {
+			$item=NotificationTransport::instance($item);
 			$setting=$item->form2Setting($data);
 			$setting['status']=isset($data['status'][$item->getId()]);
 			if(plushka::error()) return false;

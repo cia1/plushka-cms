@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-abstract class notificationTransport {
+abstract class NotificationTransport {
 
 	public static function getList() {
 		$path=plushka::path().'admin/model/';

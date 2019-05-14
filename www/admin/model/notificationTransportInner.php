@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class notificationTransportInner extends notificationTransport {
+class NotificationTransportInner extends NotificationTransport {
 
 	public function formAppend($form) {
 		$form->select('defaultUserId','Отправитель по умолчанию','SELECT id,login FROM user WHERE groupId>=200',$this->defaultUserId);

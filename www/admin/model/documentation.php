@@ -1,8 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-plushka::import('admin/core/model');
-class documentation extends modelEx {
+class Documentation extends \plushka\admin\core\ModelEx {
 
 	function __construct($db=null) {
 		parent::__construct('documentation');

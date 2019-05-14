@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class paymentRobokassa implements paymentSetting {
+class PaymentRobokassa implements PaymentSetting {
 
 	public static function settingForm($cfg) {
 		$form=payment::form($cfg);

@@ -1,9 +1,9 @@
 <?php return array(
 	'widget'=>'highlight',
 	'file'=>array(
-		'admin/controller/highlight.php',
+		'admin/controller/HighlightController.php',
 		'public/css/highlight.css',
 		'public/js/highlight.pack.js',
-		'widget/highlight.php'
+		'widget/HighlightWidget.php'
 	)
-); ?>
+);

@@ -1,7 +1,7 @@
 <?php return array(
 'widget'=>'search',
 'file'=>array(
-	'controller/search.php',
+	'controller/SearchController.php',
 	'view/searchIndex.php'
 )
-); ?>
+);

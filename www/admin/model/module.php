@@ -1,8 +1,9 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
+use plushka;
 
 /* Библиотека для установки и удаления модулей */
-class module {
+class Module {
 
 	private static $_config;
 

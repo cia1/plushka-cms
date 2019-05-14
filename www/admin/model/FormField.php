@@ -1,8 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-plushka::import('core/model');
-class frmField extends model {
+class FormField extends \plushka\core\Model {
 
 	function __construct($table=null,$db='db') {
 		parent::__construct('frm_field');

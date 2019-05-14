@@ -43,8 +43,7 @@ class CommentController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new \plushka\admin\core\Config();
 		$cfg->status=(int)$data['status'];
 		$cfg->oauth=isset($data['oauth']);
 		$cfg->save('comment');

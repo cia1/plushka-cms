@@ -3,4 +3,4 @@
 'file'=>array(
 	'language/faq.ru.php'
 )
-); ?>
+);

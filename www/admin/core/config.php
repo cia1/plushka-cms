@@ -1,9 +1,10 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
+use plushka;
 
 /* Служит для создания и изменения конфигурационных файлов */
-class Config implements IteratorAggregate {
+class Config implements \IteratorAggregate {
 	private $_data=array(); //тут содержатся все данные
 
 	public function __construct($fname=null) {

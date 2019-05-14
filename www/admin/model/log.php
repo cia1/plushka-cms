@@ -2,7 +2,7 @@
 namespace plushka\admin\core;
 
 define('LOG_LIMIT_ON_PAGE',300); //Количество строк на одной странице
-class log implements Iterator {
+class Log implements \Iterator {
 
 	//Возвращает список настроенных журналов (файлы /tmp/*.log, имеющие соответствующий конфигурационный файл)
 	public static function getList() {

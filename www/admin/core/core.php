@@ -100,7 +100,7 @@ function runApplication($renderTemplate=true) {
 	plushka::$controller=new plushka::$controller();
 	$alias=plushka::$controller->url[0];
 	//Проверка прав доступа к запрошенной странице
-	$user=plushka::User();
+	$user=plushka::userReal();
 	if($alias!=='user' || plushka::$controller->url[1]!=='Login') {
 		if($user->group<200) plushka::redirect('user/login');
 		if($user->group!=255) {

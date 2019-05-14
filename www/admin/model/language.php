@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class language {
+class Language {
 
 	//Обновляет таблицы базы данных, добавляя новый язык $alias
 	public static function create($alias) {

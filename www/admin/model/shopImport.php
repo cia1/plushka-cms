@@ -2,7 +2,7 @@
 namespace plushka\admin\core;
 
 /* Осуществляет импорт данных в интернет-магазин */
-class shopImport {
+class ShopImport {
 
 	/* Загружает данные из файла excel
 	array $cfg - настройки импорта, int $first - номер строки, с которой начать импорт, $count - количество загружаемых строк (за один проход) */

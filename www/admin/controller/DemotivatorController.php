@@ -43,8 +43,7 @@ class DemotivatorController extends \plushka\admin\core\Controller {
 			plushka::error('Не найден файл /'.$f);
 			return false;
 		}
-		plushka::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new \plushka\admin\core\Config();
 		$cfg->imageWidthMax=(int)$data['imageWidthMax'];
 		$cfg->paddingTop=(int)$data['paddingTop'];
 		$cfg->paddingBottom=(int)$data['paddingBottom'];

@@ -1,6 +1,7 @@
 <?php
 namespace plushka\admin\controller;
 use plushka;
+use plushka\admin\model\User;
 
 /* Управление пользователями и группами */
 class UserController extends \plushka\admin\core\Controller {
@@ -127,8 +128,7 @@ class UserController extends \plushka\admin\core\Controller {
 
 	/* Создание или изменение пользователя */
 	public function actionUserItem() {
-		plushka::import('model/user');
-		$user=new modelUser();
+		$user=new User();
 		if(isset($_GET['id'])) $user->loadById($_GET['id'],'*'); //Если редактирование, то загрузить данные пользователя
 		$f=plushka::form();
 		$f->hidden('id',$user->id);
@@ -151,8 +151,7 @@ class UserController extends \plushka\admin\core\Controller {
 			plushka::error('Введённые пароли не совпадают');
 			return false;
 		}
-		plushka::import('admin/model/user');
-		$user=new userAdmin();
+		$user=new User();
 		$user->set($data);
 		if(!$user->save()) return false;
 		$s='Изменения сохранены';
@@ -166,8 +165,7 @@ class UserController extends \plushka\admin\core\Controller {
 
 	/* Смена статуса пользователя (активен/заблокирован) */
 	public function actionStatus() {
-		plushka::import('admin/model/user');
-		$user=new userAdmin();
+		$user=new User();
 		$user->status($_GET['id']);
 		plushka::redirect('user/user');
 	}
@@ -175,27 +173,30 @@ class UserController extends \plushka\admin\core\Controller {
 	/* Удаление пользователя.
 	Обработку события удаления пользователя добавлю при первой необходимости */
 	public function actionUserDelete() {
-		plushka::import('model/user');
-		$model=new modelUser();
-		$model->delete($_GET['id']);
+		$user=new User();
+		$user->delete($_GET['id']);
 		plushka::redirect('user/user');
 	}
 
 	/* Вход в режим подмены пользователя */
 	public function actionReplace() {
-		$_SESSION['userCore']=new user($_GET['id']);
+		$_SESSION['userReal']=$_SESSION['user'];
+		$_SESSION['user']=new \plushka\core\User($_GET['id']);
 		plushka::redirectPublic('/');
 	}
 
 	/* Выход из режима подмены пользователя */
 	public function actionReturn() {
-		unset($_SESSION['userCore']);
+		if(isset($_SESSION['userReal'])===true) {
+			$_SESSION['user']=$_SESSION['userReal'];
+			unset($_SESSION['userReal']);
+		}
 		plushka::redirectPublic('/');
 	}
 
 	/* Отправка личного сообщения */
 	public function actionMessage() {
-		$u=new user($_GET['id']); //ИД пользователя, которому нужно отправить сообщение
+		$u=new \plushka\core\User($_GET['id']); //ИД пользователя, которому нужно отправить сообщение
 		$f=plushka::form();
 		$f->hidden('user2Id',$u->id);
 		$f->hidden('user2Login',$u->login);
@@ -209,7 +210,6 @@ class UserController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionMessageSubmit($data) {
-		plushka::import('model/user');
 		$user=plushka::user();
 		if(!$user->model()->message($data['user2Id'],$data['user2Login'],$data['message'])) return false;
 		plushka::redirect('user','Сообщение отправлено');

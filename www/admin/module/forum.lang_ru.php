@@ -3,4 +3,4 @@
 'file'=>array(
 	'language/forum.ru.php'
 )
-); ?>
+);

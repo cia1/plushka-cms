@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class payment {
+class Payment {
 
 	public static function methodList() {
 		$d=opendir(plushka::path().'admin/model');
@@ -50,7 +50,7 @@ class payment {
 }
 
 
-interface paymentSetting {
+interface PaymentSetting {
 	public static function settingForm($config);
 	public static function settingSubmit($data);
 }

@@ -3,13 +3,13 @@
 'menu'=>10,
 'widget'=>'chat',
 'file'=>array(
-	'admin/controller/chat.php',
-	'admin/model/chat.php',
+	'admin/controller/ChatController.php',
+	'admin/model/Chat.php',
 	'config/chat.php',
 	'config/chat-blacklist.php',
-	'controller/chat.php',
+	'controller/ChatController.php',
 	'data/chat/',
-	'model/chat.php',
+	'model/Chat.php',
 	'public/css/chat.css',
 	'public/chat-smile/',
 	'public/js/jquery.chat.js',
@@ -17,7 +17,7 @@
 	'view/chatIndex.php',
 	'view/widgetChat.php',
 	'view/widgetChatForm.php',
-	'widget/chat.php',
-	'widget/chatForm.php'
+	'widget/ChatWidget.php',
+	'widget/ChatFormWidget.php'
 )
 );

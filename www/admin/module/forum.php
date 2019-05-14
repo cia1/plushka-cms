@@ -3,12 +3,12 @@
 'menu'=>'12,13',
 'table'=>'forum_category,forum_post,forum_topic,forum_user',
 'file'=>array(
-	'admin/controller/forum.php',
+	'admin/controller/ForumController.php',
 	'admin/hook/userCreate.forum.php',
 	'admin/hook/userDelete.forum.php',
 	'admin/hook/userModify.forum.php',
 	'config/forum.php',
-	'controller/forum.php',
+	'controller/ForumController.php',
 	'hook/search.forum.php',
 	'hook/userCreate.forum.php',
 	'public/avatar/',
@@ -19,4 +19,4 @@
 	'view/forumCategory.php',
 	'view/forumTopic.php'
 )
-); ?>
+);

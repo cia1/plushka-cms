@@ -2,7 +2,7 @@
 namespace plushka\admin\core;
 
 /* Библиотека универсальной формы */
-class mForm {
+class Form {
 
 	private $_id;
 

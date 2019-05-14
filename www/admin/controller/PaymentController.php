@@ -1,5 +1,7 @@
 <?php
 namespace plushka\admin\controller;
+use plushka;
+use plushka\admin\model\Payment;
 
 class PaymentController extends \plushka\admin\core\Controller {
 
@@ -12,8 +14,7 @@ class PaymentController extends \plushka\admin\core\Controller {
 
 	//Включение/выключение режима песочницы
 	public function actionSundbox() {
-		plushka::import('admin/core/config');
-		$cfg=new config('payment');
+		$cfg=new \plushka\admin\core\Config('payment');
 		$cfg->sandbox=!$cfg->sandbox;
 		$cfg->save('payment');
 		plushka::redirect('payment/method');
@@ -22,8 +23,7 @@ class PaymentController extends \plushka\admin\core\Controller {
 	//Форма настройки платёжных систем
 	public function actionMethod() {
 		$this->button('payment/log','list','Лог');
-		plushka::import('admin/model/payment');
-		$this->payment=payment::methodList();
+		$this->payment=Payment::methodList();
 		$this->sandbox=plushka::config('payment');
 		$this->sandbox=$this->sandbox['sandbox'];
 		return 'Method';
@@ -36,7 +36,6 @@ class PaymentController extends \plushka\admin\core\Controller {
 			controller::$error='Платёжный модуль '.$method.' не установлен';
 			return false;
 		}
-		plushka::import('admin/model/payment');
 		include_once($f);
 		$f='payment'.ucfirst($method);
 		if(!class_exists($f) || !method_exists($f,'settingSubmit')) {
@@ -45,7 +44,7 @@ class PaymentController extends \plushka\admin\core\Controller {
 		}
 		if(!$f::settingSubmit($data)) return false;
 		if(!isset($data['active'])) $data['rate']=0;
-		if(!payment::saveRate($method,$data['rate'])) return;
+		if(!Payment::saveRate($method,$data['rate'])) return;
 		plushka::redirect('payment/method','Сохранено');
 	}
 

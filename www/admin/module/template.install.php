@@ -14,4 +14,3 @@ function uninstallBefore() {
 	$cfg->save('_core');
 	return true;
 }
-?>

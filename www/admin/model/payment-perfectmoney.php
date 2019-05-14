@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class paymentPerfectmoney implements paymentSetting {
+class PaymentPerfectmoney implements PaymentSetting {
 
 	public static function settingForm($cfg) {
 		$form=payment::form($cfg);

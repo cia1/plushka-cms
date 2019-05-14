@@ -84,10 +84,9 @@ class FormController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionFieldItemSubmit($data) {
-		plushka::import('admin/model/frmField');
-		$frmField=new frmField();
-		$frmField->set($data);
-		if(!$frmField->save()) return false;
+		$formField=new \plushka\admin\model\FormField();
+		$formField->set($data);
+		if(!$formField->save()) return false;
 		plushka::redirect('form/field?id='.$data['formId']);
 	}
 
@@ -200,8 +199,7 @@ class FormController extends \plushka\admin\core\Controller {
 		}
 
 		if(plushka::moduleExists('notification')) {
-			plushka::import('model/notification');
-			$transport=notification::transportList(plushka::userId(),true);
+			$transport=\plushka\model\Notification::transportList(plushka::userId(),true);
 			//исключить уведомления e-mail
 			foreach($transport as $i=>$item) if($item->id()==='email') {
 				unset($transport[$i]);
@@ -251,4 +249,3 @@ class FormController extends \plushka\admin\core\Controller {
 /* ----------------------------------------------------------------------------------- */
 
 }
-?>

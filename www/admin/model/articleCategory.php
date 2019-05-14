@@ -1,8 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-plushka::import('admin/core/modelEx');
-class articleCategory extends modelEx {
+class ArticleCategory extends \plushka\admin\core\ModelEx {
 
 	//Возвращает список ещё не опубликованных статей в категории $categoryId
 	public static function featureList($categoryId) {

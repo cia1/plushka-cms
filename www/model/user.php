@@ -38,7 +38,7 @@ class User extends \plushka\core\Model {
 			return false;
 		}
 		$this->groupId=(int)$this->groupId;
-		if($this->_self) { //Если класс создан через core:user() или plushka::userCore()
+		if($this->_self) { //Если класс создан через plushka:user() или plushka::userReal()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
 			$this->_self->login=$this->login;
@@ -99,7 +99,7 @@ class User extends \plushka\core\Model {
 			return false;
 		}
 		$this->groupId=(int)$this->groupId;
-		if($this->_self) { //Если класс создан через core:user() или plushka::userCore()
+		if($this->_self) { //Если класс создан через plushka:user() или plushka::userReal()
 			$this->_self->id=$this->id;
 			$this->_self->group=$this->groupId;
 			$this->_self->login=$this->login;

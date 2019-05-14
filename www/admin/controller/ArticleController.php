@@ -1,5 +1,7 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\model\Article;
+use plushka\admin\model\ArticleCategory;
 
 /* Управление статьями, блогами, списками статей.
 Это один из случаев, когда категории статей не создаются/удаляются при создании/удалении виджета/пункта меню.
@@ -52,10 +54,9 @@ class ArticleController extends \plushka\admin\core\Controller {
 
 	//Список не опубликованных статей
 	public function actionFeature() {
-		plushka::import('admin/model/articleCategory');
 		$table=plushka::table();
 		$table->rowTh(array('Дата','Заголовок',''));
-		foreach(articleCategory::featureList($_GET['categoryId']) as $item) {
+		foreach(ArticleCategory::featureList($_GET['categoryId']) as $item) {
 			$table->text($item['date']);
 			$table->link('article/article?id='.$item['id'],$item['title']);
 			$table->delete('id='.$item['id']);
@@ -70,8 +71,7 @@ class ArticleController extends \plushka\admin\core\Controller {
 	/* Создание или редактирование статьи (отдельной или в составе блога) */
 	public function actionArticle($article=null) {
 		if($article===null) {
-			plushka::import('admin/model/article');
-			$article=new article();
+			$article=new Article();
 			if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
 			elseif(isset($_GET['id'])) {
 				if(!$article->loadById($_GET['id'])) plushka::error404();
@@ -103,8 +103,7 @@ class ArticleController extends \plushka\admin\core\Controller {
 
 	/* Удаление статьи (форма подтверждения) */
 	public function actionArticleDelete() {
-		plushka::import('admin/model/article');
-		$article=new article();
+		$article=new Article();
 		$article->delete($_GET['id']);
 		plushka::redirect('article/article');
 	}

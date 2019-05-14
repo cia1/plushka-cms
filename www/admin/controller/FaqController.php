@@ -34,8 +34,7 @@ class FaqController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('faq');
+		$cfg=new \plushka\admin\core\Config('faq');
 		$cfg->keyword=$data['keyword'];
 		$cfg->description=$data['description'];
 		if(!$cfg->save('faq')) return false;
@@ -93,8 +92,7 @@ class FaqController extends \plushka\admin\core\Controller {
 		))) return false;
 		//Если администратор отметил, что нужно отправить ответ пользователю
 		if(isset($data['send'])) {
-			plushka::import('core/email');
-			$e=new email();
+			$e=new \plushka\core\Email();
 			$cfg=plushka::config('admin');
 			$e->from($cfg['adminEmailEmail'],$cfg['adminEmailName']);
 			$e->subject('Ответ на вопрос на сайте '.$_SERVER['HTTP_HOST']);

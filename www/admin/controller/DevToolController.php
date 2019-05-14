@@ -80,8 +80,7 @@ class DevToolController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new \plushka\admin\core\Config();
 		$cfg->noClearTable=$data['noClearTable'];
 		$cfg->clearFile=explode("\n",$data['clearFile']);
 		$cfg->dropTable=explode("\n",$data['dropTable']);
@@ -230,8 +229,7 @@ class DevToolController extends \plushka\admin\core\Controller {
 		$id=$id['id']; //имя модуля
 		self::_unlink('tmp');
 		$m=plushka::config('admin/../module/'.$id);
-		plushka::import('admin/model/module');
-		module::explodeData($m);
+		\plushka\admin\model\Module::explodeData($m);
 		$sql1=$sql2='';
 		$db0=plushka::db();
 		$db1=plushka::mysql();
@@ -312,8 +310,7 @@ class DevToolController extends \plushka\admin\core\Controller {
 
 	/* Создаёт снимок */
 	public function actionImageMake() {
-		plushka::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new \plushka\admin\core\Config();
 		$cfg->file=self::_scan(plushka::path()); //сканирование файловой системы
 		$cfg->structure=self::_structureDb();
 		$db=plushka::db();

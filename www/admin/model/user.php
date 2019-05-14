@@ -1,11 +1,11 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
+use plushka;
 
-/* Объект "пользователь". */
-plushka::import('model/user');
 plushka::language('user');
 
-class userAdmin extends modelUser {
+/* Объект "пользователь". */
+class User extends \plushka\model\User {
 
 	//Возвращает массив с правилами валидации
 	protected function rule() {

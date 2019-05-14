@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Config;
 
 /* Универсальный каталог */
 class CatalgController extends \plushka\admin\core\Controller {
@@ -122,8 +123,7 @@ class CatalgController extends \plushka\admin\core\Controller {
 
 	public function actionLayoutDataItemSubmit($data) {
 		$layoutId=(int)$data['layoutId'];
-		plushka::import('admin/core/config');
-		$cfg=new config('catalogLayout/'.$layoutId);
+		$cfg=new Config('catalogLayout/'.$layoutId);
 		$layoutData=$cfg->data;
 		if(!$data['title']) {
 			plushka::error('Поле &laquo;заголовок&raquo; не может быть пустым');
@@ -210,8 +210,7 @@ class CatalgController extends \plushka\admin\core\Controller {
 	/* Удаление поля (это не совсем верно, т.к. нужно ещё удалять изображения для image и gallery */
 	public function actionLayoutDataDelete() {
 		//Удалить поле из конфигурации (список всех полей)
-		plushka::import('admin/core/config');
-		$cfg=new config('catalogLayout/'.$_GET['lid']);
+		$cfg=new Config('catalogLayout/'.$_GET['lid']);
 		$data=$cfg->data;
 		unset($data[$_GET['id']]);
 		$cfg->data=$data;
@@ -271,8 +270,7 @@ class CatalgController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionLayoutViewSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('catalogLayout/'.$_GET['lid']);
+		$cfg=new Config('catalogLayout/'.$_GET['lid']);
 		$view=array();
 		foreach($data['index'] as $index) {
 			if(!isset($data['enabled'][$index])) continue;
@@ -442,13 +440,12 @@ class CatalgController extends \plushka\admin\core\Controller {
 		//Запись сохранена в БД. Теперь загрузить новые изображения и удалить старые (для полей типа "image" и "gallery")
 		$q='';
 		if($old) $old=$db->fetchArrayOnceAssoc('SELECT '.$old.' FROM catalog_'.$data['lid'].' WHERE id='.$oldId);
-		if($uploadImage || $uploadGallery) plushka::import('core/picture');
 		foreach($uploadImage as $id) {
 			if($oldId) { //удалить сначала старый файл изображения
 				$f=plushka::path().'public/catalog/'.$oldImage[$id];
 				if(file_exists($f)) unlink($f);
 			}
-			$p=new picture($data[$id]);
+			$p=new \plushka\core\Picture($data[$id]);
 			$p->resize($cfg['data'][$id]['width'],$cfg['data'][$id]['height']);
 			$f=$data['lid'].'.'.$m->id.'-'.$id;
 			$f=$p->save('public/catalog/'.$f);
@@ -470,7 +467,7 @@ class CatalgController extends \plushka\admin\core\Controller {
 			if(isset($cfg['data'][$id]['thumbWidth'])) $thumbnail=true; else $thumbnail=false;
 			for($i=0,$cnt=count($data[$id]);$i<$cnt;$i++) {
 				$index++;
-				$p=new picture($data[$id][$i]);
+				$p=new \plushka\core\Picture($data[$id][$i]);
 				$p->resize($cfg['data'][$id]['width'],$cfg['data'][$id]['height']);
 				$f=$data['lid'].'.'.$m->id.'-'.$id.'-'.$index;
 				$f=$p->save('public/catalog/'.$f);
@@ -649,7 +646,6 @@ class CatalgController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionMenuCatalogSubmit($data) {
-		plushka::import('admin/core/config');
 		if($data['lid']==0) { //новая ссылка (новый каталог)
 			//Найти следующий номер каталога (ИД)
 			$path=plushka::path().'config/catalogLayout/';
@@ -670,7 +666,7 @@ class CatalgController extends \plushka\admin\core\Controller {
 				'metaDescription'=>'VARCHAR(300)'
 			));
 			//Создать новую конфигурацию каталога и записать данные по умолчанию
-			$cfg=new config();
+			$cfg=new Config();
 			$cfg->onPage=30;
 			$cfg->data=array();
 			$cfg->view1=array();

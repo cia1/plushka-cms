@@ -272,8 +272,7 @@ abstract class core {
 	 * @see \plushka\core\user
 	 */
 	public static function &user() {
-		if(isset($_SESSION['userCore'])) return $_SESSION['userCore'];
-		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
+		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
 		return $_SESSION['user'];
 	}
 
@@ -281,11 +280,11 @@ abstract class core {
 	 * Возвращает пользователя, игнорируя режим подмены пользователя.
 	 * @return user
 	 * @see plushka::user()
-	 * @see \plushka\core\user
+	 * @see \plushka\core\User
 	 */
-	public static function &userCore() {
-		if(!isset($_SESSION['user'])) $_SESSION['user']=new \plushka\core\user();
-		return $_SESSION['user'];
+	public static function &userReal() {
+		if(isset($_SESSION['userReal'])===true) return $_SESSION['userReal'];
+		else return self::user();
 	}
 
 	/**
@@ -299,12 +298,11 @@ abstract class core {
 	}
 
 	/**
-	 * Возвращает идентификатор текущего пользователя (db user.id), для не авторизованных - "0"
+	 * Возвращает идентификатор текущего пользователя (db user.id), для не авторизованных - 0
 	 * @return int
 	 */
 	public static function userId() {
-		if(isset($_SESSION['userCore'])) return $_SESSION['userCore']->id;
-		if(!isset($_SESSION['user'])) $_SESSION['user']=new user();
+		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
 		return $_SESSION['user']->id;
 	}
 }
@@ -377,7 +375,7 @@ class Controller {
 		plushka::hook('beforeRender',$renderTemplate); //сгенерировать событие ("перед началом вывода в поток")
 		if(!plushka::template()) $renderTemplate=false; //шаблон мог быть отключен через вызов plushka::template()
 		if(!$view) return; //если представления нет, то ничего не выводить в поток
-		$user=plushka::userCore();
+		$user=plushka::userReal();
 		if($user->group>=200) {
 			$this->js('jquery.min','defer');
 			$this->js('admin','defer');
@@ -451,10 +449,10 @@ class Controller {
 	 * @param mixed $data Произвольные данные, которые будут переданы в метод controller::admin{Action}Link2()
 	 */
 	protected function admin($data=null) {
-		$user=plushka::userCore();
+		$user=plushka::userReal();
 		if($user->group<200) return;
 		$s='admin'.$this->url[1].'Link2';
-		$admin=new admin();
+		$admin=new Admin();
 		@$link=$this->$s($data);
 		foreach($link as $item) {
 			if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
@@ -528,7 +526,7 @@ abstract class Widget {
 	 * @param array[] $data
 	 */
 	public function admin($data) {
-		$u=plushka::userCore();
+		$u=plushka::userReal();
 		if($u->group<200) return;
 		$admin=new admin();
 		$link=$this->adminLink2($data);
@@ -543,9 +541,9 @@ abstract class Widget {
 
 /**
  * Класс олицетворяет пользователя.
- * Этот класс всегда находится в сессии ($_SESSION['user'], $_SESSION['userCore'])
+ * Этот класс всегда находится в сессии ($_SESSION['user'], $_SESSION['userReal'])
  * @see plushka::user()
- * @see plushka::userCore()
+ * @see plushka::userReal()
  * @see model/user.php
  */
 class User {
@@ -602,7 +600,7 @@ class User {
 function runApplication($renderTemplate=true) {
 	session_start();
 	include(plushka::path().'language/global.'._LANG.'.php');
-	$user=plushka::userCore();
+	$user=plushka::userReal();
 	if($user->group>=200) include(plushka::path().'core/admin.php');
 	plushka::$controller='\plushka\controller\\'.ucfirst($_GET['corePath'][0]).'Controller';
 	plushka::$controller=new plushka::$controller();

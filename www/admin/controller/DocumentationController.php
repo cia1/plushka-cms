@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\model\Documentation;
 
 class DocumentationController extends \plushka\admin\core\Controller {
 
@@ -23,8 +24,7 @@ class DocumentationController extends \plushka\admin\core\Controller {
 
 	/* Создание или редактирование статьи */
 	public function actionArticle() {
-		plushka::import('admin/model/documentation');
-		$article=new documentation();
+		$article=new Documentation();
 		if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
 		elseif(isset($_GET['id'])) {
 			if(!$article->loadById($_GET['id'])) plushka::error404();
@@ -42,8 +42,7 @@ class DocumentationController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionArticleSubmit($data) {
-		plushka::import('admin/model/documentation');
-		$documentation=new documentation();
+		$documentation=new Documentation();
 		$documentation->set($data);
 		if(!$documentation->save()) return false;
 		plushka::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));

@@ -3,16 +3,16 @@
 'widget'=>'comment',
 'table'=>'comment,comment_group',
 'file'=>array(
-	'admin/controller/comment.php',
+	'admin/controller/CommentController.php',
 	'admin/hook/pageDelete.comment.php',
 	'admin/hook/widgetDelete.comment.php',
 	'admin/hook/widgetPageDelete.comment.php',
 	'admin/public/icon/comment16.png',
 	'config/comment.php',
-	'controller/comment.php',
+	'controller/CommentController.php',
 	'public/js/comment.js',
 	'view/widgetComment.php',
-	'model/mComment.php',
-	'widget/comment.php'
+	'model/Comment.php',
+	'widget/CommentWidget.php'
 )
 );

@@ -2,7 +2,7 @@
 'right'=>'note.*',
 'table'=>'admin_note',
 'file'=>array(
-	'admin/controller/note.php',
+	'admin/controller/NoteController.php',
 	'admin/public/icon/info16.png',
 	'admin/view/noteView.php',
 )

@@ -6,12 +6,12 @@
 'table'=>'shp_category,shp_brand,shp_feature,shp_feature_group,shp_product,shp_product_feature,shp_product_group,shp_product_group_item,shp_variant',
 'file'=>array(
 	'admin/config/shop.php',
-	'admin/controller/shopContent.php',
-	'admin/controller/shopSetting.php',
+	'admin/controller/ShopContentController.php',
+	'admin/controller/ShopSettingController.php',
 	'admin/data/email/shopOrder.html',
 	'admin/model/excel_reader2.php',
-	'admin/model/shop.php',
-	'admin/model/shopImport.php',
+	'admin/model/Shop.php',
+	'admin/model/ShopImport.php',
 	'admin/public/css/shop.css',
 	'admin/public/icon/brand16.png', /* !!! */
 	'admin/public/icon/brand32.png',
@@ -31,12 +31,12 @@
 	'admin/view/shopSettingSetting.php',
 	'admin/view/shopSettingWidgetFeatureSearch.php',
 	'config/shop.php',
-	'controller/checkout.php',
-	'controller/shop.php',
+	'controller/CheckoutController.php',
+	'controller/ShopController.php',
 	'data/email/shopOrder.html',
 	'data/shopAfter.php',
 	'hook/search.shop.php',
-	'model/shop.php',
+	'model/Shop.php',
 	'public/shop-brand/',
 	'public/shop-category/',
 	'public/shop-product/',
@@ -46,9 +46,9 @@
 	'view/checkoutSuccess.php',
 	'view/shopCategory.php',
 	'view/shopProduct.php',
-	'widget/shopCart.php',
-	'widget/shopCategory.php',
-	'widget/shopFeatureSearch.php',
-	'widget/shopProductGroup.php'
+	'widget/ShopCartWidget.php',
+	'widget/ShopCategoryWidget.php',
+	'widget/ShopFeatureSearchWidget.php',
+	'widget/ShopProductGroupWidget.php'
 )
-); ?>
+);

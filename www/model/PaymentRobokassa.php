@@ -57,7 +57,7 @@ class PaymentRobokassa extends Payment {
 
 	protected function config() {
 		$cfg=parent::config();
-		$u=plushka::userCore();
+		$u=plushka::userReal();
 		if($this->sandbox) {
 			$cfg['password1']=$cfg['password1Debug'];
 			$cfg['password2']=$cfg['password2Debug'];

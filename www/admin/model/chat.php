@@ -1,7 +1,7 @@
 <?php
 namespace plushka\admin\core;
 
-class chat {
+class Chat {
 
 	//Удаляет сообщение со временем $time (timestamp с миллисекундами)
 	public static function delete($chatId,$time) {
