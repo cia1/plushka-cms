@@ -1,5 +1,7 @@
 <?php
 namespace plushka\admin\controller;
+use plushka;
+use plushka\admin\core\Config;
 
 /* Общие настройки сайта */
 class SettingController extends \plushka\admin\core\Controller {
@@ -45,8 +47,7 @@ class SettingController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionCoreSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('_core');
+		$cfg=new Config('_core');
 		if(plushka::error()) return false;
 		if(isset($data['debug'])) $cfg->debug=true; else $cfg->debug=false;
 		$cfg->adminEmailEmail=$data['adminEmailEmail'];
@@ -84,8 +85,7 @@ class SettingController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionUrlSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('_core');
+		$cfg=new Config('_core');
 		$cfg->mainPath=$data['mainPath'];
 		$link=explode("\n",$data['link']);
 		$cnt=count($link);

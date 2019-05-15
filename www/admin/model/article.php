@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\model;
+use plushka\admin\core\Config;
 
 class Article extends \plushka\admin\core\ModelEx {
 
@@ -62,8 +63,7 @@ class Article extends \plushka\admin\core\ModelEx {
 			$cfg1=plushka::config();
 			$s='article/view/'.$this->_oldAlias;
 			if($cfg1['mainPath']==$s || isset($cfg1['link'][$s])) {
-				plushka::import('admin/core/config');
-				$cfg2=new config('_core');
+				$cfg2=new Config('_core');
 				if($cfg1['mainPath']==$s) $cfg2->mainPath='article/view/'.$this->_data['alias'];
 				if(isset($cfg1['link'][$s])) {
 					$alias=$cfg1['link'][$s];

@@ -85,8 +85,7 @@ class UserController extends \plushka\admin\core\Controller {
 
 	/* Удаление группы */
 	public function actionGroupDelete() {
-		plushka::import('admin/model/userGroup');
-		$model=new userGroup();
+		$model=new \plushka\admin\model\UserGroup();
 		if(!$model->delete($_GET['id'])) return false;
 		plushka::redirect('user/group','Группа пользователей удалена');
 	}

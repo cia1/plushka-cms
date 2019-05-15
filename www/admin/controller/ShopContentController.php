@@ -1,5 +1,8 @@
 <?php
 namespace plushka\admin\controller;
+use plushka;
+use plushka\admin\model\Shop;
+use plushka\core\Picture;
 
 /* Управление интернет-магазином (контент) */
 class ShopController extends \plushka\admin\core\Controller {
@@ -71,8 +74,7 @@ class ShopController extends \plushka\admin\core\Controller {
 		if(!$model->save($validate)) return false;
 		//Обработка изображений категории (если загружены)
 		if($data['image']['size']) {
-			plushka::import('core/picture');
-			$picture=new picture($data['image']);
+			$picture=new Picture($data['image']);
 			if(plushka::error()) return false; //Файл не является изображением?
 			//Удалить существующее изображение, если таковое есть
 			if($data['id']) {
@@ -91,8 +93,7 @@ class ShopController extends \plushka\admin\core\Controller {
 
 	/* Удаление категории товаров */
 	public function actionCategoryDelete() {
-		plushka::import('admin/model/shop');
-		shop::deleteCategory($_GET['id']);
+		Shop::deleteCategory($_GET['id']);
 		plushka::redirect('shop','Категория удалена');
 	}
 
@@ -143,8 +144,7 @@ class ShopController extends \plushka\admin\core\Controller {
 		}
 		//Добавить в форму характеристики (привязаны к категории)
 		$f->html('<h1 style="clear:both;">Характеристики</h1>');
-		plushka::import('admin/model/shop');
-		$feature=shop::featureProduct($data['categoryId'],$data['id']);
+		$feature=Shop::featureProduct($data['categoryId'],$data['id']);
 		foreach($feature as $item1) {
 			$f->html('<p><b>'.$item1['title'].'</b></p>');
 			foreach($item1['data'] as $item2) {
@@ -227,15 +227,13 @@ class ShopController extends \plushka\admin\core\Controller {
 
 	/* Удаление товара */
 	public function actionProductDelete() {
-		plushka::import('admin/model/shop');
-		shop::deleteProduct($_GET['id']);
+		Shop::deleteProduct($_GET['id']);
 		plushka::redirect('shop','Товар удалён');
 	}
 
 	//Удаление нескольких товаров
 	public function actionProductDeleteSubmit($data) {
-		plushka::import('admin/model/shop');
-		shop::deleteProduct($data['id']);
+		Shop::deleteProduct($data['id']);
 		plushka::redirect('shop','Товары удалены');
 	}
 	/* Список изображений товара (для добавления/удаления) */
@@ -258,9 +256,8 @@ class ShopController extends \plushka\admin\core\Controller {
 		$mainImage=$image[0]; //Основное изображение
 		if($image[1]) $image=explode(',',$image[1]); else $image=array();
 		$index=count($image)+1; //Для формирования имени файла
-		plushka::import('core/picture');
 		$cfg=plushka::config('shop');
-		$picture=new picture($data['image']);
+		$picture=new Picture($data['image']);
 		if(plushka::error()) return false;
 		$picture->resize($cfg['productFullWidth'],$cfg['productFullHeight']);
 		$fname=$data['id'].'.'.$index;
@@ -312,9 +309,8 @@ class ShopController extends \plushka\admin\core\Controller {
 	public function actionProductMove() {
 		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT alias,categoryId FROM shp_product WHERE id='.$_GET['id']);
-		plushka::import('model/shop');
 		$list=array();
-		$in=shop::categoryTree();
+		$in=\plushka\model\Shop::categoryTree();
 		$this->_flatCategory($in[0]['child'],$list); //Плоский список категорий в $list
 		unset($in);
 		$f=plushka::form();
@@ -360,8 +356,7 @@ class ShopController extends \plushka\admin\core\Controller {
 		$f->hidden('productId',$data['productId']);
 		$f->text('title','Название (модель)',$data['title']);
 		//Подключить список характеристик к форме
-		plushka::import('admin/model/shop');
-		$feature=shop::featureVariant($cid,$data['feature']); //По $data['feature'] определяются значения характеристик
+		$feature=Shop::featureVariant($cid,$data['feature']); //По $data['feature'] определяются значения характеристик
 		foreach($feature as $item1) {
 			$f->html('<p><b>'.$item1['title'].'</b></p>');
 			foreach($item1['data'] as $item2) {
@@ -459,9 +454,8 @@ class ShopController extends \plushka\admin\core\Controller {
 		))) return false;
 
 		if($data['image']['size']) {
-			plushka::import('core/picture');
 			$cfg=plushka::config('shop');
-			$picture=new picture($data['image']);
+			$picture=new Picture($data['image']);
 			if(plushka::error()) return false;
 			$db=plushka::db();
 			//Удалить старое изображение, если загружено новое

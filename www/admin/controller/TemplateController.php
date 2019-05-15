@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka;
 
 /* Индивидуальные шаблоны для разных страниц сайта */
 class TemplateController extends \plushka\admin\core\Controller {
@@ -49,8 +50,7 @@ class TemplateController extends \plushka\admin\core\Controller {
 			if(!$item[0] || !$item[1]) continue;
 			$template[$item[0]]=$item[1];
 		}
-		plushka::import('admin/core/config');
-		$cfg=new config('_core');
+		$cfg=new \plushka\admin\core\Config('_core');
 		$cfg->template=$template;
 		$cfg->save('_core');
 		plushka::redirect('template','Информация обновлена');

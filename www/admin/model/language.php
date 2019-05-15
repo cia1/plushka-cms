@@ -1,5 +1,7 @@
 <?php
 namespace plushka\admin\core;
+use plushka;
+use plushka\core\Cache;
 
 class Language {
 
@@ -38,8 +40,7 @@ class Language {
 	private static function _tableList() {
 		$f=plushka::path().'cache/language-database.php';
 		if(!file_exists($f)) {
-			plushka::import('core/cache');
-			cache::languageDatabase();
+			Cache::languageDatabase();
 		}
 		$lang=plushka::config('../cache/language-database');
 		foreach($lang as $table=>$null) {

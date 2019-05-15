@@ -4,42 +4,74 @@ namespace plushka\core;
 use plushka;
 use plushka\core\Picture;
 
+/**
+ * Валидатор и фильтр данных.
+ * Этот класс не только проверяет, но и производит фильтрацию входных данных в соответствии с правилами валидации. Обычно используется для проверки входных данных, полученных от посетителей сайта.
+ * Правила валидации - это массив, где ключ - имя атрибута, значение - массив с параметрами валидации:
+ * [0] string - имя валидатора (тип поля),
+ * [1] string - название атрибута, нужно для формирования сообщения об ошибке (кроме bool)
+ * [2] bool - обязательное поле.
+ * Список валидаторов и дополнительные параметры для каждого
+ * - 'bool' (да/нет)
+ * - 'captcha' (защита от роботов)
+ * - 'callback' (проверка callback-функцией): [3] - 
+ * 
+
+ */
 class Validator {
 
-	protected $_bool=array(); //список булевых полей (для корректного преобразования)
-	protected $_data=array(); //содержит набор данных
+	/** @var string[] Список булевых полей, нужен для корректного преобразования */
+	protected $_bool=array();
+	/** @var mixed[] Набор валидируемых данных */
+	protected $_data=array();
 
-	/* Устанавливает значение поля $attribute таблицы БД */
-	public function __set($attribute,$value) {
+	/**
+	 * Устанавливает значение атрибута
+	 * @param string $attribute имя атрибута
+	 * @param mixed $value Значение атрибута
+	 */
+	public function __set(string $attribute,$value) {
 		$this->_data[$attribute]=$value;
 	}
 
-	/* Возвращает значение поля $attribute таблицы базы данных */
-	public function __get($attribute) {
-		if(isset($this->_data[$attribute])) return $this->_data[$attribute]; else return null;
+	/**
+	 * Возвращает значение атрибута
+	 * @param string $attribute Имя атрибута
+	 * @return mixed|null Значение атрибута или NULL, если не задан
+	 */
+	public function __get(string $attribute) {
+		return $this->_data[$attribute] ?? null;
 	}
 
-	/* Загружает данные для всех полей таблицы */
-	public function set($data) {
+	/**
+	 * Устанавливает сразу все проверяемые данные
+	 * @param array $data массив данных в формате ключ-значение
+	 */
+	public function set(array $data) {
 		$this->_data=$data;
 	}
 
-	/* Возвращает массив данных всех полей таблицы */
-	public function get() {
+	/**
+	 * Возвращает все валидируемые данные
+	 * @return array
+	 */
+	public function get(): array {
 		return $this->_data;
 	}
 
-	//Очищает данные
+	/**
+	 * Очищает данные
+	 */
 	public function init() {
 		$this->_data=array();
 	}
 
-	/*
-	Выполняет валидацию всех данных
-	$rule - правила валидации: null - используется static::rule(), массив - воспринимается как правила валидации
-	rule: [type, title, required]
+	/**
+	 * Выполняет валидацию и фильтрацию всех данных
+	 * @param array|null Правила валидации: null - взять из static::rule(), массив - правила в формате ключ-значение
+	 * @return bool Валидны ли данные
 	*/
-	public function validate($rule=null) {
+	public function validate($rule=null): bool {
 		plushka::language('global');
 		if($rule===null) $rule=$this->rule();
 		foreach($rule as $attribute=>$item) {
@@ -53,35 +85,53 @@ class Validator {
 		return true;
 	}
 
-	protected function validateBoolean($attribute,$setting) {
-		if(!isset($this->_data[$attribute])) $this->_data[$attribute]=null;
-		$value=&$this->_data[$attribute];
+	/**
+	 * Валидатор булевого значения
+	 * @param string $attribute Имя атрибута
+	 * @param array $setting не используется
+	 * @return bool Результат валидации
+	 */
+	protected function validateBoolean(string $attribute,$setting): bool {
+		if(isset($this->_data[$attribute])===false) $this->_data[$attribute]=false;
 		$this->_bool[]=$attribute;
-		if($value) $value=true; else $value=false;
+		$this->_data[$attribute]==(bool)$this->_data[$attribute];
 		return true;
 	}
 
-	protected function validateCaptcha($attribute,$setting) {
+	/**
+	 * Валидатор защиты от роботов
+	 * @param string $attribute Имя атрибута
+	 * @param array $setting: [1] - имя параметра для формирования сообщения об ошибке
+	 * @return bool Результат валидации
+	 */
+	protected function validateCaptcha(string $attribute,$setting): bool {
 		if((int)$this->_data[$attribute]!==$_SESSION['captcha']) {
 			plushka::error($setting[1].' '.LNGwroteWrong);
-			return;
+			return false;
 		}
 		return true;
 	}
 
-	protected function validateCallback($attribute,$setting) {
-		$this->_data[$attribute]=call_user_func_array($setting[3],array($this->$attribute,$attribute));
+	/**
+	 * Валидатор callback-функцией
+	 * @param string $attribute Имя атрибута
+	 * @param array $setting: [3] - callback-функция
+	 * @return bool Результат валидации
+	 */
+	protected function validateCallback(string $attribute,array $setting): bool {
+		$this->_data[$attribute]=call_user_func_array($setting[3],array($this->$attribute));
 		if(plushka::error()) return false;
 		return true;
 	}
 
 	protected function validateDate($attribute,$setting) {
 		$value=&$this->_data[$attribute];
-		if($value==='') {
+		if($value==='' || $value===null) {
 			$value=null;
 			return true;
 		}
-		if(!is_numeric($value)) $value=strtotime($value);
+		if(ctype_digit($value)===false) $value=strtotime($value);
+		$value=(int)$value;
 		if($value<1) {
 			plushka::error(sprintf(LNGFieldHasBeDate,$setting[1]));
 			return false;

@@ -1,5 +1,8 @@
 <?php
 namespace plushka\admin\controller;
+use plushka;
+use plushka\admin\core\Config;
+use plushka\admin\model\Shop;
 
 /* Управление интернет-магазином (настройка магазина, импорт) */
 class ShopSettingController extends \plushka\admin\core\Controller {
@@ -131,8 +134,7 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 	}
 
 	public function actionSettingSubmit($data) {
-		plushka::import('admin/core/config');
-		$cfg=new config('shop');
+		$cfg=new Config('shop');
 		if(plushka::error()) return false;
 		if($data['productFullWidthType']=='') $cfg->productFullWidth=null;
 		elseif($data['productFullWidthType']=='<') $cfg->productFullWidth='<'.$data['productFullWidth'];
@@ -200,8 +202,7 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 			//Если выбрана категория характеристик, то добавить кнопки
 			$this->button('#','delete','Удалить категорию','Удалить','onclick="featureGroupDelete();return false;"');
 			$this->button('shopSetting/featureItem?gid='.$_GET['gid'],'layoutNew','Создать характеристику');
-			plushka::import('admin/model/shop');
-			$data=shop::featureList($_GET['gid']);
+			$data=Shop::featureList($_GET['gid']);
 			if(!$data) $this->null=true; //Признак пустого списка
 			else {
 				$this->null=false;
@@ -234,8 +235,7 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 
 	/* Удаление группы характеристик товаров */
 	public static function actionFeatureGroupDeleteSubmit($data) {
-		plushka::import('admin/model/shop');
-		shop::featureGroupDelete($data['id']);
+		Shop::featureGroupDelete($data['id']);
 		echo 'OK';
 		exit;
 	}
@@ -282,28 +282,25 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 			'data'=>array('string')
 		))) return false;
 		if($variantDelete) {
-			plushka::import('admin/model/shop');
-			shop::featureCategoryDelete($data['id']);
+			Shop::featureCategoryDelete($data['id']);
 		}
 		plushka::redirect('shopSetting/featureList?gid='.$data['groupId']);
 	}
 
 	/* Удаление характеристики */
 	public function actionFeatureDelete() {
-		plushka::import('admin/model/shop');
-		shop::featureDelete($_GET['id']);
+		Shop::featureDelete($_GET['id']);
 		plushka::redirect('shopSetting/featureList?gid='.$_GET['gid']);
 	}
 
 	/* Сопоставление характеристик товаров для категории */
 	public function actionCategoryFeature() {
 		$this->js('admin/shop');
-		plushka::import('admin/model/shop');
 		if(isset($_GET['id'])) $this->id=$_GET['id']; else $this->id=$_POST['shopSetting']['categoryId'];
 		$db=plushka::db();
 		$feature=$db->fetchValue('SELECT feature FROM shp_category WHERE id='.$this->id);
-		$this->feature2=shop::featureList(null,$feature); //Уже отмеченные для категории
-		$this->feature1=shop::featureList(null,null,$this->feature2); //Не отмеченные
+		$this->feature2=Shop::featureList(null,$feature); //Уже отмеченные для категории
+		$this->feature1=Shop::featureList(null,null,$this->feature2); //Не отмеченные
 		return 'CategoryFeature';
 	}
 
@@ -317,8 +314,7 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 		//$lst - характеристики, которые были сняты
 		$lst=array_diff($lst2,$lst1);
 		if($lst) {
-			plushka::import('admin/model/shop');
-			shop::featureCategoryDelete(implode(',',$lst),false,$data['categoryId']); //Убрать у всех товаров и модификаций (в будущем будет чекбоксе на форме)
+			Shop::featureCategoryDelete(implode(',',$lst),false,$data['categoryId']); //Убрать у всех товаров и модификаций (в будущем будет чекбоксе на форме)
 		}
 		$db->query('UPDATE shp_category SET feature='.$db->escape($data['feature']).' WHERE id='.$data['categoryId']);
 		plushka::redirect('shopSetting/categoryFeature?cid='.$data['categoryId'],'Изменения сохранены');
@@ -384,8 +380,7 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 		$cfg=plushka::config('admin/shop'); // /admin/config/shop.php
 		unset($data['file']); //это не нужно
 		if($data!=$cfg) { //А были ли изменения в конфигурации?
-			plushka::import('admin/core/config');
-			$cfg=new config();
+			$cfg=new Config();
 			foreach($data as $key=>$value) {
 				if(!$value) continue;
 				$cfg->$key=$value;
@@ -409,13 +404,12 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 
 	/* Процесс импорта (очередная "пачка" строк). Позиция определяется из параметра $_GET['row'] */
 	public function actionImportProcess() {
-		plushka::import('admin/model/shopImport');
 	 	if($_GET['stage']=='load') { //"В работе"
 			define('ROW_LIMIT',100); //Обрабатывать по 100 товаров за раз
 			$cfg=plushka::config('admin/shop');
 			$start=(int)$_GET['row']; //Строка, с которой начинать обработку
 			if(!$start) $start=$cfg['firstRow'];
-			$count=shopImport::loadXLS($cfg,$start,ROW_LIMIT);
+			$count=\plushka\admin\model\ShopImport::loadXLS($cfg,$start,ROW_LIMIT);
 			$start=$start+$count;
 			$this->total=$start-$cfg['firstRow'];
 			if($count!=ROW_LIMIT) $this->link='index2.php?controller=shopSetting&action=importProcess&stage=clear'; else $this->link='index2.php?controller=shopSetting&action=importProcess&stage=load&row='.$start;
@@ -522,8 +516,7 @@ class ShopSettingController extends \plushka\admin\core\Controller {
 			$this->brand=$data['brand'];
 			$dataFeature=$data['feature'];
 		}
-		plushka::import('admin/model/shop');
-		$this->feature=shop::featureList();
+		$this->feature=Shop::featureList();
 		foreach($this->feature as $groupId=>&$groupData) {
 			foreach($groupData['data'] as &$featureData) {
 				$featureId=$featureData['id'];

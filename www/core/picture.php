@@ -22,11 +22,10 @@ class Picture {
 	private $_wW;
 	private $_wH;
 
-	/* Открывает файл изображения, проверяет что это действительно изображение
-	$file - имя файла, массив, экземпляр picture или целое число;
-	int $file и int $height - ширина и высота пустого изображения */
 	/**
-	 * @param string|array|picture|int $file Файл
+	 * Открывает файл изображения, проверяет что это действительно изображение
+	 * @param string|array|picture|int $fileOrWidth Имя файла (string), файл из $_FILES (array) или ширина в пикселях (int)
+	 * @param int|null Ширина изображения, если создаётся новое
 	 */
 	public function __construct($fileOrWidth,$height=null) {
 		if($fileOrWidth instanceof picture) {
@@ -86,24 +85,39 @@ class Picture {
 		if($this->_src) unset($this->_src);
 	}
 
-	//Возвращает высоту исходного изображения
+	/**
+	 * Возвращает высоту исходного изображения
+	 * @return int
+	 */
 	public function height() {
 		return $this->_srcH;
 	}
 
-	//Возвращает широту исходного изображения
+	/**
+	 * Возвращает широту исходного изображения
+	 * @return int
+	 */
 	public function width() {
 		return $this->_srcW;
 	}
 
-	//Возвращает тип изображения
+	/**
+	 * Возвращает тип изображения
+	 * @return string
+	 */
 	public function type() {
 		return $this->_type;
 	}
 
-	//Обрезает исходное изображение по краям по заданной ширине и высоте ($x2===null && $y2===null)
-	//Если заданы $x2 и $y2, то все четыре параметра воспринимаются как координаты прямоугольника
-	//picture::crop() должен быть вызван до picture::resize()
+	/**
+	 * Обрезает исходное изображение по краям.
+	 * Если заданы только $width и $height, то обрезает по краям до указанных размеров. Если заданы все четыре параметра, то они воспринимаются как координаты (в пикселях) вырезаемого прямоугольника.
+	 * self::crop() должен быть вызван до self::resize().
+	 * @param int|null $width ширина изображения
+	 * @param int|null $height высота изображения
+	 * @param int|null $x2 отступ по оси X второй точки вырезаемой области
+	 * @param int|null $y2 отсут по оси Y второй точки вырезаемой области
+	 */
 	public function crop($width=null,$height=null,$x2=null,$y2=null) {
 		if($x2===null && $y2===null) { //обрезка по ширине и высоте
 			if($width && $width<$this->_srcW) {
@@ -125,17 +139,21 @@ class Picture {
 		//если изображение не масшатибровалось, то изменить размеры генерируемого изображения
 		if($this->_dstW==$this->_srcW) $this->_dstW=($this->_x2-$this->_x1);
 		if($this->_dstH==$this->_srcH) $this->_dstH=($this->_y2-$this->_y1);
-		return true;
 	}
 
-	/* Сжимает или растягивает изображение до указанных размеров */
+	/**
+	 * Сжимает или растягивает изображение до указанных размеров
+	 * Размер может быть указан в виде строки с приставкой "<" (не больше) или ">" (не меньше)
+	 * @param int|string|null $width Ширина изображения
+	 * @param int|string|null $height Высота изображения
+	 */
 	public function resize($width=null,$height=null) {
 		$srcW=$this->_x2-$this->_x1;
 		$srcH=$this->_y2-$this->_y1;
 		if(!$width && !$height) {
 			$this->_dstW=$srcW;
 			$this->_dstH=$srcH;
-			return true;
+			return;
 		}
 		if($width) {
 			if($width[0]=='<' || $width[0]=='>') $symbolWidth=$width[0]; else $symbolWidth='=';
@@ -170,12 +188,17 @@ class Picture {
 		$this->_dstH=$height;
 	}
 
-	/* Накладывает водный знак
-	$f - имя файла изображения, экземпляр picture или imageGD; $x и $y задают отступы от краёв изображения */
+	/**
+	 * Накладывает водный знак
+	 * Если $x и $y - это строка, с приставкой "-", то отступ будет отчитываться от правого и нижнего краёв соответственно. Параметры $x и $y могут быть указаны в процентах.
+	 * @param string|Picture|image Изображение водного знака
+	 * @param int|string $x Отступ по ширине расположения водного знака
+	 * @param int|string $y Отступ по высоте расположения водного знака
+	 */
 	public function watermark($f,$x,$y) {
-		if($f instanceof picture) {
+		if($f instanceof Picture) {
 			$this->_watermark=$f->gd();
-		} elseif(is_string($f)) {
+		} elseif(is_string($f)===true) {
 			$ext=strtolower(substr($f,strrpos($f,'.')+1));
 	    $f=plushka::path().$f;
 			switch($ext) {
@@ -219,7 +242,10 @@ class Picture {
 		if($minus) $this->_wY=$this->_dstH-$this->_wH-$y; else $this->_wY=$y;
 	}
 
-	/* Возвращает объект image, содержащий обработанное изображение */
+	/**
+	 * Возвращает объект image, содержащий обработанное изображение
+	 * @return image
+	 */
 	public function gd() {
 		//если размеры изображения совпадают с исходными, то нет надобности дублировать исходное изображение
 		if($this->_x1===0 && $this->_y1===0 && $this->_dstW===$this->_srcW && $this->_dstH===$this->_srcH) {
@@ -232,7 +258,6 @@ class Picture {
 				imagealphablending($dst,true);
 				imagesavealpha($dst,true);
 			}
-	//echo 'FROM POINT: ',$this->_x1,'x',$this->_y1,'<br>';echo 'FROM SIZE: ',round($this->_x2-$this->_x1),'x',round($this->_y2-$this->_y1),'<br>';echo 'TO POINT: 0x0<br>';echo 'TO SIZE: ',$this->_dstW,'x',$this->_dstH,'<br>';
 			imagecopyresampled($dst,$this->_src,
 				0,0, //dst_x, dst_y
 				$this->_x1,$this->_y1, //src_x, src_y
@@ -251,8 +276,11 @@ class Picture {
 		return $dst;
 	}
 
-	/* Выполняет все действия обработки и сохраняет изображение в файл.
-	Тип файла определяется расширением $fileName, если оно задано, возвращает имя файба без директория, но с расширением */
+	/**
+	 * Выполняет все действия обработки и сохраняет изображение в файл
+	 * @param string $fileName Имя файла
+	 * @param int|null $quantity Коэфициент качества для формата JPEG
+	 */
 	public function save($fileName,$quality=100) {
 		$type=strrpos($fileName,'.');
 		if($type) $type=strtolower(substr($fileName,$type+1));

@@ -1,16 +1,12 @@
 <?php
 use plushka\admin\model\ObjectLink;
 
-/* Событие: удаление пункта меню.
-Модуль: статьи
-Параметры: string $data[0] - удаляемая ссылка, int $data[1] - идентификатор пункта меню */
 $link=$data[0];
 
 if(substr($link,0,13)=='article/view/') return _articleDelete($link);
 if(substr($link,0,13)=='article/blog/' || substr($link,0,13)=='article/list/') return _blogDelete($link);
 return true;
 
-/* Удаляет статью или блог, если на них больше нет ссылок */
 function _articleDelete($link) {
 	$db=plushka::db();
 	if($db->fetchValue('SELECT count(id) FROM menu_item WHERE link='.$db->escape($link))!='1') return true;
@@ -19,14 +15,12 @@ function _articleDelete($link) {
 	return true;
 }
 
-/* Удаляет категорию статей, если на неё есть только одна ссылка $link */
 function _blogDelete($link) {
 	$db=plushka::db();
 	if($db->fetchValue('SELECT count(id) FROM menu_item WHERE link='.$db->escape($link))!='1') return true;
 	$alias=substr($link,13);
 	$id=$db->fetchValue('SELECT id FROM article_category_'._LANG.' WHERE alias='.$db->escape($alias));
 
-	plushka::import('admin/model/objectLink');
 	$param=array('categoryId'=>$id);
 	$cnt=ObjectLink::fromSectionWidget('blog',$param)+ObjectLink::fromTemplateWidget('blog',$param);
 	if($cnt) return true;

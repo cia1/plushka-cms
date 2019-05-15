@@ -1,6 +1,7 @@
 <?php
 namespace plushka\admin\model;
 use plushka;
+use plushka\admin\core\Config;
 
 /* Библиотека для установки и удаления модулей */
 class Module {
@@ -75,8 +76,7 @@ class Module {
 	/* Создаёт конфигурацию нового модуля
 	string $id - системное имя модуля; string $name - название модуля; string $version - версия модуля; string $url - веб-старица модуля */
 	public static function create($id,$name,$version,$url='',$currentVersion=null) {
-		plushka::import('admin/core/config');
-		$cfg=new config();
+		$cfg=new Config();
 		$cfg->right='';
 		$cfg->widget='';
 		$cfg->menu='';
@@ -96,8 +96,7 @@ class Module {
 	/* Устанавливает статус $status для модуля с именем $id */
 	public static function status($id,$status) {
 		if(!self::$_config) {
-			plushka::import('admin/core/config');
-			self::$_config=new config('admin/_module');
+			self::$_config=new Config('admin/_module');
 		}
 		$s=self::$_config->get($id);
 		$s['status']=$status;
@@ -109,16 +108,14 @@ class Module {
 	/* Устанавливает зависимости от других модулей $depend для модуля с именем $id */
 	public static function depend($id,$depend) {
 		if(!$depend) return true;
-		plushka::import('admin/core/config');
-		$cfg=new config('../admin/module/'.$id);
+		$cfg=new Config('admin/module/'.$id);
 		$cfg->depend=$depend;
-		$cfg->save('../admin/module/'.$id);
+		$cfg->save('admin/module/'.$id);
 		return true;
 	}
 
 	/* Создаёт набор прав доступа $right для модуля с именем $id и обновляет конфигурацию модуля */
 	public static function right($id,$right) {
-		plushka::import('admin/core/config');
 		$db=plushka::db();
 		//Построить SQL-запросы
 		$s1=$s2='';
@@ -142,15 +139,14 @@ class Module {
 			$s2='INSERT INTO user_right (module,description,picture) VALUES '.$s2;
 			$db->query($s2);
 		}
-		$cfg=new config('../admin/module/'.$id);
+		$cfg=new Config('admin/module/'.$id);
 		$cfg->right=implode(',',$right);
-		$cfg->save('../admin/module/'.$id);
+		$cfg->save('admin/module/'.$id);
 		return true;
 	}
 
 	/* Создаёт типы виджетов в базе данных и обновляет конфигурацию модуля */
 	public static function widget($id,$widget) {
-	plushka::import('admin/core/config');
 		$db=plushka::db();
 		//Построить SQL-запросы для удаления типов виджетов (если есть) и создания их вновь
 		$s1=$s2='';
@@ -173,7 +169,7 @@ class Module {
 			$db->query($s2);
 		}
 		//Обновить конфигурацию модуля
-		$cfg=new config('../admin/module/'.$id);
+		$cfg=new Config('admin/module/'.$id);
 		$cfg->widget=implode(',',$widget);
 		$cfg->save('../admin/module/'.$id);
 		return true;
@@ -182,7 +178,6 @@ class Module {
 
 	/* Создаёт типы меню, а также обновляет конфигурацию модуля с именем $id */
 	public static function menu($id,$menu) {
-		plushka::import('admin/core/config');
 		$db=plushka::db();
 		//Составить и выполнить SQL-запросы для удаления создания вновь типов меню
 		$s='';
@@ -204,9 +199,9 @@ class Module {
 			$s[]=$db->insertId();
 		}
 		//Записать информацию о меню в конфигурацию модуля
-		$cfg=new config('../admin/module/'.$id);
+		$cfg=new Config('admin/module/'.$id);
 		$cfg->menu=implode(',',$s);
-		$cfg->save('../admin/module/'.$id);
+		$cfg->save('admin/module/'.$id);
 		return true;
 	}
 
@@ -215,14 +210,13 @@ class Module {
 		$cfg0=plushka::config();
 		$f=plushka::path().'tmp/install.'.$cfg0['dbDriver'].'.sql'; //это файл для установки модуля
 		if(!file_exists($f)) return true;
-		plushka::import('admin/core/config');
 		$sql=file_get_contents($f);
 		//Извлечь имена создаваемых таблиц и записать в файл
 		preg_match_all('/CREATE TABLE(?:(?:\s+if not exists\s+)|(?:\s+))`?([a-zA-Z0-9_]+)`?\s/is',$sql,$table);
 		$table=$table[1];
-		$cfg=new config('../admin/module/'.$id);
+		$cfg=new Config('admin/module/'.$id);
 		$cfg->table=implode(',',$table);
-		$cfg->save('../admin/module/'.$id);
+		$cfg->save('admin/module/'.$id);
 
 		//Теперь поочерёдно выполнить все SQL-запросы
 		$db=plushka::db();
@@ -292,10 +286,9 @@ class Module {
 		$exists=array();
 		$data=self::_scanDirectory('',$exists);
 		if($exists && !$continueIfExists) return $exists; //Если какие-то файлы уже существуют, то прервать установку
-		plushka::import('admin/core/config');
-		$cfg=new config('../admin/module/'.$id);
+		$cfg=new Config('admin/module/'.$id);
 		$cfg->file=$data;
-		$cfg->save('../admin/module/'.$id);
+		$cfg->save('admin/module/'.$id);
 		return true;
 	}
 
@@ -367,8 +360,7 @@ class Module {
 	public static function delete($id) {
 		unlink(plushka::path().'admin/module/'.$id.'.php');
 		if(!self::$_config) {
-			plushka::import('admin/core/config');
-			self::$_config=new config('admin/_module');
+			self::$_config=new Config('admin/_module');
 		}
 		unset(self::$_config->$id);
 		self::$_config->save('admin/_module');

@@ -32,7 +32,7 @@ class Model extends Validator {
 	 * @var bool|string[] Информация о мультиязычности таблицы (определяется явтамитически):
 	 * 	false - не мультиязычная, true - для каждого языка своя копия таблицы,
 	 * array - одна копия таблицы, массив содержит список полей, имеющих копии для каждого языка
-	 * @see model::_setLanguageDb()
+	 * @see self::_setLanguageDb()
 	 */
 	protected $_languageDb;
 	/** @var string[] Список полей булевого типа (необходимо для корректного преобразования) */
@@ -307,13 +307,11 @@ class Model extends Validator {
 					$s1.=',`'.$primary.'`';
 					$s2.=','.$this->db->escape($this->_data[$primary]);
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
-//var_dump($query);exit;
 					if(!$this->db->query($query)) return false;
 				}
 			}
 		} else {
 			$query='INSERT INTO `'.$this->_table.'` ('.$s1.') VALUES ('.$s2.')';
-//var_dump($query);exit;
 			if(!$this->db->query($query)) return false;
 			if($primary) {
 				$this->_data[$primary]=$this->db->insertId(); //обновить значение первичного ключа
@@ -338,7 +336,6 @@ class Model extends Validator {
 		}
 		if($this->_languageDb===true) $s='UPDATE `'.$this->_table.'_'._LANG.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
 		else $s='UPDATE `'.$this->_table.'` SET '.$s.' WHERE '.$primary.'='.$this->db->escape($id);
-//var_dumP($s);exit;
 		if(!$this->db->query($s)) return false;
 		return $this->afterUpdate($this->$primary); //триггер "после UPDATE"
 	}

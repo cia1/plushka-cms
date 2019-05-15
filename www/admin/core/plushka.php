@@ -264,8 +264,7 @@ abstract class plushka extends \plushka\core\core {
 	 * @return \plushka\core\Validator
 	 */
 	public static function validator($attribute=null) {
-		plushka::import('core/validator');
-		$validator=new $validator();
+		$validator=new \plushka\core\Validator();
 		if($attribute) $validator->set($attribute);
 		return $validator;
 	}
