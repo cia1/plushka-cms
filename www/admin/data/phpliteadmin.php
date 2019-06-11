@@ -1,5 +1,5 @@
 <?php
-if(!class_exists('core')) exit;
+if(class_exists('plushka')===false) exit;
 if(plushka::userGroup()!=255) exit;
 //
 //	Project: phpLiteAdmin (http://www.phpliteadmin.org/)
@@ -442,7 +442,7 @@ if (isset($_GET['resource']))
 }
 
 // don't mess with this - required for the login session
-ini_set('session.cookie_httponly', '1');
+@ini_set('session.cookie_httponly', '1');
 //session_start();
 // generate CSRF token
 if (empty($_SESSION['token']))

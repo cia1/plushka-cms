@@ -84,7 +84,7 @@ class User extends \plushka\core\Model {
 			'id'=>array('primary'),
 			'login'=>array('callback',LNGlogin,true,array($this,'validateLogin')),
 			'password'=>array('callback',LNGpassword,true,array($this,'validatePassword')),
-			'email'=>array('callback','e-mail',plushka::config('_core','emailRequired'),array($this,'validateEmail')),
+			'email'=>array('callback','e-mail',plushka::config('_core','emailRequired'),array($this,'validateEmailAddress')),
 			'code'=>array('string')
 		);
 		if(isset($this->_data['status'])) $data['status']=array('boolean');
@@ -287,7 +287,7 @@ class User extends \plushka\core\Model {
 	}
 
 	/* Проверяет уникальность адреса электронной почты */
-	public function validateEmail($value,$field) {
+	public function validateEmailAddress($value,$field) {
 		if(!filter_var($value,FILTER_VALIDATE_EMAIL)) {
 			plushka::error(LNGEMailIsWrong);
 			return false;

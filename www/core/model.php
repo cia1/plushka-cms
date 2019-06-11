@@ -122,7 +122,7 @@ class Model extends Validator {
 	 * @return bool TRUE - валидация прошла успешно, FALSE - во вермя проверки возникли ошибки (@see plushka::error())
 	 * @see /core/validator.php
 	 */
-	public function validate($rule=null) {
+	public function validate($rule=null): bool {
 		if($rule===null) {
 			$rule=explode(',',$this->fieldList(true));
 			$rule=array_intersect_key($this->rule(),array_combine($rule,$rule));

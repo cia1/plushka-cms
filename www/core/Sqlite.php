@@ -21,7 +21,7 @@ class Sqlite {
 	 * @return string
 	 */
 	public static function escape(string $value): string {
-		return "'".SQLite3::escapeString($value)."'";
+		return "'".\SQLite3::escapeString($value)."'";
 	}
 
 	/**
@@ -30,7 +30,7 @@ class Sqlite {
 	 * @return string
 	 */
 	public static function getEscape(string $value): string {
-		return SQLite3::escapeString($value);
+		return \SQLite3::escapeString($value);
 	}
 
 	/**
@@ -185,9 +185,9 @@ class Sqlite {
 
 	/**
 	 * Возвращает значение первичного ключа добавленной ранее записи
-	 * @return string|null
+	 * @return integer|null
 	 */
-	public function insertId(): ?string {
+	public function insertId(): ?int {
 		return self::$_connectId->lastInsertRowID();
 	}
 
