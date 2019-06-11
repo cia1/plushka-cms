@@ -592,6 +592,20 @@ class User {
 
 
 
+/**
+ * Исключение подключения к базе данных или исполнения SQL-запросов
+ */
+class DBException extends \RuntimeException {}
+
+/**
+ * Исключение 404-й HTTP-ошибки
+ */
+class HTTP404Exception extends \RuntimeException {} 
+
+/**
+ * Ошибка маршрутизации
+ */
+class RouteException extends \RuntimeException {}
 
 /**
  * Запускает приложение
@@ -599,42 +613,56 @@ class User {
  */
 function runApplication($renderTemplate=true) {
 	session_start();
-	include(plushka::path().'language/global.'._LANG.'.php');
 	$user=plushka::userReal();
 	if($user->group>=200) include(plushka::path().'core/admin.php');
 	plushka::$controller='\plushka\controller\\'.ucfirst($_GET['corePath'][0]).'Controller';
-	plushka::$controller=new plushka::$controller();
-	$alias=plushka::$controller->url[0];
-	if(isset($_POST[$alias])===false) { //в _POST нет данных, относящихся к запрошенному контроллеру
-		if(method_exists(plushka::$controller,'action'.plushka::$controller->url[1])===false) plushka::error404();
-	} else { //в _POST есть данные, относящиеся к запрошенному контроллеру
-		if(method_exists(plushka::$controller,'action'.plushka::$controller->url[1].'Submit')===false) plushka::error404();
-	}
-	//Подготовить данные $_POST и $_FILES для передачи submit-действию
-	if(isset($_POST[$alias])) {
-		plushka::hook('initPOST',$alias);
-		if(isset($_FILES[$alias])) {
-			$f1=$_FILES[$alias];
-			foreach($f1['size'] as $name=>$value) {
-				if(is_array($value)) {
-					$_POST[$alias][$name]=array();
-					foreach($value as $i=>$size) {
-						if(!$size) continue;
-						$_POST[$alias][$name][]=array('name'=>$f1['name'][$name][$i],'tmpName'=>$f1['tmp_name'][$name][$i],'type'=>$f1['type'][$name][$i],'size'=>$size);
+	try {
+		plushka::$controller=new plushka::$controller();
+		$alias=plushka::$controller->url[0];
+		if(isset($_POST[$alias])===false) { //в _POST нет данных, относящихся к запрошенному контроллеру
+			if(method_exists(plushka::$controller,'action'.plushka::$controller->url[1])===false) plushka::error404();
+		} else { //в _POST есть данные, относящиеся к запрошенному контроллеру
+			if(method_exists(plushka::$controller,'action'.plushka::$controller->url[1].'Submit')===false) plushka::error404();
+		}
+		//Подготовить данные $_POST и $_FILES для передачи submit-действию
+		if(isset($_POST[$alias])) {
+			plushka::hook('initPOST',$alias);
+			if(isset($_FILES[$alias])) {
+				$f1=$_FILES[$alias];
+				foreach($f1['size'] as $name=>$value) {
+					if(is_array($value)) {
+						$_POST[$alias][$name]=array();
+						foreach($value as $i=>$size) {
+							if(!$size) continue;
+							$_POST[$alias][$name][]=[
+								'name'=>$f1['name'][$name][$i],
+								'tmpName'=>$f1['tmp_name'][$name][$i],
+								'type'=>$f1['type'][$name][$i],
+								'size'=>$size
+							];
+						}
+					} else {
+						$_POST[$alias][$name]=[
+							'name'=>$f1['name'][$name],
+							'tmpName'=>$f1['tmp_name'][$name],
+							'type'=>$f1['type'][$name],
+							'size'=>$value
+						];
 					}
-				} else {
-					$_POST[$alias][$name]=array('name'=>$f1['name'][$name],'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$value);
 				}
 			}
-		}
 
-		$s='action'.plushka::$controller->url[1].'Submit';
-		$data=plushka::$controller->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
-	} else $data=null;
-	//Запуск действия (не submit) и вывод контента
-	$s='action'.plushka::$controller->url[1];
-	$view=plushka::$controller->$s($data);
-	plushka::$controller->render($view,$renderTemplate);
+			$s='action'.plushka::$controller->url[1].'Submit';
+			$data=plushka::$controller->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
+		} else $data=null;
+		//Запуск действия (не submit) и вывод контента
+		$s='action'.plushka::$controller->url[1];
+		$view=plushka::$controller->$s($data);
+		plushka::$controller->render($view,$renderTemplate);
+	} catch(DBException $e) {
+		header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
+		if(plushka::debug()===true) echo '<p>',$e,'</p>';
+	}
 }
 
 

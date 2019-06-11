@@ -2,61 +2,86 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
 
-/* Реализует интерфейс с СУБД SQLite3. Расширенная версия */
-class SqliteExt extends \plushka\core\Sqlite {
+/**
+ * Реализует интерфейс с СУБД SQLite3. Расширенная версия
+ */
+class SqliteEx extends \plushka\core\Sqlite {
 
-	/* Создаёт таблицу в соответствии с описанной в $structure структурой (формат MySQL) */
-	public function create($table,$structure) {
+	/**
+	 * Создаёт таблицу
+	 * @param string $table Имя таблицы
+	 * @param string[] $structure Описание структуры, где ключ - имя поля, значение - строка валидного определения MySQL
+	 */
+	 public function create(string $table,array $structure): void {
 		$q='';
 		foreach($structure as $name=>$item) {
-			if($q) $q.=',';
+			if($q!=='') $q.=',';
 			$q.='"'.$name.'" '.self::_type($item);
 		}
 		$q='CREATE TABLE "'.$table.'" ('.$q.')';
-		return $this->query($q);
+		$this->query($q);
 	}
 
-	/* Добавляет к таблице новое поле */
-	public function alterAdd($table,$field,$expression) {
+	/**
+	 * Добавляет к таблице новое поле
+	 * @param string $table Имя таблицы
+	 * @param string $field Имя поля
+	 * @param string|array $expression Валидное определение поля MySQL
+	 */
+	public function alterAdd(string $table,string $field,$expression): void {
 		$q='ALTER TABLE "'.$table.'" ADD "'.$field.'" '.self::_type($expression);
-		return $this->query($q);
+		$this->query($q);
 	}
 
-	/* Удаляет поле из таблицы, для этого создаёт временную таблицу. */
-	public function alterDrop($table,$field) {
+	/**
+	 * Удаляет поле из таблицы
+	 * @param string $table Имя таблицы
+	 * @param string $field Имя поля
+	 */
+	public function alterDrop(string $table,string $field): void {
 		$q=$this->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$table."'");
 		$q=preg_replace('/(["\'` ]+'.$field.'["\'`, ]+.*?[,)])/','',$q);
 		$i=strpos($q,$table);
 		$q=substr($q,0,$i).'TEMP_'.substr($q,$i);
 		$length=strlen($q)-1;
-		if($q[$length]==',') $q[$length]=')';
+		if($q[$length]===',') $q[$length]=')';
 		$this->query('BEGIN TRANSACTION');
-		if(!$this->query($q)) return $this->_rollback();
-		$i=strpos($q,'(')+1;
-		$q=substr($q,$i,$length-$i);
-		$field=explode(',',$q);
-		$q='';
-		foreach($field as $item) {
-			if($q) $q.=',';
-			$item=trim($item);
-			if($item[0]=="'") { //если кавычки были использованы ошибочно
-				$item='"'.substr($item,1);
-				$item[strpos($item,"'")]='"';
+		try {
+			$this->query($q);
+			$i=strpos($q,'(')+1;
+			$q=substr($q,$i,$length-$i);
+			$field=explode(',',$q);
+			$q='';
+			foreach($field as $item) {
+				if($q!=='') $q.=',';
+				$item=trim($item);
+				if($item[0]==="'") { //если кавычки были использованы ошибочно
+					$item='"'.substr($item,1);
+					$item[strpos($item,"'")]='"';
+				}
+				$q.=substr($item,0,strpos($item,' '));
 			}
-			$q.=substr($item,0,strpos($item,' '));
+
+			$this->query('INSERT INTO "TEMP_'.$table.'" SELECT '.$q.' FROM "'.$table.'"');
+			$this->query('DROP TABLE "'.$table.'"');
+			$this->query('ALTER TABLE "TEMP_'.$table.'" RENAME TO "'.$table.'"');
+		} catch($e) {
+			$this->_rollback();
+			throw $e;
 		}
-		if(!$this->query('INSERT INTO "TEMP_'.$table.'" SELECT '.$q.' FROM "'.$table.'"')) return $this->_rollback();
-		$this->query('DROP TABLE "'.$table.'"');
-		if(!$this->query('ALTER TABLE "TEMP_'.$table.'" RENAME TO "'.$table.'"')) return $this->_rollback();
 		$this->query('COMMIT');
-		return true;
 	}
 
-	/* Изменяет поле таблицы. Для этого создаёт временную таблицу. */
-	public function alterChange($table,$oldField,$newField,$expression=null) {
+	/**
+	 * Изменяет поле таблицы
+	 * @param string $table Имя таблицы
+	 * @param string $fieldName Имя модифицируемого поля
+	 * @param string $newFieldName Новое имя поля
+	 */
+	public function alterChange(string $table,string $fieldName,string $newFieldName,$expression=null) {
 		$q=$this->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$table."'");
-		if(!$expression) $q=preg_replace('/(["\'`]?'.$oldField.'["\'`]?)/','"'.$newField.'"',$q);
-		else $q=preg_replace('/(["\'` ]*?'.$oldField.'["\'`]?.*?)([,)])/','"'.$newField.'" '.self::_type($expression).'$2',$q);
+		if(!$expression) $q=preg_replace('/(["\'`]?'.$fieldName.'["\'`]?)/','"'.$newFieldName.'"',$q);
+		else $q=preg_replace('/(["\'` ]*?'.$fieldName.'["\'`]?.*?)([,)])/','"'.$newFieldName.'" '.self::_type($expression).'$2',$q);
 		$i=strpos($q,$table);
 		$q=substr($q,0,$i).'TEMP_'.substr($q,$i);
 		$this->query('BEGIN TRANSACTION');
@@ -116,7 +141,7 @@ class SqliteExt extends \plushka\core\Sqlite {
 			$i3=((!$i1 || $i2 && $i2<$i1) ? $i2 : $i1);
 			$type=strtoupper(substr($expression,0,$i3));
 		}
-		if($key) $text=' PRIMARY KEY';
+		if(isset($key)===true && $key) $text=' PRIMARY KEY';
 		elseif(stripos($expression,'NOT NULL')!==false) {
 			$text=' NOT NULL';
 			if(stripos($expression,'DEFAULT')===false) { //для значений NOT NULL лучше добавить DEFAULT

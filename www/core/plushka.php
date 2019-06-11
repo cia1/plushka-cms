@@ -40,7 +40,6 @@ abstract class plushka extends \plushka\core\core {
 	public static function error404() {
 		plushka::hook('404');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
-		plushka::language('global');
 		plushka::language('error');
 		plushka::$controller->url[0]='error';
 		plushka::$controller->pageTitle=LNGPageNotExists;
@@ -277,12 +276,12 @@ $cfg=plushka::config();
 
 //Обработка URI, формирование $_GET['corePath'].
 if(substr($_SERVER['SCRIPT_NAME'],-11)==='/index2.php') $_GET['corePath']=$_GET['controller'].(isset($_GET['action'])===true ? '/'.$_GET['action'] : '') ?? false;
-else {
+elseif(isset($_SERVER['REQUEST_URI'])===true) {
 	$i=strpos($_SERVER['REQUEST_URI'],'?');
 	if($i>0) $i--; else $i=9999;
 	$_GET['corePath']=substr($_SERVER['REQUEST_URI'],1,$i);
 	unset($i);
-}
+} else $_GET['corePath']=false;
 //Поиск языка в URL-адресе
 if($_GET['corePath']===false) {
 	$lang=substr($_GET['corePath'],0,2);
@@ -335,3 +334,5 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 unset($cfg);
 $_GET['corePath']=explode('/',$_GET['corePath']);
 if(isset($_GET['corePath'][1])===false) $_GET['corePath'][1]=null; //ВСЕГДА должно быть по крайней мере два элемента
+
+plushka::language('global');

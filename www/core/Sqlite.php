@@ -1,6 +1,8 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
+use plushka;
+use plushka\core\DBException;
 
 /**
  * Олицетворяет подключение к базе данных SQLite
@@ -8,15 +10,17 @@ namespace plushka\core;
  */
 class Sqlite {
 
-	private static $_connectId; //идентификатор подключения (одно подключение для всех)
-	private $_queryId; //идентификатор запроса (различно для разных экземпляров класса)
+	/** @var Resource Идентификатор подключения (одно подключение для всех) */
+	private static $_connectId;
+	/** @var Resource Идентификатор запроса (различно для разных экземпляров класса) */
+	private $_queryId;
 
 	/**
 	 * Возвращает экранированную строку, заключённую в кавычки
 	 * @param string $value Экранируемая строка
 	 * @return string
 	 */
-	public static function escape($value) {
+	public static function escape(string $value): string {
 		return "'".SQLite3::escapeString($value)."'";
 	}
 
@@ -25,13 +29,16 @@ class Sqlite {
 	 * @param string $value Экранируемая строка
 	 * @return string
 	 */
-	public static function getEscape($value) {
+	public static function getEscape(string $value): string {
 		return SQLite3::escapeString($value);
 	}
 
-	public function __construct($fname=null) {
-		if(!$fname) $fname=plushka::path().'data/database3.db';
-		self::$_connectId=new SQLite3($fname);
+	/**
+	 * @param string|null $fileName Имя файла базы данных, если нужно подключиться не к стандартной
+	 */
+	public function __construct(string $fileName=null) {
+		if($fileName===null) $fileName=plushka::path().'data/database3.db';
+		self::$_connectId=new \SQLite3($fileName);
 		self::$_connectId->createFunction('CONCAT',function() {
 			return implode('',func_get_args());
 		},-1);
@@ -45,11 +52,10 @@ class Sqlite {
 	 * @param array|array[] $data Данные для вставки
 	 * @return bool
 	 */
-	public function insert($table,$data) {
+	public function insert(string $table,$data): void {
 		$field=array();
-		if(isset($data[0])===false) {
-			$field=array_keys($data);
-		} else {
+		if(isset($data[0])===false) $field=array_keys($data);
+		else {
 			foreach($data as $null=>$item) {
 				foreach($item as $key=>$null) {
 					if(in_array($key,$field)===false) $field[]=$key;
@@ -59,19 +65,19 @@ class Sqlite {
 
 		$sql='';
 		foreach($field as $item) {
-			if($sql) $sql.=',';
+			if($sql!=='') $sql.=',';
 			$sql.=$item;
 		}
 		if(isset($data[0])===false) $value=self::_sqlInsert($field,$data);
 		else {
 			$value='';
 			foreach($data as $item) {
-				if($value) $value.=',';
+				if($value!=='') $value.=',';
 				$value.=self::_sqlInsert($field,$item);
 			}
 		}
 		$sql='INSERT INTO '.$table.' ('.$sql.') VALUES '.$value;
-		return $this->query($sql);
+		$this->query($sql);
 	}
 
 	/**
@@ -83,27 +89,24 @@ class Sqlite {
 	 * @param int|null $page Номер страницы пагирации
 	 * @return bool
 	 */
-	public function query($query,$limit=null,$page=null) {
+	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
-			if($page) $page=(int)$page-1; else {
-				if(isset($_GET['page'])) $page=((int)$_GET['page'])-1; else $page=0;
+			if($page) $page=$page-1; else {
+				if(isset($_GET['page'])===true) $page=((int)$_GET['page'])-1; else $page=0;
 			}
 			$this->_total=$this->fetchValue('SELECT COUNT(*)'.substr($query,stripos($query,' FROM ')));
 			$query.=' LIMIT '.($page*$limit).','.$limit;
 		}
 		$this->_queryId=self::$_connectId->query($query);
-		if($this->_queryId) return true;
-		$cfg=plushka::config();
-		if($cfg['debug']) echo '<p>SQLITE QUERY ERROR: '.$query.'</p>';
-		return false;
+		if(!$this->_queryId) throw new DBException("SQLITE QUERY ERROR: \n".$query);
 	}
 
 	/**
 	 * Возвращает общее количество найденных предыдущим запросом SELECT строк
 	 * Предварительно self::query() должен быть вызван с указанием параметра $limit
-	 * @return int
+	 * @return integer
 	 */
-	public function foundRows() {
+	public function foundRows(): int {
 		return $this->_total;
 	}
 
@@ -112,7 +115,7 @@ class Sqlite {
 	 * @see self::query()
 	 * @return string[]|null
 	 */
-	public function fetch() {
+	public function fetch(): ?array {
 		return $this->_queryId->fetchArray(SQLITE3_NUM);
 	}
 
@@ -121,7 +124,7 @@ class Sqlite {
 	 * @see self::query()
 	 * @return string[]|null
 	 */
-	public function fetchAssoc() {
+	public function fetchAssoc(): ?array {
 		return $this->_queryId->fetchArray(SQLITE3_ASSOC);
 	}
 
@@ -130,7 +133,7 @@ class Sqlite {
 	 * @param string $query SQL-запрос
 	 * @return string[]|null
 	 */
-	public function fetchArrayOnce($query) {
+	public function fetchArrayOnce(string $query): ?array {
 		$query.=' LIMIT 0,1';
 		$this->query($query);
 		return $this->_queryId->fetchArray(SQLITE3_NUM);
@@ -141,7 +144,7 @@ class Sqlite {
 	 * @param string $query SQL-запрос
 	 * @return string[]|null
 	 */
-	public function fetchArrayOnceAssoc($query) {
+	public function fetchArrayOnceAssoc(string $query): ?array {
 		$query.=' LIMIT 0,1';
 		$this->query($query);
 		return $this->_queryId->fetchArray(SQLITE3_ASSOC);
@@ -152,7 +155,7 @@ class Sqlite {
 	 * @param string $query SQL-запрос
 	 * @return array[]|null
 	 */
-	public function fetchArray($query) {
+	public function fetchArray(string $query): ?array {
 		$this->query($query);
 		$data=array();
 		while($item=$this->_queryId->fetchArray(SQLITE3_NUM)) $data[]=$item;
@@ -164,8 +167,8 @@ class Sqlite {
 	 * @param string $query SQL-запрос
 	 * @return array[]|null
 	 */
-	public function fetchArrayAssoc($query,$limit=null,$page=null) {
-		$this->query($query);
+	public function fetchArrayAssoc(string $query,int $limit=null,int $page=null): ?array {
+		$this->query($query,$limit,$page);
 		$data=array();
 		while($item=$this->_queryId->fetchArray(SQLITE3_ASSOC)) $data[]=$item;
 		return $data;
@@ -176,7 +179,7 @@ class Sqlite {
 	 * @param string $query SQL-запрос
 	 * @return string|null
 	 */
-	public function fetchValue($query) {
+	public function fetchValue(string $query): ?string {
 		return self::$_connectId->querySingle($query);
 	}
 
@@ -184,22 +187,22 @@ class Sqlite {
 	 * Возвращает значение первичного ключа добавленной ранее записи
 	 * @return string|null
 	 */
-	public function insertId() {
+	public function insertId(): ?string {
 		return self::$_connectId->lastInsertRowID();
 	}
 
 	/**
 	 * Возвращает количество изменённых, добавленных или удалённых записей предыдущим SQL-запросом
-	 * @return int|null
+	 * @return integer|null
 	 */
-	public function affected() {
+	public function affected(): ?int {
 		return self::$_connectId->changes();
 	}
 
 
 
 	//Возвращет часть SQL-запроса для оператора INSERT
-	private static function _sqlInsert($fieldList,$data) {
+	private static function _sqlInsert(array $fieldList,array $data): ?string {
 		$sql='';
 		foreach($fieldList as $item) {
 			if($sql) $sql.=',';
