@@ -20,8 +20,8 @@ class Form {
 	/**
 	 * @param string|null $namespace Имя контроллера, для которого предназначенны данные формы
 	 */
-	public function __construct($namespace=null) {
-		if($namespace) $this->_namespace=$namespace; else $this->_namespace=$_GET['corePath'][0];
+	public function __construct(string $namespace=null) {
+		if($namespace!==null) $this->_namespace=$namespace; else $this->_namespace=$_GET['corePath'][0];
 	}
 
 	/**
@@ -30,7 +30,7 @@ class Form {
 	 * @param string $value Значение поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function hidden($name,$value,$html='') {
+	public function hidden(string $name,string $value,string $html=''): void {
 		$this->_data.=$this->getHidden($name,$value,$html);
 	}
 
@@ -39,7 +39,7 @@ class Form {
 	 * @param string $label Название поля
 	 * @param string $value Значение поля
 	 */
-	public function label($label,$value) {
+	public function label(string $label,string $value): void {
 		$this->_data.='<dt class="label">'.$label.':</dt><dd class="label">'.$value.'</dd>';
 	}
 
@@ -52,7 +52,7 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function text($name,$label,$value='',$html='') {
+	public function text(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="text '.$class.'">'.$label.':</dt><dd class="text '.$class.'">'.$this->getText($name,$value,$html).'</dd>';
 	}
@@ -64,7 +64,7 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function number($name,$label,$value='',$html='') {
+	public function number(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="text number '.$class.'">'.$label.':</dt><dd class="text number '.$class.'">'.$this->getNumber($name,$value,$html).'</dd>';
 	}
@@ -76,7 +76,7 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function email($name,$label,$value='',$html='') {
+	public function email(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="text email '.$class.'">'.$label.':</dt><dd class="text email '.$class.'">'.$this->getEmail($name,$value,$html).'</dd>';
 	}
@@ -92,7 +92,7 @@ class Form {
 	 * @param string|null $nullTitle Заголовок для "пустого" значения
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
-	public function select($name,$label,$items,$value=null,$nullTitle=null,$html='') {
+	public function select(string $name,string $label,$items,string $value=null,string $nullTitle=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="select '.$class.'">'.$label.':</dt><dd class="select '.$class.'">'.$this->getSelect($name,$items,$value,$nullTitle,$html).'</dd>';
 	}
@@ -108,7 +108,7 @@ class Form {
 	 * @param string|null $nullTitle Заголовок для "пустого" значения
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
-	public function listBox($name,$label,$items,$value=null,$nullTitle=null,$html='') {
+	public function listBox(string $name,string $label,$items,string $value=null,string $nullTitle=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="list '.$class.'">'.$label.':</dt><dd class="list '.$class.'">'.$this->getListBox($name,$items,$value,$nullTitle,$html).'</dd>';
 	}
@@ -122,7 +122,7 @@ class Form {
 	 * @param string|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function radio($name,$label,$items,$value=null) {
+	public function radio(string $name,string $label,$items,string $value=null): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="radio '.$class.'">'.$label.':</dt><dd class="radio '.$class.'">'.$this->getRadio($name,$items,$value).'</dd>';
 	}
@@ -134,7 +134,7 @@ class Form {
 	 * @param string|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function checkbox($name,$label,$value=null,$html='') {
+	public function checkbox(string $name,string $label,string $value=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<label><dt class="checkbox '.$class.'">'.$label.':</dt><dd class="checkbox '.$class.'">'.$this->getCheckbox($name,$value,$html).'</dd></label>';
 	}
@@ -145,7 +145,7 @@ class Form {
 	 * @param string $label Заголовок поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function password($name,$label,$html='') {
+	public function password(string $name,string $label,string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="password '.$class.'">'.$label.':</dt><dd class="password '.$class.'">'.$this->getPassword($name,$html).'</dd>';
 	}
@@ -157,7 +157,7 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <textarea>
 	 */
-	public function textarea($name,$label,$value='',$html='') {
+	public function textarea(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="textarea '.$class.'">'.$label.':</dt><dd class="textarea '.$class.'">'.$this->getTextarea($name,$value,$html).'</dd>';
 	}
@@ -167,9 +167,9 @@ class Form {
 	 * @param string $name Имя поля
 	 * @param string $label Заголовок поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param array $config Дополнительные настройки
 	 */
-	public function editor($name,$label,$value='',$config=array()) {
+	public function editor(string $name,string $label,string $value='',array $config=[]) {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="textarea '.$class.'">'.$label.':</dt><dd class="textarea '.$class.'">'.$this->getEditor($name,$value,$config).'</dd>';
 	}
@@ -182,7 +182,7 @@ class Form {
 	 * @param string|int|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function date($name,$label,$value=null,$html='') {
+	public function date(string $name,string $label,string $value=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="text date '.$class.'">'.$label.':</dt><dd class="text date '.$class.'">'.$this->getDate($name,$value,$html).'</dd>';
 	}
@@ -195,7 +195,7 @@ class Form {
 	 * @param string|int|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function dateTime($name,$label,$value=null,$html='') {
+	public function dateTime(string $name,string $label,string $value=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="text date time '.$class.'">'.$label.':</dt><dd class="text date '.$class.'">'.$this->getDateTime($name,$value,$html).'</dd>';
 	}
@@ -208,7 +208,7 @@ class Form {
 	 * @param bool $multiple Разрешить загрузку нескольких файлов
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function file($name,$label,$multiple=false,$html='') {
+	public function file(string $name,string $label,bool $multiple=false,string $html=''): void {
 		$this->_data.='<dt class="file">'.$label.':</dt><dd class="file">'.$this->getFile($name,$multiple,$html).'</dd>';
 	}
 
@@ -218,7 +218,7 @@ class Form {
 	 * @param string $label Заголовок поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function captcha($name,$label,$html='') {
+	public function captcha(string $name,string $label,string $html=''): void {
 		$this->_data.='<dt class="captcha">'.$label.':<img src="'.plushka::url().'captcha.php" alt="'.strip_tags($label).'" title="'.strip_tags($label).'"></dt><dd class="captcha"><input type="text" name="'.$this->_namespace.'['.$name.']" '.$html.' /></dd>';
 	}
 
@@ -227,7 +227,7 @@ class Form {
 	 * @param string $label Заголовок поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function reset($label,$html='') {
+	public function reset(string $label,string $html=''): void {
 		$this->_data.='<input type="reset" value="'.$label.'" class="button reset" '.$html.' />';
 	}
 
@@ -237,7 +237,7 @@ class Form {
 	 * @param string|null $name Имя поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function submit($label=LNGContinue,$name=null,$html='') {
+	public function submit(string $label=LNGContinue,string $name=null,string $html=''): void {
 		$this->_data.='<dd class="submit">'.$this->getSubmit($label,$name,$html).'</dd>';
 	}
 
@@ -245,7 +245,9 @@ class Form {
 	 * Добавляет к форме произвольный HTML-код
 	 * @param string $html HTML-код
 	 */
-	public function html($html) { $this->_data.=$html; }
+	public function html(string $html): void {
+		$this->_data.=$html;
+	}
 
 	/**
 	 * Публикует HTML-код настроенной формы
@@ -253,9 +255,9 @@ class Form {
 	 * @param string|null $html Произвольный HTML-код, который будет добавлен к HTML-тегу <form>
 	 * @see form::$action
 	 */
-	public function render($action=null,$html=null) {
-		if($action) $this->action=$action;
-		echo '<form action="'.($this->action ? plushka::link($this->action) : $_SERVER['REQUEST_URI']).'" method="'.$this->method.'" enctype="multipart/form-data" name="'.$this->_namespace.'" class="'.$this->_namespace.'" '.$html.'>
+	public function render(string $action=null,string $html=null): void {
+		if($action!==null) $this->action=$action;
+		echo '<form action="',($this->action ? plushka::link($this->action) : $_SERVER['REQUEST_URI']),'" method="',$this->method,'" enctype="multipart/form-data" name="',$this->_namespace,'" class="',$this->_namespace,'" ',$html,'>
 		<dl class="form">';
 		echo $this->_data;
 		unset($this->_data);
@@ -268,7 +270,7 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
-	public function getHidden($name,$value,$html='') {
+	public function getHidden(string $name,string $value,string $html=''): string {
 		return '<input type="hidden" name="'.$this->_namespace.'['.$name.']" value="'.$value.'" '.$html.' />';
 	}
 
@@ -278,8 +280,8 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getText($name,$value='',$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getText(string $name,string $value='',string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace('"','&quot;',$value);
@@ -292,8 +294,8 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getNumber($name,$value='',$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getNumber(string $name,string $value='',string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace('"','&quot;',$value);
@@ -306,8 +308,8 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getEmail($name,$value='',$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getEmail(string $name,string $value='',string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace('"','&quot;',$value);
@@ -324,8 +326,8 @@ class Form {
 	 * @param string|null $nullTitle Заголовок для "пустого" значения
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
-	public function getSelect($name,$items,$value=null,$nullTitle=null,$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getSelect(string $name,$items,string $value=null,string $nullTitle=null,string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$s='<select name="'.$this->_namespace.'['.$name.']" size="1" '.$html.'>';
@@ -334,7 +336,7 @@ class Form {
 			if($value===null || $value==='') $s.=' selected="selected"';
 			$s.='>'.$nullTitle.'</option>';
 		}
-		if(is_string($items)) {
+		if(is_string($items)===true) {
 			$db=plushka::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
@@ -361,15 +363,15 @@ class Form {
 	 * @param string|null $nullTitle Заголовок для "пустого" значения
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
-	public function getListBox($name,$items,$value=null,$nullTitle=null,$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getListBox(string $name,$items,string $value=null,string $nullTitle=null,string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$s='<select name="'.$this->_namespace.'['.$name.']" size="8" '.$html.'>';
 		if($nullTitle!==null) $s.='<option value=""';
 		if($value===null || $value==='') $s.=' selected="selected"';
 		$s.='>'.$nullTitle.'</option>';
-		if(is_string($items)) {
+		if(is_string($items)===true) {
 			$db=plushka::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
@@ -394,12 +396,12 @@ class Form {
 	 * @param string|null $value Значение по умолчанию
 	 * @param string|null $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getRadio($name,$items,$value=null,$html=null) {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getRadio(string $name,$items,string $value=null,string $html=null): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$s='';
-		if(is_string($items)) {
+		if(is_string($items)===true) {
 			$db=plushka::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
@@ -422,8 +424,8 @@ class Form {
 	 * @param string|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getCheckbox($name,$value=null,$html='') {
-		if(isset($_POST[$this->_namespace])) {
+	public function getCheckbox(string $name,string $value=null,string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true) {
 			$i=strpos($name,'][');
 			$value=false;
 			if($i) {
@@ -439,7 +441,7 @@ class Form {
 	 * @param string $name Имя поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getPassword($name,$html='') {
+	public function getPassword(string $name,string $html=''): string {
 		return '<input type="password" name="'.$this->_namespace.'['.$name.']" '.$html.' />';
 	}
 
@@ -449,8 +451,8 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <textarea>
 	 */
-	public function getTextarea($name,$value='',$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getTextarea(string $name,string $value='',string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		return '<textarea name="'.$this->_namespace.'['.$name.']" '.$html.'>'.$value.'</textarea>';
@@ -465,16 +467,15 @@ class Form {
 	 * @param string $value Значение по умолчанию
 	 * @param array $config Массив настроек редактора
 	 */
-	public function getEditor($name,$value='',$config=array()) {
+	public function getEditor(string $name,string $value='',array $config=[]): string {
 		$userGroup=plushka::userGroup();
-		if(!$config) $config=array();
-		if($userGroup>=200 && !isset($config['uploadTo'])) $config['uploadTo']='public/'; //для админки по умолчанию разрешить загружать изображения куда угодно в пределах директория /public
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+		if($userGroup>=200 && isset($config['uploadTo'])===false) $config['uploadTo']='public/'; //для админки по умолчанию разрешить загружать изображения куда угодно в пределах директория /public
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
 		$html='<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'"'.(isset($config['html']) && $config['html'] ? ' '.$html : '').'>'.$value.'</textarea>';
-		if(!isset($_GET['_lang'])) $html.=plushka::js('ckeditor/ckeditor');
+		if(isset($_GET['_lang'])===false) $html.=plushka::js('ckeditor/ckeditor');
 		$html.='<script>
 		if(document.ckeditor==undefined) document.ckeditor=new Array();
 		if(document.ckeditor["'.$name.'"]!=undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
@@ -482,7 +483,6 @@ class Form {
 			customConfig:"'.(isset($_GET['_lang']) ? plushka::url().'admin/public/js/ckeditor-config.js' : plushka::url().'public/js/ckeditor-config.js').'"';
 		if(isset($config['uploadTo'])) {
 			$html.=',uploadUrl:"'.plushka::url().'upload.php"';
-//				',filebrowserUploadUrl:"'.plushka::url().$config['uploadTo'].'"';
 			$_SESSION['_uploadFolder']=$config['uploadTo']; //запомнить, куда разрешено загружать файлы, поддерживается только один директорий
 		}
 		$html.='});</script>';
@@ -496,11 +496,11 @@ class Form {
 	 * @param string|int|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getDate($name,$value=null,$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getDate(string $name,$value=null,string $html=''): string {
+		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
-		if($value && is_numeric($value)) $value=date('Y-m-d',$value);
+		if($value>0 && is_numeric($value)===true) $value=date('Y-m-d',$value);
 		return '<input type="date" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').($html ? ' '.$html : '').' />';
 	}
 
@@ -511,11 +511,11 @@ class Form {
 	 * @param string|int|null $value Значение по умолчанию
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getDateTime($name,$value,$html='') {
-		if(isset($_POST[$this->_namespace]) && isset($_POST[$this->_namespace][$name])) {
+	public function getDateTime(string $name,$value=null,string $html=''): string {
+		if(isset($_POST[$this->_namespace])===trule && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
-		if($value && is_numeric($value)) $value=date('Y-m-d H:i:s',$value);
+		if($value>0 && is_numeric($value)===true) $value=date('Y-m-d H:i:s',$value);
 		return '<input type="datetime-local" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').($html ? ' '.$html : '').' />';
 	}
 
@@ -526,8 +526,8 @@ class Form {
 	 * @param bool $multiple Разрешить загрузку нескольких файлов
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getFile($name,$multiple=false,$html='') {
-		if($multiple) {
+	public function getFile(string $name,bool $multiple=false,string $html=''): string {
+		if($multiple===true) {
 			$name.='][';
 			$html='multiple="true" '.$html;
 		}
@@ -540,9 +540,9 @@ class Form {
 	 * @param string|null $name Имя поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function getSubmit($label=LNGContinue,$name=null,$html='') {
+	public function getSubmit(string $label=LNGContinue,string $name=null,string $html=''): string {
 		$s='<input type="submit" value="'.$label.'"';
-		if($name) $s.=' name="'.$this->_namespace.'['.$name.']"';
+		if($name!==null) $s.=' name="'.$this->_namespace.'['.$name.']"';
 		$s.=' class="button submit" '.$html.' />';
 		return $s;
 	}

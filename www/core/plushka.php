@@ -13,20 +13,17 @@ abstract class plushka extends \plushka\core\core {
 	 * Если кэш не существует или устарел и не задан параметр $callback, то будет возвращено NULL
 	 * @param string $id Идентификатор кэша
 	 * @param callback|null $callback Callback-функция, которая будет вызвана если кэш не существует или устарел.
-	 * @param int $timeout Время в минутах актуальности кэша
+	 * @param int|null $timeout Время в минутах актуальности кэша
 	 * @return mixed|null
 	 */
-	public static function cache($id,$callback=null,$timeout=-1) {
-		if($timeout) {
-			$cfg=self::config();
-			if($cfg['debug']) $timeout=0;
-		}
+	public static function cache(string $id,callable $callback=null,int $timeout=null) {
+		if($timeout!==null && self::debug()===rue) $timeout=0;
 		$f=self::path().'cache/custom/'.$id.'.txt';
-		if(file_exists($f)) {
-			if($timeout===-1 || !$callback) return unserialize(file_get_contents($f));
+		if(file_exists($f)===true) {
+			if($timeout===null || $callback===null) return unserialize(file_get_contents($f));
 			if(time()-filemtime($f)<$timeout*60) return unserialize(file_get_contents($f));
 		}
-		if(!$callback) return null;
+		if($callback===null) return null;
 		$data=call_user_func($callback);
 		$f=fopen($f,'w');
 		fwrite($f,serialize($data));
@@ -37,7 +34,7 @@ abstract class plushka extends \plushka\core\core {
 	/**
 	 * Прерывает выполнение скрипта и генерирует 404-ю HTTP-ошибку
 	 */
-	public static function error404() {
+	public static function error404(): void {
 		plushka::hook('404');
 		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
 		plushka::language('error');
@@ -50,13 +47,13 @@ abstract class plushka extends \plushka\core\core {
 	/**
 	 * Генерирует событие
 	 * Обработчики события - это файлы /hook/$name.{module}.php
-	 * @param string $name Имя события (файлы )
+	 * @param string $name Имя события
 	 * @param mixed ...$data Произвольные данные, которые будут доступны в обработчике события
-	 * @return mixed|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
+	 * @return array|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
 	 */
-	public static function hook($name,...$data) {
+	public static function hook(string $name,...$data) {
 		$d=opendir(plushka::path().'hook');
-		$result=array();
+		$result=[];
 		$len=strlen($name);
 		while($f=readdir($d)) {
 			if($f==='.' || $f==='..') continue;
@@ -72,62 +69,14 @@ abstract class plushka extends \plushka\core\core {
 	}
 
 	/**
-	 * Генерирует относительную или абсолютную ссылку
-	 * Для CGI-режима использует /config/cgi.php для определения имени домена и базового URL
-	 * @param string $link Исходная ссылка в формате controller/etc...
-	 * @param bool $lang Если false, то суффикс языка не будет добавлен
-	 * @param bool $domain Если true, то будет сгенерирована абсолютная ссылка
-	 */
-	public static function link($link,$lang=true,$domain=false) {
-		static $_link;
-		static $_main;
-		if(!$link) return plushka::url($lang,$domain);
-		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://' || $link[0]=='/') return $link;
-		if(!isset($_link)) {
-			$cfg=self::config();
-			$_link=$cfg['link'];
-			$_main=$cfg['mainPath'];
-		}
-		if($link==$_main) return self::url($lang,$domain);
-		$i=strpos($link,'?');
-		if($i) {
-			$end=substr($link,$i);
-			$link=substr($link,0,$i);
-		} else $end='';
-		$i=$len=strlen($link);
-		do {
-			$s=substr($link,0,$i);
-			$i=strrpos($s,'/');
-		} while($s && !isset($_link[$s]));
-		if($s) {
-			$len2=strlen($s);
-			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
-		}
-		return self::url($lang,$domain).$link.$end;
-	}
-
-	/**
-	 * Создаёт модель ActiveRecord для указанной таблицы базы данных
-	 * Если файл /model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
-	 * @param string $classTable Имя таблицы или класса ActiveRecord
-	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
-	 * @return model
-	 */
-	public static function model($classTable,$db='db') {
-		$class='\plushka\model\\'.ucfirst($classTable);
-		if(class_exists($class)===true) return new $class;
-		return new \plushka\core\Model($classTable,$db);
-	}
-
-	/**
 	 * Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес
 	 * @param string $url URL в формате "controller/etc"
 	 * @param string|null $message Если задан, то установит текст сообщения об успешно выполненной операции
 	 * @param int $code HTTP-код ответа
 	 * @see plushka::success()
 	 */
-	public static function redirect($url,$message=null,$code=302) {
-		if($message) plushka::success($message);
+	public static function redirect(string $url,string $message=null,int $code=302): void {
+		if($message!==null) plushka::success($message);
 		header('Location: '.self::link($url),true,$code);
 		exit;
 	}
@@ -136,7 +85,7 @@ abstract class plushka extends \plushka\core\core {
 	 * Генерирует и публикует HTML-код секции. Этот метод обрабатывает теги {{section}}
 	 * @param string $name Имя секции
 	 */
-	public static function section($name) {
+	public static function section(string $name): void {
 		//Выборка виджетов секции. Построить SQL-запрос, включающий все варианты страниц
 		$s=$query='';
 		$cnt=count($_GET['corePath'])-1;
@@ -186,18 +135,17 @@ abstract class plushka extends \plushka\core\core {
 	 * @see \plushka\core\Widget
 	 * @see plushka::section
 	 */
-	public static function widget($name,$options=null,$cacheTime=null,$title=null,$link=null) {
-		if(is_array($options) && isset($options['cssClass'])) {
+	public static function widget(string $name,$options=null,int $cacheTime=null,string $title=null,string $link=null): void {
+		if(is_array($options)===true && isset($options['cssClass'])===true) {
 			$cssClass=' '.$options['cssClass'];
 			unset($options['cssClass']);
 		} else $cssClass='';
-		if(is_string($options) && isset($options[1]) && $options[1]==':') $options=unserialize($options);
-		elseif(is_array($options) && count($options)==1 && isset($options['_content'])) $options=$options['_content'];
+		if(is_string($options)===true && isset($options[1])===true && $options[1]===':') $options=unserialize($options);
+		elseif(is_array($options)===true && count($options)===1 && isset($options['_content'])===true) $options=$options['_content'];
 		//Нужно ли кешировать?
-		if($cacheTime && self::debug()) $cacheTime=false;
-
-		if($cacheTime) {
-			if(is_array($options)) {
+		if($cacheTime!==null && self::debug()===true) $cacheTime=null;
+		if($cacheTime!==null) {
+			if(is_array($options)===true) {
 				$f='';
 				ksort($options);
 				foreach($options as $index=>$value) $f.=$index.$value;
@@ -205,12 +153,12 @@ abstract class plushka extends \plushka\core\core {
 			$f=md5($f);
 			$cacheFile=self::path().'cache/widget/'.$name.'.'.$f;
 			$content=$cacheFile.'.html';
-			if(file_exists($content)) {
+			if(file_exists($content)===true) {
 				$f=filemtime($content)+$cacheTime*60;
 				if($f>time()) {
-					echo '<section class="widget'.$name.$cssClass.'">';
+					echo '<section class="widget',$name,$cssClass,'">';
 					$cacheFile.='.json';
-					if(file_exists($cacheFile)) self::_widgetAdmin(json_decode(file_get_contents($cacheFile),true));
+					if(file_exists($cacheFile)===true) self::_widgetAdmin(json_decode(file_get_contents($cacheFile),true));
 					$content=file_get_contents($content);
 					echo $content;
 					echo '<div style="clear:both;"></div></section>';
@@ -229,7 +177,7 @@ abstract class plushka extends \plushka\core\core {
 			$cacheAdmin=self::_widgetAdmin($w,true);
 			if($cacheTime) ob_start();
 			if($title) $w->title($title); //вывод заголовка
-			if(is_object($view)) $view->render(); else $w->render($view);
+			if(is_object($view)===true) $view->render(); else $w->render($view);
 		}
 		if($cacheTime) {
 			$f=fopen($cacheFile.'.html','w');
@@ -244,21 +192,21 @@ abstract class plushka extends \plushka\core\core {
 		echo '<div style="clear:both;"></div></section>';
 	}
 
-	private static function _hook($name,$data) {
+	private static function _hook(string $name,$data) {
 		return include(self::path().'hook/'.$name);
 	}
 
 	//Выводит кнопки админки для виджета и возвращает кеш, если это необходимо.
 	//$data - экземпляр виджета или массив ссылок
-	private static function _widgetAdmin($data,$cache=false) {
+	private static function _widgetAdmin($data,bool $cache=false) {
 		$user=plushka::userReal();
 		if($user->group<200) return false;
 		$admin=new \plushka\core\Admin();
-		if(is_object($data)) $data=$data->adminLink();
+		if(is_object($data)===true) $data=$data->adminLink();
 		foreach($data as $item) {
 			if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
 		}
-		return ($cache ? $data : null);
+		return ($cache===true ? $data : null);
 	}
 }
 

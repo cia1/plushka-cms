@@ -1,8 +1,11 @@
 <?php
+//Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
 use plushka;
 
-/* Конструктор HTML-таблиц (<table>) */
+/**
+ * Конструктор HTML-таблиц (<table>)
+ */
 class Table {
 
 	private $_count=0; //Количество столбцов таблицы
@@ -10,15 +13,21 @@ class Table {
 	private $_trHtml=''; //HTML-код для тега <tr>
 	private $_data='<table cellpadding="0" cellspacing="0" class="admin"';
 
-	/* Если задан $html, то присоединить его к тегу <table> */
-	public function __construct($html=null) {
-		if($html) $this->_data.=$html;
+	/**
+	 * @param string|null $html Произвольный HTML-код, присоединяемый к тегу <table>
+	 */
+	public function __construct(string $html=null) {
+		if($html!==null) $this->_data.=$html;
 		$this->_data.='><tr>';
 	}
 
-	/* Добавляет заголовок к таблице (<tr><th>) */
-	public function th($title,$html='') {
-		if(substr($title,0,9)=='checkbox[') {
+	/**
+	 * Добавляет заголовок к таблице (<tr><th>)
+	 * @param string $title Текст заголовка
+	 * @param string|null $html Произвольный HTML-код, добавляемый к тегу
+	 */
+	public function th(string $title,string $html=null): void {
+		if(substr($title,0,9)==='checkbox[') {
 			$title=substr($title,9,strlen($title)-10);
 			$title='<input type="checkbox" onclick="$(\'.check'.$title.'\').attr(\'checked\',this.checked);" />';
 		}
@@ -26,59 +35,94 @@ class Table {
 		$this->_count++;
 	}
 
-	/* Устанавливает сразу все заголовки. $a - либо массив либо строка, разделённая "|" */
-	public function rowTh($a) {
-		if(is_array($a)) {
-			for($i=0,$cnt=count($a);$i<$cnt;$i++) {
-				if(is_array($a[$i])) $this->th($a[$i][0],$a[$i][1]); else $this->th($a[$i]);
+	/**
+	 * Устанавливает сразу все заголовки
+	 * @param array|string $titleList Заголовки, если строка, то разделённая символом "|"
+	 */
+	public function rowTh($titleList): void {
+		if(is_array($titleList)===true) {
+			for($i=0,$cnt=count($titleList);$i<$cnt;$i++) {
+				if(is_array($a[$i])===true) $this->th($titleList[$i][0],$titleList[$i][1]);
+				else $this->th($titleList[$i]);
 			}
 		} else {
-			$a=explode('|',$a);
-			for($i=0,$cnt=count($a);$i<$cnt;$i++) $this->th($a[$i]);
+			$titleList=explode('|',$titleList);
+			for($i=0,$cnt=count($titleList);$i<$cnt;$i++) $this->th($titleList[$i]);
 		}
 	}
 
-	/* Устанавливает HTML-код, который должен быть "приписан" к тегу <tr> */
-	public function trHtml($html) {
+	/**
+	 * Устанавливает HTML-код, который должен быть "приписан" к тегу <tr>
+	 * @param string $html HTML-код
+	 */
+	public function trHtml(string $html): void {
 		$this->_trHtml=$html;
 	}
 
-	/* Добавляет текст $text во всю ширину таблицы */
-	public function row($text) {
+	/**
+	 * Добавляет текст во всю ширину таблицы
+	 * @param string $text
+	 */
+	public function row(string $text): void {
 		$this->_data.='<tr><td colspan="'.$this->_count.'">'.$text.'</td></tr>';
 	}
 
-	//добавляет ячейку, содержащую флажок
-	public function checkbox($controller=null,$name,$value,$colspan=0,$html=null) {
+	/** 
+	 * Добавляет ячейку, содержащую флажок
+	 * @param string|null $namespace Имя контроллера
+	 * @param string $name Имя поля
+	 * @param string $value Значение поля
+	 * @param int $colspan Количество объединяемых ячеек
+	 * @param string|null $html HTML-код, присоединяемый к тегу <input>
+	 */
+	public function checkbox($namespace=null,string $name,string $value,int $colspan=0,string $html=null): void {
 		$this->_tr();
 		$this->_data.='<td style="width:30px;text-align:center;" '.$html;
-		if($colspan) {
+		if($colspan>0) {
 			$this->_data.='colspan="'.$colspan.'"';
 			$this->_index+=$colspan;
 		} else $this->_index++;
 		$this->_data.='><input type="checkbox" name="'.($controller ? $controller.'['.$name.']' : $name).'[]" value="'.$value.'" class="check'.$name.'" /></td>';
 	}
-	/* Добавляет ячейку с произвольным текстом */
-	public function text($text,$colspan=0,$html=null) {
+
+	/**
+	 * Добавляет ячейку с произвольным текстом
+	 * @param string $text
+	 * @param int $colspan Количество объединяемых ячеек
+	 * @param string|null $html HTML-код, присоединяемый к тегу <input>
+	 */
+	public function text($text,int $colspan=0,string $html=null): void {
 		$this->_tr();
 		$this->_data.='<td '.$html;
-		if($colspan) {
+		if($colspan>0) {
 			$this->_data.=' colspan="'.$colspan.'"';
 			$this->_index+=$colspan;
 		} else $this->_index++;
 		$this->_data.='>'.$text.'</td>';
 	}
 
-	/* Добавляет ячейку, содержащую ссылку на какую-либо страницу админки */
-	public function link($link,$title,$colspan=0,$html=null) {
-		return $this->text('<a href="'.plushka::linkAdmin($link).'">'.$title.'</a>',$colspan,$html);
+	/**
+	 * Добавляет ячейку, содержащую ссылку на какую-либо страницу админки
+	 * @param string $link Ссылка
+	 * @param string $title Якорь ссылки
+	 * @param int $colspan Количество объединяемых ячеек
+	 * @param string|null $html HTML-код, присоединяемый к тегу <input>
+	 */
+	public function link(string $link,string $title,int $colspan=0,string $html=null): void {
+		$this->text('<a href="'.plushka::linkAdmin($link).'">'.$title.'</a>',$colspan,$html);
 	}
 
-	/* Добавляет ячейку, содержащую кнопки "выше" и "ниже" */
-	public function upDown($params,$index=null,$count=null,$actionAlias=null) {
+	/**
+	 * Добавляет ячейку, содержащую кнопки "выше" и "ниже".
+	 * @param string $params URL-параметры
+	 * @param int|null $index Порядковый номер элемента
+	 * @param int|null $count Общее количество элементов
+	 * @param |null $actionAlias Имя действия (к нему будет добавлено "Up"/"Down")
+	 */
+	public function upDown(string $params,int $index=null,int $count=null,$actionAlias=null): void {
 		$this->_data.='<td width="60px" align="center">';
 		$params='&'.$params;
-		if($index>1 || $index===null) {
+		if($index===null || $index>1) {
 			$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'up' : $actionAlias.'Up');
 			$this->_data.='<a href="'.plushka::linkAdmin($link.$params).'"><img src="'.plushka::url().'admin/public/icon/up16.png" alt="Выше" title="Поднять выше" /></a>';
 		}
@@ -90,8 +134,13 @@ class Table {
 		$this->_index++;
 	}
 
-	/* Добавляет ячейку, содержащую кнопку "удалить" */
-	public function delete($params,$actionAlias='delete',$confirm='Подтвердите удаление') {
+	/**
+	 * Добавляет ячейку, содержащую кнопку "удалить"
+	 * @param string $params URL-параметры
+	 * @param string|null $actionAlias Имя действия
+	 * @param string $confirm Текст сообщения подтверждения
+	 */
+	public function delete(string $params,string $actionAlias=null,string $confirm='Подтвердите удаление'): void {
 		$params='&'.$params;
 		$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'delete' : $actionAlias.'Delete');
 		$this->_data.='<td width="40px" align="center">'
@@ -100,15 +149,20 @@ class Table {
 		$this->_index++;
 	}
 
-	/* Добавляет ячейку, сдержащую две кнопки "изменить" и "удалить" */
-	public function editDelete($params,$actionAlias='edit',$confirm='Подтвердите удаление') {
+	/**
+	 * Добавляет ячейку, сдержащую две кнопки "изменить" и "удалить"
+	 * @param string $params URL-параметры
+	 * @param string|null $actionAlias Имя действия (к нему будет добавлено "Edit"/"Delete")
+	 * @param string $confirm Текст сообщения подтверждения
+	 */
+	public function editDelete(string $params,string $actionAlias===null,string $confirm='Подтвердите удаление'): void {
 		$params='&'.$params;
 		$linkEdit=$linkDelete=plushka::$controller->url[0].'/';
 		if($actionAlias===null) {
-			$linkEdit.='item';
+			$linkEdit.='edit';
 			$linkDelete.='delete';
 		} else {
-			$linkEdit.=$actionAlias.'Item';
+			$linkEdit.=$actionAlias.'Edit';
 			$linkDelete.=$actionAlias.'Delete';
 		}
 		$this->_data.='<td width="40px" align="center">'
@@ -118,8 +172,13 @@ class Table {
 		$this->_index++;
 	}
 
-	/* Добавляет ячейку, содержащую две кнопки "изменить" и "удалить", отличается от $this->editDelete() видом формируемой ссылки */
-	public function itemDelete($params,$actionAlias=null,$confirm='Подтвердите удаление') {
+	/**
+	 * Добавляет ячейку, содержащую две кнопки "изменить" и "удалить", отличается от $this->editDelete() видом формируемой ссылки
+	 * @param string $params URL-параметры
+	 * @param string|null $actionAlias Имя действия (к нему будет добавлено "Item"/"Delete")
+	 * @param string $confirm Текст сообщения подтверждения
+	 */
+	public function itemDelete(string $params,string $actionAlias=null,string $confirm='Подтвердите удаление'): void {
 		$params='&'.$params;
 		$linkItem=$linkDelete=plushka::$controller->url[0].'/';
 		if($actionAlias===null) {
@@ -136,15 +195,19 @@ class Table {
 		$this->_index++;
 	}
 
-	/* Выводит HTML-представление таблицы */
-	public function render() {
+	/**
+	 * Выводит HTML-представление таблицы
+	 */
+	public function render(): void {
 		echo $this->_data;
 		echo '</tr></table>';
 	}
 
-	/* Отслеживает начало новой строки */
+	/**
+	 * Отслеживает начало новой строки
+	 */
 	private function _tr() {
-		if($this->_index==$this->_count) $this->_index=0;
+		if($this->_index===$this->_count) $this->_index=0;
 		if(!$this->_index) {
 			$this->_data.='</tr><tr';
 			if($this->_trHtml) {

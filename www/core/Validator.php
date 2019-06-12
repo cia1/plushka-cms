@@ -27,16 +27,16 @@ use plushka\core\Picture;
 class Validator {
 
 	/** @var string[] Список булевых полей, нужен для корректного преобразования */
-	protected $_bool=array();
+	protected $_bool=[];
 	/** @var mixed[] Набор валидируемых данных */
-	protected $_data=array();
+	protected $_data=[];
 
 	/**
 	 * Устанавливает значение атрибута
 	 * @param string $attribute имя атрибута
 	 * @param mixed $value Значение атрибута
 	 */
-	public function __set(string $attribute,$value) {
+	public function __set(string $attribute,$value): void {
 		$this->_data[$attribute]=$value;
 	}
 
@@ -53,7 +53,7 @@ class Validator {
 	 * Устанавливает сразу все проверяемые данные
 	 * @param array $data массив данных в формате ключ-значение
 	 */
-	public function set(array $data) {
+	public function set(array $data): void {
 		$this->_data=$data;
 	}
 
@@ -68,8 +68,8 @@ class Validator {
 	/**
 	 * Очищает данные
 	 */
-	public function init() {
-		$this->_data=array();
+	public function init(): void {
+		$this->_data=[];
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Validator {
 	 * @param array|null Правила валидации: null - взять из static::rule(), массив - правила в формате ключ-значение
 	 * @return bool Валидны ли данные
 	*/
-	public function validate($rule=null): bool {
+	public function validate(array $rule=null): bool {
 		plushka::language('global');
 		if($rule===null) $rule=$this->rule();
 		foreach($rule as $attribute=>$item) {

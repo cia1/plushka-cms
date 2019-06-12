@@ -1,10 +1,20 @@
 <?php
+// Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
 
+/**
+ * Расширенная модель. Упрощает валидацию часто используемых полей (title, alias, metaTitle, metaDescription, metaKeyword)
+ */
 class ModelEx extends \plushka\core\Model {
 
-	protected function commonRuleAppend($rule,$attribute=null) {
-		if($attribute===null) $attribute=array('metaTitle','metaDescription','metaKeyword');
+	/**
+	 * Добавляет популярные правила валидации
+	 * @param array[] $rule Массив всех правил валидации
+	 * @param array|string|null $attribute Список параметров
+	 * @return array[] Полученный массив правил валидации, к которым добавлены новые
+	 */
+	protected function commonRuleAppend($rule,$attribute=null): array {
+		if($attribute===null) $attribute=['metaTitle','metaDescription','metaKeyword'];
 		elseif(is_string($attribute)===true) $attribute=explode(',',$attribute);
 		$ruleTemplate=array(
 			'title'=>array('string','заголовок',true),

@@ -1,4 +1,5 @@
 <?php
+// Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
 use plushka;
 
@@ -12,7 +13,7 @@ class Controller extends \plushka\core\Controller {
 	/**
 	 * @var string Поясняющий текст для диалогового окна админки
 	 */
-	protected $cite=''; //краткий комментарий
+	protected $cite='';
 
 	private $_button=''; //HTML код кнопок
 
@@ -30,7 +31,7 @@ class Controller extends \plushka\core\Controller {
 	 * @param string $alt текст атрибута ALT тега <img>
 	 * @param string $html любой другой HTML-код, который будет добавлен к тегу <a>
 	 */
-	public function button($link,$image,$title='',$alt='',$html='') {
+	public function button(string $link,string $image,string $title='',string $alt='',string $html=''): void {
 		if($link==='html') $this->_button.=$image;
 		else {
 			$this->_button.='<a href="'.plushka::link('admin/'.$link).'"'.($html ? ' '.$html : '').'><img src="'.plushka::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
@@ -40,7 +41,7 @@ class Controller extends \plushka\core\Controller {
 	/**
 	 * @inheritdoc
 	 */
-	protected function css($text) {
+	protected function css(string $text): void {
 		if(substr($text,0,6)!=='admin/') parent::css($text);
 		if($text[0]!=='<') $text='<link type="text/css" rel="stylesheet" href="'.plushka::url().'admin/public/css/'.$text.'.css" />';
 		$this->_head.=$text;
@@ -51,7 +52,7 @@ class Controller extends \plushka\core\Controller {
 	 * @param string|object|null $view - представление
 	 * @param bool $renderTemplate нужно ли использовать шаблон
 	 */
-	public function render($view,$renderTemplate=true) {
+	public function render($view,bool $renderTemplate=true): void {
 		if(!plushka::template()) $renderTemplate=false;
 		if(!$view) return; //Если нет представления, то ничего не выводить
 		if($renderTemplate===true) { //Вывести верхнюю часть шаблона
@@ -94,7 +95,7 @@ class Controller extends \plushka\core\Controller {
  * Запускает приложение
  * @param bool $renderTemplate Нужно ли обрабатывать шаблон (false для AJAX-запросов)
  */
-function runApplication($renderTemplate=true) {
+function runApplication(bool $renderTemplate=true): void {
 	session_start();
 	plushka::$controller='\plushka\admin\controller\\'.ucfirst($_GET['controller']).'Controller';
 	plushka::$controller=new plushka::$controller();

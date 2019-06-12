@@ -194,9 +194,9 @@ class Mysqli {
 
 	/**
 	 * Возвращает количество изменённых, добавленных или удалённых записей предыдущим SQL-запросом
-	 * @return integer|null
+	 * @return integer
 	 */
-	public function affected(): ?int {
+	public function affected(): int {
 		return self::$_connectId->affected_rows;
 	}
 

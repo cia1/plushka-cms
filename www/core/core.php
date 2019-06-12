@@ -18,7 +18,7 @@ abstract class core {
 	 * @param string $attribute|null Если задан, то будет возвращена не вся конфигурация, а значение отдельного атрибута $attribute
 	 * @return mixed
 	 */
-	public static function &config($name='_core',$attribute=null) {
+	public static function &config(string $name='_core',string $attribute=null) {
 		static $_cfg;
 		if(isset($_cfg[$name])===false) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
 		if($attribute===null) return $_cfg[$name];
@@ -30,18 +30,18 @@ abstract class core {
 	 * Возвращает класс mysql или sqlite, в зависимости от того, какая СУБД настроена главной.
 	 * Главная СУБД определяется в /config/core.php['dbDriver'].
 	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
-	 * @return mysql|sqlite
+	 * @return Mysqli|Sqlite
 	 * @see plushka::sqlite()
 	 * @see plushka::mysql()
 	 */
-	public static function db($newQuery=false) {
+	public static function db(bool $newQuery=false) {
 		static $_db;
-		if($newQuery) {
-			$driver=self::config();
+		if($newQuery===true) {
+			$driver=static::config();
 			$driver=$driver['dbDriver'];
 			return self::$driver($newQuery);
 		}
-		if(!$_db) {
+		if($_db===null) {
 			$driver=self::config();
 			$driver=$driver['dbDriver'];
 			$_db=self::$driver($newQuery);
@@ -53,9 +53,8 @@ abstract class core {
 	 * Проверяет включён ли режим отладки
 	 * @return bool
 	 */
-	public static function debug() {
-		$cfg=self::config();
-		if(isset($cfg['debug']) && $cfg['debug']) return true; else return false;
+	public static function debug(): bool {
+		return self::config('_core','debug');
 	}
 
 	/**
@@ -63,14 +62,14 @@ abstract class core {
 	 * @param string|null $message Устанавливаемый текст сообщения
 	 * @return string|null Текст сообщения или null, если ошибки не было
 	 */
-	public static function error($message=null) {
+	public static function error(string $message=null): ?string {
 		if($message===false) {
 			$message=(isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
 			unset($_SESSION['messageError']);
 			return $message;
 		}
 		if($message!==null) $_SESSION['messageError']=$message;
-		return (isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
+		return $_SESSION['messageError'] ?? null;
 	}
 
 	/**
@@ -79,7 +78,7 @@ abstract class core {
 	 * @param string|null $namespace
 	 * @return \plushka\core\Form
 	 */
-	public static function form($namespace=null) {
+	public static function form(string $namespace=null): \plushka\core\Form {
 		return new \plushka\core\Form($namespace);
 	}
 
@@ -87,7 +86,7 @@ abstract class core {
 	 * Подключает указанный php-файл, по сути это обёртка для include_once
 	 * @param string $name Имя файла относительно корня сайта
 	 */
-	public static function import($name) {
+	public static function import(string $name): void {
 		include_once(self::path().$name.'.php');
 	}
 
@@ -98,10 +97,10 @@ abstract class core {
 	 * @param string|null $attribute дополнительные атрибуты, которые будут добавлены к тегу <script> (например "defer")
 	 * @return string
 	 */
-	public static function js($name,$attribute=null) {
+	public static function js(string $name,string $attribute=null): string {
 		static $_js;
 		static $_lang=false;
-		if(!$_js) $_js=array();
+		if($_js===null) $_js=[];
 		if(in_array($name,$_js)===true) return '';
 		$_js[]=$name;
 		if($name[0]==='/' || substr($name,0,7)==='http://' || substr($name,0,8)==='https://') return '<script type="text/javascript" src="'.$name.'" '.$attribute.'></script>';
@@ -118,13 +117,60 @@ abstract class core {
 	/**
 	 * Подключает файл локализации (/language/$name.{_LANG}.php)
 	 * @param string $name Имя файла (без ".php" локализации)
-	 * @return bool Существует ли файл локализации
 	 */
-	public static function language($name) {
+	public static function language(string $name): void {
 		$f=self::path().'language/'.$name.'.'._LANG.'.php';
-		if(file_exists($f)===false) return false;
+		if(file_exists($f)===false) return;
 		include_once($f);
-		return true;
+	}
+
+	/**
+	 * Генерирует относительную или абсолютную ссылку
+	 * Для CGI-режима использует /config/cgi.php для определения имени домена и базового URL
+	 * @param string $link Исходная ссылка в формате controller/etc...
+	 * @param bool $lang Если false, то суффикс языка не будет добавлен
+	 * @param bool $domain Если true, то будет сгенерирована абсолютная ссылка
+	 * @return string
+	 */
+	public static function link(string $link,bool $lang=true,bool $domain=false): string {
+		static $_link;
+		static $_main;
+		if(!$link) return plushka::url($lang,$domain);
+		if(substr($link,0,7)==='http://' || substr($link,0,8)==='https://' || $link[0]==='/') return $link;
+		if($_link===null) {
+			$cfg=self::config();
+			$_link=$cfg['link'];
+			$_main=$cfg['mainPath'];
+		}
+		if($link===$_main) return self::url($lang,$domain);
+		$i=strpos($link,'?');
+		if($i) {
+			$end=substr($link,$i);
+			$link=substr($link,0,$i);
+		} else $end='';
+		$i=$len=strlen($link);
+		do {
+			$s=substr($link,0,$i);
+			$i=strrpos($s,'/');
+		} while($s && !isset($_link[$s]));
+		if($s) {
+			$len2=strlen($s);
+			if($len2===$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
+		}
+		return self::url($lang,$domain).$link.$end;
+	}
+
+	/**
+	 * Создаёт модель ActiveRecord для указанной таблицы базы данных
+	 * Если файл /model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
+	 * @param string $classTable Имя таблицы или класса ActiveRecord
+	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
+	 * @return plushka/core/Model
+	 */
+	public static function model(string $classTable,string $db='db'): plushka/core/Model {
+		$class='\plushka\model\\'.ucfirst($classTable);
+		if(class_exists($class)===true) return new $class;
+		return new \plushka\core\Model($classTable,$db);
 	}
 
 	/**
@@ -132,9 +178,8 @@ abstract class core {
 	 * @param string $id идентификатор модуля
 	 * @return bool
 	 */
-	public static function moduleExists($id) {
-		$f=plushka::path().'admin/module/'.self::translit($id).'.php';
-		return file_exists($f);
+	public static function moduleExists(string $id): bool {
+		return file_exists(plushka::path().'admin/module/'.self::translit($id).'.php');
 	}
 
 	/**
@@ -143,10 +188,10 @@ abstract class core {
 	 * @return mysqli
 	 * @see \plushka\core\Mysqli
 	 */
-	public static function mysql($newQuery=false) {
+	public static function mysql(bool $newQuery=false): \plushka\core\Mysqli {
 		static $_mysqli;
-		if($newQuery) return new \plushka\core\Mysqli();
-		if(!$_mysqli) $_mysqli=new \plushka\core\Mysqli();
+		if($newQuery===true) return new \plushka\core\Mysqli();
+		if($_mysqli===null) $_mysqli=new \plushka\core\Mysqli();
 		return $_mysqli;
 	}
 
@@ -154,12 +199,12 @@ abstract class core {
 	 * Возвращает абсолютный путь до корня сайта
 	 * @return string
 	 */
-	public static function path() {
+	public static function path(): string {
 		static $_path;
-		if(!$_path) {
+		if($_path===null) {
 			$_path=__DIR__;
 			$s=strrpos($_path,'/');
-			if(!$s) $s=strrpos($_path,'\\');
+			if($s===false) $s=strrpos($_path,'\\');
 			$_path=substr($_path,0,$s+1);
 		}
 		return $_path;
@@ -171,10 +216,10 @@ abstract class core {
 	 * @return sqlite
 	 * @see \plushka\core\Sqlite
 	 */
-	public static function sqlite($newQuery=false) {
+	public static function sqlite(bool $newQuery=false): \plushka\core\Sqlite {
 		static $_sqlite;
-		if($newQuery) return new Sqlite();
-		if(!$_sqlite) $_sqlite=new Sqlite();
+		if($newQuery===true) return new Sqlite();
+		if($_sqlite===null) $_sqlite=new Sqlite();
 		return $_sqlite;
 	}
 
@@ -183,7 +228,7 @@ abstract class core {
 	 * @param string|null $message Устанавливаемый текст сообщения
 	 * @return string|null Текст сообщения
 	 */
-	public static function success($message=null) {
+	public static function success(string $message=null): ?string {
 		if($message===false) {
 			$message=$_SESSION['messageSuccess'];
 			unset($_SESSION['messageSuccess']);
@@ -198,9 +243,9 @@ abstract class core {
 	 * @param string $set|null Если задан, то будет установлен указанный шаблон (соответствующий файл должен находиться в директории /template)
 	 * @return string Имя текущего шаблона
 	 */
-	public static function template($set=null) {
+	public static function template(string $set=null): string {
 		if($set!==null) self::$_template=$set;
-		return (self::$_template ? self::$_template : null);
+		return self::$_template;
 	}
 
 	/**
@@ -209,7 +254,7 @@ abstract class core {
 	 * @param string $string Исходная строка
 	 * @param int $max Максимальная длина генерируемой строки
 	 */
-	public static function translit($string,$max=60) {
+	public static function translit(string $string,int $max=60): string {
 		$string=mb_strtolower($string,'UTF-8');
 		$d1=explode(',',LNGtranslit1);
 		$d2=explode(',',LNGtranslit2);
@@ -224,13 +269,13 @@ abstract class core {
 
 	/**
 	 * Возвращает абсолютный или относительный URL-адрес главной страницы сайта (обычно "/")
-	 * @param bool $lang Если указан, то к URL будет добавлен суффикс текущего языка
+	 * @param bool|string $lang Если указан, то к URL будет добавлен суффикс текущего языка
 	 * @param bool $domain Если указан, то будет будет сгенерирована абсолютная ссылка, а не относительна
 	 */
-	public static function url($lang=false,$domain=false) {
+	public static function url($lang=false,bool $domain=false): string {
 		static $_url;
 		if($_url===null) {
-			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
+			if(isset($_SERVER)===true && isset($_SERVER['DOCUMENT_ROOT'])===true && $_SERVER['DOCUMENT_ROOT']) {
 				$_url=str_replace('\\','/',substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT']),-13));
 			} else { //CGI-запрос
 				$cfg=plushka::config('cgi');
@@ -256,7 +301,7 @@ abstract class core {
 				if($_SERVER['HTTPS']==='off' || $_SERVER['HTTPS']==='') $url='http'.$url;
 				else $url='https'.$url;
 			} elseif(isset($_SERVER['REQUEST_SCHEME'])) $url=$_SERVER['REQUEST_SCHEME'].$url;
-			elseif(isset($_SERVER['SERVER_PORT'])) {
+			elseif(isset($_SERVER['SERVER_PORT'])===true) {
 				if($_SERVER['SERVER_PORT']==443) $url='https'.$url;
 				else $url='http'.$url;
 			} else $url='http'.$url;
@@ -269,9 +314,9 @@ abstract class core {
 	 * Для неавторизованных пользователей user::userGroup будет иметь значение "0".
 	 * @return user
 	 * @see plushka::userGroup()
-	 * @see \plushka\core\user
+	 * @see \plushka\core\User
 	 */
-	public static function &user() {
+	public static function &user(): \plushka\core\User {
 		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
 		return $_SESSION['user'];
 	}
@@ -282,7 +327,7 @@ abstract class core {
 	 * @see plushka::user()
 	 * @see \plushka\core\User
 	 */
-	public static function &userReal() {
+	public static function &userReal(): \plushka\core\User {
 		if(isset($_SESSION['userReal'])===true) return $_SESSION['userReal'];
 		else return self::user();
 	}
@@ -290,18 +335,17 @@ abstract class core {
 	/**
 	 * Возвращает группу пользователей, к которой относится текущий пользователь:
 	 * 0 - не авторизованный, 1-199 - зарегистрированные пользователи, 200-254 - администраторы, 255 - суперпользователь
-	 * @return int
+	 * @return integer
 	 */
-	public static function userGroup() {
-		$u=self::user();
-		return $u->group;
+	public static function userGroup(): int {
+		return self::user()->group;
 	}
 
 	/**
 	 * Возвращает идентификатор текущего пользователя (db user.id), для не авторизованных - 0
-	 * @return int
+	 * @return integer
 	 */
-	public static function userId() {
+	public static function userId(): int {
 		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
 		return $_SESSION['user']->id;
 	}
@@ -319,7 +363,7 @@ class Controller {
 	 * @var string[] Хранит разобранный URL запрошенной страницы исходя из $_GET['corePath'] и правил преобразования ссылок: $url[0] - имя контроллера, $url[1] - имя действия
 	 * Конструктор контроллера может изменить controller::$url[1], чтобы перенаправить запрос на нужное действие.
 	 */
-	public $url=array();
+	public $url=[];
 	/**
 	 * @var string Заголовок страницы, отображаемый в HTML-теге <h1 class="pageTitle">
 	 */
@@ -351,7 +395,7 @@ class Controller {
 	 * @param string|null $attribute Любые атрибуты, присоединяемые к тегу <script> (например "defer")
 	 * @see plushka::js()
 	 */
-	public function js($text,$attribute=null) {
+	public function js(string $text,string $attribute=null): void {
 		if($text[0]!=='<') $text=plushka::js($text,$attribute);
 		$this->_head.=$text;
 	}
@@ -360,7 +404,7 @@ class Controller {
 	 * Служит для подключения CSS или других тегов в область <head>. Вызов имеет смысл только в конструкторе или действиях. В отличии от self::js() не проверяет подключён ли уже этот файл.
 	 * @param string $text Имя .css-файла или произвольный тег в формате "<...>"
 	 */
-	protected function css($text) {
+	protected function css(string $text): void {
 		if($text[0]!=='<') $text='<link type="text/css" rel="stylesheet" href="'.plushka::url().'public/css/'.$text.'.css" />';
 		$this->_head.=$text;
 	}
@@ -371,7 +415,7 @@ class Controller {
 	 * @param object|string|bool|null $view Класс представления или имя файла представления
 	 * @param bool $renderTemplate Если false, то шаблон обрабатываться не будет (полезно для AJAX-запросов)
 	 */
-	public function render($view,$renderTemplate=true) {
+	public function render($view,bool $renderTemplate=true): void {
 		plushka::hook('beforeRender',$renderTemplate); //сгенерировать событие ("перед началом вывода в поток")
 		if(!plushka::template()) $renderTemplate=false; //шаблон мог быть отключен через вызов plushka::template()
 		if(!$view) return; //если представления нет, то ничего не выводить в поток
@@ -427,35 +471,34 @@ class Controller {
 	/**
 	 * Выводит HTML-код блока хлебных крошек. Вызывается фреймворком при обработке тега шаблона {{breadcrumb}}
 	 */
-	public function breadcrumb() {
-		if(plushka::url()==$_SERVER['REQUEST_URI'] || plushka::url()._LANG.'/'==$_SERVER['REQUEST_URI']) return; //главная страница
+	public function breadcrumb(): void {
+		if(plushka::url()===$_SERVER['REQUEST_URI'] || plushka::url()._LANG.'/'===$_SERVER['REQUEST_URI']) return; //главная страница
 		$b='breadcrumb'.$this->url[1];
 		//Если метод контроллера существует, то добавить элементы, а иначе не выводить хлебные крошки
-		if(!method_exists($this,$b)) return;
+		if(method_exists($this,$b)===false) return;
 		$b=$this->$b();
 		if(!$b) return;
 		$last=count($b)-1;
-		if($b[$last]=='{{pageTitle}}') {
+		if($b[$last]==='{{pageTitle}}') {
 			if($this->pageTitle) $b[$last]=$this->pageTitle; else unset($b[$last]);
 		}
 		$b=' &raquo; '.implode(' &raquo; ',$b);
 		$cfg=plushka::config();
 		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.plushka::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
-
 	}
 
 	/**
 	 * Выводит HTML-код кнопок админки для элемента списка, явно вызывать метод не нужно
 	 * @param mixed $data Произвольные данные, которые будут переданы в метод controller::admin{Action}Link2()
 	 */
-	protected function admin($data=null) {
+	protected function admin($data=null): void {
 		$user=plushka::userReal();
 		if($user->group<200) return;
 		$s='admin'.$this->url[1].'Link2';
 		$admin=new Admin();
 		@$link=$this->$s($data);
 		foreach($link as $item) {
-			if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
+			if($user->group==255 || isset($user->right[$item[0]])===true) $admin->render($item);
 		}
 	}
 }
@@ -482,7 +525,7 @@ abstract class Widget {
 	 * @param midex $options Настройки и любые другие данные необходимые виджету, @see self::$options
 	 * @param string|null $link Шаблон адреса страницы, @see self::$link
 	 */
-	public function __construct($options,$link) {
+	public function __construct($options,string $link=null) {
 		$this->options=$options;
 		$this->link=$link;
 	}
@@ -499,7 +542,7 @@ abstract class Widget {
 	 * Может быть переопределён, если, к примеру, нужно вставить ссылку в заголовок.
 	 * @param string $title Заголовок, заданный в админке или шаблоне
 	 */
-	public function title($title) {
+	public function title(string $title): void {
 		echo '<header>',$title,'</header>';
 	}
 
@@ -507,16 +550,16 @@ abstract class Widget {
 	 * Должен возвращать массив с правилами для генерации кнопок административного интерфейса
 	 * @return array[]
 	 */
-	public function adminLink() {
+	public function adminLink(): array {
 		return array();
 	}
 
 	/**
 	 * Генерирует HTML-код виджета
 	 * Запускается фреймворком, если widget::__invoke() не вернул false или null. Этот метод необходим чтобы из представления был доступ к виджету через переменную $this.
-	 * @param string Имя файла представления
+	 * @param string|bool Имя файла представления
 	 */
-	public function render($view) {
+	public function render($view): void {
 		if($view!==true) include(plushka::path().'view/widget'.$view.'.php');
 	}
 
@@ -525,7 +568,7 @@ abstract class Widget {
 	 * Вызывается фреймворком, явный вызов не требуется.
 	 * @param array[] $data
 	 */
-	public function admin($data) {
+	public function admin(array $data): void {
 		$u=plushka::userReal();
 		if($u->group<200) return;
 		$admin=new admin();
@@ -569,19 +612,19 @@ class User {
 	public $login;
 
 	/**
-	 * @param int|null $id Если задан, то из базы данных будут загружены данные пользователя с этим идентификатором
+	 * @param integer|null $id Если задан, то из базы данных будут загружены данные пользователя с этим идентификатором
 	 */
-	public function __construct($id=null) {
-		if($id) $this->model($id);
+	public function __construct(int $id=null) {
+		if($id!==null) $this->model($id);
 	}
 
 	/**
 	 * Возвращает ActiveRecord-модель на основе текущего пользователя.
 	 * Модель будет содержать данные авторизованного пользователя. Если задан параметр $id, то соответствующий пользователь будет авторизован (используйте new \plushka\model\User(), если это нежелательное поведение).
-	 * @param int|null $id Идентификатор пользователя, которогу нужно авторизовать
+	 * @param integer|null $id Идентификатор пользователя, которогу нужно авторизовать
 	 * @return \plushka\model\User
 	 */
-	public function model($id=null) {
+	public function model(int $id=null): \plushka\model\User {
 		static $model;
 		if(isset($model)===false || $id!==null) {
 			$model=new \plushka\model\User($id,$this);
@@ -611,7 +654,7 @@ class RouteException extends \RuntimeException {}
  * Запускает приложение
  * @param bool $renderTemplate Нужно ли обрабатывать шаблон (false для AJAX-запросов)
  */
-function runApplication($renderTemplate=true) {
+function runApplication(bool $renderTemplate=true): void {
 	session_start();
 	$user=plushka::userReal();
 	if($user->group>=200) include(plushka::path().'core/admin.php');

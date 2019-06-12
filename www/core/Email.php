@@ -8,7 +8,7 @@ namespace plushka\core;
 class Email {
 
 	/** @var string[] Массив MIME-частей письма */
-	private $_parts=array();
+	private $_parts=[];
 	/** @var string Заголовок "From" */ 
 	private	$_from;
 	/** @var string Тема письма */
@@ -43,8 +43,8 @@ class Email {
 	 * @param string $email Адрес электронной почты отправителя
 	 * @param string|null $name Имя отправителя
 	 */
-	public function from($email,$name=null) {
-		if(!$name) $name=$email;
+	public function from(string $email,string $name=null): void {
+		if($name===null) $name=$email;
 		$this->_from='From: =?UTF-8?B?'.base64_encode($name).'?= <'.$email.">\r\n";
 	}
 
@@ -52,13 +52,15 @@ class Email {
 	 * Устанавливает тему письма
 	 * @param string $value Тема письма
 	 */
-	public function subject($value) { $this->_subject=$value; }
+	public function subject(string $value): void {
+		$this->_subject=$value;
+	}
 
 	/**
 	 * Устанавливает текст письма в формате HTML
 	 * @param string $value Текст письма
 	 */
-	public function message($value) {
+	public function message(string $value): void {
 		$this->_message=trim($value);
 	}
 
@@ -67,8 +69,8 @@ class Email {
 	 * @param string $fileName - относительное имя файла письма ([/admin]/data/email/{$fileName}.html)
 	 * @param string[] $data Данные в формате "ключ-значение" для подстановки в шаблон письма
 	 */
-	public function messageTemplate($fileName,$data) {
-		if(substr($fileName,0,6)=='admin/') $fileName=plushka::path().'admin/data/email/'.substr($fileName,6).'.html';
+	public function messageTemplate(string $fileName,array $data): void {
+		if(substr($fileName,0,6)==='admin/') $fileName=plushka::path().'admin/data/email/'.substr($fileName,6).'.html';
 		else $fileName=plushka::path().'data/email/'.$fileName.'.'._LANG.'.html';
 		$this->_message=file_get_contents($fileName);
 		$this->_message=str_replace(array('{{siteLink}}','{{siteName}}'),
@@ -83,15 +85,17 @@ class Email {
 	 * Устанавливает адрес для возврата письма, если его не удалось доставить адресату
 	 * @param string $email E-mail
 	 */
-	public function returnPath($email) { $this->_returnPath=$email; }
+	public function returnPath(string $email): void {
+		$this->_returnPath=$email;
+	}
 
 	/**
 	 * Устанавливает получателя ответа на письмо
 	 * @param string $email E-mail
 	 * @param string|null $name Имя получателя
 	 */
-	public function replyTo($email,$name=null) {
-		if(!$name) $name=$email;
+	public function replyTo(string $email,string $name=null): void {
+		if($name===null) $name=$email;
 		$this->_replyTo='Reply-To: =?UTF-8?B?'.base64_encode($name).'?= <'.$email.">\r\n";
 	}
 
@@ -101,8 +105,15 @@ class Email {
 	 * @param string $id Псевдоним имени файла
 	 * @param string $type MIME-тип файла
 	 */
-	public function attach($filename,$id,$type='application/octet-stream') {
-		$this->_parts[]=array('ctype'=>$type,'message'=>base64_encode(file_get_contents($filename)),'name'=>$id,'encoding'=>'base64','id'=>$id,'filename'=>substr($filename,strrpos($filename,'/')+1));
+	public function attach(string $filename,string $id,string $type='application/octet-stream'): void {
+		$this->_parts[]=[
+			'ctype'=>$type,
+			'message'=>base64_encode(file_get_contents($filename)),
+			'name'=>$id,
+			'encoding'=>'base64',
+			'id'=>$id,
+			'filename'=>substr($filename,strrpos($filename,'/')+1)
+		];
 	}
 
 	/**
@@ -112,9 +123,9 @@ class Email {
 	 * @return string Псевдоним имени файла
 	 * @see email::getImg()
 	 */
-	public function attachImage($filename,$type=null) {
+	public function attachImage(string $filename,string $type=null): string {
 		static $_id;
-		if(!$type) $type=substr($filename,strrpos($filename,'.')+1);
+		if($type===null) $type=substr($filename,strrpos($filename,'.')+1);
 		$type=strtolower($type);
 		switch($type) {
 		case 'jpg': case 'jpeg': case 'image/jpeg':
@@ -130,9 +141,15 @@ class Email {
 			$ext='png';
 			break;
 		}
-		if(!$_id) $_id=0;
+		if($_id===null) $_id=0;
 		$id='image'.++$_id.'.'.$ext;
-		$this->_parts[]=array('ctype'=>$type,'message'=>base64_encode(file_get_contents($filename)),'name'=>$id,'encoding'=>'base64','id'=>$id);
+		$this->_parts[]=[
+			'ctype'=>$type,
+			'message'=>base64_encode(file_get_contents($filename)),
+			'name'=>$id,
+			'encoding'=>'base64',
+			'id'=>$id
+		];
 		return $id;
 	}
 
@@ -140,9 +157,9 @@ class Email {
 	 * Возвращает HTML-тег <img>, ссылающийся на вложенное изображение
 	 * @param string $id Псевдоним имени файла
 	 * @return string
-	 * @see email::attachImage()
+	 * @see self::attachImage()
 	 */
-	public function getImg($id) {
+	public function getImg(string $id): string {
 		return '<IMG src="cid:'.$id.'" />';
 	}
 
@@ -151,7 +168,7 @@ class Email {
 	 * @param string $email E-mail получателя
 	 * @return bool TRUE при успехе и FALSE при неудаче
 	 */
-	public function send($email) {
+	public function send(string $email): bool {
 		$boundary=md5(uniqid(time()));
 		$header='';
 		if($this->_from) $header.=$this->_from;
@@ -174,7 +191,7 @@ class Email {
 	 * @param string[] $header Дополнительные заголовки
 	 * @return bool TRUE при успехе и FALSE при неудаче
 	 */
-	private function sendSmtp($email,$message,$header) {
+	private function sendSmtp(string $email,string $message,array $header): bool {
 		$s='Date: '.date('D, d M Y H:i:s')." UT\r\n"
 		.'Subject: =?UTF-8?B?'.base64_encode($this->_subject)."?=\r\n"
 		.'To: '.$email."\r\n";
@@ -237,7 +254,7 @@ class Email {
 		return true;
 	}
 
-	private function _buildMultipart($boundary) {
+	private function _buildMultipart(string $boundary): string {
 		$multipart='This is a MIME encoded message.'.PHP_EOL.PHP_EOL.'--'.$boundary;
 		$part=array('ctype'=>'text/html; charset="UTF-8"','message'=>$this->_message,'name'=>'');
 		$multipart.=PHP_EOL.$this->_buildMessage($part).'--'.$boundary;
@@ -245,8 +262,8 @@ class Email {
 		return $multipart.="--".PHP_EOL;
 	}
 
-	private function _buildMessage($part) {
-		if(isset($part['encoding']) && $part['encoding']=='base64') {
+	private function _buildMessage(array $part): string {
+		if(isset($part['encoding'])===true && $part['encoding']==='base64') {
 			$i=0;
 			$content='';
 			do {
@@ -257,7 +274,7 @@ class Email {
 			} while(strlen($_s)==76);
 		} else $content=$part['message'];
 		$s='Content-Type: '.$part['ctype'].($part['name'] ? '; name="'.$part['name'].'"' : '')."\r\n".($part['name'] ? 'Content-ID: <'.$part['name'].">\r\n" : '')."Content-Transfer-Encoding: ".(isset($part['encoding']) ? $part['encoding'] : '8bit').PHP_EOL;
-		if(isset($part['filename'])) $s.='Content-Disposition: attachment; filename="'.$part['filename'].'"'.PHP_EOL;
+		if(isset($part['filename'])===true) $s.='Content-Disposition: attachment; filename="'.$part['filename'].'"'.PHP_EOL;
 		$s.=PHP_EOL.$content.PHP_EOL.PHP_EOL;
 		return $s;
 	}

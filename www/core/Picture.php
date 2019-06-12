@@ -27,7 +27,7 @@ class Picture {
 	/**
 	 * Открывает файл изображения, проверяет что это действительно изображение
 	 * @param string|array|picture|int $fileOrWidth Имя файла (string), файл из $_FILES (array) или ширина в пикселях (int)
-	 * @param int|null Ширина изображения, если создаётся новое
+	 * @param integer|null Ширина изображения, если создаётся новое
 	 */
 	public function __construct($fileOrWidth,int $height=null) {
 		if($fileOrWidth instanceof self) {
@@ -89,7 +89,7 @@ class Picture {
 
 	/**
 	 * Возвращает исходную высоту изображения
-	 * @return int
+	 * @return integer
 	 */
 	public function height(): int {
 		return $this->_srcH;
@@ -97,7 +97,7 @@ class Picture {
 
 	/**
 	 * Возвращает исходную широту изображения
-	 * @return int
+	 * @return integer
 	 */
 	public function width(): int {
 		return $this->_srcW;

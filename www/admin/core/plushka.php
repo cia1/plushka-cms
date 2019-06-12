@@ -9,14 +9,19 @@ require_once(__DIR__.'/core.php');
 abstract class plushka extends \plushka\core\core {
 
 	/**
-	 * Возвращает конфигурацию, соответствующую идентификатору
-	 * Конфигурация должна находиться в файле /config/{$id}.php или /admin/config/{$id}.php
-	 * Конфигурация возвращается по ссылке, поэтому возможно внесение изменений "на лету". Внимание! Возможно, это поведение в будущем будет изменено.
-	 * @param string $name Идентификатор (имя файла) конфигурации
-	 * @param string $attribute|null Если задан, то будет возвращена не вся конфигурация, а значение отдельного атрибута $attribute
-	 * @return mixed
+	 * Очищает пользовательский кеш
+	 * @param string $id Идентификатор кеша
 	 */
-	public static function &config($name='_core',$attribute=null) {
+	public static function cacheCustomClear(string $id): void {
+		$f=self::path().'cache/custom/'.$id.'.txt';
+		if(file_exists($f)===true) unlink($f);
+	}
+
+	/**
+	 * @inheritdoc
+	 * Конфигурация должна находиться в файле /config/{$id}.php или /admin/config/{$id}.php
+	 */
+	public static function &config(string $name='_core',string $attribute=null) {
 		static $_cfg;
 		if(isset($_cfg[$name])===false) {
 			if($name==='admin') $f=plushka::path().'admin/config/_core.php';
@@ -31,19 +36,9 @@ abstract class plushka extends \plushka\core\core {
 	}
 
 	/**
-	 * Очищает пользовательский кеш по указанному идентификатору
-	 * string $id идентификатор кеша
-	 */
-	public static function cacheCustomClear($id) {
-		$f=self::path().'cache/custom/'.$id.'.txt';
-		if(file_exists($f)) return unlink($f);
-		else return false;
-	}
-
-	/**
 	 * Прерывает выполнение скрипта и генерирует 404-ю HTTP-ошибку
 	 */
-	public static function error404() {
+	public static function error404(): void {
 		if(isset($_GET['_front'])===true) echo '<div class="messageError">Запрошенная страница не существует :(</div>';
 		else {
 			header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
@@ -56,12 +51,9 @@ abstract class plushka extends \plushka\core\core {
 	}
 
 	/**
-	 * Возвращает экземпляр расширенного класса form, предназначенного для конструирования HTML-форм
-	 * Имена полей формы будут сгенерированы с учётом $namespace: $_POST[$namespace]['someAttribute']
-	 * @param string|null $namespace
-	 * @return \plushka\admin\core\FormEx
+	 * @inheritDoc
 	 */
-	public static function form($namespace=null) {
+	public static function form(string $namespace=null): \plushka\admin\core\FormEx {
 		return new \plushka\admin\core\FormEx($namespace);
 	}
 
@@ -70,9 +62,9 @@ abstract class plushka extends \plushka\core\core {
 	 * Обработчики события - это файлы /hook/$name.{module}.php
 	 * @param string $name Имя события (файлы )
 	 * @param mixed ...$data Произвольные данные, которые будут доступны в обработчике события
-	 * @return mixed|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
+	 * @return mixed|bool False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
 	 */
-	public static function hook($name,...$data) {
+	public static function hook(string $name,...$data) {
 		$d=opendir(plushka::path().'admin/hook');
 		$result=array();
 		$len=strlen($name);
@@ -89,15 +81,11 @@ abstract class plushka extends \plushka\core\core {
 		return $result;
 	}
 
-	private static function _hook($name,$data) {
-		return include(plushka::path().'admin/hook/'.$name);
-	}
-
 	/**
 	 * @inheritdoc
 	 * Скрипты админки должны начитаться с "admin/"
 	 */
-	public static function js($name,$attribute=null) {
+	public static function js(string $name,string $attribute=null): string {
 		static $_js;
 		if(substr($name,0,6)==='admin/') {
 			if($_js===null) $_js=[];
@@ -110,15 +98,16 @@ abstract class plushka extends \plushka\core\core {
 
 	/**
 	 * Генерирует URL-адерс на страницу админки или публичную часть
+	 * @inheritDoc
 	 * @param string $link ссылка в исходном формате
 	 * @param bool $lang с учётом мультиязычности
 	 * @param bool $domain абсолютный адрес вместо относительного
 	 * @return string
 	 */
-	public static function link($link,$lang=true,$domain=false) {
+	public static function link(string $link,bool $lang=true,bool $domain=false): string {
 		if(substr($link,0,7)==='http://' || substr($link,0,8)==='https://' || $link[0]==='/') return $link;
 		if(substr($link,0,6)==='admin/') return self::linkAdmin(substr($link,6),$lang,$domain);
-		return self::linkPublic($link,$lang,$domain);
+		return parent::link($link,$lang,$domain);
 	}
 
 	/**
@@ -128,7 +117,7 @@ abstract class plushka extends \plushka\core\core {
 	 * @param bool $domain абсолютный адрес вместо относительного
 	 * @return string
 	 */
-	public static function linkAdmin($link,$lang=true,$domain=false) {
+	public static function linkAdmin(string $link,bool $lang=true,bool $domain=false): string {
 		$end='&_lang='.($lang===true ? _LANG : $lang);
 		if(isset($_GET['_front'])) $end.='&_front';
 		if(isset($_GET['backlink'])) $end.='&backlink='.urlencode($_GET['backlink']);
@@ -140,49 +129,10 @@ abstract class plushka extends \plushka\core\core {
 	}
 
 	/**
-	 * Генерирует относительную или абсолютную ссылку
-	 * Для CGI-режима использует /config/cgi.php для определения имени домена и базового URL
-	 * @param string $link Исходная ссылка в формате controller/etc...
-	 * @param bool $lang Если false, то суффикс языка не будет добавлен
-	 * @param bool $domain Если true, то будет сгенерирована абсолютная ссылка
-	 * @return string
+	 * @inheritDoc
+	 * Если файл /model/$classTable.php или /admin/model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
 	 */
-	public static function linkPublic($link,$lang=true,$domain=false) {
-		static $_link;
-		static $_main;
-		if(!$link) return plushka::url($lang,$domain);
-		if(substr($link,0,7)=='http://' || substr($link,0,8)=='https://' || $link[0]=='/') return $link;
-		if(!isset($_link)) {
-			$cfg=self::config();
-			$_link=$cfg['link'];
-			$_main=$cfg['mainPath'];
-		}
-		if($link==$_main) return self::url($lang,$domain);
-		$i=strpos($link,'?');
-		if($i) {
-			$end=substr($link,$i);
-			$link=substr($link,0,$i);
-		} else $end='';
-		$i=$len=strlen($link);
-		do {
-			$s=substr($link,0,$i);
-			$i=strrpos($s,'/');
-		} while($s && !isset($_link[$s]));
-		if($s) {
-			$len2=strlen($s);
-			if($len2==$len) $link=$_link[$s]; else $link=$_link[$s].substr($link,$len2);
-		}
-		return self::url($lang,$domain).$link.$end;
-	}
-
-	/**
-	 * Создаёт модель ActiveRecord для указанной таблицы базы данных
-	 * Если файл /model/$classTable.php или /model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
-	 * @param string $classTable Имя таблицы или класса ActiveRecord
-	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
-	 * @return \plushka\core\Model
-	 */
-	public static function model($classTable,$db='db') {
+	public static function model(string $classTable,string $db='db'): \plushka\core\Model {
 		if(substr($classTable,0,6)!=='admin/') return parent::model($classTable,$db);
 		$class='\plushka\admin\model\\'.ucfirst(substr($classTable,6));
 		if(class_exists($class)===true) return new $class();
@@ -196,15 +146,15 @@ abstract class plushka extends \plushka\core\core {
 	 * @param int $code HTTP-код ответа
 	 * @see \plushka::success()
 	 */
-	public static function redirect($url,$message=null,$code=302) {
+	public static function redirect(string $url,string $message=null,int $code=302): void {
 		if(isset($_GET['backlink'])===true) {
 			$url=$_GET['backlink'];
 			unset($_GET['backlink']);
 			$message='';
 		}
-		if($message) plushka::success($message);
-		if($message || plushka::success()) {
-			if(isset($_GET['_front'])) {
+		if($message!==null) plushka::success($message);
+		if($message!==null || plushka::success()) {
+			if(isset($_GET['_front'])===true) {
 				echo '<div id="content">';
 				echo '<div class="messageSuccess">'.plushka::success(false).'</div>';
 				echo '</div>';
@@ -222,9 +172,9 @@ abstract class plushka extends \plushka\core\core {
 	 * Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес
 	 * @param string $url URL в формате "controller/etc"
 	 */
-	public static function redirectPublic($url) {
-		if($url[0]!='/') $url=plushka::url().$url;
-		if(isset($_GET['_front'])) {
+	public static function redirectPublic(string $url): void {
+		if($url[0]!=='/') $url=plushka::url().$url;
+		if(isset($_GET['_front'])===true) {
 			echo '<script>top.document.location="'.$url.'";</script>';
 			exit;
 		}
@@ -237,14 +187,14 @@ abstract class plushka extends \plushka\core\core {
 	 * @param string $html произвольный HTML-код, присоединяемый к тегу <table>
 	 * @return \plushka\admin\core\Table
 	 */
-	public static function table($html=null) {
+	public static function table(string $html=null): \plushka\admin\core\Table {
 		return new \plushka\admin\core\Table($html);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public static function template($set=null) {
+	public static function template(string $set=null): string {
 		if(isset($_GET['_front'])===true) return 'front';
 		return parent::template($set);
 	}
@@ -253,7 +203,7 @@ abstract class plushka extends \plushka\core\core {
 	 * Возвращает массив прав пользователя
 	 * @return array
 	 */
-	public static function userRight() {
+	public static function userRight(): array {
 		$user=plushka::userReal();
 		return $user->right;
 	}
@@ -263,9 +213,9 @@ abstract class plushka extends \plushka\core\core {
 	 * @param mixed[] $attribute ассоциативный массив данных для валидации
 	 * @return \plushka\core\Validator
 	 */
-	public static function validator($attribute=null) {
+	public static function validator($attribute=null): \plushka\core\Validator {
 		$validator=new \plushka\core\Validator();
-		if($attribute) $validator->set($attribute);
+		if($attribute!==null) $validator->set($attribute);
 		return $validator;
 	}
 
@@ -279,11 +229,11 @@ abstract class plushka extends \plushka\core\core {
 	 * @see \plushka\core\Widget
 	 * @see plushka::section
 	 */
-	public static function widget($name,$options=null,$cacheTime=null,$title=null,$link=null) {
-		if(is_string($options) && isset($options[1]) && $options[1]==':') $options=unserialize($options);
+	public static function widget(string $name,$options=null,int $cacheTime=null,string $title=null,string $link=null): void {
+		if(is_string($options)===true && isset($options[1])===true && $options[1]===':') $options=unserialize($options);
 		//Нужно ли кешировать?
-		if($cacheTime) {
-			if(is_array($options)) {
+		if($cacheTime>0) {
+			if(is_array($options)===true) {
 				$f='';
 				ksort($options);
 				foreach($options as $index=>$value) $f.=$index.$value;
@@ -317,6 +267,11 @@ abstract class plushka extends \plushka\core\core {
 			ob_end_flush();
 		}
 	}
+
+	private static function _hook(string $name,$data) {
+		return include(plushka::path().'admin/hook/'.$name);
+	}
+
 }
 
 
