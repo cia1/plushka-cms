@@ -167,8 +167,9 @@ abstract class core {
 	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
 	 * @return plushka/core/Model
 	 */
-	public static function model(string $classTable,string $db='db'): plushka/core/Model {
+	public static function model(string $classTable,string $db='db'): plushka\core\Model {
 		$class='\plushka\model\\'.ucfirst($classTable);
+var_dump($class);
 		if(class_exists($class)===true) return new $class;
 		return new \plushka\core\Model($classTable,$db);
 	}

@@ -206,7 +206,7 @@ class Table {
 	/**
 	 * Отслеживает начало новой строки
 	 */
-	private function _tr() {
+	private function _tr(): void {
 		if($this->_index===$this->_count) $this->_index=0;
 		if(!$this->_index) {
 			$this->_data.='</tr><tr';
