@@ -1,9 +1,10 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 use plushka\model\Chat;
 
-class ChatWidget extends \plushka\core\Widget {
+class ChatWidget extends Widget {
 
 	public function __invoke() {
 		if(!isset($this->options)) $this->options=MAIN_CHAT_ID;

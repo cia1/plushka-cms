@@ -1,14 +1,15 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Произвольная контактная форма
 int $options - идентификатор формы */
-class FormWidget extends \plushka\core\Widget {
+class FormWidget extends Widget {
 
 	public function __invoke() { return true; }
 
-	public function render($view) {
+	public function render($view): void {
 		$db=plushka::db();
 		$form=$db->fetchArrayOnceAssoc('SELECT title,formView FROM frm_form WHERE id='.$this->options);
 		if(!$form) return;
@@ -37,7 +38,7 @@ class FormWidget extends \plushka\core\Widget {
 		} else $f->render('form/'.$this->options); //представления не задано
 	}
 
-	public function adminLink() {
+	public function adminLink(): array {
 		return array(
 			array('form.*','?controller=form&action=form&id='.$this->options,'setting','Настройка формы'),
 			array('form.*','?controller=form&action=field&id='.$this->options,'field','Поля формы')

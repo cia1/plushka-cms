@@ -1,8 +1,9 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
-class MapMarkerWidget extends \plushka\core\Widget {
+class MapMarkerWidget extends Widget {
 
 	public function __invoke() {
 		static $_index=0;
@@ -16,7 +17,7 @@ class MapMarkerWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render($view) { ?>
+	public function render($view): void { ?>
 		<?=plushka::js('//maps.google.com/maps/api/js?key='.$this->options['key'])?>
 		<?=plushka::js('mapMarker')?>
 		<div class="map" id="<?=$this->mapId?>" style="height:200px;"></div>

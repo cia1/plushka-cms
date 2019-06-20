@@ -1,8 +1,9 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
-class NotificationViberSettingWidget extends \plushka\core\Widget {
+class NotificationViberSettingWidget extends Widget {
 
 	public function __invoke() {
 		$cfg=plushka::config('notification','viber');

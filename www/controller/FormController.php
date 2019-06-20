@@ -17,9 +17,10 @@ class FormController extends \plushka\core\Controller {
 
 	/* Вывод формы */
 	public function actionIndex() {
-		$f=new Form($this->id);
-		$this->pageTitle=$this->metaTitle=$f->title;
-		return $f; //$this->id - идентификатор формы (таблица form)
+		$form=new Form();
+		if($form->load($this->id)===false) core::error404();
+		$this->pageTitle=$this->metaTitle=$form->title;
+		return $form; //$this->id - идентификатор формы (таблица form)
 	}
 
 	protected function breadcrumbIndex() {

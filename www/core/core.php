@@ -512,6 +512,11 @@ class Controller {
  */
 abstract class Widget {
 
+    /**
+     * @var string|null Дополнительный CSS-класс блока виджета
+     */
+    public $cssClass;
+
 	/**
 	 * @var mixed Настойки и другие данные виджета, зависит от конкретной реализации
 	 */
@@ -523,7 +528,7 @@ abstract class Widget {
 	protected $link;
 
 	/**
-	 * @param midex $options Настройки и любые другие данные необходимые виджету, @see self::$options
+	 * @param mixed $options Настройки и любые другие данные необходимые виджету, @see self::$options
 	 * @param string|null $link Шаблон адреса страницы, @see self::$link
 	 */
 	public function __construct($options,string $link=null) {
@@ -589,6 +594,7 @@ abstract class Widget {
  * @see plushka::user()
  * @see plushka::userReal()
  * @see model/user.php
+ * @property array $right Набор прав пользователя, если он является администратором (группа >=200)
  */
 class User {
 

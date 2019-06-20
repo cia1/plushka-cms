@@ -1,13 +1,14 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 use plushka\model\Shop;
 
-class ShopCategoryWidget extends \plushka\core\Widget {
+class ShopCategoryWidget extends Widget {
 
 	public function __invoke() { return true; }
 
-	public function render($view) {
+	public function render($view): void {
 		if(isset($_GET['corePath'][1]) && $_GET['corePath'][0]=='shop') {
 			if(isset(plushka::$controller->category)) $id=plushka::$controller->category['id'];
 			else {
@@ -33,4 +34,3 @@ class ShopCategoryWidget extends \plushka\core\Widget {
 		echo '</ul>';
 	}
 }
-?>

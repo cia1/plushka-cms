@@ -19,8 +19,8 @@ class CheckoutController extends \plushka\core\Controller {
 	public function actionIndex() {
 		if(isset($_GET['delete'])) unset($_SESSION['cart'][$_GET['delete']]);
 		$cfg=plushka::config('shop');
-		$this->form=new Form($cfg['formId']);
-
+		$this->form=new Form();
+		if($this->form->load($cfg['formId'])===false) core::error404();
 		$this->js('jquery.min');
 		$this->js('jquery.form');
 		$this->pageTitle=$this->metaTitle=LNGCart;

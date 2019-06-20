@@ -1,18 +1,19 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 use plushka\model\shop;
 
 /* Товары в группе
 int $options - идентификатор группы товаров */
-class ShopProductGroupWidget extends \plushka\core\Widget {
+class ShopProductGroupWidget extends Widget {
 
 	public function __invoke() {
 		plushka::language('shop');
 		return true;
 	}
 
-	public function render($view) {
+	public function render($view): void {
 		$items=shop::productGroup($this->options);
 		foreach($items as $item) {
 			$url=plushka::url().'public/shop-product/_';

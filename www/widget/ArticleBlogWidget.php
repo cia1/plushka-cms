@@ -1,10 +1,11 @@
 <?php
 namespace plushka\widget;
+use plushka\core\Widget;
 
 /* Реализует блог и список статей
 array $options: int categoryId - ИД категории статей; string linkType - тип ссылки (blog или link);
 int countPreview - количество записей с аннотацией (блог); int countLink -  количество записей без аннотации (только ссылка); */
-class ArticleBlogWidget extends \plushka\core\Widget {
+class ArticleBlogWidget extends Widget {
 
 	public function __invoke() {
 		if(!isset($this->options['linkType'])) $this->options['linkType']='blog';
@@ -25,13 +26,13 @@ class ArticleBlogWidget extends \plushka\core\Widget {
 		return 'Blog';
 	}
 
-	public function adminLink() {
+	public function adminLink(): array {
 		return array(
 			array('article.category','?controller=article&action=article&categoryId='.$this->options['categoryId'],'new','Добавить статью')
 		);
 	}
 
-	public function adminLink2($data) { // кнопки админки для каждой записи блога
+	public function adminLink2($data): array { // кнопки админки для каждой записи блога
 		return array(
 			array('article.article','?controller=article&action=article&id='.$data['id'],'edit','Редактировать статью','Изменить')
 		);

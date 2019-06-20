@@ -1,10 +1,11 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Универсальный виджет комментариев
 array $options: bool child - вывдить или нет комментарии на дочерних страницах */
-class CommentWidget extends \plushka\core\Widget {
+class CommentWidget extends Widget {
 
 	public function __invoke() {
 		$this->link=implode('/',$_GET['corePath']);
@@ -22,4 +23,3 @@ class CommentWidget extends \plushka\core\Widget {
 	}
 
 }
-?>

@@ -1,18 +1,19 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Форма авторизации или приветствие пользователя
 array $options: bool form - выводить форму авторизации или нет; bool link - выводить ссылки "регистрация", "восстановление пароля" и т.д.;
 bool message - Ссылка на личные сообщения */
-class UserWidget extends \plushka\core\Widget {
+class UserWidget extends Widget {
 
 	public function __invoke() {
 		plushka::language('user');
 		return true;
 	}
 
-	public function render($view) {
+	public function render($view): void {
 		//Значения по умолчанию
 		if(is_array($this->options)) $this->options=array_merge(array('form'=>true,'link'=>true,'message'=>true),$this->options);
 		else $this->options=array('form'=>true,'link'=>true,'message'=>true);

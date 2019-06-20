@@ -1,6 +1,7 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Виджит пагинации
 $this->options: string link - целевая ссылка (если не задано, то генерируется автоматически);
@@ -8,7 +9,7 @@ string pageName - имя GET-параметра номера страницы, �
 int limit - кол-во элементов на странице;
 int count - общее количество элементов;
 */
-class PaginationWidget extends \plushka\core\Widget {
+class PaginationWidget extends Widget {
 
 	public function __invoke() {
 		if($this->options['limit']>=$this->options['count'] || !$this->options['count']) return false;
@@ -31,7 +32,7 @@ class PaginationWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render($view) {
+	public function render($view): void {
 		if(isset($_GET[$this->options['pageName']])) $page=(int)$_GET[$this->options['pageName']]; else $page=1;
 		$lastPage=ceil($this->options['count']/$this->options['limit']);
 		$link=$this->options['link'];

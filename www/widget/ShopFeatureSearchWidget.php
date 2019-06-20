@@ -1,10 +1,11 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Интернет-магазин: поиск по характеристикам товара, в зависимости от текущей категории
 array $options: array feature содержит характеристики, по которым нужно настроить фильтр (поиск) */
-class ShopFeatureSearchWidget extends \plushka\core\Widget {
+class ShopFeatureSearchWidget extends Widget {
 
 	public function __invoke() {
 		if(count($_GET['corePath'])==4) return false;
@@ -59,7 +60,7 @@ class ShopFeatureSearchWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render() {
+	public function render(): void {
 		echo '<form action="'.plushka::link('shop/category'.($this->categoryId ? '/'.$this->categoryId : '')).'" method="get" onsubmit="return submitMe();">';
 		echo '<link href="'.plushka::url().'public/css/shop.css" rel="stylesheet" type="text/css" />';
 		$db=plushka::db();
@@ -81,11 +82,10 @@ class ShopFeatureSearchWidget extends \plushka\core\Widget {
 		?>
 		<script>
 		function submitMe() {
-var o=$('.widgetshopFeatureSearch form select').each(function() {
-	if(!this.value) $(this).remove();
-});
-return true;
-//			return false;
+            var o=$('.widgetshopFeatureSearch form select').each(function() {
+                if(!this.value) $(this).remove();
+            });
+            return true;
 		}
 		</script>
 		<?php
@@ -130,4 +130,3 @@ return true;
 	<?php }
 
 }
-?>

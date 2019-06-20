@@ -1,8 +1,9 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
-class LanguageWidget extends \plushka\core\Widget {
+class LanguageWidget extends Widget {
 
 	public function __invoke() {
 		$this->language=plushka::config('language');
@@ -14,13 +15,13 @@ class LanguageWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render($view) {
+	public function render($view): void {
 		foreach($this->language as $id=>$item) { ?>
 			<a href="<?=$item['link']?>"><img src="<?=plushka::url()?>public/flag/<?=$id?>.png" alt="<?=$item['title']?>" title="<?=$item['title']?>" /></a>
 		<?php }
 	}
 
-	public function adminLink() {
+	public function adminLink(): array {
 		return array(
 			array('language.rule','?controller=language&action=setting','setting','Правила переключения зыков')
 		);

@@ -58,7 +58,7 @@ class Model extends Validator {
 	 * Включает или выключает режим мультиязычности
 	 * @param bool $value
 	 */
-	public function multiLanguage(bull $value=true): void {
+	public function multiLanguage(bool $value=true): void {
 		$this->_multiLanguage=(bool)$value;
 	}
 
@@ -139,7 +139,7 @@ class Model extends Validator {
 	 * @param string|null $primaryAttribute Имя первичного ключа
 	 * @return bool Была ли сохранена запись
 	 */
-	public function save($validate=null,string string $primaryAttribute=null): bool {
+	public function save($validate=null,string $primaryAttribute=null): bool {
 		//Валидация
 		if($validate===null || $validate===true || is_string($validate)) {
 			if($validate===null || $validate===true) $validate=$this->fieldListSave();
@@ -311,9 +311,10 @@ class Model extends Validator {
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
 					$this->db->query($query);
 					if($this->primaryAttribute) {
-						$this->_data[$this->primaryAttribute]=$this->db->insertId(); //обновить значение первичного ключа
-						$s1.=',`'.$this->primaryAttribute.'`';
-						$s2.=','.$this->db->escape($this->_data[$this->primaryAttribute]);
+                        $this->_data[$this->primaryAttribute] = $this->db->insertId(); //обновить значение первичного ключа
+                        $s1 .= ',`' . $this->primaryAttribute . '`';
+                        $s2 .= ',' . $this->db->escape($this->_data[$this->primaryAttribute]);
+                    }
 				} else {
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
 					$this->db->query($query);

@@ -1,9 +1,10 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 use plushka\model\Notification;
 
-class NotificationSettingFormWidget extends \plushka\core\Widget {
+class NotificationSettingFormWidget extends Widget {
 
 	public function __invoke() {
 		if(isset($_POST['notification'])) self::_submit($_POST['notification']);

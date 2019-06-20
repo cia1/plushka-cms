@@ -24,12 +24,12 @@ class Cache {
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);
 		$section=$widget=array(); //Список секций и виджетов в шаблоне - эта информация может кому-то понадобиться в последствии
 		$template=preg_replace_callback('/{{section\[([^\]]+)\]}}/',function($data) use(&$section) {
-			if(isset($data[1])===false) return;
+			if(isset($data[1])===false) return $data[0];
 			$section[]=$data[1];
 			return '<?=plushka::section(\''.$data[1].'\')?>';
 		},$template);
 		$template=preg_replace_callback('/{{widget\[([^\]]+)\](?:\[([^\]]*?)\]|)(?:\[([^\]]*?)\]|)(?:\[([^\]]+)\]|)}}/',function($data) use(&$widget) {
-			if(isset($data[1])===false) return;
+			if(isset($data[1])===false) return $data[0];
 			$s='<?=plushka::widget(\''.$data[1].'\'';
 			if(isset($data[2])===true) {
 				$sub=$data[2]."\0";

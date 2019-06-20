@@ -1,8 +1,9 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
-class MapWidget extends \plushka\core\Widget {
+class MapWidget extends Widget {
 
 	public function __invoke() {
 		if(isset($this->options['id'])) $this->id=$this->options['id']; else $this->id=time();
@@ -17,13 +18,13 @@ class MapWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function adminLink() {
+	public function adminLink(): array {
 		return array(
 			array('map.*','?controller=map&action=marker&id='.$this->id,'setting','Настройка карты и меток')
 		);
 	}
 
-	public function render($view) {
+	public function render($view): void {
 		$f='_provider'.ucfirst($this->options['provider']);
 		$this->$f();
 	}
@@ -67,8 +68,6 @@ class MapWidget extends \plushka\core\Widget {
 	private function _providerOsm() {
 		//OSM zoom: 1...19
 		$zoom=1.000001+(19-$this->options['zoom'])*0.00001;
-//$zoom=1.1;
-var_dumP($zoom);
 		$latitude=$this->options['centerLatitude']*$zoom;
 		$longitude=$this->options['centerLongitude']*$zoom;
 		?>

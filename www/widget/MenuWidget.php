@@ -1,10 +1,11 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Выводит меню
 int $options - идентификатор меню */
-class MenuWidget extends \plushka\core\Widget {
+class MenuWidget extends Widget {
 	private $_requestMatches;
 
 	public function __invoke() {
@@ -45,7 +46,7 @@ class MenuWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render($d=null,$child=false) {
+	public function render($d=null,$child=false): void {
 		if(!$child) echo '<nav>';
 		if($d===true) $d=$this->data[0];
 		echo '<ul itemscope itemtype="http://www.schema.org/SiteNavigationElement">';
@@ -61,7 +62,7 @@ class MenuWidget extends \plushka\core\Widget {
 		if(!$child) echo '</nav>';
 	}
 
-	public function adminLink() {
+	public function adminLink(): array {
 		return array(
 			array('menu.*','?controller=menu&action=items&menuId='.$this->options,'list','Управление меню'),
 			array('menu.*','?controller=menu&action=item&menuId='.$this->options,'new','Добавить пункт меню')
@@ -74,7 +75,6 @@ class MenuWidget extends \plushka\core\Widget {
 		$match=0;
 		$cnt=count($link);
 		if($cnt>$this->_requestMatches) $cnt=$this->_requestMatches;
-//		if($cnt>$this->_requestMatches) return 0;
 		for($i=0;$i<$cnt;$i++) if($link[$i]==$_GET['corePath'][$i]) $match++; else break;
 		return $match;
 	}

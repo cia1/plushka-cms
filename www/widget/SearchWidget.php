@@ -1,9 +1,10 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Текстовое поле "поиск по сайту" */
-class SearchWidget extends \plushka\core\Widget {
+class SearchWidget extends Widget {
 
 	public function __invoke() {
 		plushka::language('search');
@@ -11,7 +12,7 @@ class SearchWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render($view) { ?>
+	public function render($view): void { ?>
 		<form action="<?=plushka::link('search')?>">
 			<input type="text" name="search[keyword]" value="<?=$this->keyword?>" placeholder="<?=LNGFind?>" class="input" id="searchKeyword" />
 			<input type="submit" value="<?=LNGFind?>" class="button" />

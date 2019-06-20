@@ -210,7 +210,7 @@ class UserController extends \plushka\admin\core\Controller {
 
 	public function actionMessageSubmit($data) {
 		$user=plushka::user();
-		if(!$user->model()->message($data['user2Id'],$data['user2Login'],$data['message'])) return false;
+		if(!$user->model()->message($data['message'],$data['user2Id'],$data['user2Login'])) return false;
 		plushka::redirect('user','Сообщение отправлено');
 	}
 /* ----------------------------------------------------------------------------------- */

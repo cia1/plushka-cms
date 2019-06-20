@@ -2,19 +2,20 @@
 //Внимание! Этот файл является частью фреймворка, вносить изменения не рекомендуется.
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Виджет выводит общие кнопки административного интерфейса */
-class AdminWidget extends \plushka\core\Widget {
+class AdminWidget extends Widget {
 
 	public function __invoke() { return true; }
 
-	public function adminLink() {
-		$u=plushka::userReal();
+	public function adminLink(): array {
+		$user=plushka::userReal();
 		$link=array();
 		//Загрузить общие кнопки админки для текущего пользователя
 		$q='';
 		$db=plushka::db();
-		array_walk($u->right,function($isMain,$module) use(&$q,$db) {
+		array_walk($user->right,function($isMain,$module) use(&$q,$db) {
 			if($isMain) {
 				if ($q) $q.=','.$db->escape($module); else $q=$db->escape($module);
 			}

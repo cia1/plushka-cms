@@ -1,10 +1,11 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Опрос
 int $options - идентификатор опроса */
-class VoteWidget extends \plushka\core\Widget {
+class VoteWidget extends Widget {
 
 	public function __invoke() {
 		$db=plushka::db();
@@ -20,14 +21,14 @@ class VoteWidget extends \plushka\core\Widget {
 		return true;
 	}
 
-	public function render($view) { ?>
+	public function render($view): void { ?>
 		<h3><?=$this->question?></h3>
 		<?php $this->form->render('vote/'.$this->options); ?>
 		<div style="clear:both;"></div>
 		<p style="text-align:center;"><a href="<?=plushka::link('vote/'.$this->options)?>"><?=LNGresults?></a></p>
 	<?php }
 
-	public function adminLink() {
+	public function adminLink(): array {
 		return array(
 			array('vote.*','?controller=vote&action=index&id='.$this->options,'setting','Настройки опроса'),
 			array('vote.*','?controller=vote&action=result&id='.$this->options,'grapth','Результаты опроса')
@@ -35,4 +36,3 @@ class VoteWidget extends \plushka\core\Widget {
 	}
 
 }
-?>

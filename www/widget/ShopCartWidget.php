@@ -1,18 +1,19 @@
 <?php
 namespace plushka\widget;
 use plushka;
+use plushka\core\Widget;
 
 /* Корзина
 array $options: bool product - выводить или нет список товаров в корзинце; bool total - выводить или нет итоговые сумму и количество;
 bool checkout - ссылка на страницу оформления заказа */
-class ShopCartWidget extends \plushka\core\Widget {
+class ShopCartWidget extends Widget {
 
 	public function __invoke() {
 		plushka::language('shop');
 		return true;
 	}
 
-	public function render($view) {
+	public function render($view): void {
 		if(!$this->options) $this->options=array();
 		$this->options=array_merge(array('product'=>true,'total'=>true,'checkout'=>true),$this->options); //значения по умолчанию
 		echo '<div id="cart">';
@@ -34,4 +35,3 @@ class ShopCartWidget extends \plushka\core\Widget {
 	}
 
 }
-?>

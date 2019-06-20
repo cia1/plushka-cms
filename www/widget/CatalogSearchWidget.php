@@ -1,10 +1,10 @@
 <?php
 namespace plushka\widget;
+use plushka\core\Widget;
 
 /* Реализует поиск по универсальному каталогу
 array $options: int id - идентификатор каталога; array fld - поля поиска */
-class CatalogSearchWidget
- extends \plushka\core\Widget {
+class CatalogSearchWidget extends Widget {
 
 	public function __invoke() {
 		$this->layout=\plushka::config('catalogLayout/'.$this->options['id']); //конфигурация каталога
@@ -92,4 +92,3 @@ class CatalogSearchWidget
 	}
 
 }
-?>
