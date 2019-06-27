@@ -24,11 +24,11 @@ class Picture {
 	private $_wW;
 	private $_wH;
 
-	/**
-	 * Открывает файл изображения, проверяет что это действительно изображение
-	 * @param string|array|picture|int $fileOrWidth Имя файла (string), файл из $_FILES (array) или ширина в пикселях (int)
-	 * @param integer|null Ширина изображения, если создаётся новое
-	 */
+    /**
+     * Открывает файл изображения, проверяет что это действительно изображение
+     * @param string|array|picture|int $fileOrWidth Имя файла (string), файл из $_FILES (array) или ширина в пикселях (int)
+     * @param integer|null $height Ширина изображения, если создаётся новое
+     */
 	public function __construct($fileOrWidth,int $height=null) {
 		if($fileOrWidth instanceof self) {
 			$this->_src=$fileOrWidth->gd();
@@ -69,7 +69,7 @@ class Picture {
 				break;
 			default:
 				plushka::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
-				return false;
+				return;
 			}
 			if(!$this->_src) {
 				plushka::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
@@ -283,7 +283,7 @@ class Picture {
 	 * Выполняет все действия обработки и сохраняет изображение в файл
 	 * Имя файла может не содержать расширения файла
 	 * @param string $fileName Имя файла
-	 * @param int|null $quantity Коэфициент качества для формата JPEG
+	 * @param int|null $quality Коэфициент качества для формата JPEG
 	 * @return string краткое имя файла сохранённого изображения
 	 */
 	public function save(string $fileName,int $quality=100): string {

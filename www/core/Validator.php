@@ -2,7 +2,6 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
 use plushka;
-use plushka\core\Picture;
 
 /**
  * Валидатор и фильтр данных.
@@ -23,6 +22,7 @@ use plushka\core\Picture;
  * - 'latin' (строка, содержащая латинские буквы, цифры, "_" и "-"): [max] - максимальная длина строки
  * - 'regular' (регулярное выражение): [3] - рег. выражение
  * - 'string' (произвольная строка): [trim] - обрезать пробелы, [min], [max] - ограничение длины строки
+ * @method rule(): array[]
  */
 class Validator {
 
@@ -102,7 +102,7 @@ class Validator {
 	 * @param array|null $setting не используется
 	 * @return bool Результат валидации
 	 */
-	protected function validateBoolean(string $attribute,array $setting=null): bool {
+	protected function validateBoolean(string $attribute,/** @noinspection PhpUnusedParameterInspection */array $setting=null): bool {
 		$this->_bool[]=$attribute;
 		$this->_data[$attribute]=(bool)$this->_data[$attribute];
 		return true;
@@ -196,7 +196,7 @@ class Validator {
 	 * @param array|null $setting не используется
 	 * @return bool Результат валидации
 	 */
-	protected function validateHtml(string $attribute,array $setting=null): bool {
+	protected function validateHtml(/** @noinspection PhpUnusedParameterInspection */string $attribute,/** @noinspection PhpUnusedParameterInspection */array $setting=null): bool {
 		return true;
 	}
 

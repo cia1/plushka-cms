@@ -1,12 +1,15 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
+use plushka\core\Admin;
+use plushka\core\core;
+use plushka\core\Widget;
 
 require_once(__DIR__.'/core.php');
 
 /**
  * Предоставляет базовый API, доступный статически
  */
-abstract class plushka extends \plushka\core\core {
+abstract class plushka extends core {
 
 	/**
 	 * Возвращает произвольные данные из кэша
@@ -17,7 +20,7 @@ abstract class plushka extends \plushka\core\core {
 	 * @return mixed|null
 	 */
 	public static function cache(string $id,callable $callback=null,int $timeout=null) {
-		if($timeout!==null && self::debug()===rue) $timeout=0;
+		if($timeout!==null && self::debug()===true) $timeout=0;
 		$f=self::path().'cache/custom/'.$id.'.txt';
 		if(file_exists($f)===true) {
 			if($timeout===null || $callback===null) return unserialize(file_get_contents($f));
@@ -106,7 +109,7 @@ abstract class plushka extends \plushka\core\core {
 		$u=self::userReal();
 		//Если пользователь админ и имеет права управления секциями, то вывести кнопки административного интерфейса
 		if($u->group>=200 && ($u->group==255 || isset($u->right['section.*']))) {
-			$admin=new \plushka\core\Admin();
+			$admin=new Admin();
 			$admin->add('?controller=section&name='.$name,'section','Управление виджетами в этой области','Секция');
 		}
 		//Теперь перебрать все виджеты секции
@@ -165,16 +168,18 @@ abstract class plushka extends \plushka\core\core {
 					return;
 				}
 			}
-		}
+		} else $cacheFile=null;
 		$name=ucfirst($name);
 		$w='\plushka\widget\\'.$name.'Widget';
+		/** @var Widget $w */
 		$w=new $w($options,$link);
 		$w->cssClass=$cssClass;
 		$view=$w();
+		$adminButton=null;
 		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
 			echo '<section class="widget'.$name.$cssClass.'">';
 			//Если пользователь является администратором, то вывести элементы управления в соответствии его правам
-			$cacheAdmin=self::_widgetAdmin($w,true);
+			$adminButton=self::_widgetAdmin($w,true);
 			if($cacheTime) ob_start();
 			if($title) $w->title($title); //вывод заголовка
 			if(is_object($view)===true) $view->render(); else $w->render($view);
@@ -183,30 +188,35 @@ abstract class plushka extends \plushka\core\core {
 			$f=fopen($cacheFile.'.html','w');
 			fwrite($f,ob_get_flush());
 			fclose($f);
-			if($cacheAdmin!==false) {
+			if($adminButton!==null) {
 				$f=fopen($cacheFile.'.json','w');
-				fwrite($f,json_encode($cacheAdmin));
+				fwrite($f,json_encode($adminButton));
 				fclose($f);
 			}
 		}
 		echo '<div style="clear:both;"></div></section>';
 	}
 
-	private static function _hook(string $name,$data) {
+	private static function _hook(string $name,/** @noinspection PhpUnusedParameterInspection */$data) {
+        /** @noinspection PhpIncludeInspection */
 		return include(self::path().'hook/'.$name);
 	}
 
-	//Выводит кнопки админки для виджета и возвращает кеш, если это необходимо.
-	//$data - экземпляр виджета или массив ссылок
-	private static function _widgetAdmin($data,bool $cache=false) {
+    /**
+     * Выводит кнопки админки для виджета
+     * @param Widget|array[] $data
+     * @param bool $returnAsArray Если true, то вернёт массив кнопок админки для сохранения в кеше
+     * @return array[]|null
+     */
+	private static function _widgetAdmin($data,bool $returnAsArray=false): ?array {
 		$user=plushka::userReal();
-		if($user->group<200) return false;
-		$admin=new \plushka\core\Admin();
+		if($user->group<200) return null;
+		$admin=new Admin();
 		if(is_object($data)===true) $data=$data->adminLink();
 		foreach($data as $item) {
 			if($user->group==255 || isset($user->right[$item[0]])) $admin->render($item);
 		}
-		return ($cache===true ? $data : null);
+		return ($returnAsArray===true ? $data : null);
 	}
 }
 
@@ -265,6 +275,7 @@ else {
 if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (не для CGI)
 	$db=plushka::db();
 	if($cfg['languageDefault']==_LANG) $s=$_GET['corePath']; else $s=_LANG.'/'.$_GET['corePath'];
+	/** @noinspection SqlResolve */
 	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($s));
 	unset($s);
 	if($lastModified) {

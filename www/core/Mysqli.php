@@ -2,7 +2,7 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
 use plushka;
-use plushka\core\DBException;
+use mysqli_result;
 
 /**
  * Олицетворяет подключение к базе данных MySQL
@@ -10,9 +10,9 @@ use plushka\core\DBException;
  */
 class Mysqli {
 
-	/** @var Resource Подключение к базе данных (\mysqli), одно подключение для всех запросов */
+	/** @var \mysqli Подключение к базе данных (\mysqli), одно подключение для всех запросов */
 	private static $_connectId;
-	/** @var Resource Идентификатор запроса */
+	/** @var mysqli_result Идентификатор запроса */
 	private $_queryId;
 
 	/**
@@ -34,7 +34,7 @@ class Mysqli {
 	}
 
 	public function __construct() {
-		$cfg=\plushka::config();
+		$cfg=plushka::config();
 		self::$_connectId=new \mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
 		if(self::$_connectId->connect_errno!==0) {
 			throw new DBException('Cannot connect to database');
@@ -85,7 +85,6 @@ class Mysqli {
 	 * @param string $query SQL-запрос
 	 * @param int|null $limit Количество строк для операции SELECT
 	 * @param int|null $page Номер страницы пагирации
-	 * @return bool
 	 */
 	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
@@ -163,6 +162,7 @@ class Mysqli {
 	/**
 	 * Выполняет SQL-запрос и возвращает все найденные записи в виде массива массивов, индексированных именами столбцов
 	 * @param string $query SQL-запрос
+     * @param int|null $limit Ограничение на количество извлекаемых записей
 	 * @return array[]|null
 	 */
 	public function fetchArrayAssoc(string $query,int $limit=null): array {

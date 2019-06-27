@@ -2,7 +2,8 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
 use plushka;
-use plushka\core\DBException;
+use SQLite3;
+use SQLite3Result;
 
 /**
  * Олицетворяет подключение к базе данных SQLite
@@ -10,10 +11,12 @@ use plushka\core\DBException;
  */
 class Sqlite {
 
-	/** @var Resource Идентификатор подключения (одно подключение для всех) */
+	/** @var Sqlite3 Идентификатор подключения (одно подключение для всех) */
 	private static $_connectId;
-	/** @var Resource Идентификатор запроса (различно для разных экземпляров класса) */
+	/** @var SQLite3Result Идентификатор запроса (различно для разных экземпляров класса) */
 	private $_queryId;
+	/** @var int Для временного хранения количества обработанных записей */
+	private $_total;
 
 	/**
 	 * Возвращает экранированную строку, заключённую в кавычки
@@ -21,7 +24,7 @@ class Sqlite {
 	 * @return string
 	 */
 	public static function escape(string $value): string {
-		return "'".\SQLite3::escapeString($value)."'";
+		return "'".SQLite3::escapeString($value)."'";
 	}
 
 	/**
@@ -30,7 +33,7 @@ class Sqlite {
 	 * @return string
 	 */
 	public static function getEscape(string $value): string {
-		return \SQLite3::escapeString($value);
+		return SQLite3::escapeString($value);
 	}
 
 	/**
@@ -38,7 +41,7 @@ class Sqlite {
 	 */
 	public function __construct(string $fileName=null) {
 		if($fileName===null) $fileName=plushka::path().'data/database3.db';
-		self::$_connectId=new \SQLite3($fileName);
+		self::$_connectId=new SQLite3($fileName);
 		self::$_connectId->createFunction('CONCAT',function() {
 			return implode('',func_get_args());
 		},-1);
@@ -50,7 +53,6 @@ class Sqlite {
 	 * или массив массивов ключ-значение для массовой вставки нескольких строк
 	 * @param string $table Имя таблицы
 	 * @param array|array[] $data Данные для вставки
-	 * @return bool
 	 */
 	public function insert(string $table,$data): void {
 		$field=array();
@@ -87,7 +89,6 @@ class Sqlite {
 	 * @param string $query SQL-запрос
 	 * @param int|null $limit Количество строк для операции SELECT
 	 * @param int|null $page Номер страницы пагирации
-	 * @return bool
 	 */
 	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
@@ -165,6 +166,8 @@ class Sqlite {
 	/**
 	 * Выполняет SQL-запрос и возвращает все найденные записи в виде массива массивов, индексированных именами столбцов
 	 * @param string $query SQL-запрос
+     * @param int|null $limit Ограничение количества извлекаемых записей
+     * @param int|null $page Номер страницы пагинации
 	 * @return array[]|null
 	 */
 	public function fetchArrayAssoc(string $query,int $limit=null,int $page=null): ?array {

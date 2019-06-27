@@ -4,7 +4,9 @@ use BadMethodCallException;
 use plushka;
 use plushka\core\User as UserCore;
 use plushka\model\User as UserModel;
+use ReflectionException;
 use RuntimeException;
+
 abstract class core {
 
 	/** @var controller Через это свойство можно получить доступ к контроллеру из любой точки */
@@ -33,7 +35,7 @@ abstract class core {
 	}
 
 	/**
-	 * Возвращает класс mysql или sqlite, в зависимости от того, какая СУБД настроена главной.
+	 * Возвращает класс Mysqli или Sqlite, в зависимости от того, какая СУБД настроена главной.
 	 * Главная СУБД определяется в /config/core.php['dbDriver'].
 	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
 	 * @return Mysqli|Sqlite
@@ -174,6 +176,7 @@ abstract class core {
 	 * @param string $classTable Имя таблицы или класса ActiveRecord
 	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
 	 * @return Model
+     * @throws ReflectionException
 	 */
 	public static function model(string $classTable,string $db='db'): Model {
 		$class='\plushka\model\\'.ucfirst($classTable);
@@ -576,7 +579,7 @@ abstract class Widget {
 	 * @return array[]
 	 */
 	public function adminLink(): array {
-		return array();
+		return [];
 	}
 
 	/**

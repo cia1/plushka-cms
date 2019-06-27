@@ -19,6 +19,7 @@ use ReflectionException;
  * - Режим мультиязычности включён (self::multiLanguage(true) ):
  *  операции INSERT и DELETE выполняются для всех копий таблиц, имена полей указываются без суффикса языка,
  *  операция UPDATE выполняется для одной мультиязычной таблицы, имена полей указываются без суффикса языка.
+ * @property int $id Первичный ключ (этого свойства может не быть)
  */
 class Model extends Validator {
 
@@ -212,9 +213,13 @@ class Model extends Validator {
 		if($this->_multiLanguage===true && $this->_languageDb===true) {
 			$lang=plushka::config('_core','languageList');
 			foreach($lang as $item) {
+			    /** @noinspection SqlResolve */
 				$this->db->query('DELETE FROM '.$this->_table.'_'.$item.' WHERE id='.$id);
 			}
-		} else $this->db->query('DELETE FROM '.$this->_table.($this->_languageDb===true ? '_'._LANG : '').' WHERE id='.$id);
+		} else {
+            /** @noinspection SqlResolve */
+		    $this->db->query('DELETE FROM '.$this->_table.($this->_languageDb===true ? '_'._LANG : '').' WHERE id='.$id);
+        }
 		if($id==$this->id) $this->init();
 		if($affected===false) return true;
 		if($this->db->affected()>0) return true; else return false;
@@ -225,8 +230,8 @@ class Model extends Validator {
 	 * @param string $attribute Имя первичного ключа
 	 * @param mixed Настройки валидатора
 	 * @return bool
-	 */
-	protected function validatePrimary(string $attribute,$setting): bool {
+     */
+    protected function validatePrimary(string $attribute,/** @noinspection PhpUnusedParameterInspection */$setting): bool {
 		$this->primaryAttribute=$attribute;
 		if(isset($this->_data[$attribute])===false || !$this->_data[$attribute]) $this->_data[$attribute]=null;
 		return true;
@@ -283,6 +288,7 @@ class Model extends Validator {
 
 	//Собирает и выполняет SQL-запрос INSERT
 	private function _insert($fieldList): void {
+	    $languageList=[];
 		if($this->_languageDb) {
 			$languageList=plushka::config();
 			$languageList=$languageList['languageList'];
@@ -321,6 +327,7 @@ class Model extends Validator {
 		if($this->_languageDb===true) {
 			foreach($languageList as $i=>$item) {
 				if(!$i) { //первичный ключ определить только один раз
+				    /** @noinspection SqlResolve */
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
 					$this->db->query($query);
 					if($this->primaryAttribute) {
@@ -329,11 +336,13 @@ class Model extends Validator {
                         $s2 .= ',' . $this->db->escape($this->_data[$this->primaryAttribute]);
                     }
 				} else {
+                    /** @noinspection SqlResolve */
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
 					$this->db->query($query);
 				}
 			}
 		} else {
+            /** @noinspection SqlResolve */
 			$query='INSERT INTO `'.$this->_table.'` ('.$s1.') VALUES ('.$s2.')';
 			$this->db->query($query);
 			if($this->primaryAttribute) {
