@@ -34,7 +34,6 @@ class Admin {
 	 * @param array $item Массив, содержащий информацию о кнопке
 	 */
 	public function render(array $item=null): void {
-		static $_head;
 		static $_count;
 		if($item===null) return;
 		$_count++;

@@ -1,13 +1,14 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
+use plushka;
 
 /**
  * Реализует отправку электронных писем
  */
 class Email {
 
-	/** @var string[] Массив MIME-частей письма */
+	/** @var array Массив MIME-частей письма */
 	private $_parts=[];
 	/** @var string Заголовок "From" */ 
 	private	$_from;
@@ -128,7 +129,7 @@ class Email {
 		if($type===null) $type=substr($filename,strrpos($filename,'.')+1);
 		$type=strtolower($type);
 		switch($type) {
-		case 'jpg': case 'jpeg': case 'image/jpeg':
+		case 'jpg': case 'jpeg': case 'image/jpeg': default:
 			$type='image/jpeg';
 			$ext='jpg';
 			break;
@@ -188,10 +189,10 @@ class Email {
 	 * Выполняет отправку письма посредством SMTP
 	 * @param string $email E-mail получателя
 	 * @param string $message Сформированное письмо
-	 * @param string[] $header Дополнительные заголовки
+	 * @param string $header Дополнительные заголовки
 	 * @return bool TRUE при успехе и FALSE при неудаче
 	 */
-	private function sendSmtp(string $email,string $message,array $header): bool {
+	private function sendSmtp(string $email,string $message,string $header): bool {
 		$s='Date: '.date('D, d M Y H:i:s')." UT\r\n"
 		.'Subject: =?UTF-8?B?'.base64_encode($this->_subject)."?=\r\n"
 		.'To: '.$email."\r\n";
@@ -259,7 +260,8 @@ class Email {
 		$part=array('ctype'=>'text/html; charset="UTF-8"','message'=>$this->_message,'name'=>'');
 		$multipart.=PHP_EOL.$this->_buildMessage($part).'--'.$boundary;
 		for($i=count($this->_parts)-1;$i>=0;$i--) $multipart.="\n".$this->_buildMessage($this->_parts[$i]).'--'.$boundary;
-		return $multipart.="--".PHP_EOL;
+		$multipart.='--'.PHP_EOL;
+        return $multipart;
 	}
 
 	private function _buildMessage(array $part): string {

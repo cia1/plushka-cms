@@ -1,8 +1,10 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
+use BadMethodCallException;
 use plushka;
-
+use ReflectionClass;
+use ReflectionException;
 /**
  * Универсальная модель. Может использоваться динамически или как базовый класс ActiveRecord
  * В динамическом варианте использования необходимо вызвать метод save(), передав ему правила валидации. Для статического режима, правила валидации определяются перегрузкой метода rule().
@@ -24,7 +26,7 @@ class Model extends Validator {
 	protected $_table;
 	/** @var string|null Имя первичного ключа (если есть) */
 	protected $primaryAttribute;
-	/** @var mysql|sqlite Экземпляр класса подключения к базе данных */
+	/** @var Mysqli|Sqlite Экземпляр класса подключения к базе данных */
 	protected $db;
 	/** @var bool Режим мультиязычности. */
 	protected $_multiLanguage=false;
@@ -38,13 +40,14 @@ class Model extends Validator {
 	/** @var string[] Список полей булевого типа (необходимо для корректного преобразования) */
 	protected $_bool=[];
 
-	/**
-	 * @param string|null $table Имя таблицы базы данных, если не задано, то будет определяться из имени класса
-	 * @param string $db Используемая СУБД: "db" (основная СУБД), "mysql" или "sqlite"
-	 */
+    /**
+     * @param string|null $table Имя таблицы базы данных, если не задано, то будет определяться из имени класса
+     * @param string $db Используемая СУБД: "db" (основная СУБД), "mysql" или "sqlite"
+     * @throws ReflectionException
+     */
 	public function __construct(string $table=null,string $db='db') {
 		if($table===null) {
-			$className=preg_replace_callback('~[A-Z]~',function($letter) {
+			$this->_table=preg_replace_callback('~[A-Z]~',function($letter) {
 				return '_'.strtolower($letter[0]);
 			},(new ReflectionClass($this))->getShortName());
 		} else $this->_table=$table;
@@ -88,7 +91,7 @@ class Model extends Validator {
 					unset($s);
 				}
 			}
-			if(is_array($fieldList)===true) $fieldList=implde(',',$fieldList);
+			if(is_array($fieldList)===true) $fieldList=implode(',',$fieldList);
 		}
 		$this->_data=$this->db->fetchArrayOnceAssoc('SELECT '.$fieldList.' FROM `'.$this->_table.($this->_languageDb===true ? '_'._LANG : '').'` WHERE '.$where);
 		if(!$this->_data) return false;
@@ -124,7 +127,12 @@ class Model extends Validator {
 	 */
 	public function validate(array $rule=null): bool {
 		if($rule===null) {
-			$rule=explode(',',$this->fieldListSave());
+		    $rule=$this->fieldListSave();
+		    if(is_string($rule)===true) {
+                /** @var string $rule */
+		        $rule=explode(',',$rule);
+            }
+		    /** @var string[] $rule */
 			$rule=array_intersect_key($this->rule(),array_combine($rule,$rule));
 		}
 		if(parent::validate($rule)===false) return false;
@@ -135,7 +143,7 @@ class Model extends Validator {
 	/**
 	 * Сохраняет модель в базу данных, выполняя запрос INSERT или UPDATE
 	 * Если режим мультиязчности включён для данной модели, то может быть выполнено несколько запросов INSERT.
-	 * @param bool|array|string|null $valiadate Правила валидации (@see self::validate())
+	 * @param bool|array|string|null $validate Правила валидации (@see self::validate())
 	 * @param string|null $primaryAttribute Имя первичного ключа
 	 * @return bool Была ли сохранена запись
 	 */
@@ -162,7 +170,10 @@ class Model extends Validator {
 		//Поиск первичного ключа (если не был определён в методе validate() )
 		if($primaryAttribute!==null) $this->primaryAttribute=$primaryAttribute;
 		if($validate===false) { //валидация не требуется, определить список полей
-			$validate=explode(',',$this->fieldListSave());
+		    $validate=$this->fieldListSave();
+		    if(is_string($validate)) {
+                $validate = explode(',', $validate);
+            }
 			if($validate[0]==='*') $validate=array_keys($this->rule());
 			foreach($validate as $i=>$item) { //оставить только поля, для которых явно задано значение
 				if(isset($this->_data[$item])===false) unset($validate[$i]);
@@ -180,7 +191,7 @@ class Model extends Validator {
 		if($this->primaryAttribute && $id) { //Среди полей есть первичный ключ и он задан явно или коссвено, значит нужно выполнить UPDATE
 			$this->_update($validate,$id);
 		} else { //Среди полей нет первичного ключа или он не задан явно или коссвено, значит выполнить INSERT
-			$this->_insert($validate,$id);
+			$this->_insert($validate);
 		}
 		return true;
 	}
@@ -193,7 +204,9 @@ class Model extends Validator {
 	 * @return bool|int Количество удалённых записей или true
 	 */
 	public function delete(int $id=null,bool $affected=false) {
-		if($id===null) $id=$this->id; else $id=(int)$id;
+		if($id===null && isset($this->_data['id'])===true) $id=$this->_data['id'];
+		else $id=(int)$id;
+		if(!$id) return false;
 		if($this->_languageDb===null) $this->_setLanguageDb();
 
 		if($this->_multiLanguage===true && $this->_languageDb===true) {

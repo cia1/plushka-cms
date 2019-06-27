@@ -1,7 +1,10 @@
 <?php
 namespace plushka\core;
+use BadMethodCallException;
 use plushka;
-
+use plushka\core\User as UserCore;
+use plushka\model\User as UserModel;
+use RuntimeException;
 abstract class core {
 
 	/** @var controller Через это свойство можно получить доступ к контроллеру из любой точки */
@@ -20,7 +23,10 @@ abstract class core {
 	 */
 	public static function &config(string $name='_core',string $attribute=null) {
 		static $_cfg;
-		if(isset($_cfg[$name])===false) $_cfg[$name]=include(self::path().'config/'.$name.'.php');
+		if(isset($_cfg[$name])===false) {
+            /** @noinspection PhpIncludeInspection */
+		    $_cfg[$name]=include(self::path().'config/'.$name.'.php');
+        }
 		if($attribute===null) return $_cfg[$name];
 		if(isset($_cfg[$name][$attribute])===true) $value=$_cfg[$name][$attribute]; else $value=null;
 		return $value;
@@ -76,10 +82,10 @@ abstract class core {
 	 * Возвращает экземпляр класса form, предназначенного для конструирования HTML-форм
 	 * Имена полей формы будут сгенерированы с учётом $namespace: $_POST[$namespace]['someAttribute']
 	 * @param string|null $namespace
-	 * @return \plushka\core\Form
+	 * @return Form
 	 */
-	public static function form(string $namespace=null): \plushka\core\Form {
-		return new \plushka\core\Form($namespace);
+	public static function form(string $namespace=null): Form {
+		return new Form($namespace);
 	}
 
 	/**
@@ -87,6 +93,7 @@ abstract class core {
 	 * @param string $name Имя файла относительно корня сайта
 	 */
 	public static function import(string $name): void {
+        /** @noinspection PhpIncludeInspection */
 		include_once(self::path().$name.'.php');
 	}
 
@@ -105,9 +112,9 @@ abstract class core {
 		$_js[]=$name;
 		if($name[0]==='/' || substr($name,0,7)==='http://' || substr($name,0,8)==='https://') return '<script type="text/javascript" src="'.$name.'" '.$attribute.'></script>';
 		if(substr($name,0,3)==='LNG') {
-			$html='<script type="text/javascript">'.
-			($_lang ? '' : 'document._lang=new Array();').
-			'document._lang["'.$name.'"]="'.constant($name).'";</script>';
+			$html='<script type="text/javascript">';
+			if($_lang===false) $html.='document._lang=new Array();';
+			$html.='document._lang["'.$name.'"]="'.constant($name).'";</script>';
 			$_lang=true;
 			return $html;
 		}
@@ -121,6 +128,7 @@ abstract class core {
 	public static function language(string $name): void {
 		$f=self::path().'language/'.$name.'.'._LANG.'.php';
 		if(file_exists($f)===false) return;
+        /** @noinspection PhpIncludeInspection */
 		include_once($f);
 	}
 
@@ -165,13 +173,12 @@ abstract class core {
 	 * Если файл /model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
 	 * @param string $classTable Имя таблицы или класса ActiveRecord
 	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
-	 * @return plushka/core/Model
+	 * @return Model
 	 */
-	public static function model(string $classTable,string $db='db'): plushka\core\Model {
+	public static function model(string $classTable,string $db='db'): Model {
 		$class='\plushka\model\\'.ucfirst($classTable);
-var_dump($class);
 		if(class_exists($class)===true) return new $class;
-		return new \plushka\core\Model($classTable,$db);
+		return new Model($classTable,$db);
 	}
 
 	/**
@@ -187,12 +194,12 @@ var_dump($class);
 	 * Возвращает экземпляр класса для работы с СУБД MySQL
 	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
 	 * @return mysqli
-	 * @see \plushka\core\Mysqli
+	 * @see Mysqli
 	 */
-	public static function mysql(bool $newQuery=false): \plushka\core\Mysqli {
+	public static function mysql(bool $newQuery=false): Mysqli {
 		static $_mysqli;
-		if($newQuery===true) return new \plushka\core\Mysqli();
-		if($_mysqli===null) $_mysqli=new \plushka\core\Mysqli();
+		if($newQuery===true) return new Mysqli();
+		if($_mysqli===null) $_mysqli=new Mysqli();
 		return $_mysqli;
 	}
 
@@ -215,9 +222,9 @@ var_dump($class);
 	 * Возвращает экземпляр класса для работы с СУБД SQLite
 	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
 	 * @return sqlite
-	 * @see \plushka\core\Sqlite
+	 * @see Sqlite
 	 */
-	public static function sqlite(bool $newQuery=false): \plushka\core\Sqlite {
+	public static function sqlite(bool $newQuery=false): Sqlite {
 		static $_sqlite;
 		if($newQuery===true) return new Sqlite();
 		if($_sqlite===null) $_sqlite=new Sqlite();
@@ -254,6 +261,7 @@ var_dump($class);
 	 * Конвертирование происходит с учётом текущего языка локализации (const _LANG)
 	 * @param string $string Исходная строка
 	 * @param int $max Максимальная длина генерируемой строки
+     * @return string
 	 */
 	public static function translit(string $string,int $max=60): string {
 		$string=mb_strtolower($string,'UTF-8');
@@ -272,6 +280,7 @@ var_dump($class);
 	 * Возвращает абсолютный или относительный URL-адрес главной страницы сайта (обычно "/")
 	 * @param bool|string $lang Если указан, то к URL будет добавлен суффикс текущего языка
 	 * @param bool $domain Если указан, то будет будет сгенерирована абсолютная ссылка, а не относительна
+     * @return string URL
 	 */
 	public static function url($lang=false,bool $domain=false): string {
 		static $_url;
@@ -313,12 +322,12 @@ var_dump($class);
 	/**
 	 * Возвращает класс, олицетворяющий текущего пользователя.
 	 * Для неавторизованных пользователей user::userGroup будет иметь значение "0".
-	 * @return user
+	 * @return UserCore
 	 * @see plushka::userGroup()
 	 * @see \plushka\core\User
 	 */
-	public static function &user(): \plushka\core\User {
-		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
+	public static function &user(): UserCore {
+		if(isset($_SESSION['user'])===false) $_SESSION['user']=new UserCore();
 		return $_SESSION['user'];
 	}
 
@@ -326,9 +335,9 @@ var_dump($class);
 	 * Возвращает пользователя, игнорируя режим подмены пользователя.
 	 * @return user
 	 * @see plushka::user()
-	 * @see \plushka\core\User
+	 * @see UserCore
 	 */
-	public static function &userReal(): \plushka\core\User {
+	public static function &userReal(): UserCore {
 		if(isset($_SESSION['userReal'])===true) return $_SESSION['userReal'];
 		else return self::user();
 	}
@@ -433,6 +442,7 @@ class Controller {
 			if(!file_exists($s) || plushka::debug()) { //если кеша нет или отладочный режим, то кешировать шаблон
 				Cache::template(plushka::template());
 			}
+            /** @noinspection PhpIncludeInspection */
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">
@@ -464,9 +474,17 @@ class Controller {
 			echo '<div class="messageSuccess">',plushka::success(false),'</div>';
 		}
 		if(gettype($view)==='object') $view->render();
-		elseif($view==='_empty') include(plushka::path().'view/_empty.php');
-		else include(plushka::path().'view/'.$this->url[0].$view.'.php');
-		if($renderTemplate===true && $s) include(plushka::path().'cache/template/'.plushka::template().'Footer.php'); //нижняя часть шаблона
+		elseif($view==='_empty') {
+            /** @noinspection PhpIncludeInspection */
+		    include(plushka::path().'view/_empty.php');
+        } else {
+            /** @noinspection PhpIncludeInspection */
+		    include(plushka::path().'view/'.$this->url[0].$view.'.php');
+        }
+		if($renderTemplate===true && $s) { //нижняя часть шаблона
+            /** @noinspection PhpIncludeInspection */
+		    include(plushka::path().'cache/template/'.plushka::template().'Footer.php');
+        }
 	}
 
 	/**
@@ -509,6 +527,7 @@ class Controller {
 
 /**
  * Базовый класс виджета. Все виджеты должны быть унаследованы от этого класса
+ * @method adminLink2(mixed $data)
  */
 abstract class Widget {
 
@@ -566,12 +585,15 @@ abstract class Widget {
 	 * @param string|bool Имя файла представления
 	 */
 	public function render($view): void {
-		if($view!==true) include(plushka::path().'view/widget'.$view.'.php');
+		if($view!==true) {
+            /** @noinspection PhpIncludeInspection */
+            include(plushka::path().'view/widget'.$view.'.php');
+        }
 	}
 
 	/**
 	 * Выводит HTML-код кнопок админки для элемента списка
-	 * Вызывается фреймворком, явный вызов не требуется.
+	 * Должен вызываться из MVC-представлений виджетов.
 	 * @param array[] $data
 	 */
 	public function admin(array $data): void {
@@ -629,12 +651,12 @@ class User {
 	 * Возвращает ActiveRecord-модель на основе текущего пользователя.
 	 * Модель будет содержать данные авторизованного пользователя. Если задан параметр $id, то соответствующий пользователь будет авторизован (используйте new \plushka\model\User(), если это нежелательное поведение).
 	 * @param integer|null $id Идентификатор пользователя, которогу нужно авторизовать
-	 * @return \plushka\model\User
+	 * @return UserModel
 	 */
-	public function model(int $id=null): \plushka\model\User {
+	public function model(int $id=null): UserModel {
 		static $model;
 		if(isset($model)===false || $id!==null) {
-			$model=new \plushka\model\User($id,$this);
+			$model=new UserModel($id,$this);
 		}
 		return $model;
 	}
@@ -645,17 +667,17 @@ class User {
 /**
  * Исключение подключения к базе данных или исполнения SQL-запросов
  */
-class DBException extends \RuntimeException {}
+class DBException extends RuntimeException {}
 
 /**
  * Исключение 404-й HTTP-ошибки
  */
-class HTTP404Exception extends \RuntimeException {} 
+class HTTP404Exception extends RuntimeException {}
 
 /**
  * Ошибка маршрутизации
  */
-class RouteException extends \RuntimeException {}
+class RouteException extends RuntimeException {}
 
 /**
  * Запускает приложение
@@ -664,7 +686,10 @@ class RouteException extends \RuntimeException {}
 function runApplication(bool $renderTemplate=true): void {
 	session_start();
 	$user=plushka::userReal();
-	if($user->group>=200) include(plushka::path().'core/admin.php');
+	if($user->group>=200) {
+        /** @noinspection PhpIncludeInspection */
+	    include(plushka::path().'core/admin.php');
+    }
 	plushka::$controller='\plushka\controller\\'.ucfirst($_GET['corePath'][0]).'Controller';
 	try {
 		plushka::$controller=new plushka::$controller();
@@ -728,8 +753,9 @@ spl_autoload_register(function($class) {
 	if(file_exists($f)===false) $f=plushka::path().$class;
 	if(file_exists($f)===false) {
 		$debug=debug_backtrace()[1];
-		throw new \BadMethodCallException('Undefined class '.$class.' in '.$debug['file'].': '.$debug['line']);
+		throw new BadMethodCallException('Undefined class '.$class.' in '.$debug['file'].': '.$debug['line']);
 	}
+    /** @noinspection PhpIncludeInspection */
 	require_once($f);
 },true);
 

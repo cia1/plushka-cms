@@ -168,7 +168,7 @@ class Cache {
 	private static function _structureSQLite(bool $field=true): array {
 		$data=[];
 		$db=plushka::sqlite();
-		$db->query('SELECT name FROM sqlite_master WHERE type="table"');
+		$db->query(/** @lang SQLite */"SELECT name FROM sqlite_master WHERE type='table'");
 		if($field===false) {
 			while($item=$db->fetch()) $data[]=$item[0];
 			return $data;
