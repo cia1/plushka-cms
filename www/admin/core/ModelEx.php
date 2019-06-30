@@ -1,11 +1,13 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
+use plushka\core\Model;
 
 /**
- * Расширенная модель. Упрощает валидацию часто используемых полей (title, alias, metaTitle, metaDescription, metaKeyword)
+ * Расширенная модель.
+ * Упрощает валидацию часто используемых полей (title, alias, metaTitle, metaDescription, metaKeyword)
  */
-class ModelEx extends \plushka\core\Model {
+class ModelEx extends Model {
 
 	/**
 	 * Добавляет популярные правила валидации

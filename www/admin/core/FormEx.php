@@ -1,14 +1,17 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
+use plushka\core\Form;
 
 /**
- * Расширенная форма. Упрощает добавление часто используемыч полей (title, alias, metaTitle, metaDescription, metaKeyword)
+ * Расширенная форма.
+ * Упрощает добавление часто используемых полей (title, alias, metaTitle, metaDescription, metaKeyword)
  */
-class FormEx extends \plushka\core\Form {
+class FormEx extends Form {
 
 	public function __construct($namespace=null) {
-		if($namespace) $this->_namespace=$namespace; else $this->_namespace=$_GET['controller'];
+	    parent::__construct($namespace);
+		if($namespace===null) $this->_namespace=$_GET['controller'];
 	}
 
 	/**

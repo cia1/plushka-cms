@@ -1,6 +1,7 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 use plushka\core\Admin;
+use plushka\core\Controller;
 use plushka\core\core;
 use plushka\core\Widget;
 
@@ -10,6 +11,9 @@ require_once(__DIR__.'/core.php');
  * Предоставляет базовый API, доступный статически
  */
 abstract class plushka extends core {
+
+    /** @var Controller Ссылка на контроллер для доступа из вне */
+    public static $controller;
 
 	/**
 	 * Возвращает произвольные данные из кэша
@@ -184,7 +188,7 @@ abstract class plushka extends core {
 			if($title) $w->title($title); //вывод заголовка
 			if(is_object($view)===true) $view->render(); else $w->render($view);
 		}
-		if($cacheTime) {
+		if($cacheFile!==null) {
 			$f=fopen($cacheFile.'.html','w');
 			fwrite($f,ob_get_flush());
 			fclose($f);

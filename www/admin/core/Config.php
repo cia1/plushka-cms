@@ -1,12 +1,15 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
+use ArrayIterator;
+use IteratorAggregate;
 use plushka;
 
 /**
  * Служит для создания и изменения конфигурационных файлов
+ * @property string $fileName Может быть не определён
  */
-class Config implements \IteratorAggregate {
+class Config implements IteratorAggregate {
 	private $_data=[]; //тут содержатся все данные
 
 	/**
@@ -25,12 +28,12 @@ class Config implements \IteratorAggregate {
 
 	/**
 	 * Загружает конфигурацию
-	 * @param string $fileName Относительное имя файла конфигурации
+	 * @param string|null $fileName Относительное имя файла конфигурации
 	 */
-	public function load($fname=null): void {
+	public function load($fileName=null): void {
 		if($fileName===null && property_exists($this,'fileName')===true) $fileName=$this->fileName;
-    $this->_data=plushka::config($fname);
-    if(is_array($this->_data)===false) $this->_data=[];
+        $this->_data=plushka::config($fileName);
+        if(is_array($this->_data)===false) $this->_data=[];
 	}
 
 	/**

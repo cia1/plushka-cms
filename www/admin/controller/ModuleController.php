@@ -22,7 +22,7 @@ class ModuleController extends \plushka\admin\core\Controller {
 			$table->text($item['version']);
 			$table->text($status[$item['status']]);
 			$table->text($item['url']);
-			$table->checkbox(false,'id',$i);
+			$table->checkbox('id',$i);
 			//Ссылка "удалить" или "отменить", "продолжить установку" в зависимости от состояния модуля
 			if($i=='core') $s='';
 			else {

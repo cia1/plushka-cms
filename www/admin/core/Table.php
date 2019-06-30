@@ -1,7 +1,7 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
-use plushka;
+use plushkaAdmin as plushka;
 
 /**
  * Конструктор HTML-таблиц (<table>)
@@ -42,7 +42,7 @@ class Table {
 	public function rowTh($titleList): void {
 		if(is_array($titleList)===true) {
 			for($i=0,$cnt=count($titleList);$i<$cnt;$i++) {
-				if(is_array($a[$i])===true) $this->th($titleList[$i][0],$titleList[$i][1]);
+				if(is_array($titleList[$i])===true) $this->th($titleList[$i][0],$titleList[$i][1]);
 				else $this->th($titleList[$i]);
 			}
 		} else {
@@ -69,20 +69,20 @@ class Table {
 
 	/** 
 	 * Добавляет ячейку, содержащую флажок
-	 * @param string|null $namespace Имя контроллера
 	 * @param string $name Имя поля
 	 * @param string $value Значение поля
+	 * @param string|null $namespace Имя контроллера
 	 * @param int $colspan Количество объединяемых ячеек
 	 * @param string|null $html HTML-код, присоединяемый к тегу <input>
 	 */
-	public function checkbox($namespace=null,string $name,string $value,int $colspan=0,string $html=null): void {
+	public function checkbox(string $name,string $value,$namespace=null,int $colspan=0,string $html=null): void {
 		$this->_tr();
 		$this->_data.='<td style="width:30px;text-align:center;" '.$html;
 		if($colspan>0) {
 			$this->_data.='colspan="'.$colspan.'"';
 			$this->_index+=$colspan;
 		} else $this->_index++;
-		$this->_data.='><input type="checkbox" name="'.($controller ? $controller.'['.$name.']' : $name).'[]" value="'.$value.'" class="check'.$name.'" /></td>';
+		$this->_data.='><input type="checkbox" name="'.($namespace ? $namespace.'['.$name.']' : $name).'[]" value="'.$value.'" class="check'.$name.'" /></td>';
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Table {
 	 * @param |null $actionAlias Имя действия (к нему будет добавлено "Up"/"Down")
 	 */
 	public function upDown(string $params,int $index=null,int $count=null,$actionAlias=null): void {
-		$this->_data.='<td width="60px" align="center">';
+		$this->_data.='<td style="width:60px;text-align:center;">';
 		$params='&'.$params;
 		if($index===null || $index>1) {
 			$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'up' : $actionAlias.'Up');
@@ -143,8 +143,10 @@ class Table {
 	public function delete(string $params,string $actionAlias=null,string $confirm='Подтвердите удаление'): void {
 		$params='&'.$params;
 		$link=plushka::$controller->url[0].'/'.($actionAlias===null ? 'delete' : $actionAlias.'Delete');
-		$this->_data.='<td width="40px" align="center">'
-		.'<a href="'.plushka::linkAdmin($link.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
+        /** @noinspection HtmlUnknownTarget */
+        $this->_data.='<td style="width:40px;text-align:center;">'
+		.'<a href="'.plushka::linkAdmin($link.$params).'" onclick="return confirm(\''.$confirm.'\');">
+		 <img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
 		$this->_index++;
 	}
@@ -155,7 +157,7 @@ class Table {
 	 * @param string|null $actionAlias Имя действия (к нему будет добавлено "Edit"/"Delete")
 	 * @param string $confirm Текст сообщения подтверждения
 	 */
-	public function editDelete(string $params,string $actionAlias===null,string $confirm='Подтвердите удаление'): void {
+	public function editDelete(string $params,string $actionAlias=null,string $confirm='Подтвердите удаление'): void {
 		$params='&'.$params;
 		$linkEdit=$linkDelete=plushka::$controller->url[0].'/';
 		if($actionAlias===null) {
@@ -165,7 +167,8 @@ class Table {
 			$linkEdit.=$actionAlias.'Edit';
 			$linkDelete.=$actionAlias.'Delete';
 		}
-		$this->_data.='<td width="40px" align="center">'
+        /** @noinspection HtmlUnknownTarget */
+		$this->_data.='<td style="width:40px;text-align:center;">'
 		.'<a href="'.plushka::linkAdmin($linkEdit.$params).'"><img src="'.plushka::url().'admin/public/icon/edit16.png" alt="изменить" title="Редактировать..." /></a>'
 		.'<a href="'.plushka::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';
@@ -188,7 +191,8 @@ class Table {
 			$linkItem.=$actionAlias.'Item';
 			$linkDelete.=$actionAlias.'Delete';
 		}
-		$this->_data.='<td width="60px" align="center">'
+        /** @noinspection HtmlUnknownTarget */
+		$this->_data.='<td style="width:60px;text-align:center;">'
 		.'<a href="'.plushka::linkAdmin($linkItem.$params).'"><img src="'.plushka::url().'admin/public/icon/edit16.png" alt="Изменить" title="Редактировать" /></a>'
 		.'&nbsp;<a href="'.plushka::linkAdmin($linkDelete.$params).'" onclick="return confirm(\''.$confirm.'\');"><img src="'.plushka::url().'admin/public/icon/delete16.png" alt="Удалить" title="Удалить" /></a>'
 		.'</td>';

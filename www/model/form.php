@@ -1,16 +1,15 @@
 <?php
 namespace plushka\model;
 use plushka;
-use plushka\core\validator;
-use plushka\core\Emai;
-use plushka\model\Notification;
-
+use plushka\core\Validator;
+use plushka\core\Email;
+use plushka\core\Form as FormCore;
 plushka::language('form');
 
 /**
  * Модель "универсальная форма"
  */
-class Form extends plushka\core\Form {
+class Form extends FormCore {
 
 	/** @var string Заголовок формы */
 	public $title;
@@ -18,6 +17,10 @@ class Form extends plushka\core\Form {
 	public $formView;
 	/** @var array Массив полей формы */
 	public $field;
+	/** @var array Информация о форме */
+	protected $form;
+	/** @var array Данные формы */
+	protected $data;
 
 	/**
 	 * Строит форму, загружая все поля из базы данных
@@ -54,6 +57,7 @@ class Form extends plushka\core\Form {
 		if($this->formView!==null) {
 			$view=$this->formView;
 			$this->formView=null; //render() может быть вызван дважды: один раз из контроллера и один раз из представления, поэтому убрать, чтобы небыло зацикливания
+            /** @noinspection PhpIncludeInspection */
 			include(plushka::path().'view/form'.ucfirst($view).'.php');
 		} else { //представление не задано, использовать стандартный рендер базового класса
 			//Добавить поля в базовый класс формы
@@ -83,11 +87,14 @@ class Form extends plushka\core\Form {
 		$this->form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,email,subject_'._LANG.' subject,redirect,script,notification FROM frm_form WHERE id='.$id);
 		if(!$this->form) plushka::error404();
 		if($this->form['notification']) $this->form['notification']=json_decode($this->form['notification'],true);
-		else $this->from['notification']=null;
+		else $this->form['notification']=null;
 		//Если задан пользовательский скрипт обработки (до валидации), то сначала вызвать его.
 		if($this->form['script']) {
 			$f=plushka::path().'data/'.$this->form['script'].'Before.php';
-			if(file_exists($f)===true) if(!include($f)) return false; //false расценивается как неудача.
+			if(file_exists($f)===true) {
+			    /** @noinspection PhpIncludeInspection */
+			    if(!include($f)) return false; //false расценивается как неудача.
+            }
 		}
 
 		//Подготовка данных для валидации
@@ -140,7 +147,10 @@ class Form extends plushka\core\Form {
 		//Если задан пользовательский скрипт обработки, то вызвать его
 		if($this->form['script']) {
 			$f=plushka::path().'data/'.$this->form['script'].'After.php';
-			if(file_exists($f)===true) if(!include($f)) return false; //false расценивается как неудача - нужно прервать дальнейшую работу
+			if(file_exists($f)===true) {
+			    /** @noinspection PhpIncludeInspection */
+			    if(!include($f)) return false; //false расценивается как неудача - нужно прервать дальнейшую работу
+            }
 		}
 		//Отправить письмо, если задан e-mail адрес.
 		if($this->form['email']) {

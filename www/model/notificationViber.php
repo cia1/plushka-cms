@@ -1,22 +1,31 @@
 <?php
 namespace plushka\model;
 use plushka;
-use plushka\model\User;
-use plushka\model\Request;
 
+/**
+ * Транспорт (способ отправки) через Viber
+ * Чтобы транспорт был доступен необходимо чтобы пользователь сперва настроил Viber в личном кабинете.
+ * @property-read string token Токен доступа к API Viber'а
+ * @property-read string groupId ID грпуппы Viber
+ */
 class NotificationViber extends Notification {
 
-	public function title() {
+	public function title(): string {
 		return 'Viber';
 	}
 
-	public function available() {
+    /**
+     * Viber необходимо сначала подключить в личном кабинете
+     * @inheritDoc
+     * @return bool
+     */
+	public function available(): bool {
 		$viber=self::userAttribute($this->userId,'viber');
 		if(is_string($viber) && strlen($viber)===24) return true;
 		return false;
 	}
 
-	public function send($message) {
+	public function send(string $message): bool {
 		plushka::import('model/user');
 		if($this->userId===plushka::userId()) $user=plushka::user()->model();
 		else {

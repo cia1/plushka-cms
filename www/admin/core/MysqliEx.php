@@ -31,6 +31,7 @@ class MysqliEx extends Mysqli {
 	 * @param string|array $expression Валидное определение поля MySQL
 	 */
 	public function alterAdd(string $table,string $field,$expression): void {
+	    /** @noinspection SqlResolve */
 		$this->query('ALTER TABLE `'.$table.'` ADD `'.$field.'` '.self::_type($expression));
 	}
 
@@ -40,6 +41,7 @@ class MysqliEx extends Mysqli {
 	 * @param string $field Имя поля
 	 */
 	public function alterDrop(string $table,string $field): void {
+        /** @noinspection SqlResolve */
 		$this->query('ALTER TABLE `'.$table.'` DROP COLUMN `'.$field.'`');
 	}
 
@@ -51,6 +53,7 @@ class MysqliEx extends Mysqli {
 	 * @param string|array $expression Определение поля в формате массива или в формате MySQL
 	 */
 	public function alterChange(string $table,string $fieldName,string $newFieldName,string $expression=null): void {
+        /** @noinspection SqlResolve */
 		$this->query('ALTER TABLE `'.$table.'` CHANGE COLUMN `'.$fieldName.'` `'.$newFieldName.'` '.self::_type($expression));
 	}
 
@@ -99,7 +102,6 @@ class MysqliEx extends Mysqli {
 
 	private static function _type($expression): string {
 		if(is_array($expression)===false) return $expression;
-		$ai=(bool)($expression[2] ?? false);
 		if(isset($expression[1])===true && $expression[1]) $key=strtoupper($expression[1]); else $key=null;
 		$default=$expression['default'] ?? '';
 		$expression=$expression[0].($default ? ' DEFAULT "'.$default.'"' : '');

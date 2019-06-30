@@ -1,38 +1,50 @@
 <?php
 namespace plushka\model;
+use InvalidArgumentException;
 use plushka;
 
+/**
+ * Хелпер, реализующий регистрацию и авторизацию OAuth
+ */
 class Oauth {
 
-	//Выполняет редирект пользователя на сервер OAuth
-	public static function redirect($id,$backlink) {
-		$data=plushka::config('oauth');
-		if(!isset($data[$id])) return false;
-		$data=$data[$id];
+    /**
+     * Выполняет редирект пользователя на сервер OAuth
+     * Прерывает работу.
+     * @param string $id ID сервера авторизации (см. /config/oauth.php)
+     * @param string $backlink URL страницы возврата
+     * @throws InvalidArgumentException
+     */
+	public static function redirect(string $id,string $backlink): void {
+		$data=plushka::config('oauth',$id);
+		if($data===null) throw new InvalidArgumentException('Unknown OAuth server '.$id);
 		header('Location: '.self::_linkCode($id,$data[0],$backlink));
 		exit;
 	}
 
-	//Возвращет массив с данными авторизации или false, если авторизация не удалась
-	// Возвращаемые данные: id, email, и д.р.
-	public static function getAnswer($id,$backlink) {
+    /**
+     * Возвращет массив с данными авторизации или NULL, если авторизация не удалась
+     * @param string $id ID сервера авторизации (см. /config/oauth.php)
+     * @param string $backlink URL страницы возврата
+     * @return array|null
+     * @throws InvalidArgumentException
+     */
+	public static function getAnswer(string $id,string $backlink): ?array {
 		plushka::language('oauth');
-		if(isset($_REQUEST['error'])) {
-			if(isset($_REQUEST['error_description'])) plushka::error(urldecode($_REQUEST['error_description']));
+		if(isset($_REQUEST['error'])===true) {
+			if(isset($_REQUEST['error_description'])===true) plushka::error(urldecode($_REQUEST['error_description']));
 			else plushka::error(LNGLogInFailed);
-			return false;
+			return null;
 		}
-		$data=plushka::config('oauth');
-		if(!isset($data[$id])) return false;
-		$data=$data[$id];
+		$data=plushka::config('oauth',$id);
+        if($data===null) throw new InvalidArgumentException('Unknown OAuth server '.$id);
 		$answer=self::_load(self::_linkToken($id,$data[0],$data[1],$_REQUEST['code'],$backlink)); //запрос токена
-		if(!$answer) return false;
-		if(!isset($answer['id']) || !isset($answer['email'])) { //ВКонтакте сразу возвращает необходимые данные - можно сэкономить на одном запросе
+		if(!$answer) return null;
+		if(isset($answer['id'])===false || isset($answer['email'])===false) { //ВКонтакте сразу возвращает необходимые данные - можно сэкономить на одном запросе
 			$answer=self::_load(self::_linkInfo($id,$answer['access_token']));
-			if(!$answer) return false;
+			if(!$answer) return null;
 		}
-
-		if(!isset($answer['email'])) $answer['email']=null;
+		if(isset($answer['email'])===false) $answer['email']=null;
 		return $answer;
 	}
 

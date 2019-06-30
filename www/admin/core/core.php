@@ -1,14 +1,17 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
-use plushka;
+use plushkaAdmin as plushka;
+use plushka\core\Cache;
+use plushka\core\Controller as ControllerPublic;
 
 require(dirname(__DIR__,2).'/core/core.php');
 
 /**
  * @inheritdoc
+ * @method right(): array[] Должен возвращать массив прав доступа к действиям контроллера
  */
-class Controller extends \plushka\core\Controller {
+class Controller extends ControllerPublic {
 
 	/**
 	 * @var string Поясняющий текст для диалогового окна админки
@@ -18,6 +21,7 @@ class Controller extends \plushka\core\Controller {
 	private $_button=''; //HTML код кнопок
 
 	public function __construct() {
+	    parent::__construct();
 		$this->url=[$_GET['controller'],$_GET['action']];
 		if(!$this->url[1]) $this->url[1]='index';
 	}
@@ -34,7 +38,9 @@ class Controller extends \plushka\core\Controller {
 	public function button(string $link,string $image,string $title='',string $alt='',string $html=''): void {
 		if($link==='html') $this->_button.=$image;
 		else {
-			$this->_button.='<a href="'.plushka::link('admin/'.$link).'"'.($html ? ' '.$html : '').'><img src="'.plushka::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
+			$this->_button.='<a href="'.plushka::link('admin/'.$link).'" '.
+                ($html ? $html : '').
+                '><img src="'.plushka::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
 		}
 	}
 
@@ -57,9 +63,8 @@ class Controller extends \plushka\core\Controller {
 		if(!$view) return; //Если нет представления, то ничего не выводить
 		if($renderTemplate===true) { //Вывести верхнюю часть шаблона
 			$s=plushka::path().'admin/cache/template/'.plushka::template().'Head.php';
-			if(file_exists($s)===false || plushka::debug()===true) {
-				\plushka\core\Cache::template(plushka::template());
-			}
+			if(file_exists($s)===false || plushka::debug()===true) Cache::template(plushka::template());
+			/** @noinspection PhpIncludeInspection */
 			include($s);
 			if($this->pageTitle) echo '<h1 class="pageTitle">'.$this->pageTitle.'</h1>';
 		} else echo $this->_head;
@@ -73,11 +78,18 @@ class Controller extends \plushka\core\Controller {
 			echo '<div class="messageSuccess">',plushka::success(false),'</div>';
 		}
 		if(gettype($view)==='object') $view->render();
-		elseif($view==='_empty') include(plushka::path().'admin/view/_empty.php');
-		else include(plushka::path().'admin/view/'.$this->url[0].$view.'.php');
+		elseif($view==='_empty') {
+		    /** @noinspection PhpIncludeInspection */
+		    include(plushka::path().'admin/view/_empty.php');
+        } else {
+            /** @noinspection PhpIncludeInspection */
+		    include(plushka::path().'admin/view/'.$this->url[0].$view.'.php');
+        }
 		if($this->cite) echo '<cite>',$this->cite,'</cite>'; //Поясняющий текст
-		if($renderTemplate===true) include(plushka::path().'admin/cache/template/'.plushka::template().'Footer.php'); //Нижняя часть шаблона
-		elseif(isset($_GET['_front'])===false) echo '<div style="clear:both;"></div>';
+		if($renderTemplate===true) { //нижняя часть шаблона
+            /** @noinspection PhpIncludeInspection */
+		    include(plushka::path().'admin/cache/template/'.plushka::template().'Footer.php');
+        } elseif(isset($_GET['_front'])===false) echo '<div style="clear:both;"></div>';
 
 		if($renderTemplate===true && isset($_GET['_front'])===true) {
 			$f='help'.$this->url[1];
@@ -163,6 +175,6 @@ function runApplication(bool $renderTemplate=true): void {
 			if(substr($_POST['data'],0,2)==='a:' && $_POST['data'][strlen($_POST['data'])-1]==='}') $view=plushka::$controller->$s(unserialize($_POST['data']));
 			else $view=plushka::$controller->$s($_POST['data']);
 		} else $view=plushka::$controller->$s($data);
-	}
+	} else $view=null;
 	plushka::$controller->render($view,$renderTemplate);
 }

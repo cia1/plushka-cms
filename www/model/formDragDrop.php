@@ -3,16 +3,19 @@ namespace plushka\model;
 use plushka;
 use plushka\core\Form;
 
-//Расширенная форма: содержит drag&drop поле для загрузки файлов
-class FormDragDrop extends \plushka\core\Form {
+/**
+ * Расширенная форма: содержит drag&drop поле для загрузки файлов
+ */
+class FormDragDrop extends Form {
 
-	public function __construct($namespace=null) {
-		parent::__construct($namespace);
-	}
-
-	/* Поле для загрузки файла (<input type="file")
-	$name - имя поля формы, $label - отображаемый заголовок, $fileCount - разрешить выбирать несколько файлов, $html - произвольный текст, который будет присоединён к тегу <input> */
-	public function fileDragDrop($name,$label,$fileCount=1,$jsCallBack=null) {
+    /**
+     * Поле выбора файла/файлов Drag&Drop
+     * @param string $name Имя поля
+     * @param string $label Заголовок
+     * @param int $fileCount Количество файлов, которые можно загрузить через форму
+     * @param string|null $jsCallBack JS-скрипт, который будет вызван при выборе файла
+     */
+	public function fileDragDrop(string $name,string $label,int $fileCount=1,string $jsCallBack=null): void {
 		plushka::$controller->js('jquery.min','defer');
 		plushka::$controller->js('formDragDrop','defer');
 		plushka::language('formDragDrop');
@@ -20,11 +23,16 @@ class FormDragDrop extends \plushka\core\Form {
 		plushka::$controller->js('LNGFileMaximumAlreadyUploaded');
 		$this->_data.='<dt class="fileDragDrop">'.$label.':</dt><dd class="fileDragDrop">'.$this->getFileDragDrop($name,$fileCount,$jsCallBack).'</dd>';
 	}
-
-	/* Возвращает HTML-код поля для загрузки файла */
-	public function getFileDragDrop($name,$fileCount=1,$jsCallBack=null) {
-		static $_index;
-		if(!$_index) {
+    /**
+     * Возвращает HTML-код поля загрузки файла(ов)
+     * @param string $name Имя поля
+     * @param int $fileCount Количество файлов, которые можно загрузить через форму
+     * @param string|null $jsCallBack JS-скрипт, который будет вызван при выборе файла
+     * @return string
+     */
+	public function getFileDragDrop(string $name,int $fileCount=1,string $jsCallBack=null): string {
+		static $_index=0;
+		if($_index===0) {
 			$html='<link href="'.plushka::url().'public/css/formDragDrop.css" rel="stylesheet" />';
 			plushka::language('formDragDrop');
 			echo plushka::js('jquery.min','defer');
@@ -51,7 +59,13 @@ class FormDragDrop extends \plushka\core\Form {
 		$html.='<div class="fileDropBox" id="fileDropBox_'.$_index.'">'.LNGDropOrClick.'.<br /><input type="file"';
 		if($fileCount>1) $html.=' multiple="multiple"';
 		$html.=' /></div>';
-		$html.='<script defer="defer">fileDragDrop("'.$this->_namespace.'","'.$name.'",document.getElementById("fileDropBox_'.$_index.'"),'.$fileCount.($jsCallBack ? ',"'.$jsCallBack.'"' : '').');</script>';
+        /** @noinspection BadExpressionStatementJS */
+        $html.='<script defer="defer">fileDragDrop(
+            "'.$this->_namespace.'",
+            "'.$name.'",
+            document.getElementById("fileDropBox_'.$_index.'"),'.$fileCount;
+        if($jsCallBack) $html.=',"'.$jsCallBack.'"';
+        $html.=')</script>';
 		return $html;
 	}
 

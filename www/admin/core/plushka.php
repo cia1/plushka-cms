@@ -1,12 +1,26 @@
 <?php
 //Этот файл является частью фреймворка. Внесение изменений не рекомендуется.
+use plushka\admin\core\Controller;
+use plushka\admin\core\FormEx;
+use plushka\admin\core\ModelEx;
+use plushka\admin\core\Table;
+use plushka\core\core;
+use plushka\core\Form;
+use plushka\core\Model;
+use plushka\core\Validator;
+use plushka\core\Widget;
 
 require_once(__DIR__.'/core.php');
+
+class_alias('plushkaAdmin','plushka');
 
 /**
  * Предоставляет базовый API, доступный статически
  */
-abstract class plushka extends \plushka\core\core {
+abstract class plushkaAdmin extends core {
+
+    /** @var Controller Ссылка на контроллер для доступа из вне */
+    public static $controller;
 
 	/**
 	 * Очищает пользовательский кеш
@@ -27,7 +41,10 @@ abstract class plushka extends \plushka\core\core {
 			if($name==='admin') $f=plushka::path().'admin/config/_core.php';
 			elseif(substr($name,0,6)==='admin/') $f=plushka::path().'admin/config/'.substr($name,6).'.php';
 			else return parent::config($name,$attribute);
-			if(file_exists($f)===true) $_cfg[$name]=include($f); else $_cfg[$name]=null;
+			if(file_exists($f)===true) {
+			    /** @noinspection PhpIncludeInspection */
+			    $_cfg[$name]=include($f);
+            } else $_cfg[$name]=null;
 		}
 		if($attribute===null) return $_cfg[$name];
 		if(!isset($_cfg[$name][$attribute])) $value=null;
@@ -41,11 +58,9 @@ abstract class plushka extends \plushka\core\core {
 	public static function error404(): void {
 		if(isset($_GET['_front'])===true) echo '<div class="messageError">Запрошенная страница не существует :(</div>';
 		else {
-			header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
+			header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
 			plushka::$controller->url[0]='error';
-			plushka::$controller->error(404);
-			$code=404;
-			plushka::$controller->render($code);
+			plushka::$controller->render('404',true);
 		}
 		exit;
 	}
@@ -53,8 +68,8 @@ abstract class plushka extends \plushka\core\core {
 	/**
 	 * @inheritDoc
 	 */
-	public static function form(string $namespace=null): \plushka\admin\core\FormEx {
-		return new \plushka\admin\core\FormEx($namespace);
+	public static function form(string $namespace=null): Form {
+		return new FormEx($namespace);
 	}
 
 	/**
@@ -132,11 +147,11 @@ abstract class plushka extends \plushka\core\core {
 	 * @inheritDoc
 	 * Если файл /model/$classTable.php или /admin/model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
 	 */
-	public static function model(string $classTable,string $db='db'): \plushka\core\Model {
+	public static function model(string $classTable,string $db='db'): Model {
 		if(substr($classTable,0,6)!=='admin/') return parent::model($classTable,$db);
 		$class='\plushka\admin\model\\'.ucfirst(substr($classTable,6));
 		if(class_exists($class)===true) return new $class();
-		return new \plushka\admin\core\ModelEx($classTable,$db);
+		return new ModelEx($classTable,$db);
 	}
 
 	/**
@@ -185,10 +200,10 @@ abstract class plushka extends \plushka\core\core {
 	/**
 	 * Возвращает экземпляр класса table, служащего для генерации HTML-таблиц
 	 * @param string $html произвольный HTML-код, присоединяемый к тегу <table>
-	 * @return \plushka\admin\core\Table
+	 * @return Table
 	 */
-	public static function table(string $html=null): \plushka\admin\core\Table {
-		return new \plushka\admin\core\Table($html);
+	public static function table(string $html=null): Table {
+		return new Table($html);
 	}
 
 	/**
@@ -211,10 +226,10 @@ abstract class plushka extends \plushka\core\core {
 	/**
 	 * Возвращает экземляр класса валидатора, предназначенного для валидации данных
 	 * @param mixed[] $attribute ассоциативный массив данных для валидации
-	 * @return \plushka\core\Validator
+	 * @return Validator
 	 */
-	public static function validator($attribute=null): \plushka\core\Validator {
-		$validator=new \plushka\core\Validator();
+	public static function validator($attribute=null): Validator {
+		$validator=new Validator();
 		if($attribute!==null) $validator->set($attribute);
 		return $validator;
 	}
@@ -232,7 +247,7 @@ abstract class plushka extends \plushka\core\core {
 	public static function widget(string $name,$options=null,int $cacheTime=null,string $title=null,string $link=null): void {
 		if(is_string($options)===true && isset($options[1])===true && $options[1]===':') $options=unserialize($options);
 		//Нужно ли кешировать?
-		if($cacheTime>0) {
+		if($cacheTime>0 && self::debug()===false) {
 			if(is_array($options)===true) {
 				$f='';
 				ksort($options);
@@ -243,14 +258,17 @@ abstract class plushka extends \plushka\core\core {
 			if(file_exists($cacheFile)) {
 				$f=filemtime($cacheFile)+$cacheTime*60;
 				if($f>time()) {
+				    /** @noinspection PhpIncludeInspection */
 					include($cacheFile);
 					return;
 				}
 			}
 			ob_start();
-		}
+		} else $cacheFile=null;
 		$f='widget'.$name;
+		/** @noinspection PhpIncludeInspection */
 		include_once(plushka::path().'widget/'.$name.'.php');
+		/** @var Widget $w */
 		$w=new $f($options,$link);
 		$view=$w();
 		if($view!==null && $view!==false) { //Если widget() вернул null или false, то выводить HTML-код ненужно (виджет может выводиться только при определённых условиях)
@@ -260,7 +278,7 @@ abstract class plushka extends \plushka\core\core {
 			if(is_object($view)) $view->render(); else $w->render($view);
 			echo '<div style="clear:both;"></div></section>';
 		}
-		if($cacheTime && !$debug) {
+		if($cacheFile!==null) {
 			$f=fopen($cacheFile,'w');
 			fwrite($f,ob_get_contents());
 			fclose($f);
@@ -268,7 +286,8 @@ abstract class plushka extends \plushka\core\core {
 		}
 	}
 
-	private static function _hook(string $name,$data) {
+	private static function _hook(string $name,/** @noinspection PhpUnusedParameterInspection */$data) {
+	    /** @noinspection PhpIncludeInspection */
 		return include(plushka::path().'admin/hook/'.$name);
 	}
 

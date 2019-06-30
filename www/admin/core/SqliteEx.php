@@ -2,11 +2,12 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
 use plushka\core\DBException;
+use plushka\core\Sqlite;
 
 /**
  * Реализует интерфейс с СУБД SQLite3. Расширенная версия
  */
-class SqliteEx extends \plushka\core\Sqlite {
+class SqliteEx extends Sqlite {
 
 	/**
 	 * Создаёт таблицу
@@ -30,6 +31,7 @@ class SqliteEx extends \plushka\core\Sqlite {
 	 * @param string|array $expression Валидное определение поля MySQL
 	 */
 	public function alterAdd(string $table,string $field,$expression): void {
+        /** @noinspection SqlResolve */
 		$q='ALTER TABLE "'.$table.'" ADD "'.$field.'" '.self::_type($expression);
 		$this->query($q);
 	}
@@ -62,8 +64,11 @@ class SqliteEx extends \plushka\core\Sqlite {
 				}
 				$q.=substr($item,0,strpos($item,' '));
 			}
+            /** @noinspection SqlResolve */
 			$this->query('INSERT INTO "TEMP_'.$table.'" SELECT '.$q.' FROM "'.$table.'"');
+            /** @noinspection SqlResolve */
 			$this->query('DROP TABLE "'.$table.'"');
+            /** @noinspection SqlResolve */
 			$this->query('ALTER TABLE "TEMP_'.$table.'" RENAME TO "'.$table.'"');
 		} catch(DBException $e) {
 			$this->_rollback();
@@ -76,6 +81,7 @@ class SqliteEx extends \plushka\core\Sqlite {
 	 * @param string $table Имя таблицы
 	 * @param string $fieldName Имя модифицируемого поля
 	 * @param string $newFieldName Новое имя поля
+     * @param string|array $expression Определение поля в формате массива или в формате MySQL
 	 */
 	public function alterChange(string $table,string $fieldName,string $newFieldName,$expression=null): void {
 		$q=$this->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$table."'");
@@ -86,8 +92,11 @@ class SqliteEx extends \plushka\core\Sqlite {
 		$this->query('BEGIN TRANSACTION');
 		try {
 			$this->query($q);
+            /** @noinspection SqlResolve */
 			$this->query('INSERT INTO "TEMP_'.$table.'" SELECT * FROM "'.$table.'"');
+            /** @noinspection SqlResolve */
 			$this->query('DROP TABLE "'.$table.'"');
+            /** @noinspection SqlResolve */
 			$this->query('ALTER TABLE "TEMP_'.$table.'" RENAME TO "'.$table.'"');
 		} catch(DBException $e) {
 			$this->_rollback();
@@ -112,7 +121,7 @@ class SqliteEx extends \plushka\core\Sqlite {
 	 */
 	public function parseStructure(string $sql,string &$table=null): ?array {
 		//выбор имени таблицы
-		if(!preg_match('|CREATE TABLE\s+[`"\']?([A-Z0-9_-]+)|is',$sql,$data)) return false;
+		if(!preg_match('|CREATE TABLE\s+[`"\']?([A-Z0-9_-]+)|is',$sql,$data)) return null;
 		$table=$data[1];
 		//разбор полей
 		$i1=strpos($sql,'(');
@@ -137,7 +146,6 @@ class SqliteEx extends \plushka\core\Sqlite {
 	private static function _type($expression): string {
 		$key=null;
 		if(is_array($expression)===true) {
-			if(isset($expression[2])===true && $expression[2]) $ai=true; else $ai=false;
 			if(isset($expression[1])===true && $expression[1]) $key=strtoupper($expression[1]);
 			if(isset($expression['default'])===true) $default=$expression['default']; else $default='';
 			$expression=$expression[0];

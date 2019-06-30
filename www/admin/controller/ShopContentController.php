@@ -105,7 +105,7 @@ class ShopController extends \plushka\admin\core\Controller {
 		$table=plushka::table();
 		$table->rowTh('checkbox[id]|Название|');
 		while($item=$db->fetch()) {
-			$table->checkbox('shopContent','id',$item[0]);
+			$table->checkbox('id',$item[0],'shopContent');
 			$table->text($item[1]);
 			$table->text('');
 		}
