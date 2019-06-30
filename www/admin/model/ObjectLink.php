@@ -3,7 +3,7 @@ namespace plushka\admin\core;
 
 class ObjectLink {
 
-	/* Возвращает количество виджетов с именем $name во всех секциях и имеющих заданные настройки $data */
+	/* Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГўГЁГ¤Г¦ГҐГІГ®Гў Г± ГЁГ¬ГҐГ­ГҐГ¬ $name ГўГ® ГўГ±ГҐГµ Г±ГҐГЄГ¶ГЁГїГµ ГЁ ГЁГ¬ГҐГѕГ№ГЁГµ Г§Г Г¤Г Г­Г­Г»ГҐ Г­Г Г±ГІГ°Г®Г©ГЄГЁ $data */
 	public static function fromSectionWidget($name,$data=null) {
 		$db=plushka::db();
 		$db->query('SELECT data FROM widget WHERE name='.$db->escape($name));
@@ -12,9 +12,9 @@ class ObjectLink {
 		return $cnt;
 	}
 
-	/* Возвращает количество виджетов с именем $name, определённых в шаблоне с именем $template и заданных настройках виджета $data */
+	/* Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГўГЁГ¤Г¦ГҐГІГ®Гў Г± ГЁГ¬ГҐГ­ГҐГ¬ $name, Г®ГЇГ°ГҐГ¤ГҐГ«ВёГ­Г­Г»Гµ Гў ГёГ ГЎГ«Г®Г­ГҐ Г± ГЁГ¬ГҐГ­ГҐГ¬ $template ГЁ Г§Г Г¤Г Г­Г­Г»Гµ Г­Г Г±ГІГ°Г®Г©ГЄГ Гµ ГўГЁГ¤Г¦ГҐГІГ  $data */
 	public static function fromTemplateWidget($name,$data=null,$template=null) {
-		//.ini-файлы создаются во время кеширвания шаблона
+		//.ini-ГґГ Г©Г«Г» Г±Г®Г§Г¤Г ГѕГІГ±Гї ГўГ® ГўГ°ГҐГ¬Гї ГЄГҐГёГЁГ°ГўГ Г­ГЁГї ГёГ ГЎГ«Г®Г­Г 
 		$basedir=plushka::path().'cache/template/';
 		if($template) $template=array($template.'.ini'); else {
 			$d=opendir($basedir);
@@ -37,7 +37,7 @@ class ObjectLink {
 		return $cnt;
 	}
 
-	/* Сравнивает данные виджетов, возвращает 1 если данные в $dataBase совпадают с данными в $dataItem. */
+	/* Г‘Г°Г ГўГ­ГЁГўГ ГҐГІ Г¤Г Г­Г­Г»ГҐ ГўГЁГ¤Г¦ГҐГІГ®Гў, ГўГ®Г§ГўГ°Г Г№Г ГҐГІ 1 ГҐГ±Г«ГЁ Г¤Г Г­Г­Г»ГҐ Гў $dataBase Г±Г®ГўГЇГ Г¤Г ГѕГІ Г± Г¤Г Г­Г­Г»Г¬ГЁ Гў $dataItem. */
 	private static function _compareData($dataBase,$dataItem) {
 		if(!$dataBase) return 1;
 		if(is_string($dataBase) || is_integer($dataBase)) {
