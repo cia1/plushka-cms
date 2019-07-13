@@ -9,7 +9,7 @@ use RuntimeException;
 
 abstract class core {
 
-	/** @var controller Через это свойство можно получить доступ к контроллеру из любой точки */
+	/** @var Controller Через это свойство можно получить доступ к контроллеру из любой точки */
 	public static $controller;
 
 	/** @var string имя шаблона, который будет использован при генерации HTML-кода страницы */
@@ -81,7 +81,7 @@ abstract class core {
 	}
 
 	/**
-	 * Возвращает экземпляр класса form, предназначенного для конструирования HTML-форм
+	 * Возвращает экземпляр класса Form, предназначенного для конструирования HTML-форм
 	 * Имена полей формы будут сгенерированы с учётом $namespace: $_POST[$namespace]['someAttribute']
 	 * @param string|null $namespace
 	 * @return Form

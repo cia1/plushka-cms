@@ -12,9 +12,6 @@ require_once(__DIR__.'/core.php');
  */
 abstract class plushka extends core {
 
-    /** @var Controller Ссылка на контроллер для доступа из вне */
-    public static $controller;
-
 	/**
 	 * Возвращает произвольные данные из кэша
 	 * Если кэш не существует или устарел и не задан параметр $callback, то будет возвращено NULL
