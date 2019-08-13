@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 use plushka\core\Admin;
-use plushka\core\Controller;
 use plushka\core\core;
 use plushka\core\Widget;
 
@@ -33,19 +32,6 @@ abstract class plushka extends core {
 		fwrite($f,serialize($data));
 		fclose($f);
 		return $data;
-	}
-
-	/**
-	 * Прерывает выполнение скрипта и генерирует 404-ю HTTP-ошибку
-	 */
-	public static function error404(): void {
-		plushka::hook('404');
-		header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
-		plushka::language('error');
-		plushka::$controller->url[0]='error';
-		plushka::$controller->pageTitle=LNGPageNotExists;
-		plushka::$controller->render('404',true);
-		exit;
 	}
 
 	/**

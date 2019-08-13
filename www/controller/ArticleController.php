@@ -1,60 +1,77 @@
 <?php
 namespace plushka\controller;
 use plushka;
+use plushka\core\Controller;
+use plushka\core\HTTPException;
+use plushka\model\Article;
 
-/* Реализует страницы простых сатей, блога статей (новостная лента), списка статей (категория статей)
-	ЧПУ: /article/view/ПСЕВДОНИМ (actionView) - отдельная статья;
-	/article/blog/КАТЕГОРИЯ (actionBlog), /article/list/КАТЕГОРИЯ (actionList) - блог или список статей;
-	/article/blog/КАТЕГОРИЯ/ПСЕВДОНИМ (actionView), /article/list/КАТЕГОРИЯ/ПСЕВДОНИМ (actionView) - отдельная статья в блоге или списке
-*/
-class ArticleController extends \plushka\core\Controller {
+/**
+ * Статьи
+ * ЧПУ:
+ * /article/view/ПСЕВДОНИМ (actionView) - отдельная статья;
+ * /article/blog/КАТЕГОРИЯ (actionBlog), /article/list/КАТЕГОРИЯ (actionList) - блог или список статей;
+ * /article/blog/КАТЕГОРИЯ/ПСЕВДОНИМ (actionView), /article/list/КАТЕГОРИЯ/ПСЕВДОНИМ (actionView) - отдельная статья в блоге или списке
+ *
+ * @property-read array|null $category Категория для действия "view"
+ * @property-read array|null $article Стаья для действия "view"
+ * @property-read array $articles Статьи для действий "blog" и "view"
+ * @property-read int $foundRows Кол-во статей в пагинации для действий "blog" и "view"
+ */
+class ArticleController extends Controller {
 
-	/* Одиночная статья или статья блога (подробно) */
+    /**
+     * Независимая статья или статья в блоге
+     * @return string
+     * @throws HTTPException
+     */
 	public function actionView() {
-		$db=plushka::db();
-		if($_GET['corePath'][1]=='blog' || $_GET['corePath'][1]=='list') $this->data=$db->fetchArrayOnceAssoc('SELECT a.id id,a.title title,a.metaTitle metaTitle,a.metaKeyword metaKeyword,a.metaDescription metaDescription,a.date date,a.text2 text2,a.categoryId categoryId FROM article_'._LANG.' a INNER JOIN article_category_'._LANG.' c ON c.id=a.categoryId AND c.alias='.$db->escape($this->url[2]).' WHERE a.alias='.$db->escape($this->url[3]));
-		else $this->data=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,date,text2,categoryId FROM article_'._LANG.' WHERE alias='.$db->escape($this->url[2]));
-		if(!$this->data) plushka::error404();
-		if($this->data['metaTitle']) $this->metaTitle=$this->data['metaTitle']; else $this->metaTitle=$this->data['title'];
-		if($this->data['metaKeyword']) $this->metaKeyword=$this->data['metaKeyword'];
-		if($this->data['metaDescription']) $this->metaDescription=$this->data['metaDescription'];
-		$this->pageTitle=$this->data['title'];
+		if($_GET['corePath'][1]==='blog' || $_GET['corePath'][1]==='list') {
+            $this->category=Article::categoryByAlias($this->url[2],'title');
+            if($this->category===null) throw new HTTPException(404);
+            $alias=$this->url[3];
+        } else $alias=$this->url[2];
+		$this->article=Article::articleByAlias($alias);
+		if($this->article===null) throw new HTTPException(404);
+		if($this->article['metaTitle']!==null) $this->metaTitle=$this->article['metaTitle']; else $this->metaTitle=$this->article['title'];
+		if($this->article['metaKeyword']) $this->metaKeyword=$this->article['metaKeyword'];
+		if($this->article['metaDescription']) $this->metaDescription=$this->article['metaDescription'];
+		$this->pageTitle=$this->article['title'];
 		return 'View';
 	}
 
 	protected function breadcrumbView() {
-		if($_GET['corePath'][1]=='view') return array('{{pageTitle}}');
-		else {
-			$db=plushka::db();
-			return array('<a href="'.plushka::link('article/'.$_GET['corePath'][1].'/'.$this->url[2]).'">'.$db->fetchValue('SELECT title FROM article_category_'._LANG.' WHERE id='.$this->data['categoryId']).'</a>','{{pageTitle}}');
-		}
+		if($_GET['corePath'][1]==='view') return ['{{pageTitle}}'];
+		else return [
+		    '<a href="'.plushka::link('article/'.$_GET['corePath'][1].'/'.$this->category['alias']).'">'.$this->category['title'].'</a>',
+            '{{pageTitle}}'
+        ];
 	}
 
 	protected function adminViewLink() {
-		if($_GET['corePath'][1]=='list') $s='&list'; elseif($_GET['corePath'][1]=='blog') $s='&blog'; else $s='';
+		if($_GET['corePath'][1]==='list') $s='&list'; elseif($_GET['corePath'][1]==='blog') $s='&blog'; else $s='';
 		return array(
-			array('article.article','?controller=article&action=article&id='.$this->data['id'].$s,'edit','Редактировать статью'),
-			array('article.article','?controller=article&action=articleDelete&id='.$this->data['id'],'delete','Удалить статью &laquo;'.$this->data['title'].'&raquo;','Удалить','if(!confirm(\'Подтвердите удаление.\')) return false;')
+			array('article.article','?controller=article&action=article&id='.$this->article['id'].$s,'edit','Редактировать статью'),
+			array('article.article','?controller=article&action=articleDelete&id='.$this->article['id'],'delete','Удалить статью &laquo;'.$this->article['title'].'&raquo;','Удалить','if(!confirm(\'Подтвердите удаление.\')) return false;')
 		);
 	}
 
-	/* Блог статей/новостная лента */
+    /**
+     * Блог статей
+     * @return string
+     */
 	public function actionBlog() {
-		if(count($this->url)>=4) {
+	    if(isset($this->url[3])===true) {
 			$this->url[1]='View';
 			return $this->actionView();
 		}
-		if(isset($this->url[2])) $categoryAlias=$this->url[2]; else $categoryAlias='blog';
-		$db=plushka::db();
-		$this->category=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,text1,onPage FROM article_category_'._LANG.' WHERE alias='.$db->escape($categoryAlias));
-		if(!$this->category) plushka::error404();
-		$this->category['alias']=$categoryAlias;
+	    $this->category=Article::categoryByAlias($this->url[2]);
+	    if($this->category===null) throw new HTTPException('404');
 		if($this->category['metaTitle']) $this->metaTitle=$this->category['metaTitle']; else $this->metaTitle=$this->category['title'];
 		if($this->category['metaKeyword']) $this->metaKeyword=$this->category['metaKeyword'];
 		if($this->category['metaDescription']) $this->metaDescription=$this->category['metaDescription'];
 		$this->pageTitle=$this->category['title'];
-		$this->items=$db->fetchArrayAssoc('SELECT id,alias,title,text1,date FROM article_'._LANG.' WHERE categoryId='.$this->category['id'].' AND (date<'.time().' OR date IS NULL) ORDER BY sort,date DESC,id DESC',$this->category['onPage']);
-		$this->totalCount=$db->foundRows();
+		$this->articles=Article::articleList($this->category['id'],$this->category['onPage']);
+		$this->foundRows=Article::foundRows();
 		return 'Blog';
 	}
 
@@ -78,22 +95,23 @@ class ArticleController extends \plushka\core\Controller {
 		);
 	}
 
-	/* Список статей (категория) */
+    /**
+     * Категория (список статей)
+     * @return string
+     */
 	public function actionList() {
-		if(count($this->url)>=4) {
+        if(isset($this->url[3])===true) {
 			$this->url[1]='view';
 			return $this->actionView();
 		}
-		if(isset($this->url[2])) $categoryAlias=$this->url[2]; else $categoryAlias='blog';
-		$db=plushka::db();
-		$this->category=$db->fetchArrayOnceAssoc('SELECT id,title,metaTitle,metaKeyword,metaDescription,text1 FROM article_category_'._LANG.' WHERE alias='.$db->escape($categoryAlias));
-		if(!$this->category) plushka::error404();
-		$this->category['alias']=$categoryAlias;
+        $this->category=Article::categoryByAlias($this->url[2]);
+        if($this->category===null) throw new HTTPException('404');
 		if($this->category['metaTitle']) $this->metaTitle=$this->category['metaTitle']; else $this->metaTitle=$this->category['title'];
 		if($this->category['metaKeyword']) $this->metaKeyword=$this->category['metaKeyword'];
 		if($this->category['metaDescription']) $this->metaDescription=$this->category['metaDescription'];
 		$this->pageTitle=$this->category['title'];
-		$this->items=$db->fetchArrayAssoc('SELECT id,alias,title,text1,date FROM article_'._LANG.' WHERE categoryId='.$this->category['id'].' AND (date<'.time().' OR date IS NULL) ORDER BY sort,date DESC,id DESC');
+        $this->articles=Article::articleList($this->category['id'],$this->category['onPage']);
+        $this->foundRows=Article::foundRows();
 		return 'List';
 	}
 
