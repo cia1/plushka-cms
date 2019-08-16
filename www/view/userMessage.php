@@ -1,3 +1,6 @@
+<?php
+use plushka\model\User;
+?>
 <?php if(empty($this->messageList)===true) { ?>
     <p class="newMessageCount empty"><?=LNGYouHaveNotMessages?></p>
 <?php } else { ?>
@@ -6,14 +9,14 @@
     </p>
     <div class="messageList">
     <?php foreach($this->messageList as $index=>$item) { ?>
-        <div class="row<?=$item['direct']?><?=($item['isNew'] ? ' newMessage' : '')?>">
-            <p class="title"><?=$item['subject']?><span><?=date('d.m.Y H:i',$item['date'])?></span></p>
+        <div class="row<?=$item['direction']?><?=($item['isNew'] ? ' newMessage' : '')?>">
+            <p class="title"><?=$item['subjectDirection']?> <?=$item['login']?><span><?=date('d.m.Y H:i',$item['date'])?></span></p>
             <div class="content"><?=$item['message']?></div>
-            <?php if($item['direct']=='1') { ?>
+            <?php if($item['direction']===User::MESSAGE_DIRECTION_TO) { ?>
                 <p class="control"><a href="#" onclick="return showAnswerForm(<?=$index?>);" class="button"><?=LNGAnswer?></a></p>
             <?php } ?>
         </div>
-        <?php if($item['direct']=='1') {
+        <?php if($item['direction']===User::MESSAGE_DIRECTION_TO) {
             echo '<div class="answer" id="answer'.$index.'" style="display:none;">';
             $f=plushka::form();
             $f->hidden('replyTo',$item['id']);

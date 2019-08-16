@@ -4,12 +4,15 @@ use plushka;
 use plushka\core\Email;
 use plushka\core\Model;
 use plushka\core\User as UserCore;
-use ReflectionException;
 
 plushka::language('user');
 
 /**
  * Библиотека функций личного кабинета пользователей
+ * @property int|null $id Идентификатор, первичный ключ
+ * @property int $groupId Группа пользователя
+ * @property string|null $login Логин
+ * @property string|null $email Адрес электронной почты
  * @property string $code Код авторизации
  * @property int $status Статус
  * @property string $password Пароль или хеш пароля
@@ -22,20 +25,13 @@ class User extends Model {
     public const STATUS_ACTIVE=1; //E-mail подтверждён
     public const STATUS_BLOCKED=2; //Заблокирован
 
-    /** @var int Идентификатор (первичный ключ) */
-    public $id;
-    /** @var int Номер группы (0-255) */
-    public $groupId;
-    /** @var string Логин */
-    public $login;
-    /** @var string Адрес электронной почты */
-    public $email;
-
     public const EMAIL_ACTIVATE='activate'; //подтверждение электронной почты
     public const EMAIL_INFO_ADMIN='infoAdmin'; //сообщение администрации о регистрации пользователя
     public const EMAIL_RESTORE_LINK='restoreLink'; //ссылка на страницу восстановления пароля
     public const EMAIL_RESTORE_PASSWORD='restorePassword'; //ответное письмо (восстановление пароля)
     public const EMAIL_INFO='info'; //(шаблон в /admin/data) - регистрационная информация пользователя
+    public const MESSAGE_DIRECTION_FROM=false; //Сообщение отправлено мной
+    public const MESSAGE_DIRECTION_TO=true; //Сообщение отправлено мне
 
     private const _SALT='2f48uj0'; //Соль для шифрования пароля (одна на всех)
 	private $_self; //указатель на класс, находящийся в сессии (содержит информацию о пользователе)
@@ -45,7 +41,6 @@ class User extends Model {
      * Если задан $id или $user, то модель будет инициирована соответствующими данными
      * @param int|null $id ID пользователя
      * @param UserCore|null $user
-     * @throws ReflectionException
      */
 	public function __construct(int $id=null,UserCore $user=null) {
 		parent::__construct('user');
@@ -180,9 +175,10 @@ class User extends Model {
             $data[]=[
                 'id'=>(int)$item[0],
                 'date'=>$item[1],
-                'direct'=>($item[2]==$userId ? 2 : 1),
+                'direction'=>($item[2]==$userId ? self::MESSAGE_DIRECTION_FROM : self::MESSAGE_DIRECTION_TO),
                 'message'=>$item[5],
-                'isNew'=>$isNew
+                'isNew'=>$isNew,
+                'login'=>($item[2]==$userId ? $item[4] : $item[2])
             ];
             if($isNew) $newCount++;
         }
@@ -354,6 +350,7 @@ class User extends Model {
         }
         $result=parent::save($validate,$primaryAttribute);
         if(isset($this->_data['password'])===true) {
+            /** @noinspection PhpUndefinedVariableInspection */
             $this->_data['password']=$password;
         }
         //Обработать событие изменения или создания пользователя
@@ -365,7 +362,7 @@ class User extends Model {
     }
 
     /* Проверяет уникальность логина */
-    public function validateLogin(string $value,string $attribute) {
+    public function validateLogin(string $value, /** @noinspection PhpUnusedParameterInspection */string $attribute) {
         $value=trim(str_replace(array("'",'"','/','\\'),'',strip_tags($value)));
         if(strlen($value)<3) {
             plushka::error(LNGLoginCannotBeShorter3Symbols);
@@ -385,13 +382,13 @@ class User extends Model {
     }
 
     /* Проверяет уникальность адреса электронной почты */
-    public function validateEmailAddress(string $value,string $field) {
+    public function validateEmailAddress(string $value, /** @noinspection PhpUnusedParameterInspection */string $field) {
         if(!filter_var($value,FILTER_VALIDATE_EMAIL)) {
             plushka::error(LNGEMailIsWrong);
             return false;
         }
         $q='SELECT 1 FROM user WHERE email='.$this->db->escape($value);
-        if($this->_data['id']) $q.=' AND id!='.$this->data['id'];
+        if($this->_data['id']) $q.=' AND id!='.$this->_data['id'];
         if($this->db->fetchValue($q)) {
             plushka::error(LNGThisEmailAlreadyUses);
             return false;
@@ -400,7 +397,7 @@ class User extends Model {
     }
 
     // Проверяет и шифрует пароль перед сохранением
-    public function validatePassword(string $value,string $field) {
+    public function validatePassword(string $value, /** @noinspection PhpUnusedParameterInspection */string $field) {
         $l=strlen($value);
         if($l<3) {
             plushka::error(LNGPasswordTooShort);

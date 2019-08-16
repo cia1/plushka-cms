@@ -44,14 +44,15 @@ class Model extends Validator {
     /**
      * @param string|null $table Имя таблицы базы данных, если не задано, то будет определяться из имени класса
      * @param string $db Используемая СУБД: "db" (основная СУБД), "mysql" или "sqlite"
-     * @throws ReflectionException
      */
 	public function __construct(string $table=null,string $db='db') {
 		if($table===null) {
-			$this->_table=preg_replace_callback('~[A-Z]~',function($letter) {
-				return '_'.strtolower($letter[0]);
-			},(new ReflectionClass($this))->getShortName());
-		} else $this->_table=$table;
+            try {
+                $this->_table = preg_replace_callback('~[A-Z]~', function ($letter) {
+                    return '_' . strtolower($letter[0]);
+                }, (new ReflectionClass($this))->getShortName());
+            } catch (ReflectionException $e) {} //Это исключение никогда не будет выброшено
+        } else $this->_table=$table;
 		if($db==='db') $this->db=plushka::db();
 		elseif($db==='sqlite') $this->db=plushka::sqlite();
 		elseif($db==='mysql') $this->db=plushka::mysql();

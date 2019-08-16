@@ -210,6 +210,9 @@ class UserController extends Controller {
 	    $userModel=plushka::user()->model();
 	    $this->messageList=$userModel->messageList();
 	    $this->newMessageCount=$userModel->newMessageCount;
+	    foreach($this->messageList as $i=>$item) {
+	        $this->messageList[$i]['subjectDirection']=$item['direction']==UserModel::MESSAGE_DIRECTION_FROM ? LNGYouWriteTo : LNGWriteToYou;
+        }
 	    $userModel->clearNewMessage();
 		$this->pageTitle=$this->metaTitle=LNGYourMessages;
 		return 'Message';

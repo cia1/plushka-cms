@@ -4,7 +4,6 @@ use BadMethodCallException;
 use plushka;
 use plushka\core\User as UserCore;
 use plushka\model\User as UserModel;
-use ReflectionException;
 use RuntimeException;
 use Throwable;
 
@@ -69,9 +68,9 @@ abstract class core {
 	/**
 	 * Устанавливает и возвращает текст сообщения об ошибке
 	 * @param string|null $message Устанавливаемый текст сообщения
-	 * @return string|null Текст сообщения или null, если ошибки не было
+	 * @return string|false|null Текст сообщения или null, если ошибки не было
 	 */
-	public static function error(string $message=null): ?string {
+	public static function error($message=null): ?string {
 		if($message===false) {
 			$message=(isset($_SESSION['messageError']) ? $_SESSION['messageError'] : null);
 			unset($_SESSION['messageError']);
@@ -177,7 +176,6 @@ abstract class core {
 	 * @param string $classTable Имя таблицы или класса ActiveRecord
 	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
 	 * @return Model
-     * @throws ReflectionException
 	 */
 	public static function model(string $classTable,string $db='db'): Model {
 		$class='\plushka\model\\'.ucfirst($classTable);
@@ -327,7 +325,6 @@ abstract class core {
 	 * Возвращает класс, олицетворяющий текущего пользователя.
 	 * Для неавторизованных пользователей user::userGroup будет иметь значение "0".
 	 * @return UserCore
-     * @throws ReflectionException
 	 * @see plushka::userGroup()
 	 * @see \plushka\core\User
 	 */
@@ -339,7 +336,6 @@ abstract class core {
 	/**
 	 * Возвращает пользователя, игнорируя режим подмены пользователя.
 	 * @return user
-     * @throws ReflectionException
 	 * @see plushka::user()
 	 * @see UserCore
 	 */
@@ -352,7 +348,6 @@ abstract class core {
 	 * Возвращает группу пользователей, к которой относится текущий пользователь:
 	 * 0 - не авторизованный, 1-199 - зарегистрированные пользователи, 200-254 - администраторы, 255 - суперпользователь
 	 * @return integer
-     * @throws ReflectionException
 	 */
 	public static function userGroup(): int {
 		return self::user()->group;
@@ -361,7 +356,6 @@ abstract class core {
 	/**
 	 * Возвращает идентификатор текущего пользователя (db user.id), для не авторизованных - 0
 	 * @return integer
-     * @throws ReflectionException
 	 */
 	public static function userId(): int {
 		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
@@ -431,7 +425,6 @@ class Controller {
 	 * Рендерит шаблон и представление. Вызывать метод явно не нужно.
 	 * Представлением может быть класс (должен реализовывать метод render($view)) или имя представления (файл /view/{controller}/$view.php). Если представление не задано, ничего выводиться не будет.
 	 * @param bool $renderTemplate Если false, то шаблон обрабатываться не будет (полезно для AJAX-запросов)
-     * @throws ReflectionException
 	 */
 	public function render(bool $renderTemplate=true): void {
         $alias=$this->url[0];
@@ -555,7 +548,6 @@ class Controller {
 	/**
 	 * Выводит HTML-код кнопок админки для элемента списка, явно вызывать метод не нужно
 	 * @param mixed $data Произвольные данные, которые будут переданы в метод controller::admin{Action}Link2()
-     * @throws ReflectionException
 	 */
 	protected function admin($data=null): void {
 		$user=plushka::userReal();
@@ -642,7 +634,6 @@ abstract class Widget {
 	 * Выводит HTML-код кнопок админки для элемента списка
 	 * Должен вызываться из MVC-представлений виджетов.
 	 * @param array[] $data
-     * @throws ReflectionException
 	 */
 	public function admin(array $data): void {
 		$u=plushka::userReal();
@@ -690,7 +681,6 @@ class User {
 
 	/**
 	 * @param integer|null $id Если задан, то из базы данных будут загружены данные пользователя с этим идентификатором
-     * @throws ReflectionException
 	 */
 	public function __construct(int $id=null) {
 		if($id!==null) $this->model($id);
@@ -701,7 +691,6 @@ class User {
 	 * Модель будет содержать данные авторизованного пользователя. Если задан параметр $id, то соответствующий пользователь будет авторизован (используйте new \plushka\model\User(), если это нежелательное поведение).
 	 * @param integer|null $id Идентификатор пользователя, которогу нужно авторизовать
 	 * @return UserModel
-     * @throws ReflectionException
 	 */
 	public function model(int $id=null): UserModel {
 		static $model;
@@ -749,7 +738,6 @@ class RouteException extends RuntimeException {}
 /**
  * Запускает приложение
  * @param bool $renderTemplate Нужно ли обрабатывать шаблон (false для AJAX-запросов)
- * @throws ReflectionException
  */
 function runApplication(bool $renderTemplate=true): void {
 	session_start();
