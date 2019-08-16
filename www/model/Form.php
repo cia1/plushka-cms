@@ -4,6 +4,7 @@ use plushka;
 use plushka\core\Validator;
 use plushka\core\Email;
 use plushka\core\Form as FormCore;
+use plushka\core\HTTPException;
 plushka::language('form');
 
 /**
@@ -85,7 +86,7 @@ class Form extends FormCore {
 		$this->data=$data;
 		$db=plushka::db();
 		$this->form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,email,subject_'._LANG.' subject,redirect,script,notification FROM frm_form WHERE id='.$id);
-		if(!$this->form) plushka::error404();
+		if(!$this->form) throw new HTTPException(404);
 		if($this->form['notification']) $this->form['notification']=json_decode($this->form['notification'],true);
 		else $this->form['notification']=null;
 		//Если задан пользовательский скрипт обработки (до валидации), то сначала вызвать его.

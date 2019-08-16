@@ -4,6 +4,7 @@ use plushka;
 use plushka\core\Email;
 use plushka\core\Model;
 use plushka\core\User as UserCore;
+use ReflectionException;
 
 plushka::language('user');
 
@@ -12,8 +13,14 @@ plushka::language('user');
  * @property string $code Код авторизации
  * @property int $status Статус
  * @property string $password Пароль или хеш пароля
+ *
+ * @property-read int|null $newMessageCount Количество новых сообщений, достпно после вызова self::messageList()
  */
 class User extends Model {
+
+    public const STATUS_NOT_CONFIRMED=0; //Новый пользователь, e-mail не подтверждён
+    public const STATUS_ACTIVE=1; //E-mail подтверждён
+    public const STATUS_BLOCKED=2; //Заблокирован
 
     /** @var int Идентификатор (первичный ключ) */
     public $id;
@@ -38,12 +45,13 @@ class User extends Model {
      * Если задан $id или $user, то модель будет инициирована соответствующими данными
      * @param int|null $id ID пользователя
      * @param UserCore|null $user
+     * @throws ReflectionException
      */
-	public function __construct(int $id=null,UserCore &$user=null) {
+	public function __construct(int $id=null,UserCore $user=null) {
 		parent::__construct('user');
 		$this->_self=$user;
-		if($id) {
-			if(!$this->loginById($id)) plushka::error(LNGUserNotExists);
+		if($id!==null) {
+			if($this->loginById($id)===false) plushka::error(LNGUserNotExists);
 		} elseif($user!==null) foreach($this->_self as $key=>$value) $this->_data[$key]=$value;
 	}
 
@@ -154,6 +162,53 @@ class User extends Model {
             $this->_userRight();
         }
         return true;
+    }
+
+    /**
+     * Возвращает список последних сообщений пользователя
+     * Количество новых сообщений будет доступно в $this->newMessageCount
+     * @param int $limit
+     * @return array
+     */
+    public function messageList(int $limit=25) {
+        $userId=$this->id;
+        $data=[];
+        $this->db->query('SELECT id,date,user1Id,user1Login,user2Login,message,isNew FROM user_message WHERE user1Id='.$userId.' OR user2Id='.$userId.' ORDER BY date DESC LIMIT '.$limit);
+        $newCount=0;
+        while($item=$this->db->fetch()) {
+            $isNew=($item[2]!=$userId && $item[6] ? true : false);
+            $data[]=[
+                'id'=>(int)$item[0],
+                'date'=>$item[1],
+                'direct'=>($item[2]==$userId ? 2 : 1),
+                'message'=>$item[5],
+                'isNew'=>$isNew
+            ];
+            if($isNew) $newCount++;
+        }
+        $this->newMessageCount=$newCount;
+        return $data;
+    }
+
+    /**
+     * Сбрасывает счётчик новых сообщений, помечая все сообщения прочитанными
+     */
+    public function clearNewMessage(): void {
+        $this->db->query('UPDATE user_message SET isNew=0 WHERE user2Id='.$this->id);
+        $_SESSION['newMessageCount']=0;
+        $_SESSION['newMessageTimeout']=time();
+    }
+
+    /**
+     * Отправляет ответ на личное сообщение
+     * @param int $messageId Идентификатор сообщения
+     * @param string $text Текст сообщения
+     * @return bool
+     */
+    public function messageReply(int $messageId,string $text): bool {
+        $data=$this->db->fetchArrayOnceAssoc('SELECT user1Id,user1Login FROM user_message WHERE id='.$messageId.' AND user2Id='.$this->id);
+        if($data===null) return false;
+        return $this->message($text,$data['user1Id'],$data['user1Login']);
     }
 
     /**
@@ -275,7 +330,6 @@ class User extends Model {
                 $template['password']=$this->_data['password'];
                 break;
             case 'info': //информация пользователю
-                plushka::language('user');
                 $email->subject(sprintf(LNGYouAreRegisteredOnSite,$_SERVER['HTTP_HOST']));
                 if($this->_data['password']) $template['password']=$this->_data['password']; else $template['password']='('.LNGknownOnlyYou.')';
                 $template['status']=($this->_data['status'] ? LNGaccountActive : LNGaccountBlocked);
@@ -395,14 +449,14 @@ class User extends Model {
 
 
 	//Возвращает зашифрованный пароль
-	private static function _hash($password) {
+	private static function _hash(string $password): string {
 		return crypt($password,self::_SALT);
 	}
 
 	//Загружает набор прав доступа для текущего пользователя в $this->right
-	private function _userRight() {
+	private function _userRight(): void {
 		if($this->groupId<200) return;
-		$right=array();
+		$right=[];
 		$this->db->query('SELECT module,groupId,picture FROM user_right');
 		while($item=$this->db->fetch()) {
 			$group=explode(',',$item[1]);

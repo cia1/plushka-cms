@@ -1,9 +1,13 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
-use plushkaAdmin as plushka;
+use plushka\core\DBException;
+use plushka\core\HTTPException;
+use plushka\controller\ErrorController;
 use plushka\core\Cache;
 use plushka\core\Controller as ControllerPublic;
+use plushkaAdmin as plushka;
+use Throwable;
 
 require(dirname(__DIR__,2).'/core/core.php');
 
@@ -59,6 +63,88 @@ class Controller extends ControllerPublic {
 	 * @param bool $renderTemplate нужно ли использовать шаблон
 	 */
 	public function render($view,bool $renderTemplate=true): void {
+        $alias=$this->url[0];
+        //Проверка прав доступа к запрошенной странице
+        $user=plushka::userReal();
+        if($alias!=='user' || $this->url[1]!=='Login') {
+            if($user->group<200) plushka::redirect('user/login');
+            if($user->group!==255) {
+                if(method_exists($this,'right')===false) {
+                    plushka::error('Недостаточно прав для доступа к разделу');
+                    plushka::redirect('user/login');
+                }
+                $right=$this->right();
+                if(isset($right[$this->url[1]])===false) {
+                    plushka::error('Недостаточно прав для доступа к разделу');
+                    plushka::redirect('user/login');
+                }
+                $right=explode(',',$right[$this->url[1]]);
+                foreach($right as $item) {
+                    if($item==='*') continue;
+                    if(isset($user->right[$item])===false) {
+                        plushka::error('Недостаточно прав для доступа к разделу');
+                        plushka::redirect('user/login');
+                    }
+                }
+            }
+        }
+
+        if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
+            if(method_exists($this,'action'.$this->url[1].'Submit')===false) throw new HTTPException(404);
+            if(isset($_FILES[$alias])) {
+                $f1=$_FILES[$alias];
+                foreach($f1['size'] as $name=>$value) {
+                    if(is_array($value)) {
+                        $_POST[$alias][$name]=array();
+                        foreach($value as $i=>$size) {
+                            if(!$size) continue;
+                            $_POST[$alias][$name][]=[
+                                'name'=>$f1['name'][$name][$i],
+                                'tmpName'=>$f1['tmp_name'][$name][$i],
+                                'type'=>$f1['type'][$name][$i],
+                                'size'=>$size
+                            ];
+                        }
+                    } else {
+                        $_POST[$alias][$name]=[
+                            'name'=>$f1['name'][$name],
+                            'tmpName'=>$f1['tmp_name'][$name],
+                            'type'=>$f1['type'][$name],
+                            'size'=>$value
+                        ];
+                    }
+                }
+            }
+            $s='action'.$this->url[1].'Submit';
+            $post=$_POST[$alias];
+            $data=$this->$s($post); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
+            //Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
+            if(isset($_GET['_serialize'])) {
+                if(plushka::error()) die(plushka::error(false));
+                echo "OK\n";
+                if(isset($post['cacheTime'])===true || (is_array($data)===true && isset($data['cacheTime'])===true)) {
+                    echo $post['cacheTime'];
+                    if(is_array($data)===true && isset($data['cacheTime'])===true) unset($data['cacheTime']);
+                } else echo '0';
+                echo "\n";
+                if(is_array($data)===true) echo serialize($data); else echo $data;
+                exit;
+            }
+        } else $data=null;
+
+        $s='action'.$this->url[1];
+        if(method_exists($this,$s)===false) throw new HTTPException(404);
+
+        //Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
+        if(isset($_GET['_serialize'])===true && isset($_POST['data'])===true) {
+            if(substr($_POST['data'],0,2)==='a:' && $_POST['data'][strlen($_POST['data'])-1]==='}') $view=$this->$s(unserialize($_POST['data']));
+            else $view=$this->$s($_POST['data']);
+        } else $view=$this->$s($data);
+
+        //Запуск действия (не submit) и вывод контента
+        $view=$this->$s($data);
+
+        //Генерация HTML-страницы
 		if(!plushka::template()) $renderTemplate=false;
 		if(!$view) return; //Если нет представления, то ничего не выводить
 		if($renderTemplate===true) { //Вывести верхнюю часть шаблона
@@ -66,9 +152,9 @@ class Controller extends ControllerPublic {
 			if(file_exists($s)===false || plushka::debug()===true) Cache::template(plushka::template());
 			/** @noinspection PhpIncludeInspection */
 			include($s);
-			if($this->pageTitle) echo '<h1 class="pageTitle">'.$this->pageTitle.'</h1>';
+			if($this->pageTitle) echo '<h1 class="pageTitle">',$this->pageTitle,'</h1>';
 		} else echo $this->_head;
-		if($this->_button) echo '<div class="_operation">'.$this->_button.'</div>'; //Кнопки
+		if($this->_button) echo '<div class="_operation">',$this->_button,'</div>'; //Кнопки
 		//Сообщение об ошибке (если есть)
 		if(plushka::error()) {
 			echo '<div class="messageError">',plushka::error(false),'</div>';
@@ -110,71 +196,60 @@ class Controller extends ControllerPublic {
 function runApplication(bool $renderTemplate=true): void {
 	session_start();
 	plushka::$controller='\plushka\admin\controller\\'.ucfirst($_GET['controller']).'Controller';
-	plushka::$controller=new plushka::$controller();
-	$alias=plushka::$controller->url[0];
-	//Проверка прав доступа к запрошенной странице
-	$user=plushka::userReal();
-	if($alias!=='user' || plushka::$controller->url[1]!=='Login') {
-		if($user->group<200) plushka::redirect('user/login');
-		if($user->group!=255) {
-			if(method_exists(plushka::$controller,'right')===false) {
-				plushka::error('Недостаточно прав для доступа к разделу');
-				plushka::redirect('user/login');
-			}
-			$right=plushka::$controller->right();
-			if(isset($right[plushka::$controller->url[1]])===false) {
-				plushka::error('Недостаточно прав для доступа к разделу');
-				plushka::redirect('user/login');
-			}
-			$right=explode(',',$right[plushka::$controller->url[1]]);
-			foreach($right as $item) {
-				if($item==='*') continue;
-				if(isset($user->right[$item])===false) {
-					plushka::error('Недостаточно прав для доступа к разделу');
-					plushka::redirect('user/login');
-				}
-			}
-		}
-	}
-	if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
-		$s='action'.plushka::$controller->url[1].'Submit';
-		if(method_exists(plushka::$controller,$s)===false) plushka::error404();
+	try {
+	    try {
+            plushka::$controller=new plushka::$controller();
+        } catch(Throwable $e) {
+            throw new HTTPException(404);
+        }
+        plushka::$controller->render($renderTemplate);
+	} catch(DBException $e) {
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
+        if(plushka::debug()===true) echo '<p>',$e,'</p>';
+    } catch(HTTPException $e) {
+        $controller=new ErrorController($e);
+        $controller->render($renderTemplate);
+    }
+
+//	if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
+//		$s='action'.plushka::$controller->url[1].'Submit';
+//		if(method_exists(plushka::$controller,$s)===false) plushka::error404();
 		//Подготовить данные _POST и _FILES для передачи submit-действию
-		if(isset($_FILES[$alias])) {
-			$f1=$_FILES[$alias];
-			foreach($f1['name'] as $name=>$value) {
-				if(is_array($value)) {
-					$_POST[$alias][$name]=array();
-					foreach($value as $i=>$valueValue) {
-						$_POST[$alias][$name][]=array('name'=>$valueValue,'tmpName'=>$f1['tmp_name'][$name][$i],'type'=>$f1['type'][$name][$i],'size'=>$f1['size'][$name][$i]);
-					}
-				} else $_POST[$alias][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
-			}
-		}
-		$post=$_POST[plushka::$controller->url[0]];
-		@$data=plushka::$controller->$s($post);
+//		if(isset($_FILES[$alias])) {
+//			$f1=$_FILES[$alias];
+//			foreach($f1['name'] as $name=>$value) {
+//				if(is_array($value)) {
+//					$_POST[$alias][$name]=array();
+//					foreach($value as $i=>$valueValue) {
+//						$_POST[$alias][$name][]=array('name'=>$valueValue,'tmpName'=>$f1['tmp_name'][$name][$i],'type'=>$f1['type'][$name][$i],'size'=>$f1['size'][$name][$i]);
+//					}
+//				} else $_POST[$alias][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
+//			}
+//		}
+//		$post=$_POST[plushka::$controller->url[0]];
+//		@$data=plushka::$controller->$s($post);
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
-		if(isset($_GET['_serialize'])) {
-			if(plushka::error()) die(plushka::error(false));
-			echo "OK\n";
-			if(isset($post['cacheTime']) || (is_array($data) && isset($data['cacheTime']))) {
-				echo $post['cacheTime'];
-				if(is_array($data) && isset($data['cacheTime'])) unset($data['cacheTime']);
-			} else echo '0';
-			echo "\n";
-			if(is_array($data)) echo serialize($data); else echo $data;
-			exit;
-		}
-	} else $data=null;
+//		if(isset($_GET['_serialize'])) {
+//			if(plushka::error()) die(plushka::error(false));
+//			echo "OK\n";
+//			if(isset($post['cacheTime']) || (is_array($data) && isset($data['cacheTime']))) {
+//				echo $post['cacheTime'];
+//				if(is_array($data) && isset($data['cacheTime'])) unset($data['cacheTime']);
+//			} else echo '0';
+//			echo "\n";
+//			if(is_array($data)) echo serialize($data); else echo $data;
+//			exit;
+//		}
+//	} else $data=null;
 	//Запуск "обычного" действия
-	if(plushka::$controller->url[1]) {
-		$s='action'.plushka::$controller->url[1];
-		if(method_exists(plushka::$controller,$s)===false) plushka::error404();
+//	if(plushka::$controller->url[1]) {
+//		$s='action'.plushka::$controller->url[1];
+//		if(method_exists(plushka::$controller,$s)===false) plushka::error404();
 		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
-		if(isset($_GET['_serialize'])===true && isset($_POST['data'])===true) {
-			if(substr($_POST['data'],0,2)==='a:' && $_POST['data'][strlen($_POST['data'])-1]==='}') $view=plushka::$controller->$s(unserialize($_POST['data']));
-			else $view=plushka::$controller->$s($_POST['data']);
-		} else $view=plushka::$controller->$s($data);
-	} else $view=null;
-	plushka::$controller->render($view,$renderTemplate);
+//		if(isset($_GET['_serialize'])===true && isset($_POST['data'])===true) {
+//			if(substr($_POST['data'],0,2)==='a:' && $_POST['data'][strlen($_POST['data'])-1]==='}') $view=plushka::$controller->$s(unserialize($_POST['data']));
+//			else $view=plushka::$controller->$s($_POST['data']);
+//		} else $view=plushka::$controller->$s($data);
+//	} else $view=null;
+//	plushka::$controller->render($view,$renderTemplate);
 }

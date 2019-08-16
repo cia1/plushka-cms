@@ -1,10 +1,22 @@
 <?php
 namespace plushka\controller;
 use plushka;
-use plushka\model\User;
+use plushka\core\Controller;
+use plushka\core\Form;
+use plushka\model\User as UserModel;
 
-/* Регистрация, авторизация, восстановление пароля, личный кабинет */
-class UserController extends \plushka\core\Controller {
+/**
+ * Регистарция, авторизация, восстановление пароля, личный кабинет
+ * @property-read Form $formPassword Форма смены пароля для действия "index"
+ * @property-read bool $notification Признак установлен ли модуль "notification", используется в действии "index"
+ * @property-read Form $form Форма авторизации для действия "login"
+ * @property-read string $content Сообщение о подтверждении e-mail для действия "confirm"
+ * @property-read array[] $messageList Список новых сообщений для действия "message"
+ * @property-read int $newMessageCount Кол-во новых сообщений для действия "message"
+ */
+class UserController extends Controller {
+
+    private const _SALT='resTore';
 
 	public function __construct() {
 		parent::__construct();
@@ -12,14 +24,17 @@ class UserController extends \plushka\core\Controller {
 		plushka::language('user');
 	}
 
-	/* Личный кабинет */
-	public function actionIndex() {
-		$u=plushka::user();
-		if(!$u->id) plushka::redirect('user/login'); //если пользователь не авторизован
+    /**
+     * Личный кабинет
+     * @return string
+     */
+	public function actionIndex(): string {
+		$user=plushka::user();
+		if(!$user->id) plushka::redirect('user/login'); //если пользователь не авторизован
 		//Форма смены пароля.
 		$form=plushka::form();
-		$form->label(LNGLogin,$u->login);
-		$form->label('E-mail',$u->email);
+		$form->label(LNGLogin,$user->login);
+		$form->label('E-mail',$user->email);
 		$form->html('<h3>'.LNGPasswordChanging.'</h3>');
 		$form->password('passwordOld',LNGOldPassword);
 		$form->password('password1',LNGNewPassword);
@@ -31,17 +46,21 @@ class UserController extends \plushka\core\Controller {
 		return 'Index';
 	}
 
-	public function actionIndexSubmit($data) {
-		if($data['password1']!=$data['password2']) {
+    /**
+     * Смена пароля
+     * @param array $data
+     */
+	public function actionIndexSubmit(array $data): void {
+		if($data['password1']!==$data['password2']) {
 			plushka::error(LNGPasswordsAreNotEqual);
-			return false;
+			return;
 		}
 		//Проверка старого пароля
 		$user=plushka::user();
-		$userModel=new User();
+		$userModel=new UserModel();
 		if(!$userModel->login($user->login,$data['passwordOld'])) {
 			plushka::error(LNGOldPasswordIsWrong);
-			return false;
+			return;
 		}
 		//Сохранить новый пароль в базе данных
 		$userModel->password=$data['password1'];
@@ -49,152 +68,160 @@ class UserController extends \plushka\core\Controller {
 		plushka::redirect('user',LNGPasswordChanged);
 	}
 
-	/* Выводит форму авторизации */
-	public function actionLogin() {
-		$f=plushka::form();
-		$f->text('login',LNGLogin);
-		$f->password('password',LNGPassword);
-		if(isset($_SESSION['wrongPassword'])) $f->captcha('captcha',LNGCaptcha);
-		$f->submit(LNGEnter);
-		$f->html('<a href="'.plushka::link('user/restore').'">'.LNGForgotPassword.'</a>');
+    /**
+     * Форма авторизации
+     * @return string
+     */
+	public function actionLogin(): string {
+		$form=plushka::form();
+		$form->text('login',LNGLogin);
+		$form->password('password',LNGPassword);
+		if(isset($_SESSION['wrongPassword'])===true) $form->captcha('captcha',LNGCaptcha);
+		$form->submit(LNGEnter);
+		$form->html('<a href="'.plushka::link('user/restore').'">'.LNGForgotPassword.'</a>');
 		$this->metaTitle=LNGAuthorization;
 		$this->pageTitle=LNGEnter;
-		$this->form=$f;
+		$this->form=$form;
 		return 'Login';
 	}
 
-	public function actionLoginSubmit($data) {
-		if(isset($_SESSION['wrongPassword']) && (!isset($data['captcha']) || !$data['captcha'] || (int)$data['captcha']!==$_SESSION['captcha'])) {
+	public function actionLoginSubmit($data): void {
+		if(isset($_SESSION['wrongPassword'])===true && (isset($data['captcha'])===false || !$data['captcha'] || (int)$data['captcha']!==$_SESSION['captcha'])) {
 			plushka::error(LNGCaptcha.' '.LNGwroteWrong);
 			return;
 		}
 		if(!plushka::user()->model()->login($data['login'],$data['password'])) {
-			if(isset($_SESSION['wrongPassword'])) $_SESSION['wrongPassword']++; else $_SESSION['wrongPassword']=1;
+			if(isset($_SESSION['wrongPassword'])===true) $_SESSION['wrongPassword']++; else $_SESSION['wrongPassword']=1;
 			return;
 		}
-		if(isset($_SESSION['wrongPassword'])) unset($_SESSION['wrongPassword']);
+		if(isset($_SESSION['wrongPassword'])===true) unset($_SESSION['wrongPassword']);
 		plushka::redirect('user');
 	}
 
-	/* Выводит форму регистрации */
-	public function actionRegister() {
+    /**
+     * Форма регистрации
+     * @return Form
+     */
+	public function actionRegister(): Form {
 		if(plushka::userId()) plushka::redirect('/');
-		$f=plushka::form();
-		$f->text('login',LNGLogin);
-		$f->password('password1',LNGPassword);
-		$f->password('password2',LNGPasswordAgain);
-		$f->text('email','E-mail');
-		$f->captcha('captcha',LNGCaptcha);
-		$f->submit();
+		$form=plushka::form();
+		$form->text('login',LNGLogin);
+		$form->password('password1',LNGPassword);
+		$form->password('password2',LNGPasswordAgain);
+		$form->text('email','E-mail');
+		$form->captcha('captcha',LNGCaptcha);
+		$form->submit();
 		$this->metaTitle=$this->pageTitle=LNGRegistration;
-		return $f;
+		return $form;
 	}
 
-	public function actionRegisterSubmit($data) {
-		if($data['password1']!=$data['password2']) {
+	public function actionRegisterSubmit(array $data): void {
+		if($data['password1']!==$data['password2']) {
 			plushka::error(LNGPasswordsAreNotEqual);
-			return false;
+			return;
 		}
 		if(!$data['captcha'] || (int)$data['captcha']!==$_SESSION['captcha']) {
 			plushka::error(LNGCaptcha.' '.LNGwroteWrong);
 		}
 		if(plushka::config('_core','emailRequired')===false) $user=plushka::user()->model();
-		else $user=new User();
-		if(!$user->create($data['login'],$data['password1'],$data['email'])) return false; //регистрация пользователя
-		if(!$user->sendMail('activate')) return false; //письмо с ссылкой подтверждения адреса электронной почты
+		else $user=new UserModel();
+		if(!$user->create($data['login'],$data['password1'],$data['email'])) return; //регистрация пользователя
+		if(!$user->sendMail('activate')) return; //письмо с ссылкой подтверждения адреса электронной почты
 		plushka::redirect('user',LNGMessageSentFollowInstructions);
 	}
 
-	/* Подтверждение адреса электронной почты */
-	public function actionConfirm() {
+    /**
+     * Подтверждение адреса электронной почты
+     * @return string
+     */
+	public function actionConfirm(): string {
 		$user=plushka::user()->model();
+		plushka::language('user');
+		$this->content=sprintf(LNGEmailConfirmedYouLoggedIn,$user->login);
 		if(!$user->loginByCode($_GET['code'])) return '_empty'; //поиск пользователя по коду и авторизация, если найден
 		//Обновить статус пользователя
-		$user->status=1;
-		$this->code=null;
-		$user->save(false,'id');
+		$user->status=UserModel::STATUS_ACTIVE;
+		$user->save(false);
 		//$user->sendMail('infoAdmin'); //сообщение администрации
-		$this->login=$user->login;
 		$this->pageTitle=$this->metaTitle=LNGRegistration;
-		return 'Confirm';
+		return '_empty';
 	}
 
-	/* "Выход" */
-	public function actionLogout() {
+    /**
+     * Выход
+     */
+	public function actionLogout(): void {
 		plushka::user()->model()->logout();
 		plushka::redirect('');
 	}
 
-	/* Восстановление пароля по адресу электронной почты */
-	public function actionRestore() {
-		$f=plushka::form();
-		$f->text('email',LNGEmailUsedAtRegistration);
-		$f->submit();
+    /**
+     * Восстановление пароля по адресу электронной почты
+     * @return Form
+     */
+	public function actionRestore(): Form {
+		$form=plushka::form();
+		$form->text('email',LNGEmailUsedAtRegistration);
+		$form->submit();
 		$this->metaTitle=$this->pageTitle=LNGPasswordRestore;
-		return $f;
+		return $form;
 	}
 
-	public function breadcrumbRestore() {
-		return array('<a href="'.plushka::link('user/login').'">'.LNGLogin.'</a>','{{pageTitle}}');
+	public function breadcrumbRestore(): array {
+		return ['<a href="'.plushka::link('user/login').'">'.LNGLogin.'</a>','{{pageTitle}}'];
 	}
 
-	public function actionRestoreSubmit($data) {
+	public function actionRestoreSubmit(array $data): void {
 		$user=plushka::user()->model();
-		if(!$user->loadByEmail($data['email'])) return 'Confirm'; //загрузка информации по e-mail
-		if($user->status==2) {
+		if(!$user->loadByEmail($data['email'])) return; //загрузка информации по e-mail
+		if($user->status===UserModel::STATUS_BLOCKED) {
 			plushka::error(LNGSorryYourAccountBlocked);
-			return false;
+			return;
 		}
 		//Обновление кода подтверждения
-		$user->code=md5(time().'resTore');
+		$user->code=md5(time().self::_SALT);
 		$user->save(false,'id');
-		if(!$user->sendMail('restoreLink')) return 'Confirm'; //отправить ссылку для восстановления пароля
+		if($user->sendMail('restoreLink')===false) return; //отправить ссылку для восстановления пароля
 		plushka::redirect('user/login',LNGInstructionsSent);
 	}
 
-	//Переход по ссылке восстановления пароля (из e-mail)
-	public function actionRestoreSendPassword() {
+    /**
+     * Переход по ссылке восстановления пароля из электронного письма
+     * @return string|null
+     */
+	public function actionRestoreSendPassword(): ?string {
 		$user=plushka::user()->model();
 		if(!$user->loginByCode($_GET['code'])) return 'Confirm'; //поиск пользователя по коду активации
 		//Сохранить обновлённые данные
 		$user->password=substr(md5(uniqid(rand(),true)),0,7);
-		$user->status=1;
+		if($user->status!==UserModel::STATUS_BLOCKED) $user->status=UserModel::STATUS_ACTIVE;
 		$user->code=null;
 		$user->save(false,'id');
 		if(!$user->sendMail('restorePassword')) return 'Confirm'; //отправить новый пароль по почте
 		plushka::redirect('user/login',LNGNewPasswordSent);
+		return null;
 	}
 
-	/* Список личных сообщений */
-	public function actionMessage() {
-		$uid=plushka::userId();
-		if(!$uid) plushka::redirect('user/login');
-		$db=plushka::db();
-		$db->query('SELECT id,date,user1Id,user1Login,user2Login,message,isNew FROM user_message WHERE user1Id='.$uid.' OR user2Id='.$uid.' ORDER BY date DESC LIMIT 0,25');
-		$this->items=array();
-		$this->newCount=0; //количество новых сообщений
-		while($item=$db->fetch()) {
-			if($item[2]==$uid) $item[6]=false; elseif($item[6]=='1') $item[6]=true; else $item[6]=false; //новое сообщение или нет
-			$this->items[]=array(
-			'id'=>$item[0],'date'=>$item[1],'direct'=>($item[2]==$uid ? 2 : 1),'subject'=>($item[2]==$uid ? LNGYouWriteTo.' <b>'.$item[4].'</b>' : LNGWriteToYou.' <b>'.$item[3].'</b>'),'message'=>$item[5],'isNew'=>$item[6]);
-			if($item[6]) $this->newCount++;
-		}
-		if($this->newCount) {
-			$db->query('UPDATE user_message SET isNew=0 WHERE user2Id='.$uid);
-			$_SESSION['newMessageCount']=0;
-			$_SESSION['newMessageTimeout']=time();
-		}
-
+    /**
+     * Список личных сообщений
+     * @return string
+     */
+	public function actionMessage(): string {
+	    $userModel=plushka::user()->model();
+	    $this->messageList=$userModel->messageList();
+	    $this->newMessageCount=$userModel->newMessageCount;
+	    $userModel->clearNewMessage();
 		$this->pageTitle=$this->metaTitle=LNGYourMessages;
 		return 'Message';
 	}
 
-	/* Отправка нового сообщения по внутренней почте */
-	public function actionMessageSubmit($data) {
+    /**
+     * Отправка нового сообщения по внутренней почте (отправка ответа)
+     * @param $data
+     */
+	public function actionMessageSubmit($data): void {
 		//Пользователи могут только отвечать на уже существующие сообщения, но не отправлять новые
-		$data2=plushka::db()->fetchArrayOnceAssoc('SELECT user1Id,user1Login FROM user_message WHERE id='.(int)$data['replyTo']);
-		if(!$data2) plushka::error404();
-		if(plushka::userReal()->model()->message(nl2br($data['message']),$data2['user1Id'],$data2['user1Login'])===false) return false;
+        if(plushka::user()->model()->messageReply(nl2br(strip_tags($data['replyTo'])),$data['message'])===false) return;
 		plushka::redirect('user/message',LNGMessageSent);
 	}
 
