@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Реализует произвольную ссылку в меню */
-class LinkController extends \plushka\admin\core\Controller {
+class LinkController extends Controller {
 
 	public function right() {
 		return array(

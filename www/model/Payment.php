@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 
 abstract class Payment {
 

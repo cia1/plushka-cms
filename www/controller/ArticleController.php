@@ -1,6 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Controller;
 use plushka\core\HTTPException;
 use plushka\model\Article;

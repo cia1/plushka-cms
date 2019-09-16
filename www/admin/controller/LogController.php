@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Log;
 
-class LogController extends \plushka\admin\core\Controller {
+class LogController extends Controller {
 
 	public function right() {
 		return array(

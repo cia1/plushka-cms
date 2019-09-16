@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <form action="<?=plushka::link('catalog/'.$this->catalogId)?>" method="get">
 <dl class="form search">
 	<?php foreach($this->data as $id=>$item) { ?>

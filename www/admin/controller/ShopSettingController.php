@@ -1,11 +1,12 @@
 <?php
 namespace plushka\admin\controller;
-use plushka;
 use plushka\admin\core\Config;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Shop;
 
 /* Управление интернет-магазином (настройка магазина, импорт) */
-class ShopSettingController extends \plushka\admin\core\Controller {
+class ShopSettingController extends Controller {
 
 	public function right() {
 		return array(

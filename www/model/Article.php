@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 
 /**
  * Помощник для выборки статей и категорий статей

@@ -1,5 +1,6 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\plushka;
 
 /* Управление комментариями */
 class CommentController extends \plushka\admin\core\Controller {

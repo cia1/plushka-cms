@@ -1,6 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Picture;
 
 /* ЧПУ: /demotivator (actionIndex) - список демотиваторов

@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 
 /* Библиотека с часто используемыми функциями модуля "catalog" */
 class Catalog {

@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <p>Песочница: <b><?=($this->sandbox ? 'включена' : 'выключена')?></b> (<a href="<?=plushka::link('admin/payment/sundbox')?>"><?=($this->sandbox ? 'выключить' : 'включить')?></a>)</p><p style="font-style:italic;font-size:0.9em;">* В режиме песочницы вместо реальных платежей будет проведена имитация. Поддержка этого режима зависит от конкретного метода платежа. Также этот режим работает ТОЛЬКО для администраторов.</p>
 <?php foreach($this->payment as $item) { ?>
 	<h4><?=$item['title']?></h4>

@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Управление меню, скрытым меню и пунктами меню. Виджеты не имеют жёсткой привязки к меню - чтобы дать возможность размещать несколько виджетов одного и того же меню */
-class MenuController extends \plushka\admin\core\Controller {
+class MenuController extends Controller {
 
 	public function right() {
 		return array(

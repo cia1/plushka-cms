@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <p><?=sprintf(LNGTakePart,'<a href="'.plushka::link('demotivator/construct').'">тут</a>!')?></p>
 <div id="demList">
 <?php foreach($this->items as $item) { ?>

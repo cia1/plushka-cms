@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 Группа характеристик: <select id="featureGroup" style="width:400px" onchange="document.location='<?=plushka::link('admin/shopSetting/featureList')?>&gid='+this.value;">
 <option value="">(выбрать)</option>
 <?php foreach($this->featureGroup as $item) {

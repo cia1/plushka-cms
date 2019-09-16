@@ -1,6 +1,6 @@
 <?php
 namespace plushka\widget;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Widget;
 
 /* Интернет-магазин: поиск по характеристикам товара, в зависимости от текущей категории

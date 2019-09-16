@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
-use plushka;
 use plushka\admin\core\config;
 
 /**
@@ -15,7 +14,7 @@ class Cache {
 	 */
 	public static function template(string $name): void {
 		if(substr($_SERVER['REQUEST_URI'],0,7)==='/admin/') $adminPath='admin/'; else $adminPath='';
-		$template=file_get_contents(plushka::path().$adminPath.'template/'.$name.'.html');
+		$template=file_get_contents(core::path().$adminPath.'template/'.$name.'.html');
 		$template=str_replace('{{metaTitle}}','<?=$this->metaTitle?>',$template);
 		$template=str_replace('{{metaKeyword}}','<?php if($this->metaKeyword) echo \'<meta name="keyword" content="\'.$this->metaKeyword.\'" />\'; ?>',$template);
 		$template=str_replace('{{metaDescription}}','<?php if($this->metaDescription) echo \'<meta name="description" content="\'.$this->metaDescription.\'" />\'; ?>',$template);
@@ -73,19 +72,20 @@ class Cache {
 		},$template);
 
 		$i=strpos($template,'{{content}}');
-		$f=fopen(plushka::path().$adminPath.'cache/template/'.$name.'Head.php','w');
+		$f=fopen(core::path().$adminPath.'cache/template/'.$name.'Head.php','w');
 
 		$use=[];
 		if($i!==false) {
 			$top=substr($template,0,$i);
-			$cnt=preg_match_all('~<\?php.*?use\s+([\\\a-z-A-Z0-9_]+);~',$top,$tmp);
+			/** @var string[] $use Список импортируемых классов (их нужно перенести в footer-часть шаблона */
+            $cnt=preg_match_all('~\s+use\s+([\\\a-zA-Z0-9_-]+);~',$top,$tmp);
 			for($y=0;$y<$cnt;$y++) $use[]=$tmp[1][$y];
 			fwrite($f,$top);
 			unset($tmp,$top);
 		} else fwrite($f,$template);
 		fclose($f);
 
-		$f=fopen(plushka::path().$adminPath.'cache/template/'.$name.'Footer.php','w');
+		$f=fopen(core::path().$adminPath.'cache/template/'.$name.'Footer.php','w');
 		if($i!==false) {
 			if(count($use)>0) {
 				fwrite($f,'<?php ');
@@ -102,7 +102,7 @@ class Cache {
 			$s.='[\''.$widget[$i][0].'\','.($widget[$i][1]===null ? 'NULL' : $widget[$i][1]).']';
 		}
 		$s.='],\'section\'=>[\''.implode('\',\'',$section).'\']]; ?>';
-		$f=fopen(plushka::path().$adminPath.'cache/template/'.$name.'.ini','w');
+		$f=fopen(core::path().$adminPath.'cache/template/'.$name.'.ini','w');
 		fwrite($f,$s);
 	}
 
@@ -110,7 +110,7 @@ class Cache {
 	 * Кэширует информацию о мультиязычных таблицах основной (plushka::db()) базы данных
 	 */
 	static function languageDatabase(): void {
-		$cfg=plushka::config();
+		$cfg=core::config();
 		if($cfg['dbDriver']==='mysql') $dbStructure=self::_structureMySQL();
 		else $dbStructure=self::_structureSQLite();
 		if(isset($cfg['languageList'])===true) $languageList=$cfg['languageList']; else $languageList=[$cfg['languageDefault']];
@@ -146,7 +146,7 @@ class Cache {
 	 */
 	private static function _structureMySQL(bool $field=true): array {
 		$data=[];
-		$db=plushka::mysql();
+		$db=core::mysql();
 		$db->query('SHOW TABLES');
 		if($field===false) {
 			while($item=$db->fetch()) $data[]=$item[0];
@@ -167,7 +167,7 @@ class Cache {
 	 */
 	private static function _structureSQLite(bool $field=true): array {
 		$data=[];
-		$db=plushka::sqlite();
+		$db=core::sqlite();
 		$db->query(/** @lang SQLite */"SELECT name FROM sqlite_master WHERE type='table'");
 		if($field===false) {
 			while($item=$db->fetch()) $data[]=$item[0];

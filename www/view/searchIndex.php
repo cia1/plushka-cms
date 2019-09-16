@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <form action="<?=plushka::link('search')?>">
 <dl class="form">
 	<dt class="text keyword"><?=LNGSearch?>:</dt>

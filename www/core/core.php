@@ -1,12 +1,14 @@
 <?php
 namespace plushka\core;
 use BadMethodCallException;
-use plushka;
 use plushka\core\User as UserCore;
 use plushka\model\User as UserModel;
 use RuntimeException;
 use Throwable;
 
+/**
+ * Базовый класс приложения, имеет расширения для общедоступной части сайта и административной
+ */
 abstract class core {
 
 	/** @var Controller Через это свойство можно получить доступ к контроллеру из любой точки */
@@ -39,8 +41,8 @@ abstract class core {
 	 * Главная СУБД определяется в /config/core.php['dbDriver'].
 	 * @param bool $newQuery Если задан, то будет открыт новый SQL-запрос, использовать если нужно выполнить несколько запросов одновременно
 	 * @return Mysqli|Sqlite
-	 * @see plushka::sqlite()
-	 * @see plushka::mysql()
+	 * @see core::sqlite()
+	 * @see core::mysql()
 	 */
 	public static function db(bool $newQuery=false) {
 		static $_db;
@@ -145,7 +147,7 @@ abstract class core {
 	public static function link(string $link,bool $lang=true,bool $domain=false): string {
 		static $_link;
 		static $_main;
-		if(!$link) return plushka::url($lang,$domain);
+		if(!$link) return core::url($lang,$domain);
 		if(substr($link,0,7)==='http://' || substr($link,0,8)==='https://' || $link[0]==='/') return $link;
 		if($_link===null) {
 			$cfg=self::config();
@@ -189,7 +191,7 @@ abstract class core {
 	 * @return bool
 	 */
 	public static function moduleExists(string $id): bool {
-		return file_exists(plushka::path().'admin/module/'.self::translit($id).'.php');
+		return file_exists(core::path().'admin/module/'.self::translit($id).'.php');
 	}
 
 	/**
@@ -290,23 +292,23 @@ abstract class core {
 			if(isset($_SERVER)===true && isset($_SERVER['DOCUMENT_ROOT'])===true && $_SERVER['DOCUMENT_ROOT']) {
 				$_url=str_replace('\\','/',substr(__FILE__,strlen($_SERVER['DOCUMENT_ROOT']),-13));
 			} else { //CGI-запрос
-				$cfg=plushka::config('cgi');
+				$cfg=core::config('cgi');
 				$_url=$cfg['url'];
 			}
 		}
 		$url=$_url;
 		if($lang===true) {
-			$cfg=plushka::config();
+			$cfg=core::config();
 			if($cfg['languageDefault']!=_LANG) $url.=_LANG.'/';
 		} elseif($lang) {
-			$cfg=plushka::config();
+			$cfg=core::config();
 			if($cfg['languageDefault']!=$lang) $url.=$lang.'/';
 		}
 		if($domain===true) {
 			if(isset($_SERVER) && isset($_SERVER['DOCUMENT_ROOT']) && $_SERVER['DOCUMENT_ROOT']) {
 				$url='://'.$_SERVER['HTTP_HOST'].$url;
 			} else {
-				$cfg=plushka::config('cgi');
+				$cfg=core::config('cgi');
 				$url=$cfg['host'].$_url;
 			}
 			if(isset($_SERVER['HTTPS'])===true) {
@@ -325,7 +327,7 @@ abstract class core {
 	 * Возвращает класс, олицетворяющий текущего пользователя.
 	 * Для неавторизованных пользователей user::userGroup будет иметь значение "0".
 	 * @return UserCore
-	 * @see plushka::userGroup()
+	 * @see core::userGroup()
 	 * @see \plushka\core\User
 	 */
 	public static function &user(): UserCore {
@@ -336,7 +338,7 @@ abstract class core {
 	/**
 	 * Возвращает пользователя, игнорируя режим подмены пользователя.
 	 * @return user
-	 * @see plushka::user()
+	 * @see core::user()
 	 * @see UserCore
 	 */
 	public static function &userReal(): UserCore {
@@ -405,10 +407,10 @@ class Controller {
 	 * Подключает JavaScript или другой тег в HTML-область <head>. Вызов имеет смысл только в конструкторе или действиях. Защищает от повторного включения одного и того же файла
 	 * @param string $text Имя .js-файла или произвольный тег в формате "<...>"
 	 * @param string|null $attribute Любые атрибуты, присоединяемые к тегу <script> (например "defer")
-	 * @see plushka::js()
+	 * @see core::js()
 	 */
 	public function js(string $text,string $attribute=null): void {
-		if($text[0]!=='<') $text=plushka::js($text,$attribute);
+		if($text[0]!=='<') $text=core::js($text,$attribute);
 		$this->_head.=$text;
 	}
 
@@ -417,7 +419,7 @@ class Controller {
 	 * @param string $text Имя .css-файла или произвольный тег в формате "<...>"
 	 */
 	protected function css(string $text): void {
-		if($text[0]!=='<') $text='<link type="text/css" rel="stylesheet" href="'.plushka::url().'public/css/'.$text.'.css" />';
+		if($text[0]!=='<') $text='<link type="text/css" rel="stylesheet" href="'.core::url().'public/css/'.$text.'.css" />';
 		$this->_head.=$text;
 	}
 
@@ -430,31 +432,8 @@ class Controller {
         $alias=$this->url[0];
         if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
             if(method_exists($this,'action'.$this->url[1].'Submit')===false) throw new HTTPException(404);
-            plushka::hook('initPOST',$alias);
-            if(isset($_FILES[$alias])) {
-                $f1=$_FILES[$alias];
-                foreach($f1['size'] as $name=>$value) {
-                    if(is_array($value)) {
-                        $_POST[$alias][$name]=array();
-                        foreach($value as $i=>$size) {
-                            if(!$size) continue;
-                            $_POST[$alias][$name][]=[
-                                'name'=>$f1['name'][$name][$i],
-                                'tmpName'=>$f1['tmp_name'][$name][$i],
-                                'type'=>$f1['type'][$name][$i],
-                                'size'=>$size
-                            ];
-                        }
-                    } else {
-                        $_POST[$alias][$name]=[
-                            'name'=>$f1['name'][$name],
-                            'tmpName'=>$f1['tmp_name'][$name],
-                            'type'=>$f1['type'][$name],
-                            'size'=>$value
-                        ];
-                    }
-                }
-            }
+            core::hook('initPOST',$alias);
+            self::filesToPost($alias);
             $s='action'.$this->url[1].'Submit';
             $data=$this->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
         } else $data=null;
@@ -466,27 +445,27 @@ class Controller {
 
         //Генерация HTML-кода страницы
         plushka::hook('beforeRender',$renderTemplate); //сгенерировать событие ("перед началом вывода в поток")
-		if(!plushka::template()) $renderTemplate=false; //шаблон мог быть отключен через вызов plushka::template()
+		if(!core::template()) $renderTemplate=false; //шаблон мог быть отключен через вызов core::template()
 		if(!$view) return; //если представления нет, то ничего не выводить в поток
-		$user=plushka::userReal();
+		$user=core::userReal();
 		if($user->group>=200) {
 			$this->js('jquery.min','defer');
 			$this->js('admin','defer');
 			$this->css('admin');
 		}
 		//Вывести верхнюю часть шаблона (до "{{content}}")
-		$s=plushka::template();
+		$s=core::template();
 		if($renderTemplate===true && $s) {
-			$s=plushka::path().'cache/template/'.plushka::template().'Head.php';
-			if(!file_exists($s) || plushka::debug()) { //если кеша нет или отладочный режим, то кешировать шаблон
-				Cache::template(plushka::template());
+			$s=core::path().'cache/template/'.core::template().'Head.php';
+			if(!file_exists($s) || core::debug()) { //если кеша нет или отладочный режим, то кешировать шаблон
+				Cache::template(core::template());
 			}
             /** @noinspection PhpIncludeInspection */
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">
 				<div class="_adminHead"><span>title</span><a href="#" onclick="$(\'#_adminDialogBox\').fadeOut();return false;">X</a><a href="#" onclick="return toggleFullScreen();">&#9643;</a><a class="_adminDialogBoxHelp" onclick="return $.adminDialog(this);" style="display:none;">?</a><b>',_LANG,'</b></div>
-				<img id="_adminDialogBoxLoading" src="'.plushka::url().'admin/public/icon/loadingBig.gif" alt="Загрузка..." />
+				<img id="_adminDialogBoxLoading" src="'.core::url().'admin/public/icon/loadingBig.gif" alt="Загрузка..." />
 				<iframe class="container"></iframe>
 				</div>';
 			}
@@ -505,24 +484,24 @@ class Controller {
 			}
 		}
 		//Вывести сообщение об ошибке, если она произошла
-		if(plushka::error()) {
-			echo '<div class="messageError">',plushka::error(false),'</div>';
+		if(core::error()) {
+			echo '<div class="messageError">',core::error(false),'</div>';
 		}
 		//Вывести сообщение об успехе, если оно задано
-		if(plushka::success()) {
-			echo '<div class="messageSuccess">',plushka::success(false),'</div>';
+		if(core::success()) {
+			echo '<div class="messageSuccess">',core::success(false),'</div>';
 		}
 		if(gettype($view)==='object' && method_exists($view,'render')) $view->render();
 		elseif($view==='_empty') {
             /** @noinspection PhpIncludeInspection */
-		    include(plushka::path().'view/_empty.php');
+		    include(core::path().'view/_empty.php');
         } else {
             /** @noinspection PhpIncludeInspection */
-		    include(plushka::path().'view/'.$this->url[0].$view.'.php');
+		    include(core::path().'view/'.$this->url[0].$view.'.php');
         }
 		if($renderTemplate===true && $s) { //нижняя часть шаблона
             /** @noinspection PhpIncludeInspection */
-		    include(plushka::path().'cache/template/'.plushka::template().'Footer.php');
+		    include(core::path().'cache/template/'.core::template().'Footer.php');
         }
 	}
 
@@ -530,7 +509,7 @@ class Controller {
 	 * Выводит HTML-код блока хлебных крошек. Вызывается фреймворком при обработке тега шаблона {{breadcrumb}}
 	 */
 	public function breadcrumb(): void {
-		if(plushka::url()===$_SERVER['REQUEST_URI'] || plushka::url()._LANG.'/'===$_SERVER['REQUEST_URI']) return; //главная страница
+		if(core::url()===$_SERVER['REQUEST_URI'] || core::url()._LANG.'/'===$_SERVER['REQUEST_URI']) return; //главная страница
 		$b='breadcrumb'.$this->url[1];
 		//Если метод контроллера существует, то добавить элементы, а иначе не выводить хлебные крошки
 		if(method_exists($this,$b)===false) return;
@@ -541,8 +520,8 @@ class Controller {
 			if($this->pageTitle) $b[$last]=$this->pageTitle; else unset($b[$last]);
 		}
 		$b=' &raquo; '.implode(' &raquo; ',$b);
-		$cfg=plushka::config();
-		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.plushka::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
+		$cfg=core::config();
+		echo '<div id="breadcrumb" itemprop="breadcrumb"><a href="'.core::url().($cfg['languageDefault']!=_LANG ? _LANG.'/' : '').'" rel="nofollow">'.LNGMain.'</a>'.$b.'</div>';
 	}
 
 	/**
@@ -550,7 +529,7 @@ class Controller {
 	 * @param mixed $data Произвольные данные, которые будут переданы в метод controller::admin{Action}Link2()
 	 */
 	protected function admin($data=null): void {
-		$user=plushka::userReal();
+		$user=core::userReal();
 		if($user->group<200) return;
 		$s='admin'.$this->url[1].'Link2';
 		$admin=new Admin();
@@ -559,6 +538,36 @@ class Controller {
 			if($user->group==255 || isset($user->right[$item[0]])===true) $admin->render($item);
 		}
 	}
+
+    /**
+     * Переносит информацию из $_FILES в $_POST
+     * @param string $alias
+     */
+    protected static function filesToPost(string $alias) {
+        if(isset($_FILES[$alias])===false) return;
+        $f1=$_FILES[$alias];
+        foreach($f1['size'] as $name=>$value) {
+            if(is_array($value)===true) {
+                $_POST[$alias][$name]=[];
+                foreach($value as $i=>$size) {
+                    if(!$size) continue;
+                    $_POST[$alias][$name][]=[
+                        'name'=>$f1['name'][$name][$i],
+                        'tmpName'=>$f1['tmp_name'][$name][$i],
+                        'type'=>$f1['type'][$name][$i],
+                        'size'=>$size
+                    ];
+                }
+            } else {
+                $_POST[$alias][$name]=[
+                    'name'=>$f1['name'][$name],
+                    'tmpName'=>$f1['tmp_name'][$name],
+                    'type'=>$f1['type'][$name],
+                    'size'=>$value
+                ];
+            }
+        }
+    }
 }
 
 
@@ -626,7 +635,7 @@ abstract class Widget {
 	public function render($view): void {
 		if($view!==true) {
             /** @noinspection PhpIncludeInspection */
-            include(plushka::path().'view/widget'.$view.'.php');
+            include(core::path().'view/widget'.$view.'.php');
         }
 	}
 
@@ -636,7 +645,7 @@ abstract class Widget {
 	 * @param array[] $data
 	 */
 	public function admin(array $data): void {
-		$u=plushka::userReal();
+		$u=core::userReal();
 		if($u->group<200) return;
 		$admin=new admin();
 		$link=$this->adminLink2($data);
@@ -652,8 +661,8 @@ abstract class Widget {
 /**
  * Класс олицетворяет пользователя.
  * Этот класс всегда находится в сессии ($_SESSION['user'], $_SESSION['userReal'])
- * @see plushka::user()
- * @see plushka::userReal()
+ * @see core::user()
+ * @see core::userReal()
  * @see model/user.php
  * @property array $right Набор прав пользователя, если он является администратором (группа >=200)
  */
@@ -724,10 +733,6 @@ class HTTPException extends RuntimeException {
         parent::__construct($message,$code,$previous);
     }
 
-//    public function getMessage() {
-//        die("F");
-//    }
-
 }
 
 /**
@@ -741,22 +746,22 @@ class RouteException extends RuntimeException {}
  */
 function runApplication(bool $renderTemplate=true): void {
 	session_start();
-	$user=plushka::userReal();
+	$user=core::userReal();
 	if($user->group>=200) {
         /** @noinspection PhpIncludeInspection */
-	    include(plushka::path().'core/admin.php');
+	    include(core::path().'core/admin.php');
     }
-	plushka::$controller='\plushka\controller\\'.ucfirst($_GET['corePath'][0]).'Controller';
+	core::$controller='\plushka\controller\\'.ucfirst($_GET['corePath'][0]).'Controller';
 	try {
 	    try {
-            plushka::$controller = new plushka::$controller();
+            core::$controller = new core::$controller();
         } catch(Throwable $e) {
 	        throw new HTTPException(404);
         }
-		plushka::$controller->render($renderTemplate);
+		core::$controller->render($renderTemplate);
 	} catch(DBException $e) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
-        if (plushka::debug() === true) echo '<p>', $e, '</p>';
+        if (core::debug() === true) echo '<p>', $e, '</p>';
 	} catch(HTTPException $e) {
 	    $controller=new plushka\controller\ErrorController($e);
         $controller->render($renderTemplate);
@@ -772,8 +777,8 @@ function runApplication(bool $renderTemplate=true): void {
 spl_autoload_register(function($class) {
 	if(substr($class,0,8)!=='plushka\\') return;
 	$class=substr($class,8).'.php';
-	$f=plushka::path().'override/'.$class;
-	if(file_exists($f)===false) $f=plushka::path().$class;
+	$f=core::path().'override/'.$class;
+	if(file_exists($f)===false) $f=core::path().$class;
 	if(file_exists($f)===false) {
 		$debug=debug_backtrace()[1];
 		throw new BadMethodCallException('Undefined class '.$class.' in '.$debug['file'].': '.$debug['line']);

@@ -1,10 +1,11 @@
 <?php
 namespace plushka\admin\controller;
-use plushka;
 use plushka\admin\core\Config;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Общие настройки сайта */
-class SettingController extends \plushka\admin\core\Controller {
+class SettingController extends Controller {
 
 	public function right() {
 		return array(

@@ -1,4 +1,7 @@
-<?php if(plushka::error()) { ?>
+<?php
+use plushka\admin\core\plushka;
+
+if(plushka::error()) { ?>
 	<link href="<?=plushka::url()?>admin/public/template/front.css" rel="stylesheet" type="text/css" />
 	<p>Импорт прерван.</p>
 	<?php

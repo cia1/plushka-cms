@@ -1,9 +1,10 @@
 <?php
 namespace plushka\admin\controller;
-use plushka;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Индивидуальные шаблоны для разных страниц сайта */
-class TemplateController extends \plushka\admin\core\Controller {
+class TemplateController extends Controller {
 
 	public function right() {
 		return array(

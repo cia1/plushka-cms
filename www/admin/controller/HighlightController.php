@@ -1,7 +1,9 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
-class HighlightController extends \plushka\admin\core\Controller {
+class HighlightController extends Controller {
 
 	public function actionWidget() {
 		$form=plushka::form();

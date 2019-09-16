@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
-use plushka;
 
 /**
  * Предназначен для обработки изображений
@@ -53,7 +52,7 @@ class Picture {
 				$this->_type=substr($fileOrWidth['type'],strrpos($fileOrWidth['type'],'/')+1);
 				$fileOrWidth=$fileOrWidth['tmpName'];
 			} else {
-				$fileOrWidth=plushka::path().$fileOrWidth;
+				$fileOrWidth=core::path().$fileOrWidth;
 				$this->_type=substr($fileOrWidth,strrpos($fileOrWidth,'.')+1);
 			}
 			$type=strtolower($this->_type);
@@ -68,11 +67,11 @@ class Picture {
 				$this->_src=imagecreatefrompng($fileOrWidth);
 				break;
 			default:
-				plushka::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
+				core::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
 				return;
 			}
 			if(!$this->_src) {
-				plushka::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
+				core::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
 				return;
 			}
 			$this->_srcW=imagesx($this->_src);
@@ -203,7 +202,7 @@ class Picture {
 			$this->_watermark=$image->gd();
 		} elseif(is_string($image)===true) {
 			$ext=strtolower(substr($image,strrpos($image,'.')+1));
-	    $image=plushka::path().$image;
+	    $image=core::path().$image;
 			switch($ext) {
 			case 'jpg': case 'jpeg':
 				$this->_watermark=imagecreatefromjpeg($image);
@@ -216,7 +215,7 @@ class Picture {
 				imagealphablending($this->_watermark,true);
 				break;
 			default:
-				plushka::error(LNGFileIsNotImage);
+				core::error(LNGFileIsNotImage);
 				return false;
 			}
 		} else {
@@ -295,13 +294,13 @@ class Picture {
 		$dst=$this->gd();
 		switch($this->_type) {
 		case 'jpg': case 'jpeg':
-			imagejpeg($dst,plushka::path().$fileName,$quality);
+			imagejpeg($dst,core::path().$fileName,$quality);
 			break;
 		case 'gif':
-			imagegif($dst,plushka::path().$fileName);
+			imagegif($dst,core::path().$fileName);
 			break;
 		case 'png':
-			imagepng($dst,plushka::path().$fileName);
+			imagepng($dst,core::path().$fileName);
 			break;
 		}
 		$i=strrpos($fileName,'/');

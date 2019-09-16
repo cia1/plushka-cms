@@ -1,6 +1,6 @@
 <?php
 namespace plushka\widget;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Widget;
 
 /* Текстовое поле "поиск по сайту" */

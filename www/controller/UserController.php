@@ -1,6 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Controller;
 use plushka\core\Form;
 use plushka\model\User as UserModel;

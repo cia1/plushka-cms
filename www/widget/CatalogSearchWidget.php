@@ -1,5 +1,6 @@
 <?php
 namespace plushka\widget;
+use plushka\core\plushka;
 use plushka\core\Widget;
 
 /* Реализует поиск по универсальному каталогу
@@ -7,10 +8,10 @@ array $options: int id - идентификатор каталога; array fld 
 class CatalogSearchWidget extends Widget {
 
 	public function __invoke() {
-		$this->layout=\plushka::config('catalogLayout/'.$this->options['id']); //конфигурация каталога
+		$this->layout=plushka::config('catalogLayout/'.$this->options['id']); //конфигурация каталога
 		//Перечислить все поля, по которым должен быть выполнен поиск и подготовленные данные загрузить в $this->data
 		$this->data=array();
-		\plushka::language('catalog');
+		plushka::language('catalog');
 		foreach($this->options['fld'] as $id=>$item) {
 			if($id=='title') $item=array('id'=>$id,'title'=>LNGTitle,'type'=>'string'); else {
 				if(!is_array($item)) $item=array();

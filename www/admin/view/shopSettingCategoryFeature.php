@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <table cellpadding="0" cellspacing="0" border="0"><tr><td>
 <p>Все характеристики:</p>
 <select id="feature1" size="2">

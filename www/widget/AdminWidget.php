@@ -1,7 +1,7 @@
 <?php
 //Внимание! Этот файл является частью фреймворка, вносить изменения не рекомендуется.
 namespace plushka\widget;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Widget;
 
 /* Виджет выводит общие кнопки административного интерфейса */

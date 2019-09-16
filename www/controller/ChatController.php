@@ -1,6 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\plushka;
 use plushka\model\Chat;
 
 class ChatController extends \plushka\core\Controller {

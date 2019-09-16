@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 echo plushka::js('jquery.min','defer');
 echo plushka::js('jquery.form','defer');
 ?>

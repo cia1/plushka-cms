@@ -1,4 +1,6 @@
 <?php
+use plushka\admin\core\plushka;
+
 $f=plushka::form();
 $f->hidden('filename',$this->data['filename']);
 if(isset($this->data['section'])) $f->hidden('section',$this->data['section']);

@@ -1,4 +1,8 @@
-<?php $this->f->render(); ?>
+<?php
+use plushka\admin\core\plushka;
+
+$this->f->render();
+?>
 <script>
 $('.emailSource input').click(function() {
 	if(this.value=='other') $('.email').show(); else $('.email').hide();

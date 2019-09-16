@@ -1,4 +1,6 @@
 <?php
+use plushka\admin\core\plushka;
+
 if(!$this->image) echo '<p><i>Ни одной фотографии для этого товара не загружено.</i></p>';
 foreach($this->image as $item) { ?>
 	<div class="image"><img src="<?=plushka::url().'public/shop-product/_'.$item?>" /><br />

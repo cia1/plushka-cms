@@ -1,7 +1,7 @@
 <?php
 namespace plushka\model;
 use InvalidArgumentException;
-use plushka;
+use plushka\core\plushka;
 
 /**
  * Хелпер, реализующий регистрацию и авторизацию OAuth

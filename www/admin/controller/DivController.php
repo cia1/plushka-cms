@@ -1,7 +1,9 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
-class DivController extends \plushka\admin\core\Controller {
+class DivController extends Controller {
 
 	public function actionWidget() {
 		$form=plushka::form();

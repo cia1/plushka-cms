@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 if(!$data[0]) return true;
 $t=plushka::config();
 $t=$t['template'];
@@ -24,4 +26,3 @@ foreach($t as $item=>$template) {
 }
 if($tmplName) plushka::template($tmplName);
 return true;
-?>

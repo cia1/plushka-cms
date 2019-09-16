@@ -1,10 +1,7 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
-use plushka\core\Admin;
-use plushka\core\core;
-use plushka\core\Widget;
-
-require_once(__DIR__.'/core.php');
+namespace plushka\core;
+require_once __DIR__.'/core.php';
 
 /**
  * Предоставляет базовый API, доступный статически
@@ -42,7 +39,7 @@ abstract class plushka extends core {
 	 * @return array|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
 	 */
 	public static function hook(string $name,...$data) {
-		$d=opendir(plushka::path().'hook');
+		$d=opendir(self::path().'hook');
 		$result=[];
 		$len=strlen($name);
 		while($f=readdir($d)) {
@@ -63,10 +60,10 @@ abstract class plushka extends core {
 	 * @param string $url URL в формате "controller/etc"
 	 * @param string|null $message Если задан, то установит текст сообщения об успешно выполненной операции
 	 * @param int $code HTTP-код ответа
-	 * @see plushka::success()
+	 * @see self::success()
 	 */
 	public static function redirect(string $url,string $message=null,int $code=302): void {
-		if($message!==null) plushka::success($message);
+		if($message!==null) self::success($message);
 		header('Location: '.self::link($url),true,$code);
 		exit;
 	}
@@ -100,7 +97,7 @@ abstract class plushka extends core {
 			$admin->add('?controller=section&name='.$name,'section','Управление виджетами в этой области','Секция');
 		}
 		//Теперь перебрать все виджеты секции
-		$userGroup=plushka::userGroup();
+		$userGroup=self::userGroup();
 		for($i=0;$i<$cnt;$i++) {
 			if($items[$i][6]!==null && $items[$i][6]!=$userGroup) continue;
 			$options=$items[$i][1];
@@ -110,7 +107,7 @@ abstract class plushka extends core {
 				} else $options=array('_content'=>$options);
 				$options['cssClass']=$items[$i][7];
 			}
-			plushka::widget($items[$i][0],$options,$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
+			self::widget($items[$i][0],$options,$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
 		}
 		echo '</div>';
 	}
@@ -123,7 +120,7 @@ abstract class plushka extends core {
 	 * @param string|null $title Заголовок виджета
 	 * @param string|null $link Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
 	 * @see \plushka\core\Widget
-	 * @see plushka::section
+	 * @see self::section
 	 */
 	public static function widget(string $name,$options=null,int $cacheTime=null,string $title=null,string $link=null): void {
 		if(is_array($options)===true && isset($options['cssClass'])===true) {
@@ -196,7 +193,7 @@ abstract class plushka extends core {
      * @return array[]|null
      */
 	private static function _widgetAdmin($data,bool $returnAsArray=false): ?array {
-		$user=plushka::userReal();
+		$user=self::userReal();
 		if($user->group<200) return null;
 		$admin=new Admin();
 		if(is_object($data)===true) $data=$data->adminLink();
@@ -215,9 +212,7 @@ if(plushka::debug()) {
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 }
-
 $cfg=plushka::config();
-
 
 //Обработка URI, формирование $_GET['corePath'].
 if(substr($_SERVER['SCRIPT_NAME'],-11)==='/index2.php') $_GET['corePath']=$_GET['controller'].(isset($_GET['action'])===true ? '/'.$_GET['action'] : '') ?? false;
@@ -261,7 +256,7 @@ else {
 //Перехват if-modified-since (работает без учёта мультиязычности)
 if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (не для CGI)
 	$db=plushka::db();
-	if($cfg['languageDefault']==_LANG) $s=$_GET['corePath']; else $s=_LANG.'/'.$_GET['corePath'];
+	if($cfg['languageDefault']===_LANG) $s=$_GET['corePath']; else $s=_LANG.'/'.$_GET['corePath'];
 	/** @noinspection SqlResolve */
 	$lastModified=(int)$db->fetchValue('SELECT time FROM modified WHERE link='.$db->escape($s));
 	unset($s);
@@ -276,9 +271,7 @@ if(isset($_SERVER['HTTP_HOST'])) { //только для HTTP-запросов (
 		}
 	}
 }
-
 unset($cfg);
 $_GET['corePath']=explode('/',$_GET['corePath']);
 if(isset($_GET['corePath'][1])===false) $_GET['corePath'][1]=null; //ВСЕГДА должно быть по крайней мере два элемента
-
 plushka::language('global');

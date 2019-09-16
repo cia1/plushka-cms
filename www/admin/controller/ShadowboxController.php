@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Для виджета Shadowbox */
-class ShadowboxController extends \plushka\admin\core\Controller {
+class ShadowboxController extends Controller {
 
 	public function right() {
 		return array(

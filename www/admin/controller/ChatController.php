@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Chat;
 
-class ChatController extends \plushka\admin\core\Controller {
+class ChatController extends Controller {
 
 	protected function right() {
 		return array(

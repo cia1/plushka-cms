@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <form action="<?=plushka::link('demotivator/construct')?>" method="post" onkeydown="if(event.keyCode==13) return false;" onsubmit="return prepareSize();">
 	<input type="hidden" name="demotivator[step2]" value="1" />
 	<input type="hidden" name="demotivator[size]" id="demSize" value="" />

@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div id="forum">
 <?php
 $cnt=count($this->data)-1;

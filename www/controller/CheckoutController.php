@@ -1,6 +1,7 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\HTTPException;
+use plushka\core\plushka;
 use plushka\model\Form;
 
 /* Корзина и оформление заказа
@@ -20,7 +21,7 @@ class CheckoutController extends \plushka\core\Controller {
 		if(isset($_GET['delete'])) unset($_SESSION['cart'][$_GET['delete']]);
 		$cfg=plushka::config('shop');
 		$this->form=new Form();
-		if($this->form->load($cfg['formId'])===false) core::error404();
+		if($this->form->load($cfg['formId'])===false) throw new HTTPException(404);
 		$this->js('jquery.min');
 		$this->js('jquery.form');
 		$this->pageTitle=$this->metaTitle=LNGCart;

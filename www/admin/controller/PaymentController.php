@@ -1,9 +1,10 @@
 <?php
 namespace plushka\admin\controller;
-use plushka;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Payment;
 
-class PaymentController extends \plushka\admin\core\Controller {
+class PaymentController extends Controller {
 
 	protected function right() {
 		return array(

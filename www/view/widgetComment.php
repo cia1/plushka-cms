@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div id="commentList" itemscope itemtype="http://schema.org/Comment"><?php \plushka\model\mComment::renderList($this->link,$this); ?></div>
 <form action="<?=plushka::url()?>index2.php?controller=comment" method="post" id="comment">
 	<input type="hidden" name="comment[link]" value="<?=$this->link?>" />

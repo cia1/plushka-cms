@@ -2,7 +2,6 @@
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
 use BadMethodCallException;
-use plushka;
 use ReflectionClass;
 use ReflectionException;
 /**

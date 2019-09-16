@@ -1,8 +1,9 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\HTTPException;
+use plushka\core\plushka;
+use plushka\core\Model;
 use plushka\core\Picture;
-use plushka\\core\Model;
 
 /* Форум */
 class ForumController extends \plushka\core\Controller {
@@ -101,7 +102,7 @@ class ForumController extends \plushka\core\Controller {
 	public function actionCategory() {
 		$db=plushka::db();
 		$category=$db->fetchArrayOnce('SELECT id,title,newTopic,metaTitle,metaKeyword,metaDescription FROM forum_category WHERE id='.$this->categoryId);
-		if(!$category) plushka::error404();
+		if(!$category) throw new HTTPException(404);
 		$this->newPost=(bool)$category[2];
 		$this->pageTitle=$category[1];
 		if($category[3]) $this->metaTitle=$category[3]; else $this->metaTitle=$category[1];
@@ -136,7 +137,7 @@ class ForumController extends \plushka\core\Controller {
 		if(!plushka::userGroup()) plushka::redirect('user/login');
 		$db=plushka::db();
 		$this->categoryTitle=$db->fetchValue('SELECT title FROM forum_category WHERE id='.$this->categoryId);
-		if(!$this->categoryTitle) plushka::error404();
+		if(!$this->categoryTitle) throw new HTTPException(404);
 		$f=plushka::form();
 		$f->action='forum/'.$this->categoryId.'/post';
 		$f->text('title','Тема');
@@ -178,12 +179,12 @@ class ForumController extends \plushka\core\Controller {
 	public function actionTopic() {
 		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT title,newPost FROM forum_category WHERE id='.$this->categoryId);
-		if(!$data) plushka::error404();
+		if(!$data) throw new HTTPException(404);
 		$this->categoryTitle=$data[0];
 		$this->newPost=$data[1];
 		unset($data);
 		$this->topic=$db->fetchArrayOnceAssoc('SELECT t.title,t.date,t.message,t.status,t.userId,u.login,u.avatar FROM forum_topic t LEFT JOIN forum_user u ON u.id=t.userId WHERE t.id='.$this->topicId);
-		if(!$this->topic) plushka::error404();
+		if(!$this->topic) throw new HTTPException(404);
 
 		$this->topic['message']=str_replace(
 				array('[b]','[B]','[/b]','[/B]','[i]','[I]','[/i]','[/I]','[u]','[U]','[/u]','[/U]','[img]','[IMG]','[/img]','[/IMG]'),
@@ -244,7 +245,7 @@ class ForumController extends \plushka\core\Controller {
 		if(!plushka::userGroup()) plushka::redirect('user/login');
 		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT t.title,c.title FROM forum_topic t INNER JOIN forum_category c ON c.id=t.categoryId WHERE t.id='.$this->topicId);
-		if(!$data) plushka::error404();
+		if(!$data) throw new HTTPException(404);
 		$this->topicTitle=$data[0];
 		$this->categoryTitle=$data[1];
 		$f=plushka::form();
@@ -287,7 +288,7 @@ class ForumController extends \plushka\core\Controller {
 	public function actionUser() {
 		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT login,avatar,date,postCount,status FROM forum_user WHERE id='.(int)$this->url[2].(plushka::userGroup()>=200 ? '' : ' AND status=1'));
-		if(!$data) plushka::error404();
+		if(!$data) throw new HTTPException(404);
 		$this->login=$data[0];
 		if(!$data[1]) $this->avatar='no.png'; else $this->avatar=$data[1];
 		$this->avatar=plushka::url().'public/avatar/'.$this->avatar;

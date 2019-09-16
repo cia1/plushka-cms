@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 
 /* Библиотека часто используемых функций модуля "shop" (интернет-магазин) */
 class Shop {

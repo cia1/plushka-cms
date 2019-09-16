@@ -1,5 +1,6 @@
 <?php
 namespace plushka\widget;
+use plushka\core\plushka;
 use plushka\core\Widget;
 
 /* Реализует блог и список статей
@@ -11,7 +12,7 @@ class ArticleBlogWidget extends Widget {
 		if(!isset($this->options['linkType'])) $this->options['linkType']='blog';
 		if(!isset($this->options['countPreview'])) $this->options['countPreview']=0; else $this->options['countPreview']=(int)$this->options['countPreview'];
 		if(!isset($this->options['countLink'])) $this->options['countLink']=0; else $this->options['countLink']=(int)$this->options['countLink'];
-		$db=\plushka::db();
+		$db=plushka::db();
 		$countTotal=$this->options['countPreview']+$this->options['countLink'];
 		$this->categoryAlias=$db->fetchValue('SELECT alias FROM article_category_'._LANG.' WHERE id='.$this->options['categoryId']);
 		$db->query('SELECT id,alias,date,title,text1 FROM article_'._LANG.' WHERE categoryId='.$this->options['categoryId'].' AND (date<'.time().' OR date IS NULL) ORDER BY sort,date DESC LIMIT 0,'.$countTotal);

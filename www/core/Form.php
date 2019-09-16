@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
-use plushka;
 
 /**
  * Конструктор HTML-форм. Автоматически подставляет значения из $_POST, если такие имеются
@@ -218,7 +217,7 @@ class Form {
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function captcha(string $name,string $label,string $html=''): void {
-		$this->_data.='<dt class="captcha">'.$label.':<img src="'.plushka::url().'captcha.php" alt="'.strip_tags($label).'" title="'.strip_tags($label).'"></dt><dd class="captcha"><input type="text" name="'.$this->_namespace.'['.$name.']" '.$html.' /></dd>';
+		$this->_data.='<dt class="captcha">'.$label.':<img src="'.core::url().'captcha.php" alt="'.strip_tags($label).'" title="'.strip_tags($label).'"></dt><dd class="captcha"><input type="text" name="'.$this->_namespace.'['.$name.']" '.$html.' /></dd>';
 	}
 
 	/**
@@ -256,7 +255,7 @@ class Form {
 	 */
 	public function render(string $action=null,string $html=null): void {
 		if($action!==null) $this->action=$action;
-		echo '<form action="',($this->action ? plushka::link($this->action) : $_SERVER['REQUEST_URI']),'" method="',$this->method,'" enctype="multipart/form-data" name="',$this->_namespace,'" class="',$this->_namespace,'" ',$html,'>
+		echo '<form action="',($this->action ? core::link($this->action) : $_SERVER['REQUEST_URI']),'" method="',$this->method,'" enctype="multipart/form-data" name="',$this->_namespace,'" class="',$this->_namespace,'" ',$html,'>
 		<dl class="form">';
 		echo $this->_data;
 		unset($this->_data);
@@ -341,7 +340,7 @@ class Form {
 			$s.='>'.$nullTitle.'</option>';
 		}
 		if(is_string($items)===true) {
-			$db=plushka::db();
+			$db=core::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
 				$s.='<option value="'.$item[0].'"';
@@ -377,7 +376,7 @@ class Form {
 		if($value===null || $value==='') $s.=' selected="selected"';
 		$s.='>'.$nullTitle.'</option>';
 		if(is_string($items)===true) {
-			$db=plushka::db();
+			$db=core::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
 				$s.='<option value="'.$item[0].'"';
@@ -408,7 +407,7 @@ class Form {
 		}
 		$s='';
 		if(is_string($items)===true) {
-			$db=plushka::db();
+			$db=core::db();
 			$db->query($items);
 			while($item=$db->fetch()) {
 				$s.='<label><input type="radio" name="'.$this->_namespace.'['.$name.']" value="'.$item[0].'"';
@@ -478,7 +477,7 @@ class Form {
      * @return string
 	 */
 	public function getEditor(string $name,string $value='',array $config=[]): string {
-		$userGroup=plushka::userGroup();
+		$userGroup=core::userGroup();
 		if($userGroup>=200 && isset($config['uploadTo'])===false) $config['uploadTo']='public/'; //для админки по умолчанию разрешить загружать изображения куда угодно в пределах директория /public
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
@@ -487,16 +486,16 @@ class Form {
 		$html='<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'"';
 		if(isset($config['html'])===true && $config['html']) $html.=' '.$html;
 		$html.='>'.$value.'</textarea>';
-		if(isset($_GET['_lang'])===false) $html.=plushka::js('ckeditor/ckeditor');
+		if(isset($_GET['_lang'])===false) $html.=core::js('ckeditor/ckeditor');
 		$html.='<script type="text/javascript">
 		if(document.ckeditor===undefined) document.ckeditor=[];
 		if(document.ckeditor["'.$name.'"]!==undefined) CKEDITOR.remove(document.ckeditor["'.$name.'"]);
 		document.ckeditor["'.$name.'"]=CKEDITOR.replace("'.$name.'",{
-			customConfig:"'.plushka::url();
+			customConfig:"'.core::url();
 		if(isset($_GET['_lang'])===true) $html.='admin/public/js/ckeditor-config.js'; else $html.='public/js/ckeditor-config.js';
 		$html.='"';
 		if(isset($config['uploadTo'])) {
-			$html.=',uploadUrl:"'.plushka::url().'upload.php"';
+			$html.=',uploadUrl:"'.core::url().'upload.php"';
 			$_SESSION['_uploadFolder']=$config['uploadTo']; //запомнить, куда разрешено загружать файлы, поддерживается только один директорий
 		}
 		$html.='});</script>';

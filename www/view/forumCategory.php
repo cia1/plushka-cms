@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <?php if(plushka::userGroup() && $this->newPost) { ?>
 	<p class="forumControl"><a href="<?=plushka::link('forum/'.$this->categoryId.'/'.'post')?>"><?=LNGCreateTopic?></a></p>
 <?php } elseif($this->newPost) { ?>

@@ -1,23 +1,17 @@
 <?php
 //Этот файл является частью фреймворка. Внесение изменений не рекомендуется.
-use plushka\admin\core\Controller;
-use plushka\admin\core\FormEx;
-use plushka\admin\core\ModelEx;
-use plushka\admin\core\Table;
+namespace plushka\admin\core;
+require_once __DIR__.'/core.php';
 use plushka\core\core;
 use plushka\core\Form;
 use plushka\core\Model;
 use plushka\core\Validator;
 use plushka\core\Widget;
 
-require_once(__DIR__.'/core.php');
-
-class_alias('plushkaAdmin','plushka');
-
 /**
  * Предоставляет базовый API, доступный статически
  */
-abstract class plushkaAdmin extends core {
+abstract class plushka extends core {
 
     /** @var Controller Ссылка на контроллер для доступа из вне */
     public static $controller;
@@ -159,7 +153,7 @@ abstract class plushkaAdmin extends core {
 	 * @param string $url URL в исходном формате
 	 * @param string|null $message Если задан, то установит текст сообщения об успешно выполненной операции
 	 * @param int $code HTTP-код ответа
-	 * @see \plushka::success()
+	 * @see plushka::success()
 	 */
 	public static function redirect(string $url,string $message=null,int $code=302): void {
 		if(isset($_GET['backlink'])===true) {
@@ -311,3 +305,4 @@ if(isset($_GET['controller'])===false) {
 if(isset($_GET['action'])===false) $_GET['action']=null;
 if(isset($_GET['lang'])===true) define('_LANG',$_GET['lang']);
 else define('_LANG',plushka::config('_core','languageDefault'));
+$_GET['corePath']=[$_GET['controller'],$_GET['action']];

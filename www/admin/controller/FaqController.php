@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Управление часто задаваемыми вопросами. На сайте может быть только один раздел ЧаВо. */
-class FaqController extends \plushka\admin\core\Controller {
+class FaqController extends Controller {
 
 	public function right() {
 		return array(

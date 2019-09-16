@@ -1,6 +1,7 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\HTTPException;
+use plushka\core\plushka;
 
 /* Реализует страницы универсального каталога: список элементов каталога (настраиваемый блог), детальная информация элемента
  Все поля в базе данных хранятся в одной таблице с именем catalog_XX, XX - идентификатор каталога. Таблица создаётся и изменяется автоматически через админку.
@@ -11,9 +12,9 @@ class CatalogController extends \plushka\core\Controller {
 	public function __construct() {
 		parent::__construct();
 		$this->layoutId=(int)$this->url[1]; //Идентификатор каталога (на сайте может быть несколько каталогов)
-		if(!$this->layoutId) plushka::error404();
+		if(!$this->layoutId) throw new HTTPException(404);
 		if(file_exists(plushka::path().'config/catalogLayout/'.$this->layoutId.'.php')) $this->layout=plushka::config('catalogLayout/'.$this->layoutId); //Конфигурация каталога, содержит список полей и другую информацию
-		else plushka::error404();
+		else throw new HTTPException(404);
 		if(count($this->url)==2) $this->url[1]='index'; else $this->url[1]='view'; //http://example.com/catalog/ИД/элемент_каталога
 		plushka::language('catalog');
 	}
@@ -107,7 +108,7 @@ class CatalogController extends \plushka\core\Controller {
 		$db=plushka::db();
 		$q.=' FROM catalog_'.$this->layoutId.' WHERE alias='.$db->escape($this->url[2]);
 		$data=$db->fetchArrayOnceAssoc($q);
-		if(!$data) plushka::error404();
+		if(!$data) throw new HTTPException(404);
 		//Обработать данные в $data и загрузить подготовленные данные в $this->data для передачи представлению
 		$this->data=array();
 		foreach($view as $field) { //перебрать все поля

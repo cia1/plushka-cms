@@ -1,6 +1,7 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\HTTPException;
+use plushka\core\plushka;
 
 /* Опрос (голосование) */
 class VoteController extends \plushka\core\Controller {
@@ -16,7 +17,7 @@ class VoteController extends \plushka\core\Controller {
 	public function actionIndex() {
 		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT question,answer,result FROM vote WHERE id='.$this->id);
-		if(!$data) plushka::error404();
+		if(!$data) throw new HTTPException(404);
 		$this->answer=array();
 		$this->total=0;
 		$answer=explode('|',$data[1]);
@@ -38,7 +39,7 @@ class VoteController extends \plushka\core\Controller {
 		$data['answer']=(int)$data['answer'];
 		$db=plushka::db();
 		$vote=$db->fetchArrayOnce('SELECT result,ip FROM vote WHERE id='.$this->id);
-		if(!$vote) plushka::error404();
+		if(!$vote) throw new HTTPException(404);
 		if($vote[1]) $ip=explode('|',$vote[1]); else $ip=array();
 		if(in_array($this->_ip(),$ip)) plushka::redirect('vote/'.$this->id,LNGYouAlreadyVoted);
 		$ip[]=$this->_ip();

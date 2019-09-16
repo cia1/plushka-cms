@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div class="post postStart">
 	<div class="userInfo">
 		<img src="<?=$this->topic['avatar']?>"  class="avatar" alt="<?=$this->topic['login']?>" />

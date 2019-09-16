@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div class="product">
 
 <div class="description"><?=$this->product['text2']?></div>

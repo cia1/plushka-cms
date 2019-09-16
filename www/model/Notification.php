@@ -1,7 +1,8 @@
 <?php
 namespace plushka\model;
 use InvalidArgumentException;
-use plushka;
+use plushka\core\plushka;
+
 /**
  * "Уведомление".
  * Каждый способ доставки должен быть унаследован от этого класса.

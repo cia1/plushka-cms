@@ -1,10 +1,12 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\Config;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\core\Model;
 
 /* Управление форумом */
-class ForumController extends \plushka\admin\core\Controller {
+class ForumController extends Controller {
 
 	public function right() {
 		return array(

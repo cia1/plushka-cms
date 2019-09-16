@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
-use plushka;
 use mysqli_result;
 
 /**
@@ -34,7 +33,7 @@ class Mysqli {
 	}
 
 	public function __construct() {
-		$cfg=plushka::config();
+		$cfg=core::config();
 		self::$_connectId=new \mysqli($cfg['mysqlHost'],$cfg['mysqlUser'],$cfg['mysqlPassword'],$cfg['mysqlDatabase']);
 		if(self::$_connectId->connect_errno!==0) {
 			throw new DBException('Cannot connect to database');

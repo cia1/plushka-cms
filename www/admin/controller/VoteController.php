@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Социальный опрос */
-class VoteController extends \plushka\admin\core\Controller {
+class VoteController extends Controller {
 
 	public function right() {
 		return array(

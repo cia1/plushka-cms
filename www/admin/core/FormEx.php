@@ -9,7 +9,10 @@ use plushka\core\Form;
  */
 class FormEx extends Form {
 
-	public function __construct($namespace=null) {
+    /**
+     * @param string|null $namespace Пространство имён полей формы (имя контроллера)
+     */
+	public function __construct(string $namespace=null) {
 	    parent::__construct($namespace);
 		if($namespace===null) $this->_namespace=$_GET['controller'];
 	}

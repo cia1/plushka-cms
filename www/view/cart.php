@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 /* Корзина интернет-магазина для старницы оформления заказа, не MVC-представление. */
 if(!isset($_SESSION['cart'])) $_SESSION['cart']=array();
 if(!count($_SESSION['cart'])) {

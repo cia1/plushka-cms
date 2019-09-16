@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <div class="tab">
 	<fieldset>
 		<legend>База данных</legend>

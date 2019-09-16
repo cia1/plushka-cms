@@ -3,7 +3,6 @@
 namespace plushka\admin\core;
 use ArrayIterator;
 use IteratorAggregate;
-use plushka;
 
 /**
  * Служит для создания и изменения конфигурационных файлов
@@ -30,7 +29,7 @@ class Config implements IteratorAggregate {
 	 * Загружает конфигурацию
 	 * @param string|null $fileName Относительное имя файла конфигурации
 	 */
-	public function load($fileName=null): void {
+	public function load(string $fileName=null): void {
 		if($fileName===null && property_exists($this,'fileName')===true) $fileName=$this->fileName;
         $this->_data=plushka::config($fileName);
         if(is_array($this->_data)===false) $this->_data=[];
@@ -75,7 +74,7 @@ class Config implements IteratorAggregate {
 	 * Сохраняет конфигурацию в файл
 	 * @param string $fileName|null
 	 */
-	public function save($fileName=null): void {
+	public function save(string $fileName=null): void {
 		if($fileName===null && property_exists($this,'fileName')===true) $fileName=$this->fileName;
 		if(substr($fileName,0,6)==='admin/') $fileName=plushka::path().'admin/config/'.substr($fileName,6).'.php'; else $fileName=plushka::path().'config/'.$fileName.'.php';
 		$f=fopen($fileName,'w');
@@ -85,9 +84,10 @@ class Config implements IteratorAggregate {
 
 	/**
 	 * Устанавливает сразу все данные
+     * Данные передаются по ссылке, чтобы можно было увязать с массивом, возвращаемым plushka::config()
 	 * @param array @data
 	 */
-	public function setData(&$data): void {
+	public function setData(array &$data): void {
 		$this->_data=&$data;
 	}
 

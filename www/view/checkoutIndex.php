@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div id="_cart" style="position:relative;"><?php plushka::import('view/cart'); ?></div>
 
 <?php

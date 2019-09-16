@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Контактные формы */
-class FormController extends \plushka\admin\core\Controller {
+class FormController extends Controller {
 
 	public function right() {
 		return array(

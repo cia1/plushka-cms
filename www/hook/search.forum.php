@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 /* Событие: поиск по сайту по ключевой фразе
 Модуль: forum (форум)
 Параметры: string $data[0] - ключевая фраза
@@ -11,4 +13,3 @@ while($item=$db->fetch()) {
 	echo '<li><p><a href="',plushka::link('forum'),'">'.LNGForum.'</a> / <a href="',plushka::link('forum/'.$item[1].'/'.$item[0]),'">',$item[2].'</a></p>',$item[3],'</li>';
 }
 return true;
-?>

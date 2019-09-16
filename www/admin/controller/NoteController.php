@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Заметки для администрации */
-class NoteController extends \plushka\admin\core\Controller {
+class NoteController extends Controller {
 
 	public function right() {
 		return array(

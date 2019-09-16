@@ -1,2 +1,5 @@
-<?php $this->formPassword->render(); ?>
-<?php if($this->notification===true) plushka::widget('notificationSettingForm'); ?>
+<?php
+use plushka\core\plushka;
+
+$this->formPassword->render();
+if($this->notification===true) plushka::widget('notificationSettingForm');

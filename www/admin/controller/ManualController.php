@@ -1,7 +1,9 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
-class ManualController extends \plushka\admin\core\Controller {
+class ManualController extends Controller {
 
 	public function actionDialog() {
 		$path=explode('/',$_GET['path']);

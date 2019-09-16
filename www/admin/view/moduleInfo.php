@@ -1,4 +1,8 @@
-<?php if(plushka::error()) return; ?>
+<?php
+use plushka\admin\core\plushka;
+
+if(plushka::error()) return;
+?>
 <?php if($this->moduleExists) { ?>
 	<p><b>ВНИМАНИЕ! </b>Модуль &laquo;<?=$this->module['name']?>&raquo; (версия <?=$this->module['version']?>) уже установлен. Если вы продолжите установку, то модуль будет обновлён.</p>
 	<p></p><p></p>

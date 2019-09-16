@@ -1,7 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
-use plushka\model\Notification;
+use plushka\core\plushka;
 use plushka\model\User;
 
 class ViberController extends \plushka\core\Controller {

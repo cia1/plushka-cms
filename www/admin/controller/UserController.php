@@ -1,10 +1,11 @@
 <?php
 namespace plushka\admin\controller;
-use plushka;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\User;
 
 /* Управление пользователями и группами */
-class UserController extends \plushka\admin\core\Controller {
+class UserController extends Controller {
 
 	public function right() {
 		return array(

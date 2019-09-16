@@ -1,6 +1,6 @@
 <?php
 namespace plushka\admin\model;
-use plushka;
+use plushka\admin\core\plushka;
 
 plushka::language('user');
 

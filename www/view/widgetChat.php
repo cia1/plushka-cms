@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <link href="<?=plushka::url()?>public/css/chat.css" rel="stylesheet" type="text/css" />
 <?php foreach($this->content as $item) { ?>
 	<p>

@@ -1,6 +1,6 @@
 <?php
 namespace plushka\admin\core;
-use plushka;
+use plushka\admin\core\plushka;
 use plushka\core\Cache;
 
 class Language {

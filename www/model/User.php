@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Email;
 use plushka\core\Model;
 use plushka\core\User as UserCore;

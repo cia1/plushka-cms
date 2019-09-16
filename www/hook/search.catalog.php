@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 /* Событие: поиск по сайту по ключевой фразе. Ищет только по заголовку записи
 Модуль: catalog (универсальный каталог)
 Параметры: string $data[0] - ключевая фраза */
@@ -22,4 +24,3 @@ function _catalog($id,$keyword) {
 		echo '<li><p><a href="'.plushka::link('catalog/'.$id).'">'.LNGCatalog.'</a> / <a href="'.plushka::link('catalog/'.$id.'/'.$item[0]).'">'.$item[1].'</a></p></li>';
 	}
 }
-?>

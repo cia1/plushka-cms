@@ -1,9 +1,11 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\notificationTransport;
 
 //Модуль notification. Настройки системы отправки сообщений
-class NotificationController extends \plushka\admin\core\Controller {
+class NotificationController extends Controller {
 
 	public function right() {
 		return array(

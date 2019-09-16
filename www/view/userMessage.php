@@ -1,4 +1,5 @@
 <?php
+use plushka\core\plushka;
 use plushka\model\User;
 ?>
 <?php if(empty($this->messageList)===true) { ?>

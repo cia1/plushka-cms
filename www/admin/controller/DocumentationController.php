@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Documentation;
 
-class DocumentationController extends \plushka\admin\core\Controller {
+class DocumentationController extends Controller {
 
 	public function actionIndex() {
 		if(isset($_GET['path'])===false) $path=array(null,'index');

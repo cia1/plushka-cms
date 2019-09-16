@@ -1,6 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\plushka;
 
 /* Результаты поиска по сайту и форма поиска
 	Для вывода контента генерируется событие с именем "search"

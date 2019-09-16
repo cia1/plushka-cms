@@ -1,18 +1,18 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 
 class MComment {
 
-	/* Выводит HTML-код со списком комментариев.
-	$link - страница, для которой нужен список комментариев; $widget -  */
+	/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ HTML-пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+	$link - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ; $widget -  */
 	public static function renderList($link=null,&$widget=null) {
-		if(!$link) $link=implode('/',$_GET['corePath']); //если не задана, то использовать адрес запрошенной старницы
-		//$groupId - условный идентификатор страницы, для который выводятся комментарии
+		if(!$link) $link=implode('/',$_GET['corePath']); //пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		//$groupId - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		$db=plushka::db();
 		$groupId=$db->fetchValue('SELECT id FROM comment_group WHERE link='.$db->escape($link));
 		if(!$groupId) return;
-		if(isset($_GET['comment'])) $page=(int)$_GET['comment']; else $page=0; //пагинация комментариев
+		if(isset($_GET['comment'])) $page=(int)$_GET['comment']; else $page=0; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		$db->query('SELECT date,name,text,id,userId FROM comment WHERE groupId='.$groupId.' AND status>0 ORDER BY date DESC'); //,20,$page);
 		while($item=$db->fetch()) {
 			echo '<div class="item" itemprop="comment" itemscope itemtype="http://schema.org/UserComments">';

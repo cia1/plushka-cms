@@ -1,6 +1,7 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\HTTPException;
+use plushka\core\plushka;
 use plushka\model\Shop;
 
 /* Интернет-магазин (кроме оформления заказа)
@@ -19,7 +20,7 @@ class ShopController extends \plushka\core\Controller {
 		if(count($this->url)===2) $this->url[1]='category'; else $this->url[1]='product';
 	}
 
-	public function actionIndex() { plushka::error404(); }
+	public function actionIndex() { throw new HTTPException(404); }
 
 	/* Категория интренет-магазина */
 	public function actionCategory() {
@@ -28,7 +29,7 @@ class ShopController extends \plushka\core\Controller {
 		else {
 			$db=plushka::db();
 			$this->category=$db->fetchArrayOnceAssoc('SELECT id,parentId,title,text1,metaTitle,metaKeyword,metaDescription FROM shp_category WHERE alias='.$db->escape($this->categoryAlias));
-			if(!$this->category) plushka::error404();
+			if(!$this->category) throw new HTTPException(404);
 		}
 
 		$this->categoryList=Shop::categoryList($this->category['id']); //$this->categoryList содержит список категорий
@@ -80,7 +81,7 @@ class ShopController extends \plushka\core\Controller {
 	/* Страница товара */
 	public function actionProduct() {
 		$this->product=Shop::productByAlias($this->url[2],true); //полная информация о товаре, $this->url[3] - идентификатор товара
-		if(!$this->product) plushka::error404();
+		if(!$this->product) throw new HTTPException(404);
 
 		$this->js('jquery.min');
 		$this->js('shadowbox/shadowbox');

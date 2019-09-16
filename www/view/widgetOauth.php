@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <?php if(!$this->data) {
 	echo '<p style="font-style:italic;">'.LNGNoOneServers.'</p>';
 	return;

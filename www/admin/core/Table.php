@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
-use plushkaAdmin as plushka;
 
 /**
  * Конструктор HTML-таблиц (<table>)

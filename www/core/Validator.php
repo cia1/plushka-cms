@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
-use plushka;
 
 /**
  * Валидатор и фильтр данных.
@@ -78,14 +77,14 @@ class Validator {
 	 * @return bool Валидны ли данные
 	*/
 	public function validate(array $rule=null): bool {
-		plushka::language('global');
+		core::language('global');
 		if($rule===null) $rule=$this->rule();
 		foreach($rule as $attribute=>$item) {
 			if(isset($this->_data[$attribute])===false) $this->_data[$attribute]=null;
 			if(isset($item[2])===false) $item[2]=null;
 			if($this->_data[$attribute]===null || $this->_data[$attribute]==='') {
 				if($item[2]===true || ($item[0]==='captcha' && $item[2]===null)) { //cannot be empty
-					plushka::error(sprintf(LNGFieldCannotByEmpty,$item[1]));
+					core::error(sprintf(LNGFieldCannotByEmpty,$item[1]));
 					return false;
 				}
 				continue;
@@ -117,7 +116,7 @@ class Validator {
 	protected function validateCaptcha(string $attribute,array $setting): bool {
 		$this->_data[$attribute]=(int)$this->_data[$attribute];
 		if($this->_data[$attribute]!==$_SESSION['captcha']) {
-			plushka::error($setting[1].' '.LNGwroteWrong);
+			core::error($setting[1].' '.LNGwroteWrong);
 			return false;
 		}
 		return true;
@@ -131,7 +130,7 @@ class Validator {
 	 */
 	protected function validateCallback(string $attribute,array $setting): bool {
 		$this->_data[$attribute]=call_user_func_array($setting[3],[$this->$attribute]);
-		if(plushka::error()) return false;
+		if(core::error()) return false;
 		return true;
 	}
 
@@ -150,7 +149,7 @@ class Validator {
 		if(ctype_digit($value)===false) $value=strtotime($value);
 		$value=(int)$value;
 		if($value<1) {
-			plushka::error(sprintf(LNGFieldHasBeDate,$setting[1]));
+			core::error(sprintf(LNGFieldHasBeDate,$setting[1]));
 			return false;
 		}
 		return true;
@@ -164,7 +163,7 @@ class Validator {
 	 */
 	protected function validateEmail(string $attribute,array $setting): bool {
 		if(filter_var($this->$attribute,FILTER_VALIDATE_EMAIL)===false) {
-			plushka::error(sprintf(LNGFieldHasBeEMail,$setting[1]));
+			core::error(sprintf(LNGFieldHasBeEMail,$setting[1]));
 			return false;
 		}
 		return true;
@@ -180,11 +179,11 @@ class Validator {
 		$this->_data[$attribute]=(float)$this->_data[$attribute];
 		$value=$this->_data[$attribute];
 		if(isset($setting['min'])===true && $setting['min']>$value) {
-			plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+			core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 			return false;
 		}
 		if(isset($setting['max'])===true && $setting['max']<$value) {
-			plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+			core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 			return false;
 		}
 		return true;
@@ -236,11 +235,11 @@ class Validator {
 		if($value==='') $value=null; elseif($value!==null) $value=(int)$value;
 		if($value!==null) {
 			if(isset($setting['min'])===true && $setting['min']>$value) {
-				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 			if(isset($setting['max'])===true && $setting['max']<$value) {
-				plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+				core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 				return false;
 			}
 		}
@@ -257,11 +256,11 @@ class Validator {
 		$value=$this->_data[$attribute];
 		$i=preg_match('/^[a-zA-Z0-9\-_]*?$/',$value);
 		if($i===false) {
-			plushka::error(sprintf(LNGFieldCanByLatin,$setting[1]));
+			core::error(sprintf(LNGFieldCanByLatin,$setting[1]));
 			return false;
 		}
 		if(isset($setting['max'])===true && strlen($value)>$setting['max']) {
-			plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+			core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 			return false;
 		}
 		return true;
@@ -276,7 +275,7 @@ class Validator {
 	protected function validateRegular(string $attribute,array $setting): bool {
 		$value=$this->_data[$attribute];
 		if(preg_match('~'.$setting[3].'~',$value)===0) {
-			plushka::error(sprintf(LNGFieldIllegalValue,$setting[1]));
+			core::error(sprintf(LNGFieldIllegalValue,$setting[1]));
 			return false;
 		}
 		return true;
@@ -293,11 +292,11 @@ class Validator {
 		$value=strip_tags($value);
 		if(isset($setting['trim'])===true && $setting['trim']===true) $value=trim($value);
 		if(isset($setting['min'])===true && $setting['min']>mb_strlen($value,'UTF-8')) {
-			plushka::error(sprintf(LNGFieldTextTooShort,$setting[1]));
+			core::error(sprintf(LNGFieldTextTooShort,$setting[1]));
 			return false;
 		}
 		if(isset($setting['max'])===true && $setting['max']<mb_strlen($value,'UTF-8')) {
-			plushka::error(sprintf(LNGFieldTextTooLong,$setting[1]));
+			core::error(sprintf(LNGFieldTextTooLong,$setting[1]));
 			return false;
 		}
 		return true;
@@ -307,24 +306,24 @@ class Validator {
 
 	private function _picture($image,array $setting): ?Picture {
 		$picture=new Picture($image);
-		if(plushka::error()) return null;
+		if(core::error()) return null;
 		if(isset($setting['minWidth'])===true || isset($setting['maxWidth'])===true || isset($setting['minHeight'])===true || isset($setting['maxHeight'])===true) {
 			$w=$picture->width();
 			$h=$picture->height();
 			if(isset($setting['minWidth'])===true && $w<$setting['minWidth']) {
-				plushka::error(sprintf(LNGImageWidthCannotBeLessPixels,$setting['minWidth']));
+				core::error(sprintf(LNGImageWidthCannotBeLessPixels,$setting['minWidth']));
 				return null;
 			}
 			if(isset($setting['maxWidth'])===true && $w>$setting['maxWidth']) {
-				plushka::error(sprintf(LNGImageWidthCannotBeMorePixels,$setting['maxWidth']));
+				core::error(sprintf(LNGImageWidthCannotBeMorePixels,$setting['maxWidth']));
 				return null;
 			}
 			if(isset($setting['minHeight'])===true && $h<$setting['minHeight']) {
-				plushka::error(sprintf(LNGImageHeightCannotBeLessPixels,$setting['minHeight']));
+				core::error(sprintf(LNGImageHeightCannotBeLessPixels,$setting['minHeight']));
 				return null;
 			}
 			if(isset($setting['maxHeight'])===true && $h>$setting['maxHeight']) {
-				plushka::error(sprintf(LNGImageHeightCannotBeMorePixels,$setting['maxHeight']));
+				core::error(sprintf(LNGImageHeightCannotBeMorePixels,$setting['maxHeight']));
 				return null;
 			}
 		}

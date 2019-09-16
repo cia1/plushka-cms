@@ -1,6 +1,6 @@
 <?php
 namespace plushka\widget;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Widget;
 
 /* Произвольная контактная форма
@@ -11,10 +11,10 @@ class FormWidget extends Widget {
 
 	public function render($view): void {
 		$db=plushka::db();
-		$form=$db->fetchArrayOnceAssoc('SELECT title,formView FROM frm_form WHERE id='.$this->options);
+		$form=$db->fetchArrayOnceAssoc('SELECT title_'._LANG.' title,formView FROM frm_form WHERE id='.$this->options);
 		if(!$form) return;
 		//Загрузить список полей формы и загрузить их в класс form
-		$items=$db->fetchArrayAssoc('SELECT id,title,htmlType,data,defaultValue,required FROM frm_field WHERE formId='.$this->options.' ORDER BY sort');
+		$items=$db->fetchArrayAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frm_field WHERE formId='.$this->options.' ORDER BY sort');
 		$cnt=count($items);
 		$f=plushka::form('form');
 		for($i=0;$i<$cnt;$i++) {

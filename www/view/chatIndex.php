@@ -1,1 +1,4 @@
-<?php plushka::widget('chatForm'); ?>
+<?php
+use plushka\core\plushka;
+
+plushka::widget('chatForm');

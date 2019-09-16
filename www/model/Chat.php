@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 
 define('MAIN_CHAT_ID','default');
 define('CHAT_LOGIN_FILTER','root,admin,fuck');

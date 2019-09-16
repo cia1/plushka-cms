@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <form action="<?=plushka::linkAdmin('user/user')?>" method="get" class="filter">
 <input type="hidden" name="controller" value="user" />
 <input type="hidden" name="action" value="user" />

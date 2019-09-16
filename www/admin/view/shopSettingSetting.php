@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <div class="tab">
 	<?php $this->form1->render(); ?>
 	<script>

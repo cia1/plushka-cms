@@ -1,6 +1,7 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\HTTPException;
+use plushka\core\plushka;
 use plushka\model\Oauth;
 /* Реализует регистрацию и авторизацию OAuth 2.0
 URL: oauth/ID - авторизация через сервер ID; oauth/return/ID - адрес возврата, на который сервер авторизации возвращает пользователя */
@@ -18,7 +19,7 @@ class OauthController extends \plushka\core\Controller {
 
 	//Редирект на сервер авторизации (соц.сеть) для запроса разрешений
 	public function actionRedirect() {
-		if(!Oauth::redirect($this->id,'oauth/return/'.$this->id)) plushka::error404();
+		if(!Oauth::redirect($this->id,'oauth/return/'.$this->id)) throw new HTTPException(404);
 	}
 
 	//Анализирует возвращённый сервером ответ

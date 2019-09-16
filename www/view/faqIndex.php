@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div class="faq">
 	<a href="#" onclick="jQuery('#faqContainer').fadeIn();return false;" class="question"><?=LNGAskQuestion?></a>
 <?php

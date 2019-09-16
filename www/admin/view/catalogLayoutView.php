@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <form action="<?=plushka::link('admin/catalog/layoutView?lid='.$_GET['lid'])?>" method="post">
 <input type="hidden" name="catalog[view]" value="<?=$_GET['view']?>" />
 <div id="layoutView">

@@ -1,4 +1,5 @@
 <?php
+use plushka\core\plushka;
 use plushka\model\catalog;
 ?>
 <div id="catalog" itemscope itemtype="https://schema.org/DataCatalog">

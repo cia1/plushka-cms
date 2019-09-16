@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Инструменты разработчика */
-class DevToolController extends \plushka\admin\core\Controller {
+class DevToolController extends Controller {
 
 	/* Запрос выбора нужной операции */
 	public function actionIndex() {

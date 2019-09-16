@@ -1,9 +1,11 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Html;
 
 /* Управление произвольным HTML-кодом на сайте */
-class HtmlController extends \plushka\admin\core\Controller {
+class HtmlController extends Controller {
 
 	public function right() {
 		return array(

@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 //Статьи в виде блога
 foreach($this->itemsPreview as $i=>$item) { ?>
 	<div class="item preview">

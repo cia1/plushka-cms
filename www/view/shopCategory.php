@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <div class="category">
 <?php
 if($this->category['text1']) echo '<div class="text1">',$this->category['text1'],'</div>';

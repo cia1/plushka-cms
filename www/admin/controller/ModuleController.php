@@ -1,10 +1,11 @@
 <?php
 namespace plushka\admin\controller;
-use plushka;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Module;
 
 /* Установка и удаление модулей. Выполняется по шагам, чтобы при возникновении ошибок в любой момент можно было сделать откат */
-class ModuleController extends \plushka\admin\core\Controller {
+class ModuleController extends Controller {
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Список установленных модулей */

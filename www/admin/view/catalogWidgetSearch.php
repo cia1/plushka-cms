@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <?php $this->f->render(); ?>
 <script>
 $('dl.form .id select').change(function() {

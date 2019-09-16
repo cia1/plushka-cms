@@ -1,12 +1,14 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Article;
 use plushka\admin\model\ArticleCategory;
 
 /* Управление статьями, блогами, списками статей.
 Это один из случаев, когда категории статей не создаются/удаляются при создании/удалении виджета/пункта меню.
 Несомненно это неправильно и нужно использовать внешнюю ссылку в меню. Но что делать с виджетом, если нужен блог уже существующей категории? */
-class ArticleController extends \plushka\admin\core\Controller {
+class ArticleController extends Controller {
 
 	public function right() {
 		return array(

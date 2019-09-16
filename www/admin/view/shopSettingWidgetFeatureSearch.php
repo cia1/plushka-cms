@@ -1,3 +1,6 @@
+<?php
+use plushka\admin\core\plushka;
+?>
 <form action="<?=plushka::link('admin/shopSetting/widgetFeatureSearch')?>" method="post">
 <dl class="form">
 	<dt class="checkbox">Поиск по цене</dt>

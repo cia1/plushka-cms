@@ -1,6 +1,6 @@
 <?php
 namespace plushka\controller;
-use plushka;
+use plushka\core\plushka;
 
 /* Обрабатывает запросы на добавление комментариев. Все визуальные элементы формируются в виджете comment */
 class CommentController extends \plushka\core\Controller {

@@ -1,1 +1,4 @@
-<?php plushka::widget('oauth'); ?>
+<?php
+use plushka\core\plushka;
+
+plushka::widget('oauth');

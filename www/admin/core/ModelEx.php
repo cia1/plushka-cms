@@ -15,7 +15,7 @@ class ModelEx extends Model {
 	 * @param array|string|null $attribute Список параметров
 	 * @return array[] Полученный массив правил валидации, к которым добавлены новые
 	 */
-	protected function commonRuleAppend($rule,$attribute=null): array {
+	protected function commonRuleAppend(array $rule,$attribute=null): array {
 		if($attribute===null) $attribute=['metaTitle','metaDescription','metaKeyword'];
 		elseif(is_string($attribute)===true) $attribute=explode(',',$attribute);
 		$ruleTemplate=array(

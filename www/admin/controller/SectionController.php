@@ -1,8 +1,10 @@
 <?php
 namespace plushka\admin\controller;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Управление секциями */
-class SectionController extends \plushka\admin\core\Controller {
+class SectionController extends Controller {
 
 	public function right() {
 		return array(

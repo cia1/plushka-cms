@@ -1,6 +1,6 @@
 <?php
 namespace plushka\model;
-use plushka;
+use plushka\core\plushka;
 use plushka\core\Validator;
 use plushka\core\Email;
 use plushka\core\Form as FormCore;
@@ -55,7 +55,7 @@ class Form extends FormCore {
 	 */
 	public function render(string $action=null,string $html=null): void {
 		if($action!==null) $this->action=$action;
-		if($this->formView!==null) {
+		if($this->formView!==null && $this->formView!=='') {
 			$view=$this->formView;
 			$this->formView=null; //render() может быть вызван дважды: один раз из контроллера и один раз из представления, поэтому убрать, чтобы небыло зацикливания
             /** @noinspection PhpIncludeInspection */

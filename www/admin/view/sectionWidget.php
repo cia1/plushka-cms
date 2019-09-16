@@ -1,4 +1,6 @@
 <?php
+use plushka\admin\core\plushka;
+
 //Возвращает строку HTML-чекбоксов меню (вызывается рекурсивно). Сугубо генерация HTML, поэтому в MVC-представлении
 function getHTMLMenu($data,$level=0) {
 	$html='';

@@ -1,9 +1,11 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\Config;
+use plushka\admin\core\Controller;
+use plushka\admin\core\plushka;
 
 /* Реализует модуль регистрации и авторизации OAuth */
-class OauthController extends \plushka\admin\core\Controller {
+class OauthController extends Controller {
 
 	public function right() {
 		return array(

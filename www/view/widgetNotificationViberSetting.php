@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <?=plushka::js('jquery.min')?>
 <?=plushka::js('viberSetting')?>
 <div id="viberSettingButton">

@@ -1,4 +1,6 @@
 <?php
+use plushka\admin\core\plushka;
+
 $f=plushka::form();
 $f->listBox('menuId','Выберите меню','SELECT id,title FROM menu',$this->menuId,'(создать новое меню)','onclick="selectMenu(this.value);"');
 $f->submit('Продолжить');

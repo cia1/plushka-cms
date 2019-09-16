@@ -1,7 +1,6 @@
 <?php
 //Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\core;
-use plushka;
 use SQLite3;
 use SQLite3Result;
 
@@ -40,7 +39,7 @@ class Sqlite {
 	 * @param string|null $fileName Имя файла базы данных, если нужно подключиться не к стандартной
 	 */
 	public function __construct(string $fileName=null) {
-		if($fileName===null) $fileName=plushka::path().'data/database3.db';
+		if($fileName===null) $fileName=core::path().'data/database3.db';
 		self::$_connectId=new SQLite3($fileName);
 		self::$_connectId->createFunction('CONCAT',function() {
 			return implode('',func_get_args());

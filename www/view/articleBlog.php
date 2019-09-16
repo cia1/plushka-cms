@@ -1,3 +1,6 @@
+<?php
+use plushka\core\plushka;
+?>
 <?=$this->category['text1']?>
 <div class="blog category<?=$this->category['id']?>">
 <?php foreach($this->articles as $item) {

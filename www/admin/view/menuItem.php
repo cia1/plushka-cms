@@ -1,4 +1,6 @@
 <?php
+use plushka\admin\core\plushka;
+
 //Форма с основными данными
 $f=plushka::form();
 $f->hidden('menuId',$this->data['menuId']);

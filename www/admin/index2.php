@@ -1,3 +1,5 @@
 <?php
-require_once(__DIR__.'/core/plushka.php');
-\plushka\admin\core\runApplication(false);
+require_once __DIR__.'/core/plushka.php';
+use function plushka\admin\core\runApplication;
+
+runApplication(false);

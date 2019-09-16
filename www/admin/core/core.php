@@ -1,15 +1,13 @@
 <?php
 // Этот файл является частью фреймворка. Вносить изменения не рекомендуется.
 namespace plushka\admin\core;
+require dirname(__DIR__,2).'/core/core.php';
 use plushka\core\DBException;
 use plushka\core\HTTPException;
 use plushka\controller\ErrorController;
 use plushka\core\Cache;
 use plushka\core\Controller as ControllerPublic;
-use plushkaAdmin as plushka;
 use Throwable;
-
-require(dirname(__DIR__,2).'/core/core.php');
 
 /**
  * @inheritdoc
@@ -23,12 +21,6 @@ class Controller extends ControllerPublic {
 	protected $cite='';
 
 	private $_button=''; //HTML код кнопок
-
-	public function __construct() {
-	    parent::__construct();
-		$this->url=[$_GET['controller'],$_GET['action']];
-		if(!$this->url[1]) $this->url[1]='index';
-	}
 
 	/**
 	 * Добавляет кнопку в специально отведённую область
@@ -59,10 +51,9 @@ class Controller extends ControllerPublic {
 
 	/**
 	 * Генерирует HTML-код (шаблон, теги в <head>, кнопки админки, представление)
-	 * @param string|object|null $view - представление
 	 * @param bool $renderTemplate нужно ли использовать шаблон
 	 */
-	public function render($view,bool $renderTemplate=true): void {
+	public function render(bool $renderTemplate=true): void {
         $alias=$this->url[0];
         //Проверка прав доступа к запрошенной странице
         $user=plushka::userReal();
@@ -91,35 +82,12 @@ class Controller extends ControllerPublic {
 
         if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
             if(method_exists($this,'action'.$this->url[1].'Submit')===false) throw new HTTPException(404);
-            if(isset($_FILES[$alias])) {
-                $f1=$_FILES[$alias];
-                foreach($f1['size'] as $name=>$value) {
-                    if(is_array($value)) {
-                        $_POST[$alias][$name]=array();
-                        foreach($value as $i=>$size) {
-                            if(!$size) continue;
-                            $_POST[$alias][$name][]=[
-                                'name'=>$f1['name'][$name][$i],
-                                'tmpName'=>$f1['tmp_name'][$name][$i],
-                                'type'=>$f1['type'][$name][$i],
-                                'size'=>$size
-                            ];
-                        }
-                    } else {
-                        $_POST[$alias][$name]=[
-                            'name'=>$f1['name'][$name],
-                            'tmpName'=>$f1['tmp_name'][$name],
-                            'type'=>$f1['type'][$name],
-                            'size'=>$value
-                        ];
-                    }
-                }
-            }
+            self::filesToPost($alias);
             $s='action'.$this->url[1].'Submit';
             $post=$_POST[$alias];
             $data=$this->$s($post); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
             //Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
-            if(isset($_GET['_serialize'])) {
+            if(isset($_GET['_serialize'])===true) {
                 if(plushka::error()) die(plushka::error(false));
                 echo "OK\n";
                 if(isset($post['cacheTime'])===true || (is_array($data)===true && isset($data['cacheTime'])===true)) {
@@ -163,7 +131,7 @@ class Controller extends ControllerPublic {
 		if(plushka::success()) {
 			echo '<div class="messageSuccess">',plushka::success(false),'</div>';
 		}
-		if(gettype($view)==='object') $view->render();
+        if(gettype($view)==='object' && method_exists($view,'render')) $view->render();
 		elseif($view==='_empty') {
 		    /** @noinspection PhpIncludeInspection */
 		    include(plushka::path().'admin/view/_empty.php');
@@ -210,46 +178,4 @@ function runApplication(bool $renderTemplate=true): void {
         $controller=new ErrorController($e);
         $controller->render($renderTemplate);
     }
-
-//	if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
-//		$s='action'.plushka::$controller->url[1].'Submit';
-//		if(method_exists(plushka::$controller,$s)===false) plushka::error404();
-		//Подготовить данные _POST и _FILES для передачи submit-действию
-//		if(isset($_FILES[$alias])) {
-//			$f1=$_FILES[$alias];
-//			foreach($f1['name'] as $name=>$value) {
-//				if(is_array($value)) {
-//					$_POST[$alias][$name]=array();
-//					foreach($value as $i=>$valueValue) {
-//						$_POST[$alias][$name][]=array('name'=>$valueValue,'tmpName'=>$f1['tmp_name'][$name][$i],'type'=>$f1['type'][$name][$i],'size'=>$f1['size'][$name][$i]);
-//					}
-//				} else $_POST[$alias][$name]=array('name'=>$value,'tmpName'=>$f1['tmp_name'][$name],'type'=>$f1['type'][$name],'size'=>$f1['size'][$name]);
-//			}
-//		}
-//		$post=$_POST[plushka::$controller->url[0]];
-//		@$data=plushka::$controller->$s($post);
-		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
-//		if(isset($_GET['_serialize'])) {
-//			if(plushka::error()) die(plushka::error(false));
-//			echo "OK\n";
-//			if(isset($post['cacheTime']) || (is_array($data) && isset($data['cacheTime']))) {
-//				echo $post['cacheTime'];
-//				if(is_array($data) && isset($data['cacheTime'])) unset($data['cacheTime']);
-//			} else echo '0';
-//			echo "\n";
-//			if(is_array($data)) echo serialize($data); else echo $data;
-//			exit;
-//		}
-//	} else $data=null;
-	//Запуск "обычного" действия
-//	if(plushka::$controller->url[1]) {
-//		$s='action'.plushka::$controller->url[1];
-//		if(method_exists(plushka::$controller,$s)===false) plushka::error404();
-		//Если есть сериализованные данные, то восстановить их (нужно для меню и виджетов)
-//		if(isset($_GET['_serialize'])===true && isset($_POST['data'])===true) {
-//			if(substr($_POST['data'],0,2)==='a:' && $_POST['data'][strlen($_POST['data'])-1]==='}') $view=plushka::$controller->$s(unserialize($_POST['data']));
-//			else $view=plushka::$controller->$s($_POST['data']);
-//		} else $view=plushka::$controller->$s($data);
-//	} else $view=null;
-//	plushka::$controller->render($view,$renderTemplate);
 }
