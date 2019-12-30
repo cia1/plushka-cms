@@ -35,8 +35,8 @@ class Controller extends ControllerPublic {
 		if($link==='html') $this->_button.=$image;
 		else {
 			$this->_button.='<a href="'.plushka::link('admin/'.$link).'" '.
-                ($html ? $html : '').
-                '><img src="'.plushka::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
+			($html ? $html : '').
+			'><img src="'.plushka::url().'admin/public/icon/'.$image.'32.png" alt="'.($alt ? $alt : $title).'" title="'.$title.'" /></a>';
 		}
 	}
 

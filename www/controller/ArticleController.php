@@ -8,9 +8,9 @@ use plushka\model\Article;
 /**
  * Статьи
  * ЧПУ:
- * /article/view/ПСЕВДОНИМ (actionView) - отдельная статья;
- * /article/blog/КАТЕГОРИЯ (actionBlog), /article/list/КАТЕГОРИЯ (actionList) - блог или список статей;
- * /article/blog/КАТЕГОРИЯ/ПСЕВДОНИМ (actionView), /article/list/КАТЕГОРИЯ/ПСЕВДОНИМ (actionView) - отдельная статья в блоге или списке
+ * `/article/view/ПСЕВДОНИМ` (actionView) - отдельная статья;
+ * `/article/blog/КАТЕГОРИЯ` (actionBlog), /article/list/КАТЕГОРИЯ (actionList) - блог или список статей;
+ * `/article/blog/КАТЕГОРИЯ/ПСЕВДОНИМ` (actionView), `/article/list/КАТЕГОРИЯ/ПСЕВДОНИМ` (actionView) - отдельная статья в блоге или списке
  *
  * @property-read array|null $category Категория для действия "view"
  * @property-read array|null $article Стаья для действия "view"
@@ -79,7 +79,6 @@ class ArticleController extends Controller {
 		return array('{{pageTitle}}');
 	}
 
-	/* Блог статей/новостная лента */
 	protected function adminBlogLink() {
 		return array(
 			array('article.category','?controller=article&action=category&id='.$this->category['id'],'edit','Править заголовок, мета-теги блога'),

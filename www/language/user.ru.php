@@ -1,4 +1,7 @@
 <?php
+/**
+ * Авторизация, регистрация, личный кабинет пользователей
+ */
 define('LNGaccountActive','учётная запись активна');
 define('LNGActivationCodeIsWrong','Неверный код активации');
 define('LNGAnswer','Ответить');

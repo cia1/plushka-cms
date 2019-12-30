@@ -1,4 +1,7 @@
 <?php
+/**
+ * Поиск по сайту
+ */
 define('LNGFind','Найти');
 define('LNGSearch','Поиск');
 define('LNGSearchAtSite','Поиск по сайту');

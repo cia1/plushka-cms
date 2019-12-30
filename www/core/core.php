@@ -28,9 +28,9 @@ abstract class core {
 	public static function &config(string $name='_core',string $attribute=null) {
 		static $_cfg;
 		if(isset($_cfg[$name])===false) {
-            /** @noinspection PhpIncludeInspection */
-		    $_cfg[$name]=include(self::path().'config/'.$name.'.php');
-        }
+			/** @noinspection PhpIncludeInspection */
+			$_cfg[$name]=include(self::path().'config/'.$name.'.php');
+		}
 		if($attribute===null) return $_cfg[$name];
 		if(isset($_cfg[$name][$attribute])===true) $value=$_cfg[$name][$attribute]; else $value=null;
 		return $value;
@@ -47,13 +47,11 @@ abstract class core {
 	public static function db(bool $newQuery=false) {
 		static $_db;
 		if($newQuery===true) {
-			$driver=static::config();
-			$driver=$driver['dbDriver'];
+			$driver=self::config('_core','dbDriver');
 			return self::$driver($newQuery);
 		}
 		if($_db===null) {
-			$driver=self::config();
-			$driver=$driver['dbDriver'];
+			$driver=self::config('_core','dbDriver');
 			$_db=self::$driver($newQuery);
 		}
 		return $_db;
@@ -429,22 +427,22 @@ class Controller {
 	 * @param bool $renderTemplate Если false, то шаблон обрабатываться не будет (полезно для AJAX-запросов)
 	 */
 	public function render(bool $renderTemplate=true): void {
-        $alias=$this->url[0];
-        if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
-            if(method_exists($this,'action'.$this->url[1].'Submit')===false) throw new HTTPException(404);
-            core::hook('initPOST',$alias);
-            self::filesToPost($alias);
-            $s='action'.$this->url[1].'Submit';
-            $data=$this->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
-        } else $data=null;
+		$alias=$this->url[0];
+		if(isset($_POST[$alias])===true) { //в _POST есть данные, относящиеся к запрошенному контроллеру
+			if(method_exists($this,'action'.$this->url[1].'Submit')===false) throw new HTTPException(404);
+			plushka::hook('initPOST',$alias);
+			self::filesToPost($alias);
+			$s='action'.$this->url[1].'Submit';
+			$data=$this->$s($_POST[$alias]); //запуск submit-действия, если всё хорошо, то там должен быть выполнен редирект и дальнейшая обработка прерывается
+		} else $data=null;
 
-        //Запуск действия (не submit) и вывод контента
-        if(method_exists($this,'action'.$this->url[1])===false) throw new HTTPException(404);
-        $s='action'.$this->url[1];
-        if($data===null) $view=$this->$s(); else $view=$this->$s($data);
+		//Запуск действия (не submit) и вывод контента
+		if(method_exists($this,'action'.$this->url[1])===false) throw new HTTPException(404);
+		$s='action'.$this->url[1];
+		if($data===null) $view=$this->$s(); else $view=$this->$s($data);
 
-        //Генерация HTML-кода страницы
-        plushka::hook('beforeRender',$renderTemplate); //сгенерировать событие ("перед началом вывода в поток")
+		//Генерация HTML-кода страницы
+		plushka::hook('beforeRender',$renderTemplate); //сгенерировать событие ("перед началом вывода в поток")
 		if(!core::template()) $renderTemplate=false; //шаблон мог быть отключен через вызов core::template()
 		if(!$view) return; //если представления нет, то ничего не выводить в поток
 		$user=core::userReal();
@@ -460,7 +458,7 @@ class Controller {
 			if(!file_exists($s) || core::debug()) { //если кеша нет или отладочный режим, то кешировать шаблон
 				Cache::template(core::template());
 			}
-            /** @noinspection PhpIncludeInspection */
+			/** @noinspection PhpIncludeInspection */
 			include($s);
 			if($user->group>=200) { //HTML-код всплывающего диалогового окна админки
 				echo '<div id="_adminDialogBox" style="display:none;">

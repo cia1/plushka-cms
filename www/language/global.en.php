@@ -1,4 +1,7 @@
 <?php
+/**
+ * Общедоступные константы
+ */
 define('LNGtranslit1','');
 define('LNGtranslit2','');
 define('LNGCancel','Cancel');

@@ -37,7 +37,7 @@ class Oauth {
 			return null;
 		}
 		$data=plushka::config('oauth',$id);
-        if($data===null) throw new InvalidArgumentException('Unknown OAuth server '.$id);
+		if($data===null) throw new InvalidArgumentException('Unknown OAuth server '.$id);
 		$answer=self::_load(self::_linkToken($id,$data[0],$data[1],$_REQUEST['code'],$backlink)); //запрос токена
 		if(!$answer) return null;
 		if(isset($answer['id'])===false || isset($answer['email'])===false) { //ВКонтакте сразу возвращает необходимые данные - можно сэкономить на одном запросе

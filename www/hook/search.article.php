@@ -1,10 +1,11 @@
 <?php
 use plushka\core\plushka;
 
-/* �������: ����� �� ����� �� �������� �����
-������: article (������)
-���������: string $data[0] - �������� �����
-*/
+/**
+ * Поиск по сайту (статьи)
+ * @var array $data: [0] - ключевая фраза
+ * @return bool Успешно ли обработано событие
+ */
 $db=plushka::db();
 $keyword=$db->escape('%'.$data[0].'%');
 $db->query('SELECT a.alias,a.title,a.text1,c.alias,c.title FROM article_'._LANG.' a LEFT JOIN article_category_'._LANG.' c ON c.id=a.categoryId WHERE a.title LIKE '.$keyword.' OR a.text1 LIKE '.$keyword.' OR a.text2 LIKE '.$keyword);

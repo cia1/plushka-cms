@@ -39,6 +39,13 @@ class Article {
         return $data;
     }
 
+    /**
+     * Возвращает список статей
+     * @param int $categoryId Идентификатор категории
+     * @param int $limit Количество статей
+     * @param string $fieldList Список извлекаемых полей
+     * @return array[]
+     */
     public static function articleList(int $categoryId,int $limit,string $fieldList=self::ARTICLE_LIST_FIELDS): array {
         $db=plushka::db();
         $data=$db->fetchArrayAssoc('SELECT '.$fieldList.' FROM article_'._LANG.' WHERE categoryId='.$categoryId.' AND (date=0 OR date<'.time().') ORDER BY sort,date DESC,id DESC',$limit);
@@ -46,6 +53,10 @@ class Article {
         return $data;
     }
 
+    /**
+     * Возвращает полное количество выбранных ранее статей или категорий
+     * @return int
+     */
     public static function foundRows(): int {
         return plushka::db()->foundRows();
     }
