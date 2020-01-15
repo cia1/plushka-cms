@@ -3,20 +3,25 @@ namespace plushka\widget;
 use plushka\core\plushka;
 use plushka\core\Widget;
 
-/* Текстовое поле "поиск по сайту" */
+/**
+ * Текстовое поле "поиск по сайту"
+ */
 class SearchWidget extends Widget {
 
-	public function __invoke() {
+	private $_keyword;
+
+	public function __invoke(): bool {
 		plushka::language('search');
-		if(isset($_GET['keyword'])) $this->keyword=$_GET['keyword']; else $this->keyword='';
+		if(isset($_GET['keyword'])===true) $this->_keyword=$_GET['keyword']; else $this->_keyword='';
 		return true;
 	}
 
 	public function render($view): void { ?>
-		<form action="<?=plushka::link('search')?>">
-			<input type="text" name="search[keyword]" value="<?=$this->keyword?>" placeholder="<?=LNGFind?>" class="input" id="searchKeyword" />
-			<input type="submit" value="<?=LNGFind?>" class="button" />
-		</form>
+      <form action="<?=plushka::link('search')?>">
+          <input type="text" name="search[keyword]" value="<?=$this->_keyword?>" placeholder="<?=LNGFind?>"
+                 class="input" id="searchKeyword"/>
+          <input type="submit" value="<?=LNGFind?>" class="button"/>
+      </form>
 		<?php
 	}
 

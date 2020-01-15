@@ -23,11 +23,11 @@ class Picture {
 	private $_wW;
 	private $_wH;
 
-    /**
-     * Открывает файл изображения, проверяет что это действительно изображение
-     * @param string|array|picture|int $fileOrWidth Имя файла (string), файл из $_FILES (array) или ширина в пикселях (int)
-     * @param integer|null $height Ширина изображения, если создаётся новое
-     */
+	/**
+	 * Открывает файл изображения, проверяет что это действительно изображение
+	 * @param string|array|picture|int $fileOrWidth Имя файла (string), файл из $_FILES (array) или ширина в пикселях (int)
+	 * @param integer|null             $height      Ширина изображения, если создаётся новое
+	 */
 	public function __construct($fileOrWidth,int $height=null) {
 		if($fileOrWidth instanceof self) {
 			$this->_src=$fileOrWidth->gd();
@@ -57,18 +57,19 @@ class Picture {
 			}
 			$type=strtolower($this->_type);
 			switch($type) {
-			case 'jpg': case 'jpeg':
-				$this->_src=imagecreatefromjpeg($fileOrWidth);
-				break;
-			case 'gif':
-				$this->_src=imagecreatefromgif($fileOrWidth);
-				break;
-			case 'png':
-				$this->_src=imagecreatefrompng($fileOrWidth);
-				break;
-			default:
-				core::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
-				return;
+				case 'jpg':
+				case 'jpeg':
+					$this->_src=imagecreatefromjpeg($fileOrWidth);
+					break;
+				case 'gif':
+					$this->_src=imagecreatefromgif($fileOrWidth);
+					break;
+				case 'png':
+					$this->_src=imagecreatefrompng($fileOrWidth);
+					break;
+				default:
+					core::error(LNGFileIsNotImage.'('.$fileOrWidth.')');
+					return;
 			}
 			if(!$this->_src) {
 				core::error(LNGFileTypeNotSupport.' ('.$fileOrWidth.')');
@@ -114,10 +115,10 @@ class Picture {
 	 * Обрезает исходное изображение по краям.
 	 * Если заданы только $width и $height, то обрезает по краям до указанных размеров. Если заданы все четыре параметра, то они воспринимаются как координаты (в пикселях) вырезаемого прямоугольника.
 	 * self::crop() должен быть вызван до self::resize().
-	 * @param int|null $width ширина изображения
+	 * @param int|null $width  ширина изображения
 	 * @param int|null $height высота изображения
-	 * @param int|null $x2 отступ по оси X второй точки вырезаемой области
-	 * @param int|null $y2 отсут по оси Y второй точки вырезаемой области
+	 * @param int|null $x2     отступ по оси X второй точки вырезаемой области
+	 * @param int|null $y2     отсут по оси Y второй точки вырезаемой области
 	 */
 	public function crop(int $width=null,int $height=null,int $x2=null,int $y2=null): void {
 		if($x2===null && $y2===null) { //обрезка по ширине и высоте
@@ -145,7 +146,7 @@ class Picture {
 	/**
 	 * Сжимает или растягивает изображение до указанных размеров
 	 * Размер может быть указан в виде строки с приставкой "<" (не больше) или ">" (не меньше)
-	 * @param int|string|null $width Ширина изображения
+	 * @param int|string|null $width  Ширина изображения
 	 * @param int|string|null $height Высота изображения
 	 */
 	public function resize($width=null,$height=null): void {
@@ -167,7 +168,8 @@ class Picture {
 			$h=(int)substr($height,1);
 			if($symbolWidth==='<' && $symbolHeight==='<') {
 				if(($srcW-$w)>($srcH-$h)) $height=null; else $width=null;
-			} elseif($w>$h) $height=null; else $width=null;
+			} elseif($w>$h) $height=null;
+			else $width=null;
 		}
 		if($symbolWidth==='<' && $width!==null) {
 			$width=(int)substr($width,1);
@@ -202,21 +204,22 @@ class Picture {
 			$this->_watermark=$image->gd();
 		} elseif(is_string($image)===true) {
 			$ext=strtolower(substr($image,strrpos($image,'.')+1));
-	    $image=core::path().$image;
+			$image=core::path().$image;
 			switch($ext) {
-			case 'jpg': case 'jpeg':
-				$this->_watermark=imagecreatefromjpeg($image);
-				break;
-			case 'gif':
-				$this->_watermark=imagecreatefromgif($image);
-				break;
-			case 'png':
-				$this->_watermark=imagecreatefrompng($image);
-				imagealphablending($this->_watermark,true);
-				break;
-			default:
-				core::error(LNGFileIsNotImage);
-				return false;
+				case 'jpg':
+				case 'jpeg':
+					$this->_watermark=imagecreatefromjpeg($image);
+					break;
+				case 'gif':
+					$this->_watermark=imagecreatefromgif($image);
+					break;
+				case 'png':
+					$this->_watermark=imagecreatefrompng($image);
+					imagealphablending($this->_watermark,true);
+					break;
+				default:
+					core::error(LNGFileIsNotImage);
+					return false;
 			}
 		} else {
 			$this->_watermark=$image;
@@ -240,7 +243,8 @@ class Picture {
 		if($y[strlen($y)-1]==='%') {
 			$y=(int)$y;
 			$y=round($this->_dstH/100*$y-($this->_wH/100*$y));
-		} else $y=(int)$y;		if($minus===true) $this->_wY=$this->_dstH-$this->_wH-$y; else $this->_wY=$y;
+		} else $y=(int)$y;
+		if($minus===true) $this->_wY=$this->_dstH-$this->_wH-$y; else $this->_wY=$y;
 		return true;
 	}
 
@@ -281,8 +285,8 @@ class Picture {
 	/**
 	 * Выполняет все действия обработки и сохраняет изображение в файл
 	 * Имя файла может не содержать расширения файла
-	 * @param string $fileName Имя файла
-	 * @param int|null $quality Коэфициент качества для формата JPEG
+	 * @param string   $fileName Имя файла
+	 * @param int|null $quality  Коэфициент качества для формата JPEG
 	 * @return string краткое имя файла сохранённого изображения
 	 */
 	public function save(string $fileName,int $quality=100): string {
@@ -293,15 +297,16 @@ class Picture {
 		} else $fileName.='.'.$type;
 		$dst=$this->gd();
 		switch($this->_type) {
-		case 'jpg': case 'jpeg':
-			imagejpeg($dst,core::path().$fileName,$quality);
-			break;
-		case 'gif':
-			imagegif($dst,core::path().$fileName);
-			break;
-		case 'png':
-			imagepng($dst,core::path().$fileName);
-			break;
+			case 'jpg':
+			case 'jpeg':
+				imagejpeg($dst,core::path().$fileName,$quality);
+				break;
+			case 'gif':
+				imagegif($dst,core::path().$fileName);
+				break;
+			case 'png':
+				imagepng($dst,core::path().$fileName);
+				break;
 		}
 		$i=strrpos($fileName,'/');
 		if($i===false) return $fileName; else return substr($fileName,$i+1);

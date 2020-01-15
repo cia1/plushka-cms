@@ -7,16 +7,16 @@ use plushka\model\User as UserModel;
 
 /**
  * Регистарция, авторизация, восстановление пароля, личный кабинет
- * @property-read Form $formPassword Форма смены пароля для действия "index"
- * @property-read bool $notification Признак установлен ли модуль "notification", используется в действии "index"
- * @property-read Form $form Форма авторизации для действия "login"
- * @property-read string $content Сообщение о подтверждении e-mail для действия "confirm"
- * @property-read array[] $messageList Список новых сообщений для действия "message"
- * @property-read int $newMessageCount Кол-во новых сообщений для действия "message"
+ * @property-read Form    $formPassword    Форма смены пароля для действия "index"
+ * @property-read bool    $notification    Признак установлен ли модуль "notification", используется в действии "index"
+ * @property-read Form    $form            Форма авторизации для действия "login"
+ * @property-read string  $content         Сообщение о подтверждении e-mail для действия "confirm"
+ * @property-read array[] $messageList     Список новых сообщений для действия "message"
+ * @property-read int     $newMessageCount Кол-во новых сообщений для действия "message"
  */
 class UserController extends Controller {
 
-    private const _SALT='resTore';
+	private const _SALT='resTore';
 
 	public function __construct() {
 		parent::__construct();
@@ -24,10 +24,10 @@ class UserController extends Controller {
 		plushka::language('user');
 	}
 
-    /**
-     * Личный кабинет
-     * @return string
-     */
+	/**
+	 * Личный кабинет
+	 * @return string
+	 */
 	public function actionIndex(): string {
 		$user=plushka::user();
 		if(!$user->id) plushka::redirect('user/login'); //если пользователь не авторизован
@@ -46,10 +46,10 @@ class UserController extends Controller {
 		return 'Index';
 	}
 
-    /**
-     * Смена пароля
-     * @param array $data
-     */
+	/**
+	 * Смена пароля
+	 * @param array $data
+	 */
 	public function actionIndexSubmit(array $data): void {
 		if($data['password1']!==$data['password2']) {
 			plushka::error(LNGPasswordsAreNotEqual);
@@ -68,10 +68,10 @@ class UserController extends Controller {
 		plushka::redirect('user',LNGPasswordChanged);
 	}
 
-    /**
-     * Форма авторизации
-     * @return string
-     */
+	/**
+	 * Форма авторизации
+	 * @return string
+	 */
 	public function actionLogin(): string {
 		$form=plushka::form();
 		$form->text('login',LNGLogin);
@@ -98,10 +98,10 @@ class UserController extends Controller {
 		plushka::redirect('user');
 	}
 
-    /**
-     * Форма регистрации
-     * @return Form
-     */
+	/**
+	 * Форма регистрации
+	 * @return Form
+	 */
 	public function actionRegister(): Form {
 		if(plushka::userId()) plushka::redirect('/');
 		$form=plushka::form();
@@ -130,10 +130,10 @@ class UserController extends Controller {
 		plushka::redirect('user',LNGMessageSentFollowInstructions);
 	}
 
-    /**
-     * Подтверждение адреса электронной почты
-     * @return string
-     */
+	/**
+	 * Подтверждение адреса электронной почты
+	 * @return string
+	 */
 	public function actionConfirm(): string {
 		$user=plushka::user()->model();
 		plushka::language('user');
@@ -147,18 +147,18 @@ class UserController extends Controller {
 		return '_empty';
 	}
 
-    /**
-     * Выход
-     */
+	/**
+	 * Выход
+	 */
 	public function actionLogout(): void {
 		plushka::user()->model()->logout();
 		plushka::redirect('');
 	}
 
-    /**
-     * Восстановление пароля по адресу электронной почты
-     * @return Form
-     */
+	/**
+	 * Восстановление пароля по адресу электронной почты
+	 * @return Form
+	 */
 	public function actionRestore(): Form {
 		$form=plushka::form();
 		$form->text('email',LNGEmailUsedAtRegistration);
@@ -185,10 +185,10 @@ class UserController extends Controller {
 		plushka::redirect('user/login',LNGInstructionsSent);
 	}
 
-    /**
-     * Переход по ссылке восстановления пароля из электронного письма
-     * @return string|null
-     */
+	/**
+	 * Переход по ссылке восстановления пароля из электронного письма
+	 * @return string|null
+	 */
 	public function actionRestoreSendPassword(): ?string {
 		$user=plushka::user()->model();
 		if(!$user->loginByCode($_GET['code'])) return 'Confirm'; //поиск пользователя по коду активации
@@ -202,29 +202,29 @@ class UserController extends Controller {
 		return null;
 	}
 
-    /**
-     * Список личных сообщений
-     * @return string
-     */
+	/**
+	 * Список личных сообщений
+	 * @return string
+	 */
 	public function actionMessage(): string {
-	    $userModel=plushka::user()->model();
-	    $this->messageList=$userModel->messageList();
-	    $this->newMessageCount=$userModel->newMessageCount;
-	    foreach($this->messageList as $i=>$item) {
-	        $this->messageList[$i]['subjectDirection']=$item['direction']==UserModel::MESSAGE_DIRECTION_FROM ? LNGYouWriteTo : LNGWriteToYou;
-        }
-	    $userModel->clearNewMessage();
+		$userModel=plushka::user()->model();
+		$this->messageList=$userModel->messageList();
+		$this->newMessageCount=$userModel->newMessageCount;
+		foreach($this->messageList as $i=>$item) {
+			$this->messageList[$i]['subjectDirection']=$item['direction']==UserModel::MESSAGE_DIRECTION_FROM ? LNGYouWriteTo : LNGWriteToYou;
+		}
+		$userModel->clearNewMessage();
 		$this->pageTitle=$this->metaTitle=LNGYourMessages;
 		return 'Message';
 	}
 
-    /**
-     * Отправка нового сообщения по внутренней почте (отправка ответа)
-     * @param $data
-     */
+	/**
+	 * Отправка нового сообщения по внутренней почте (отправка ответа)
+	 * @param $data
+	 */
 	public function actionMessageSubmit($data): void {
 		//Пользователи могут только отвечать на уже существующие сообщения, но не отправлять новые
-        if(plushka::user()->model()->messageReply(nl2br(strip_tags($data['replyTo'])),$data['message'])===false) return;
+		if(plushka::user()->model()->messageReply(nl2br(strip_tags($data['replyTo'])),$data['message'])===false) return;
 		plushka::redirect('user/message',LNGMessageSent);
 	}
 

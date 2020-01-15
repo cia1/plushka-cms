@@ -4,6 +4,7 @@ namespace plushka\core;
 use BadMethodCallException;
 use ReflectionClass;
 use ReflectionException;
+
 /**
  * Универсальная модель. Может использоваться динамически или как базовый класс ActiveRecord
  * В динамическом варианте использования необходимо вызвать метод save(), передав ему правила валидации. Для статического режима, правила валидации определяются перегрузкой метода rule().
@@ -32,7 +33,7 @@ class Model extends Validator {
 	protected $_multiLanguage=false;
 	/**
 	 * @var bool|string[] Информация о мультиязычности таблицы (определяется явтамитически):
-	 * 	false - не мультиязычная, true - для каждого языка своя копия таблицы,
+	 *  false - не мультиязычная, true - для каждого языка своя копия таблицы,
 	 * array - одна копия таблицы, массив содержит список полей, имеющих копии для каждого языка
 	 * @see self::_setLanguageDb()
 	 */
@@ -40,18 +41,19 @@ class Model extends Validator {
 	/** @var string[] Список полей булевого типа (необходимо для корректного преобразования) */
 	protected $_bool=[];
 
-    /**
-     * @param string|null $table Имя таблицы базы данных, если не задано, то будет определяться из имени класса
-     * @param string $db Используемая СУБД: "db" (основная СУБД), "mysql" или "sqlite"
-     */
+	/**
+	 * @param string|null $table Имя таблицы базы данных, если не задано, то будет определяться из имени класса
+	 * @param string      $db    Используемая СУБД: "db" (основная СУБД), "mysql" или "sqlite"
+	 */
 	public function __construct(string $table=null,string $db='db') {
 		if($table===null) {
-            try {
-                $this->_table = preg_replace_callback('~[A-Z]~', function ($letter) {
-                    return '_' . strtolower($letter[0]);
-                }, (new ReflectionClass($this))->getShortName());
-            } catch (ReflectionException $e) {} //Это исключение никогда не будет выброшено
-        } else $this->_table=$table;
+			try {
+				$this->_table=preg_replace_callback('~[A-Z]~',function($letter) {
+					return '_'.strtolower($letter[0]);
+				},(new ReflectionClass($this))->getShortName());
+			} catch(ReflectionException $e) {
+			} //Это исключение никогда не будет выброшено
+		} else $this->_table=$table;
 		if($db==='db') $this->db=plushka::db();
 		elseif($db==='sqlite') $this->db=plushka::sqlite();
 		elseif($db==='mysql') $this->db=plushka::mysql();
@@ -70,7 +72,7 @@ class Model extends Validator {
 	 * Загружает данные из базы данных в модель
 	 * Если в параметре $fieldList указана строка, то она воспринимается как список полей (допустимо указать "*").
 	 * Если $fieldList не указан, то список полей будет взят из static::fieldList(false)
-	 * @param string $where часть SQL-запроса "WHERE"
+	 * @param string            $where     часть SQL-запроса "WHERE"
 	 * @param array|string|null $fieldList Список полей, которые нужно загрузить
 	 * @return bool Были или нет загружены данные модели
 	 */
@@ -128,12 +130,12 @@ class Model extends Validator {
 	 */
 	public function validate(array $rule=null): bool {
 		if($rule===null) {
-		    $rule=$this->fieldListSave();
-		    if(is_string($rule)===true) {
-                /** @var string $rule */
-		        $rule=explode(',',$rule);
-            }
-		    /** @var string[] $rule */
+			$rule=$this->fieldListSave();
+			if(is_string($rule)===true) {
+				/** @var string $rule */
+				$rule=explode(',',$rule);
+			}
+			/** @var string[] $rule */
 			$rule=array_intersect_key($this->rule(),array_combine($rule,$rule));
 		}
 		if(parent::validate($rule)===false) return false;
@@ -144,8 +146,8 @@ class Model extends Validator {
 	/**
 	 * Сохраняет модель в базу данных, выполняя запрос INSERT или UPDATE
 	 * Если режим мультиязчности включён для данной модели, то может быть выполнено несколько запросов INSERT.
-	 * @param bool|array|string|null $validate Правила валидации (@see self::validate())
-	 * @param string|null $primaryAttribute Имя первичного ключа
+	 * @param bool|array|string|null $validate         Правила валидации (@see self::validate())
+	 * @param string|null            $primaryAttribute Имя первичного ключа
 	 * @return bool Была ли сохранена запись
 	 */
 	public function save($validate=null,string $primaryAttribute=null): bool {
@@ -171,10 +173,10 @@ class Model extends Validator {
 		//Поиск первичного ключа (если не был определён в методе validate() )
 		if($primaryAttribute!==null) $this->primaryAttribute=$primaryAttribute;
 		if($validate===false) { //валидация не требуется, определить список полей
-		    $validate=$this->fieldListSave();
-		    if(is_string($validate)) {
-                $validate = explode(',', $validate);
-            }
+			$validate=$this->fieldListSave();
+			if(is_string($validate)) {
+				$validate=explode(',',$validate);
+			}
 			if($validate[0]==='*') $validate=array_keys($this->rule());
 			foreach($validate as $i=>$item) { //оставить только поля, для которых явно задано значение
 				if(isset($this->_data[$item])===false) unset($validate[$i]);
@@ -200,28 +202,26 @@ class Model extends Validator {
 	/**
 	 * Удаляет запись по первичному ключу
 	 * Если режим мультиязычности включён, удаляет запись из всех мультиязычных таблиц
-	 * @param integer|null $id Значение первичного ключа, если не указано, будует использовано static::$_data['id']
-	 * @param bool $affected Если TRUE, будет возвращенно количество удалённых записей
-	 * @return bool|int Количество удалённых записей или true
+	 * @param int|string|null $id               Значение первичного ключа, если не указано, будует использовано static::$_data['id']
+	 * @param bool            $validateAffected Если TRUE, будет дополнительно проверено была ли удалена запись из БД
+	 * @return bool Количество удалённых записей или true
 	 */
-	public function delete(int $id=null,bool $affected=false) {
+	public function delete($id=null,bool $validateAffected=false): bool {
 		if($id===null && isset($this->_data['id'])===true) $id=$this->_data['id'];
-		else $id=(int)$id;
 		if(!$id) return false;
 		if($this->_languageDb===null) $this->_setLanguageDb();
 
 		if($this->_multiLanguage===true && $this->_languageDb===true) {
-			$lang=plushka::config('_core','languageList');
-			foreach($lang as $item) {
-			    /** @noinspection SqlResolve */
+			foreach(plushka::config('_core','languageList') as $item) {
+				/** @noinspection SqlResolve */
 				$this->db->query('DELETE FROM '.$this->_table.'_'.$item.' WHERE id='.$id);
 			}
 		} else {
-            /** @noinspection SqlResolve */
-		    $this->db->query('DELETE FROM '.$this->_table.($this->_languageDb===true ? '_'._LANG : '').' WHERE id='.$id);
-        }
+			/** @noinspection SqlResolve */
+			$this->db->query('DELETE FROM '.$this->_table.($this->_languageDb===true ? '_'._LANG : '').' WHERE id='.$id);
+		}
 		if($id==$this->id) $this->init();
-		if($affected===false) return true;
+		if($validateAffected===false) return true;
 		if($this->db->affected()>0) return true; else return false;
 	}
 
@@ -230,8 +230,8 @@ class Model extends Validator {
 	 * @param string $attribute Имя первичного ключа
 	 * @param mixed Настройки валидатора
 	 * @return bool
-     */
-    protected function validatePrimary(string $attribute,/** @noinspection PhpUnusedParameterInspection */$setting): bool {
+	 */
+	protected function validatePrimary(string $attribute,/** @noinspection PhpUnusedParameterInspection */ $setting): bool {
 		$this->primaryAttribute=$attribute;
 		if(isset($this->_data[$attribute])===false || !$this->_data[$attribute]) $this->_data[$attribute]=null;
 		return true;
@@ -239,15 +239,15 @@ class Model extends Validator {
 
 	/**
 	 * Обработчик события, генерируемого после выполнения операции(й) INSERT
-	 * @param integer|null $id Значение первичного ключа, если в таблице есть первичный ключ
+	 * @param int|string|null $id Значение первичного ключа, если в таблице есть первичный ключ
 	 */
-	protected function afterInsert(int $id=null): void {}
+	protected function afterInsert($id=null): void { }
 
 	/**
 	 * Обработчик события, генерируемого после выполенения операции UPDATE
-	 * @param integer|null Значение первичного ключа, если в таблице есть первичный ключ
+	 * @param int|string|null Значение первичного ключа, если в таблице есть первичный ключ
 	 */
-	protected function afterUpdate(int $id=null): void {}
+	protected function afterUpdate($id=null): void { }
 
 	/**
 	 * Возвращает массив правил валидации
@@ -288,7 +288,7 @@ class Model extends Validator {
 
 	//Собирает и выполняет SQL-запрос INSERT
 	private function _insert($fieldList): void {
-	    $languageList=[];
+		$languageList=[];
 		if($this->_languageDb) {
 			$languageList=plushka::config();
 			$languageList=$languageList['languageList'];
@@ -327,22 +327,22 @@ class Model extends Validator {
 		if($this->_languageDb===true) {
 			foreach($languageList as $i=>$item) {
 				if(!$i) { //первичный ключ определить только один раз
-				    /** @noinspection SqlResolve */
+					/** @noinspection SqlResolve */
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
 					$this->db->query($query);
 					if($this->primaryAttribute) {
-                        $this->_data[$this->primaryAttribute] = $this->db->insertId(); //обновить значение первичного ключа
-                        $s1 .= ',`' . $this->primaryAttribute . '`';
-                        $s2 .= ',' . $this->db->escape($this->_data[$this->primaryAttribute]);
-                    }
+						$this->_data[$this->primaryAttribute]=$this->db->insertId(); //обновить значение первичного ключа
+						$s1.=',`'.$this->primaryAttribute.'`';
+						$s2.=','.$this->db->escape($this->_data[$this->primaryAttribute]);
+					}
 				} else {
-                    /** @noinspection SqlResolve */
+					/** @noinspection SqlResolve */
 					$query='INSERT INTO `'.$this->_table.'_'.$item.'` ('.$s1.') VALUES ('.$s2.')';
 					$this->db->query($query);
 				}
 			}
 		} else {
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$query='INSERT INTO `'.$this->_table.'` ('.$s1.') VALUES ('.$s2.')';
 			$this->db->query($query);
 			if($this->primaryAttribute) {

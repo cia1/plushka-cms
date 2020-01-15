@@ -1,13 +1,21 @@
 <?php
 namespace plushka\widget;
+use plushka\core\Form;
 use plushka\core\plushka;
 use plushka\core\Widget;
 
-/* Произвольная контактная форма
-int $options - идентификатор формы */
+/**
+ * Произвольная контактная форма
+ * @property-read string       $options Идентификатор формы
+ *
+ * @property-read Form    $form
+ * @property-read array   $formData
+ * @property-read array[] $field
+ * @property-read string  $view
+ */
 class FormWidget extends Widget {
 
-	public function __invoke() { return true; }
+	public function __invoke(): bool { return true; }
 
 	public function render($view): void {
 		$db=plushka::db();
@@ -21,11 +29,11 @@ class FormWidget extends Widget {
 			$title=$items[$i]['title'];
 			if($items[$i]['required']) $title.='<span class="required">*</span>';
 			$type=$items[$i]['htmlType'];
-			if($type=='email') $type='text';
-			if($type=='radio' || $type=='select') {
+			if($type==='email') $type='text';
+			if($type==='radio' || $type==='select') {
 				$data=$items[$i]['data'];
 				$data=explode('|',$data);
-				for($y=0;$y<count($data);$y++) $data[$y]=array($data[$y],$data[$y]);
+				for($y=0;$y<count($data);$y++) $data[$y]=[$data[$y],$data[$y]];
 				$f->$type('fld'.$items[$i]['id'],$title,$data,$items[$i]['defaultValue']);
 			} else $f->$type('fld'.$items[$i]['id'],$title,$items[$i]['defaultValue']);
 		}
@@ -39,10 +47,10 @@ class FormWidget extends Widget {
 	}
 
 	public function adminLink(): array {
-		return array(
-			array('form.*','?controller=form&action=form&id='.$this->options,'setting','Настройка формы'),
-			array('form.*','?controller=form&action=field&id='.$this->options,'field','Поля формы')
-		);
+		return [
+			['form.*','?controller=form&action=form&id='.$this->options,'setting','Настройка формы'],
+			['form.*','?controller=form&action=field&id='.$this->options,'field','Поля формы']
+		];
 	}
 
 }

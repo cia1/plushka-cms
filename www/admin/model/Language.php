@@ -1,13 +1,20 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 use plushka\admin\core\plushka;
 use plushka\core\Cache;
 
+/**
+ * Управление мультиязычностью
+ */
 class Language {
 
-	//Обновляет таблицы базы данных, добавляя новый язык $alias
-	public static function create($alias) {
-//Тут, наверно, лучше использовать транзакции
+	/**
+	 * Добавляет новый язык
+	 * @param string $alias Язык
+	 * @return bool|mixed
+	 */
+	public static function create(string $alias) {
+		//Тут, наверно, лучше использовать транзакции
 		$table=self::_tableList();
 		foreach($table as $item) {
 			if(!self::_tableCreate($alias,$item)) return false;
@@ -63,12 +70,12 @@ class Language {
 	}
 
 	//Создаёт копию таблицы на основе существующей
-	private static function _tableCreate($language,$table) {
+	private static function _tableCreate(string $language,string $table):void {
 		$db=plushka::db();
-		$cfg=plushka::config();
-		$sql=$db->getCreateTableQuery($table.'_'.$cfg['languageDefault']);
-		$sql=str_replace($table.'_'.$cfg['languageDefault'],$table.'_'.$language,$sql);
-		return $db->query($sql);
+		$languageDefault=plushka::config('_core','languageDefault');
+		$sql=$db->getCreateTableQuery($table.'_'.$languageDefault);
+		$sql=str_replace($table.'_'.$languageDefault,$table.'_'.$language,$sql);
+		$db->query($sql);
 	}
 
 	//Добавляет поле к таблице с той же структурой, что и указанное поле

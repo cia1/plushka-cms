@@ -1,6 +1,7 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\plushka;
+use plushka\core\HTTPException;
 
 /* Управление комментариями */
 class CommentController extends \plushka\admin\core\Controller {
@@ -93,11 +94,14 @@ class CommentController extends \plushka\admin\core\Controller {
 		return $f;
 	}
 
+	/**
+	 * @throws HTTPException
+	 */
 	public function actionDeleteSubmit($data) {
 		$db=plushka::db();
 		$id=(int)$data['id'];
 		$comment=$db->fetchArrayOnce('SELECT c.status,g.link,c.groupId FROM comment c LEFT JOIN comment_group g ON g.id=c.groupId WHERE c.id='.$id);
-		if(!$comment) plushka::error404();
+		if($comment===null) throw new HTTPException(404);
 		if($comment[0]>0) {
 			if(plushka::hook('commentDelete',$comment[1],$comment[2],$id)===false) return false;
 		}

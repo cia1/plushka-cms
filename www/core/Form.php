@@ -25,9 +25,9 @@ class Form {
 
 	/**
 	 * Добавляет поле <input type="hidden">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $value Значение поля
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function hidden(string $name,string $value,string $html=''): void {
 		$this->_data.=$this->getHidden($name,$value,$html);
@@ -46,10 +46,10 @@ class Form {
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, который нужно добавить к тегу <input> */
 	/**
 	 * Добавляет поле <input type="text">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $label Заголовок поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function text(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -58,10 +58,10 @@ class Form {
 
 	/**
 	 * Добавляет поле <input type="number">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $label Заголовок поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function number(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -70,10 +70,10 @@ class Form {
 
 	/**
 	 * Добавляет поле <input type="email">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $label Заголовок поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function email(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -84,12 +84,12 @@ class Form {
 	 * Добавляет выпадающий список <select>
 	 * Если параметр $items - строка, то воспринимается как SQL-запрос, возвращающий список параметров (первый столбец - значение параметра, второй - заголовок). В ином случае это должен быть массив вида: [ ['value', 'title'], ['value', 'title'] ... ].
 	 * Если $nullTitle задан, то первым значением в выпадающем списке будет <option value="">$nullTitle</option>
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
-	 * @param string|array[] $items Список значений выпадающего списка
-	 * @param string|null $value Значение по умолчанию
-	 * @param string|null $nullTitle Заголовок для "пустого" значения
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
+	 * @param string         $name      Имя поля
+	 * @param string         $label     Заголовок поля
+	 * @param string|array[] $items     Список значений выпадающего списка
+	 * @param string|null    $value     Значение по умолчанию
+	 * @param string|null    $nullTitle Заголовок для "пустого" значения
+	 * @param string         $html      Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
 	public function select(string $name,string $label,$items,string $value=null,string $nullTitle=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -100,12 +100,12 @@ class Form {
 	 * Добавляет к форме многострочный список <select>
 	 * Если параметр $items - строка, то воспринимается как SQL-запрос, возвращающий список параметров (первый столбец - значение параметра, второй - заголовок). В ином случае это должен быть массив вида: [ ['value', 'title'], ['value', 'title'] ... ].
 	 * Если $nullTitle задан, то первым значением в выпадающем списке будет <option value="">$nullTitle</option>
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
-	 * @param string|array[] $items Список значений выпадающего списка
-	 * @param string|null $value Значение по умолчанию
-	 * @param string|null $nullTitle Заголовок для "пустого" значения
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
+	 * @param string         $name      Имя поля
+	 * @param string         $label     Заголовок поля
+	 * @param string|array[] $items     Список значений выпадающего списка
+	 * @param string|null    $value     Значение по умолчанию
+	 * @param string|null    $nullTitle Заголовок для "пустого" значения
+	 * @param string         $html      Произвольный HTML, который будет дописан к HTML-тегу <select>
 	 */
 	public function listBox(string $name,string $label,$items,string $value=null,string $nullTitle=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -115,10 +115,10 @@ class Form {
 	/**
 	 * Добавляет к форме группу переключателей <input type="radio">
 	 * Если параметр $items - строка, то воспринимается как SQL-запрос, возвращающий список параметров (первый столбец - значение параметра, второй - заголовок). В ином случае это должен быть массив вида: [ ['value', 'title'], ['value', 'title'] ... ].
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
+	 * @param string         $name  Имя поля
+	 * @param string         $label Заголовок поля
 	 * @param string|array[] $items Список значений выпадающего списка
-	 * @param string|null $value Значение по умолчанию
+	 * @param string|null    $value Значение по умолчанию
 	 */
 	public function radio(string $name,string $label,$items,string $value=null): void {
 		$class=str_replace('][','-',$name);
@@ -127,10 +127,10 @@ class Form {
 
 	/**
 	 * Добавляет к форме переключатель <input type="checkbox">
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
+	 * @param string      $name  Имя поля
+	 * @param string      $label Заголовок поля
 	 * @param string|null $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string      $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function checkbox(string $name,string $label,string $value=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -139,9 +139,9 @@ class Form {
 
 	/**
 	 * Добавляет к форме поле ввода пароля <input type="password">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $label Заголовок поля
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function password(string $name,string $label,string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -150,10 +150,10 @@ class Form {
 
 	/**
 	 * Добавляет к форме многострочное поле ввода <textarea>
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $label Заголовок поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <textarea>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <textarea>
 	 */
 	public function textarea(string $name,string $label,string $value='',string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -162,10 +162,10 @@ class Form {
 
 	/**
 	 * Добавляет к форме визуальный редактор CKEditor
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
-	 * @param string $value Значение по умолчанию
-	 * @param array $config Дополнительные настройки
+	 * @param string $name   Имя поля
+	 * @param string $label  Заголовок поля
+	 * @param string $value  Значение по умолчанию
+	 * @param array  $config Дополнительные настройки
 	 */
 	public function editor(string $name,string $label,string $value='',array $config=[]) {
 		$class=str_replace('][','-',$name);
@@ -175,10 +175,10 @@ class Form {
 	/**
 	 * Добавляет к форме поле выбора даты <input type="date">
 	 * Параметр $value может быть задан строкой или Timestamp.
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
+	 * @param string          $name  Имя поля
+	 * @param string          $label Заголовок поля
 	 * @param string|int|null $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string          $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function date(string $name,string $label,string $value=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -188,10 +188,10 @@ class Form {
 	/**
 	 * Добавляет к форме поле выбора даты и времени <input type="datetime-local">
 	 * Параметр $value может быть задан строкой или Timestamp.
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
+	 * @param string          $name  Имя поля
+	 * @param string          $label Заголовок поля
 	 * @param string|int|null $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string          $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function dateTime(string $name,string $label,string $value=null,string $html=''): void {
 		$class=str_replace('][','-',$name);
@@ -201,10 +201,10 @@ class Form {
 	/**
 	 * Добавляет к форме поле для загрузки файла <input type="file">
 	 * В Submit-действии контроллера файл будет доступен через параметр $data среди прочих POST-данных.
-	 * @param string $name Имя поля
-	 * @param string $label Заголовок поля
-	 * @param bool $multiple Разрешить загрузку нескольких файлов
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $name     Имя поля
+	 * @param string $label    Заголовок поля
+	 * @param bool   $multiple Разрешить загрузку нескольких файлов
+	 * @param string $html     Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function file(string $name,string $label,bool $multiple=false,string $html=''): void {
 		$this->_data.='<dt class="file">'.$label.':</dt><dd class="file">'.$this->getFile($name,$multiple,$html).'</dd>';
@@ -212,9 +212,9 @@ class Form {
 
 	/**
 	 * Добавляет к форме поле ввода проверочного кода (капча)
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $label Заголовок поля
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function captcha(string $name,string $label,string $html=''): void {
 		$this->_data.='<dt class="captcha">'.$label.':<img src="'.core::url().'captcha.php" alt="'.strip_tags($label).'" title="'.strip_tags($label).'"></dt><dd class="captcha"><input type="text" name="'.$this->_namespace.'['.$name.']" '.$html.' /></dd>';
@@ -223,7 +223,7 @@ class Form {
 	/**
 	 * Добавляет к форме кнопку сброса <input type="reset">
 	 * @param string $label Заголовок поля
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function reset(string $label,string $html=''): void {
 		$this->_data.='<input type="reset" value="'.$label.'" class="button reset" '.$html.' />';
@@ -231,9 +231,9 @@ class Form {
 
 	/**
 	 * Добавляет к форме кнопку отправки данных <input type="submit">
-	 * @param string $label Заголовок поля
-	 * @param string|null $name Имя поля
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string      $label Заголовок поля
+	 * @param string|null $name  Имя поля
+	 * @param string      $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
 	public function submit(string $label=LNGContinue,string $name=null,string $html=''): void {
 		$this->_data.='<dd class="submit">'.$this->getSubmit($label,$name,$html).'</dd>';
@@ -250,7 +250,7 @@ class Form {
 	/**
 	 * Публикует HTML-код настроенной формы
 	 * @param string|null $action Адрес отправлки данных (атрибут action)
-	 * @param string|null $html Произвольный HTML-код, который будет добавлен к HTML-тегу <form>
+	 * @param string|null $html   Произвольный HTML-код, который будет добавлен к HTML-тегу <form>
 	 * @see form::$action
 	 */
 	public function render(string $action=null,string $html=null): void {
@@ -264,10 +264,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код скрытого поля <input type="hidden">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
-     * @return string
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <select>
+	 * @return string
 	 */
 	public function getHidden(string $name,string $value,string $html=''): string {
 		return '<input type="hidden" name="'.$this->_namespace.'['.$name.']" value="'.$value.'" '.$html.' />';
@@ -275,10 +275,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код поля <input type="text">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getText(string $name,string $value='',string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -290,10 +290,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код поля <input type="number">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getNumber(string $name,string $value='',string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -305,10 +305,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код поля <input type="email">
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getEmail(string $name,string $value='',string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -322,12 +322,12 @@ class Form {
 	 * Возвращает HTML-код выпадающего списка <select>
 	 * Если параметр $items - строка, то воспринимается как SQL-запрос, возвращающий список параметров (первый столбец - значение параметра, второй - заголовок). В ином случае это должен быть массив вида: [ ['value', 'title'], ['value', 'title'] ... ].
 	 * Если $nullTitle задан, то первым значением в выпадающем списке будет <option value="">$nullTitle</option>
-	 * @param string $name Имя поля
-	 * @param string|array[] $items Список значений выпадающего списка
-	 * @param string|null $value Значение по умолчанию
-	 * @param string|null $nullTitle Заголовок для "пустого" значения
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
-     * @return string
+	 * @param string         $name      Имя поля
+	 * @param string|array[] $items     Список значений выпадающего списка
+	 * @param string|null    $value     Значение по умолчанию
+	 * @param string|null    $nullTitle Заголовок для "пустого" значения
+	 * @param string         $html      Произвольный HTML, который будет дописан к HTML-тегу <select>
+	 * @return string
 	 */
 	public function getSelect(string $name,$items,string $value=null,string $nullTitle=null,string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -360,12 +360,12 @@ class Form {
 	 * Возвращает HTML-код многострочного списка <select>
 	 * Если параметр $items - строка, то воспринимается как SQL-запрос, возвращающий список параметров (первый столбец - значение параметра, второй - заголовок). В ином случае это должен быть массив вида: [ ['value', 'title'], ['value', 'title'] ... ].
 	 * Если $nullTitle задан, то первым значением в выпадающем списке будет <option value="">$nullTitle</option>
-	 * @param string $name Имя поля
-	 * @param string|array[] $items Список значений выпадающего списка
-	 * @param string|null $value Значение по умолчанию
-	 * @param string|null $nullTitle Заголовок для "пустого" значения
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <select>
-     * @return string
+	 * @param string         $name      Имя поля
+	 * @param string|array[] $items     Список значений выпадающего списка
+	 * @param string|null    $value     Значение по умолчанию
+	 * @param string|null    $nullTitle Заголовок для "пустого" значения
+	 * @param string         $html      Произвольный HTML, который будет дописан к HTML-тегу <select>
+	 * @return string
 	 */
 	public function getListBox(string $name,$items,string $value=null,string $nullTitle=null,string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -395,11 +395,11 @@ class Form {
 	/**
 	 * Возвращает HTML-код группы переключателей <input type="radio">
 	 * Если параметр $items - строка, то воспринимается как SQL-запрос, возвращающий список параметров (первый столбец - значение параметра, второй - заголовок). В ином случае это должен быть массив вида: [ ['value', 'title'], ['value', 'title'] ... ].
-	 * @param string $name Имя поля
+	 * @param string         $name  Имя поля
 	 * @param string|array[] $items Список значений выпадающего списка
-	 * @param string|null $value Значение по умолчанию
-	 * @param string|null $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string|null    $value Значение по умолчанию
+	 * @param string|null    $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getRadio(string $name,$items,string $value=null,string $html=null): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -415,7 +415,7 @@ class Form {
 				$s.=' /></label>';
 			}
 		} else foreach($items as $item) {
-		$s.='<label><input type="radio" name="'.$this->_namespace.'['.$name.']" value="'.$item[0].'"';
+			$s.='<label><input type="radio" name="'.$this->_namespace.'['.$name.']" value="'.$item[0].'"';
 			if($item[0]==$value) $s.=' checked="checked"';
 			if($html) $s.=' '.$html;
 			$s.=' />'.$item[1].'</label>';
@@ -425,10 +425,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код переключателя <input type="checkbox">
-	 * @param string $name Имя поля
+	 * @param string      $name  Имя поля
 	 * @param string|null $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string      $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getCheckbox(string $name,string $value=null,string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true) {
@@ -446,7 +446,7 @@ class Form {
 	 * Возвращает HTML-код поля ввода пароля <input type="password">
 	 * @param string $name Имя поля
 	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @return string
 	 */
 	public function getPassword(string $name,string $html=''): string {
 		return '<input type="password" name="'.$this->_namespace.'['.$name.']" '.$html.' />';
@@ -454,10 +454,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код многострочного поля ввода <textarea>
-	 * @param string $name Имя поля
+	 * @param string $name  Имя поля
 	 * @param string $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <textarea>
-     * @return string
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <textarea>
+	 * @return string
 	 */
 	public function getTextarea(string $name,string $value='',string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -471,10 +471,10 @@ class Form {
 	 * Массив $config может содержать следующие параметры:
 	 * ['uploadTo'] - диретория, в которую будут загружаться изображения, если указан, то загрузка файлов в другие директории будет запрещена;
 	 * ['html'] - произвольный HTML-код, который будет добавлен к HTML-тегу <textarea>
-	 * @param string $name Имя поля
-	 * @param string $value Значение по умолчанию
-	 * @param array $config Массив настроек редактора
-     * @return string
+	 * @param string $name   Имя поля
+	 * @param string $value  Значение по умолчанию
+	 * @param array  $config Массив настроек редактора
+	 * @return string
 	 */
 	public function getEditor(string $name,string $value='',array $config=[]): string {
 		$userGroup=core::userGroup();
@@ -482,7 +482,7 @@ class Form {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
-		$value=str_replace(array('&lt;','&gt;'),array('&amp;lt;','&amp;gt;'),$value);
+		$value=str_replace(['&lt;','&gt;'],['&amp;lt;','&amp;gt;'],$value);
 		$html='<textarea name="'.$this->_namespace.'['.$name.']" id="'.$name.'"';
 		if(isset($config['html'])===true && $config['html']) $html.=' '.$html;
 		$html.='>'.$value.'</textarea>';
@@ -505,10 +505,10 @@ class Form {
 	/**
 	 * Возвращает HTML-код поля выбора даты <input type="date">
 	 * Параметр $value может быть задан строкой или Timestamp.
-	 * @param string $name Имя поля
+	 * @param string          $name  Имя поля
 	 * @param string|int|null $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string          $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getDate(string $name,$value=null,string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -521,10 +521,10 @@ class Form {
 	/**
 	 * Возвращает HTML-код поля выбора даты и времени <input type="datetime-local">
 	 * Параметр $value может быть задан строкой или Timestamp.
-	 * @param string $name Имя поля
+	 * @param string          $name  Имя поля
 	 * @param string|int|null $value Значение по умолчанию
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string          $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getDateTime(string $name,$value=null,string $html=''): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
@@ -537,10 +537,10 @@ class Form {
 	/**
 	 * Возвращает HTML-код поля для загрузки файла/ов <input type="file">
 	 * В Submit-действии контроллера файл будет доступен через параметр $data среди прочих POST-данных.
-	 * @param string $name Имя поля
-	 * @param bool $multiple Разрешить загрузку нескольких файлов
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string $name     Имя поля
+	 * @param bool   $multiple Разрешить загрузку нескольких файлов
+	 * @param string $html     Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getFile(string $name,bool $multiple=false,string $html=''): string {
 		if($multiple===true) {
@@ -552,10 +552,10 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код кнопки отправки данных <input type="submit">
-	 * @param string $label Надпись на кнопке
-	 * @param string|null $name Имя поля
-	 * @param string $html Произвольный HTML, который будет дописан к HTML-тегу <input>
-     * @return string
+	 * @param string      $label Надпись на кнопке
+	 * @param string|null $name  Имя поля
+	 * @param string      $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @return string
 	 */
 	public function getSubmit(string $label=LNGContinue,string $name=null,string $html=''): string {
 		$s='<input type="submit" value="'.$label.'"';

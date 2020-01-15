@@ -1,32 +1,41 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
+use plushka\admin\core\ModelRuleTrait;
+use plushka\admin\core\plushka;
+use plushka\core\Model;
 
-class Documentation extends \plushka\admin\core\ModelEx {
+/**
+ * AR-модель "Документация"
+ * @property string $alias Псевдоним статьи документации
+ */
+class Documentation extends Model {
 
-	function __construct($db=null) {
-		parent::__construct('documentation');
+	use ModelRuleTrait;
+
+	function __construct(string $db=null) {
+		parent::__construct('documentation',$db);
 		$this->multiLanguage();
 	}
 
-	public function rule() {
-		$rule=array(
-			'id'=>array('primary'),
-			'parentId'=>array('integer'),
-			'alias'=>array('latin','псевдоним',true),
-			'text2'=>array('html')
-		);
-		return $this->commonRuleAppend($rule,'title,alias,metaTitle,metaDescription,metaKeyword');
+	public function rule(): array {
+		return $this->commonRuleAppend([
+			'id'=>['primary'],
+			'parentId'=>['integer'],
+			'alias'=>['latin','псевдоним',true],
+			'text2'=>['html']
+		],'title,alias,metaTitle,metaDescription,metaKeyword');
 	}
 
-	protected function afterInsert($id=null) {
-		$path=$this->db->fetchArrayOnce('SELECT d3.alias,d2.alias,d1.alias FROM documentation d1 LEFT JOIN documentation d2 ON d2.id=d1.parentId LEFT JOIN documentation d3 ON d3.id=d2.parentId WHERE d1.id='.$this->parentId);
-		foreach($path as $i=>$item) if($item===null) unset($path[$i]);
-		if($path) $path=implode('/',$path).'/'; else $path='';
-		$path='documentation/'.$path.$this->alias;
-		plushka::hook('modify','documentation/view/'.$this->alias); //Обновить дату изменения статьи
+	/**
+	 * @inheritDoc
+	 * @param int|null $id
+	 */
+	protected function afterInsert($id=null): void {
+		plushka::hook('modify','documentation/view/'.$this->alias,true); //Обновить дату изменения статьи
 	}
-	protected function afterUpdate($id=null) {
-		return $this->afterInsert($id);
+
+	protected function afterUpdate($id=null): void {
+		$this->afterInsert($id);
 	}
 
 }

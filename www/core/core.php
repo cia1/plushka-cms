@@ -1,6 +1,7 @@
 <?php
 namespace plushka\core;
 use BadMethodCallException;
+use plushka\controller\ErrorController;
 use plushka\core\User as UserCore;
 use plushka\model\User as UserModel;
 use RuntimeException;
@@ -21,8 +22,8 @@ abstract class core {
 	 * Возвращает конфигурацию, соответствующую идентификатору
 	 * Конфигурация должна находиться в файле /config/{$id}.php
 	 * Конфигурация возвращается по ссылке, поэтому возможно внесение изменений "на лету". Внимание! Возможно, это поведение в будущем будет изменено.
-	 * @param string $name Идентификатор (имя файла) конфигурации
-	 * @param string $attribute|null Если задан, то будет возвращена не вся конфигурация, а значение отдельного атрибута $attribute
+	 * @param string $name      Идентификатор (имя файла) конфигурации
+	 * @param string $attribute |null Если задан, то будет возвращена не вся конфигурация, а значение отдельного атрибута $attribute
 	 * @return mixed
 	 */
 	public static function &config(string $name='_core',string $attribute=null) {
@@ -95,14 +96,14 @@ abstract class core {
 	 * @param string $name Имя файла относительно корня сайта
 	 */
 	public static function import(string $name): void {
-        /** @noinspection PhpIncludeInspection */
+		/** @noinspection PhpIncludeInspection */
 		include_once(self::path().$name.'.php');
 	}
 
 	/**
 	 * Возвращает строку, содержащую HTML-тег <script...> или пустую строку, если этот скрипт уже подключён. Если параметр $name содержит строку, начинающуюся с "LNG", то установит соответствующую константу локализации, доступную в JS через document._lang['LNGConstantName']
 	 * Используется для избежания повторного включения одного скрипта JavaScript.
-	 * @param string $name Абсолютное или краткое имя .js-файла или имя языковой константы (LNGxxx)
+	 * @param string      $name      Абсолютное или краткое имя .js-файла или имя языковой константы (LNGxxx)
 	 * @param string|null $attribute дополнительные атрибуты, которые будут добавлены к тегу <script> (например "defer")
 	 * @return string
 	 */
@@ -130,16 +131,16 @@ abstract class core {
 	public static function language(string $name): void {
 		$f=self::path().'language/'.$name.'.'._LANG.'.php';
 		if(file_exists($f)===false) return;
-        /** @noinspection PhpIncludeInspection */
+		/** @noinspection PhpIncludeInspection */
 		include_once($f);
 	}
 
 	/**
 	 * Генерирует относительную или абсолютную ссылку
 	 * Для CGI-режима использует /config/cgi.php для определения имени домена и базового URL
-	 * @param string $link Исходная ссылка в формате controller/etc...
-	 * @param bool $lang Если false, то суффикс языка не будет добавлен
-	 * @param bool $domain Если true, то будет сгенерирована абсолютная ссылка
+	 * @param string $link   Исходная ссылка в формате controller/etc...
+	 * @param bool   $lang   Если false, то суффикс языка не будет добавлен
+	 * @param bool   $domain Если true, то будет сгенерирована абсолютная ссылка
 	 * @return string
 	 */
 	public static function link(string $link,bool $lang=true,bool $domain=false): string {
@@ -174,7 +175,7 @@ abstract class core {
 	 * Создаёт модель ActiveRecord для указанной таблицы базы данных
 	 * Если файл /model/$classTable.php существует, то будет создан экземпляр этого класса, если нет - то экземпляр класса \plushka\core\model, ассоциированный с таблицей $classTable.
 	 * @param string $classTable Имя таблицы или класса ActiveRecord
-	 * @param string $db Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
+	 * @param string $db         Тип СУБД и подключения, который будет использоваться при построении SQL-запросов
 	 * @return Model
 	 */
 	public static function model(string $classTable,string $db='db'): Model {
@@ -250,7 +251,7 @@ abstract class core {
 
 	/**
 	 * Устанавливает или возврает имя шаблона, используемого при генерации HTML-кода страницы.
-	 * @param string $set|null Если задан, то будет установлен указанный шаблон (соответствующий файл должен находиться в директории /template)
+	 * @param string $set |null Если задан, то будет установлен указанный шаблон (соответствующий файл должен находиться в директории /template)
 	 * @return string Имя текущего шаблона
 	 */
 	public static function template(string $set=null): string {
@@ -262,16 +263,16 @@ abstract class core {
 	 * Переводит строку в транслит, пригодный для использования в URL.
 	 * Конвертирование происходит с учётом текущего языка локализации (const _LANG)
 	 * @param string $string Исходная строка
-	 * @param int $max Максимальная длина генерируемой строки
-     * @return string
+	 * @param int    $max    Максимальная длина генерируемой строки
+	 * @return string
 	 */
 	public static function translit(string $string,int $max=60): string {
 		$string=mb_strtolower($string,'UTF-8');
 		$d1=explode(',',LNGtranslit1);
 		$d2=explode(',',LNGtranslit2);
 		$string=str_replace($d1,$d2,$string);
-		$d1=array(' ',',','&','і');
-		$d2=array('-','-','-and-','i');
+		$d1=[' ',',','&','і'];
+		$d2=['-','-','-and-','i'];
 		$string=str_replace($d1,$d2,$string);
 		$string=preg_replace('|[^A-Za-z0-9\._+-]|','',$string);
 		if(strlen($string)>$max) $string=substr($string,0,$max);
@@ -280,9 +281,9 @@ abstract class core {
 
 	/**
 	 * Возвращает абсолютный или относительный URL-адрес главной страницы сайта (обычно "/")
-	 * @param bool|string $lang Если указан, то к URL будет добавлен суффикс текущего языка
-	 * @param bool $domain Если указан, то будет будет сгенерирована абсолютная ссылка, а не относительна
-     * @return string URL
+	 * @param bool|string $lang   Если указан, то к URL будет добавлен суффикс текущего языка
+	 * @param bool        $domain Если указан, то будет будет сгенерирована абсолютная ссылка, а не относительна
+	 * @return string URL
 	 */
 	public static function url($lang=false,bool $domain=false): string {
 		static $_url;
@@ -363,9 +364,6 @@ abstract class core {
 	}
 }
 
-
-
-
 /**
  * Базовый класс контроллера, все контроллеры должны наследоваться от него
  */
@@ -403,7 +401,7 @@ class Controller {
 
 	/**
 	 * Подключает JavaScript или другой тег в HTML-область <head>. Вызов имеет смысл только в конструкторе или действиях. Защищает от повторного включения одного и того же файла
-	 * @param string $text Имя .js-файла или произвольный тег в формате "<...>"
+	 * @param string      $text      Имя .js-файла или произвольный тег в формате "<...>"
 	 * @param string|null $attribute Любые атрибуты, присоединяемые к тегу <script> (например "defer")
 	 * @see core::js()
 	 */
@@ -491,16 +489,16 @@ class Controller {
 		}
 		if(gettype($view)==='object' && method_exists($view,'render')) $view->render();
 		elseif($view==='_empty') {
-            /** @noinspection PhpIncludeInspection */
-		    include(core::path().'view/_empty.php');
-        } else {
-            /** @noinspection PhpIncludeInspection */
-		    include(core::path().'view/'.$this->url[0].$view.'.php');
-        }
+			/** @noinspection PhpIncludeInspection */
+			include(core::path().'view/_empty.php');
+		} else {
+			/** @noinspection PhpIncludeInspection */
+			include(core::path().'view/'.$this->url[0].$view.'.php');
+		}
 		if($renderTemplate===true && $s) { //нижняя часть шаблона
-            /** @noinspection PhpIncludeInspection */
-		    include(core::path().'cache/template/'.core::template().'Footer.php');
-        }
+			/** @noinspection PhpIncludeInspection */
+			include(core::path().'cache/template/'.core::template().'Footer.php');
+		}
 	}
 
 	/**
@@ -537,39 +535,36 @@ class Controller {
 		}
 	}
 
-    /**
-     * Переносит информацию из $_FILES в $_POST
-     * @param string $alias
-     */
-    protected static function filesToPost(string $alias) {
-        if(isset($_FILES[$alias])===false) return;
-        $f1=$_FILES[$alias];
-        foreach($f1['size'] as $name=>$value) {
-            if(is_array($value)===true) {
-                $_POST[$alias][$name]=[];
-                foreach($value as $i=>$size) {
-                    if(!$size) continue;
-                    $_POST[$alias][$name][]=[
-                        'name'=>$f1['name'][$name][$i],
-                        'tmpName'=>$f1['tmp_name'][$name][$i],
-                        'type'=>$f1['type'][$name][$i],
-                        'size'=>$size
-                    ];
-                }
-            } else {
-                $_POST[$alias][$name]=[
-                    'name'=>$f1['name'][$name],
-                    'tmpName'=>$f1['tmp_name'][$name],
-                    'type'=>$f1['type'][$name],
-                    'size'=>$value
-                ];
-            }
-        }
-    }
+	/**
+	 * Переносит информацию из $_FILES в $_POST
+	 * @param string $alias
+	 */
+	protected static function filesToPost(string $alias) {
+		if(isset($_FILES[$alias])===false) return;
+		$f1=$_FILES[$alias];
+		foreach($f1['size'] as $name=>$value) {
+			if(is_array($value)===true) {
+				$_POST[$alias][$name]=[];
+				foreach($value as $i=>$size) {
+					if(!$size) continue;
+					$_POST[$alias][$name][]=[
+						'name'=>$f1['name'][$name][$i],
+						'tmpName'=>$f1['tmp_name'][$name][$i],
+						'type'=>$f1['type'][$name][$i],
+						'size'=>$size
+					];
+				}
+			} else {
+				$_POST[$alias][$name]=[
+					'name'=>$f1['name'][$name],
+					'tmpName'=>$f1['tmp_name'][$name],
+					'type'=>$f1['type'][$name],
+					'size'=>$value
+				];
+			}
+		}
+	}
 }
-
-
-
 
 /**
  * Базовый класс виджета. Все виджеты должны быть унаследованы от этого класса
@@ -577,10 +572,10 @@ class Controller {
  */
 abstract class Widget {
 
-    /**
-     * @var string|null Дополнительный CSS-класс блока виджета
-     */
-    public $cssClass;
+	/**
+	 * @var string|null Дополнительный CSS-класс блока виджета
+	 */
+	public $cssClass;
 
 	/**
 	 * @var mixed Настойки и другие данные виджета, зависит от конкретной реализации
@@ -593,8 +588,8 @@ abstract class Widget {
 	protected $link;
 
 	/**
-	 * @param mixed $options Настройки и любые другие данные необходимые виджету, @see self::$options
-	 * @param string|null $link Шаблон адреса страницы, @see self::$link
+	 * @param mixed       $options Настройки и любые другие данные необходимые виджету, @see self::$options
+	 * @param string|null $link    Шаблон адреса страницы, @see self::$link
 	 */
 	public function __construct($options,string $link=null) {
 		$this->options=$options;
@@ -632,9 +627,9 @@ abstract class Widget {
 	 */
 	public function render($view): void {
 		if($view!==true) {
-            /** @noinspection PhpIncludeInspection */
-            include(core::path().'view/widget'.$view.'.php');
-        }
+			/** @noinspection PhpIncludeInspection */
+			include(core::path().'view/widget'.$view.'.php');
+		}
 	}
 
 	/**
@@ -652,9 +647,6 @@ abstract class Widget {
 		}
 	}
 }
-
-
-
 
 /**
  * Класс олицетворяет пользователя.
@@ -708,35 +700,37 @@ class User {
 	}
 }
 
-
-
 /**
  * Исключение подключения к базе данных или исполнения SQL-запросов
  */
-class DBException extends RuntimeException {}
+class DBException extends RuntimeException {
+
+}
 
 /**
  * Исключение 404-й HTTP-ошибки
  */
 class HTTPException extends RuntimeException {
 
-    public function __construct(int $code,$message='',Throwable $previous = null) {
-        header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
-        if($message==='') {
-            if($code===404) {
-                core::language('error');
-                $message = sprintf(LNGPageNotExists, core::url(false, true) . substr($_SERVER['REQUEST_URI'], 1));
-            }
-        }
-        parent::__construct($message,$code,$previous);
-    }
+	public function __construct(int $code=404,$message='',Throwable $previous=null) {
+		if($code===404) header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
+		if($message==='') {
+			if($code===404) {
+				core::language('error');
+				$message=sprintf(LNGPageNotExists,core::url(false,true).substr($_SERVER['REQUEST_URI'],1));
+			}
+		}
+		parent::__construct($message,$code,$previous);
+	}
 
 }
 
 /**
  * Ошибка маршрутизации
  */
-class RouteException extends RuntimeException {}
+class RouteException extends RuntimeException {
+
+}
 
 /**
  * Запускает приложение
@@ -746,27 +740,25 @@ function runApplication(bool $renderTemplate=true): void {
 	session_start();
 	$user=core::userReal();
 	if($user->group>=200) {
-        /** @noinspection PhpIncludeInspection */
-	    include(core::path().'core/admin.php');
-    }
+		/** @noinspection PhpIncludeInspection */
+		include(core::path().'core/admin.php');
+	}
 	core::$controller='\plushka\controller\\'.ucfirst($_GET['corePath'][0]).'Controller';
 	try {
-	    try {
-            core::$controller = new core::$controller();
-        } catch(Throwable $e) {
-	        throw new HTTPException(404);
-        }
+		try {
+			core::$controller=new core::$controller();
+		} catch(Throwable $e) {
+			throw new HTTPException(404);
+		}
 		core::$controller->render($renderTemplate);
 	} catch(DBException $e) {
-        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
-        if (core::debug() === true) echo '<p>', $e, '</p>';
+		header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
+		if(core::debug()===true) echo '<p>',$e,'</p>';
 	} catch(HTTPException $e) {
-	    $controller=new plushka\controller\ErrorController($e);
-        $controller->render($renderTemplate);
-    }
+		$controller=new ErrorController($e);
+		$controller->render($renderTemplate);
+	}
 }
-
-
 
 
 /* Регистрация автозагрузчика
@@ -781,7 +773,7 @@ spl_autoload_register(function($class) {
 		$debug=debug_backtrace()[1];
 		throw new BadMethodCallException('Undefined class '.$class.' in '.$debug['file'].': '.$debug['line']);
 	}
-    /** @noinspection PhpIncludeInspection */
+	/** @noinspection PhpIncludeInspection */
 	require_once($f);
 },true);
 

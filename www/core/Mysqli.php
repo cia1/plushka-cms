@@ -45,11 +45,11 @@ class Mysqli {
 	 * Выполняет SQL-запрос INSERT
 	 * Атрибут $data должен быть в формате ключ-значение, где ключ - имя поля базы данных
 	 * или массив массивов ключ-значение для массовой вставки нескольких строк
-	 * @param string $table Имя таблицы
-	 * @param array|array[] $data Данные для вставки
+	 * @param string        $table Имя таблицы
+	 * @param array|array[] $data  Данные для вставки
 	 */
 	public function insert(string $table,array $data): void {
-		$field=array();
+		$field=[];
 		if(isset($data[0])===false) {
 			$field=array_keys($data);
 		} else {
@@ -81,9 +81,9 @@ class Mysqli {
 	 * Выполняет произвольный SQL-запрос
 	 * Если параметр $limit указан, то к SQL-запросу SELECT будет добавлена инструкция LIMIT
 	 * Если параметр $limit указан, а $page - нет, то номер страницы будет определяться из $_GET['page']
-	 * @param string $query SQL-запрос
+	 * @param string   $query SQL-запрос
 	 * @param int|null $limit Количество строк для операции SELECT
-	 * @param int|null $page Номер страницы пагирации
+	 * @param int|null $page  Номер страницы пагирации
 	 */
 	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
@@ -107,8 +107,8 @@ class Mysqli {
 
 	/**
 	 * Возвращает очередную запись из выборки индексированную целыми числами
-	 * @see self::query()
 	 * @return string[]|null
+	 * @see self::query()
 	 */
 	public function fetch(): ?array {
 		return $this->_queryId->fetch_row();
@@ -116,8 +116,8 @@ class Mysqli {
 
 	/**
 	 * Возвращает очередную запись из выборки индексированную именами столбцов
-	 * @see self::query()
 	 * @return string[]|null
+	 * @see self::query()
 	 */
 	public function fetchAssoc(): ?array {
 		return $this->_queryId->fetch_assoc();
@@ -153,20 +153,20 @@ class Mysqli {
 	public function fetchArray(string $query): array {
 		$q=self::$_connectId->query($query);
 		if($q===false) throw new DBException("MYSQL QUERY ERROR:\n".$query);
- 		$data=array();
+		$data=[];
 		while($item=$q->fetch_row()) $data[]=$item;
 		return $data;
 	}
 
 	/**
 	 * Выполняет SQL-запрос и возвращает все найденные записи в виде массива массивов, индексированных именами столбцов
-	 * @param string $query SQL-запрос
-     * @param int|null $limit Ограничение на количество извлекаемых записей
+	 * @param string   $query SQL-запрос
+	 * @param int|null $limit Ограничение на количество извлекаемых записей
 	 * @return array[]|null
 	 */
 	public function fetchArrayAssoc(string $query,int $limit=null): array {
 		$this->query($query,$limit);
-		$data=array();
+		$data=[];
 		while($item=$this->_queryId->fetch_assoc()) $data[]=$item;
 		return $data;
 	}
@@ -198,8 +198,6 @@ class Mysqli {
 	public function affected(): int {
 		return self::$_connectId->affected_rows;
 	}
-
-
 
 	//Возвращет часть SQL-запроса для оператора INSERT
 	private static function _sqlInsert(array $fieldList,array $data) {

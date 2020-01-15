@@ -92,6 +92,7 @@ for($i=0;$i<LETTER_COUNT;$i++) {
 	}
 	$color=imagecolorallocate($im,$color[0],$color[1],$color[2]);
 	$_x=$letterWidth*$i;
+	/** @noinspection PhpUndefinedVariableInspection */
 	foreach($matrix[$string[$i]] as $item) {
 		$x1=$_letterWidth*$item[0]+$_x+$_letterWidth*rand($_offset*-1,$_offset)/1000;
 		$y1=$_letterHeight*$item[1]+$_letterHeight*rand($_offset*-1,$_offset)/1000;

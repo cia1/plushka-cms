@@ -11,9 +11,9 @@ abstract class plushka extends core {
 	/**
 	 * Возвращает произвольные данные из кэша
 	 * Если кэш не существует или устарел и не задан параметр $callback, то будет возвращено NULL
-	 * @param string $id Идентификатор кэша
+	 * @param string        $id       Идентификатор кэша
 	 * @param callback|null $callback Callback-функция, которая будет вызвана если кэш не существует или устарел.
-	 * @param int|null $timeout Время в минутах актуальности кэша
+	 * @param int|null      $timeout  Время в минутах актуальности кэша
 	 * @return mixed|null
 	 */
 	public static function cache(string $id,callable $callback=null,int $timeout=null) {
@@ -34,8 +34,8 @@ abstract class plushka extends core {
 	/**
 	 * Генерирует событие
 	 * Обработчики события - это файлы /hook/$name.{module}.php
-	 * @param string $name Имя события
-	 * @param mixed ...$data Произвольные данные, которые будут доступны в обработчике события
+	 * @param string $name    Имя события
+	 * @param mixed  ...$data Произвольные данные, которые будут доступны в обработчике события
 	 * @return array|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
 	 */
 	public static function hook(string $name,...$data) {
@@ -57,9 +57,9 @@ abstract class plushka extends core {
 
 	/**
 	 * Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес
-	 * @param string $url URL в формате "controller/etc"
+	 * @param string      $url     URL в формате "controller/etc"
 	 * @param string|null $message Если задан, то установит текст сообщения об успешно выполненной операции
-	 * @param int $code HTTP-код ответа
+	 * @param int         $code    HTTP-код ответа
 	 * @see self::success()
 	 */
 	public static function redirect(string $url,string $message=null,int $code=302): void {
@@ -104,7 +104,7 @@ abstract class plushka extends core {
 			if($items[$i][7]) {
 				if(isset($options[1]) && $options[1]==':') {
 					$options=unserialize($options);
-				} else $options=array('_content'=>$options);
+				} else $options=['_content'=>$options];
 				$options['cssClass']=$items[$i][7];
 			}
 			self::widget($items[$i][0],$options,$items[$i][2],($items[$i][3]=='1' ? $items[$i][4] : null),$items[$i][5]);
@@ -114,11 +114,11 @@ abstract class plushka extends core {
 
 	/**
 	 * Создаёт и рендерит виджет. Этот метод обрабатывает теги {{widget}}
-	 * @param string $name Имя виджета, соответствует файлу /widget/$name.php
-	 * @param mixed $options Произвольные параметры, которые будут переданы виджету
-	 * @param int|null $cacheTime Время актуальности кэша. Если null, то виджет кэшироваться не будет
-	 * @param string|null $title Заголовок виджета
-	 * @param string|null $link Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
+	 * @param string      $name      Имя виджета, соответствует файлу /widget/$name.php
+	 * @param mixed       $options   Произвольные параметры, которые будут переданы виджету
+	 * @param int|null    $cacheTime Время актуальности кэша. Если null, то виджет кэшироваться не будет
+	 * @param string|null $title     Заголовок виджета
+	 * @param string|null $link      Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
 	 * @see \plushka\core\Widget
 	 * @see self::section
 	 */
@@ -181,17 +181,17 @@ abstract class plushka extends core {
 		echo '<div style="clear:both;"></div></section>';
 	}
 
-	private static function _hook(string $name,/** @noinspection PhpUnusedParameterInspection */$data) {
-        /** @noinspection PhpIncludeInspection */
+	private static function _hook(string $name,/** @noinspection PhpUnusedParameterInspection */ $data) {
+		/** @noinspection PhpIncludeInspection */
 		return include(self::path().'hook/'.$name);
 	}
 
-    /**
-     * Выводит кнопки админки для виджета
-     * @param Widget|array[] $data
-     * @param bool $returnAsArray Если true, то вернёт массив кнопок админки для сохранения в кеше
-     * @return array[]|null
-     */
+	/**
+	 * Выводит кнопки админки для виджета
+	 * @param Widget|array[] $data
+	 * @param bool           $returnAsArray Если true, то вернёт массив кнопок админки для сохранения в кеше
+	 * @return array[]|null
+	 */
 	private static function _widgetAdmin($data,bool $returnAsArray=false): ?array {
 		$user=self::userReal();
 		if($user->group<200) return null;
@@ -204,13 +204,11 @@ abstract class plushka extends core {
 	}
 }
 
-
-
 /* --- INITIALIZE --- */
 if(plushka::debug()) {
-	ini_set('error_reporting', E_ALL);
-	ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
+	ini_set('error_reporting',E_ALL);
+	ini_set('display_errors',1);
+	ini_set('display_startup_errors',1);
 }
 $cfg=plushka::config();
 
@@ -238,9 +236,8 @@ else {
 	$link=&$_GET['corePath'];
 	$i=strpos($link,'?');
 	if($i) {
-		$end=substr($link,$i);
 		$link=substr($link,0,$i);
-	} else $end='';
+	}
 	$i=$len=strlen($link);
 	do {
 		$s=substr($link,0,$i);

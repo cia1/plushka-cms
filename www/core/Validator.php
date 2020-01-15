@@ -33,7 +33,7 @@ class Validator {
 	/**
 	 * Устанавливает значение атрибута
 	 * @param string $attribute имя атрибута
-	 * @param mixed $value Значение атрибута
+	 * @param mixed  $value     Значение атрибута
 	 */
 	public function __set(string $attribute,$value): void {
 		$this->_data[$attribute]=$value;
@@ -75,7 +75,7 @@ class Validator {
 	 * Выполняет валидацию и фильтрацию всех данных
 	 * @param array|null Правила валидации: null - взять из static::rule(), массив - правила в формате ключ-значение
 	 * @return bool Валидны ли данные
-	*/
+	 */
 	public function validate(array $rule=null): bool {
 		core::language('global');
 		if($rule===null) $rule=$this->rule();
@@ -97,11 +97,11 @@ class Validator {
 
 	/**
 	 * Валидатор булевого значения
-	 * @param string $attribute Имя атрибута
-	 * @param array|null $setting не используется
+	 * @param string     $attribute Имя атрибута
+	 * @param array|null $setting   не используется
 	 * @return bool Результат валидации
 	 */
-	protected function validateBoolean(string $attribute,/** @noinspection PhpUnusedParameterInspection */array $setting=null): bool {
+	protected function validateBoolean(string $attribute,/** @noinspection PhpUnusedParameterInspection */ array $setting=null): bool {
 		$this->_bool[]=$attribute;
 		$this->_data[$attribute]=(bool)$this->_data[$attribute];
 		return true;
@@ -110,7 +110,7 @@ class Validator {
 	/**
 	 * Валидатор защиты от роботов
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting: [1] - имя параметра
+	 * @param array  $setting   : [1] - имя параметра
 	 * @return bool Результат валидации
 	 */
 	protected function validateCaptcha(string $attribute,array $setting): bool {
@@ -125,7 +125,7 @@ class Validator {
 	/**
 	 * Валидатор callback-функцией
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting: [3] - callback-функция
+	 * @param array  $setting   : [3] - callback-функция
 	 * @return bool Результат валидации
 	 */
 	protected function validateCallback(string $attribute,array $setting): bool {
@@ -137,7 +137,7 @@ class Validator {
 	/**
 	 * Валидатор даты, преобразует к UNIXTIME
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута
+	 * @param array  $setting   [1] - название атрибута
 	 * @return bool Результат валидации
 	 */
 	protected function validateDate(string $attribute,array $setting): bool {
@@ -158,7 +158,7 @@ class Validator {
 	/**
 	 * Валидатор адреса электронной почты
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута
+	 * @param array  $setting   [1] - название атрибута
 	 * @return bool Результат валидации
 	 */
 	protected function validateEmail(string $attribute,array $setting): bool {
@@ -172,7 +172,7 @@ class Validator {
 	/**
 	 * Валидатор числа с плавующей точкой, преобразует к float
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута, [min], [max] - мин. и макс. значения
+	 * @param array  $setting   [1] - название атрибута, [min], [max] - мин. и макс. значения
 	 * @return bool Результат валидации
 	 */
 	protected function validateFloat($attribute,array $setting): bool {
@@ -191,18 +191,18 @@ class Validator {
 
 	/**
 	 * Валидатор HTML
-	 * @param string $attribute Имя атрибута
-	 * @param array|null $setting не используется
+	 * @param string     $attribute Имя атрибута
+	 * @param array|null $setting   не используется
 	 * @return bool Результат валидации
 	 */
-	protected function validateHtml(/** @noinspection PhpUnusedParameterInspection */string $attribute,/** @noinspection PhpUnusedParameterInspection */array $setting=null): bool {
+	protected function validateHtml(/** @noinspection PhpUnusedParameterInspection */ string $attribute,/** @noinspection PhpUnusedParameterInspection */ array $setting=null): bool {
 		return true;
 	}
 
 	/**
 	 * Валидатор изображения, полученного из файла. преобразует к Picture
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута, [2] - обязательное поле, [minWidth], [maxWidth], [minHeight], [maxHeight] - ограничене размера изображения
+	 * @param array  $setting   [1] - название атрибута, [2] - обязательное поле, [minWidth], [maxWidth], [minHeight], [maxHeight] - ограничене размера изображения
 	 * @return bool Результат валидации
 	 */
 	protected function validateImage(string $attribute,array $setting): bool {
@@ -227,7 +227,7 @@ class Validator {
 	/**
 	 * Валидатор целого числа, преобразует к INT или NULL. Различает NULL и 0.
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута, [min], [max] - ограничене предельных значений
+	 * @param array  $setting   [1] - название атрибута, [min], [max] - ограничене предельных значений
 	 * @return bool Результат валидации
 	 */
 	protected function validateInteger(string $attribute,array $setting): bool {
@@ -249,7 +249,7 @@ class Validator {
 	/**
 	 * Валидатор строк, содержащих только латинские буквы, цифры и "_", "-"
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута, [max] - максимальная длина строки
+	 * @param array  $setting   [1] - название атрибута, [max] - максимальная длина строки
 	 * @return bool Результат валидации
 	 */
 	protected function validateLatin(string $attribute,array $setting): bool {
@@ -269,7 +269,7 @@ class Validator {
 	/**
 	 * Валидация согласно регулярному выражению
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута, [3] - регулярное выражение
+	 * @param array  $setting   [1] - название атрибута, [3] - регулярное выражение
 	 * @return bool Результат валидации
 	 */
 	protected function validateRegular(string $attribute,array $setting): bool {
@@ -284,7 +284,7 @@ class Validator {
 	/**
 	 * Валидация произвольной строки. Вырезает теги.
 	 * @param string $attribute Имя атрибута
-	 * @param array $setting [1] - название атрибута, [trim] - обрезать пробелы, [min], [max] - ограничение длины строки
+	 * @param array  $setting   [1] - название атрибута, [trim] - обрезать пробелы, [min], [max] - ограничение длины строки
 	 * @return bool Результат валидации
 	 */
 	protected function validateString(string $attribute,array $setting): bool {
@@ -301,8 +301,6 @@ class Validator {
 		}
 		return true;
 	}
-
-
 
 	private function _picture($image,array $setting): ?Picture {
 		$picture=new Picture($image);

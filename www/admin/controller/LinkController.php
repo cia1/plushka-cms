@@ -1,31 +1,37 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
+use plushka\admin\core\FormEx;
 use plushka\admin\core\plushka;
 
-/* Реализует произвольную ссылку в меню */
+/**
+ * Управление произвольными ссылками в меню
+ *
+ * `/admin/link/menuLink` - меню "Произвольная ссылка"
+ */
 class LinkController extends Controller {
 
-	public function right() {
-		return array(
+	public function right(): array {
+		return [
 			'menuLink'=>'menu.*'
-		);
+		];
 	}
 
-/* ---------- MENU ------------------------------------------------------------------- */
-/* Произвольная ссылка в меню */
-public function actionMenuLink() {
-	$f=plushka::form();
-	$f->text('link','Ссылка',$_GET['link']);
-	$f->submit('Продолжить');
-	return $f;
-}
+	/**
+	 * Произвольная ссылка в меню
+	 * @return FormEx
+	 */
+	public function actionMenuLink(): FormEx {
+		$form=plushka::form();
+		$form->text('link','Ссылка',$_GET['link']);
+		$form->submit('Продолжить');
+		return $form;
+	}
 
-public function actionMenuLinkSubmit($data) {
-	$i=strlen('http://'.$_SERVER['HTTP_HOST']);
-	if(substr($data['link'],0,$i)=='http://'.$_SERVER['HTTP_HOST']) $data['link']=substr($data['link'],$i+1);
-	return $data['link'];
-}
-/* ----------------------------------------------------------------------------------- */
+	public function actionMenuLinkSubmit(array $data): string {
+		$i=strlen('http://'.$_SERVER['HTTP_HOST']);
+		if(substr($data['link'],0,$i)==='http://'.$_SERVER['HTTP_HOST']) $data['link']=substr($data['link'],$i+1);
+		return $data['link'];
+	}
 
 }

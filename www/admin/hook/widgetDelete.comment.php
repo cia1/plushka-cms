@@ -1,10 +1,15 @@
 <?php
-/* Событие: удаление виджета
-Модуль: комментарии
-Параметры: string $data[0] - имя виджета, int $data[1] - идентификатор виджета, mixed $data[2] - параметры виджета */
+/**
+ * @package comment
+ * РЎРѕР±С‹С‚РёРµ: СѓРґР°Р»РµРЅРёРµ РІРёРґР¶РµС‚Р°
+ * @var array $data :
+ *  string [0] РРјСЏ РІРёРґР¶РµС‚Р°
+ *  int    [1] РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РІРёРґР¶РµС‚Р°
+ *  mixed  [2] Р”Р°РЅРЅС‹Рµ РІРёРґР¶РµС‚Р° (РґРµСЃРµСЂРёР°Р»РёР·РѕРІР°РЅРЅС‹Рµ)
+ */
+use plushka\admin\core\plushka;
 
-if($data[0]!='comment') return true;
-//Составить список всех старниц, с которых на которых был этот виджет
+if($data[0]!=='comment') return true;
 $db=plushka::db();
 $db->query('SELECT url FROM section WHERE widgetId='.$data[1]);
 $links='';
@@ -12,7 +17,6 @@ while($item=$db->fetch()) {
 	if($links) $links.=',';
 	$links.=$db->escape(substr($item[0],0,strlen($item[0])-1));
 }
-//Выбрать ИД групп комментариев, соответствующих страницам, на которых был виджет
 $db->query('SELECT id FROM comment_group WHERE link IN('.$links.')');
 unset($links);
 $ids='';

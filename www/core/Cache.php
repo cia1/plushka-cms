@@ -21,13 +21,13 @@ class Cache {
 		$template=str_replace('{{head}}','<?=$this->_head?>',$template);
 		$template=str_replace('{{pageTitle}}','<?php if($this->pageTitle) echo \'<h1 class="pageTitle">\'.$this->pageTitle.\'</h1>\'; ?>',$template);
 		$template=str_replace('{{breadcrumb}}','<?php $this->breadcrumb(); ?>',$template);
-		$section=$widget=array(); //Список секций и виджетов в шаблоне - эта информация может кому-то понадобиться в последствии
-		$template=preg_replace_callback('/{{section\[([^\]]+)\]}}/',function($data) use(&$section) {
+		$section=$widget=[]; //Список секций и виджетов в шаблоне - эта информация может кому-то понадобиться в последствии
+		$template=preg_replace_callback('/{{section\[([^\]]+)\]}}/',function($data) use (&$section) {
 			if(isset($data[1])===false) return $data[0];
 			$section[]=$data[1];
 			return '<?=plushka::section(\''.$data[1].'\')?>';
 		},$template);
-		$template=preg_replace_callback('/{{widget\[([^\]]+)\](?:\[([^\]]*?)\]|)(?:\[([^\]]*?)\]|)(?:\[([^\]]+)\]|)}}/',function($data) use(&$widget) {
+		$template=preg_replace_callback('/{{widget\[([^\]]+)\](?:\[([^\]]*?)\]|)(?:\[([^\]]*?)\]|)(?:\[([^\]]+)\]|)}}/',function($data) use (&$widget) {
 			if(isset($data[1])===false) return $data[0];
 			$s='<?=plushka::widget(\''.$data[1].'\'';
 			if(isset($data[2])===true) {
@@ -48,7 +48,7 @@ class Cache {
 					}
 					if($sub[$i]===':' && $quote===null) {
 						if($param!=='') $param.=',';
-						$param.="'".str_replace(array('"',"'"),'',substr($sub,$start,($i-$start)))."'=>";
+						$param.="'".str_replace(['"',"'"],'',substr($sub,$start,($i-$start)))."'=>";
 						$start=$i+1;
 					}
 					if($quote===null && ($sub[$i]===',' || $sub[$i]==="\0")) {
@@ -78,7 +78,7 @@ class Cache {
 		if($i!==false) {
 			$top=substr($template,0,$i);
 			/** @var string[] $use Список импортируемых классов (их нужно перенести в footer-часть шаблона */
-            $cnt=preg_match_all('~\s+use\s+([\\\a-zA-Z0-9_-]+);~',$top,$tmp);
+			$cnt=preg_match_all('~\s+use\s+([\\\a-zA-Z0-9_-]+);~',$top,$tmp);
 			for($y=0;$y<$cnt;$y++) $use[]=$tmp[1][$y];
 			fwrite($f,$top);
 			unset($tmp,$top);
@@ -114,7 +114,7 @@ class Cache {
 		if($cfg['dbDriver']==='mysql') $dbStructure=self::_structureMySQL();
 		else $dbStructure=self::_structureSQLite();
 		if(isset($cfg['languageList'])===true) $languageList=$cfg['languageList']; else $languageList=[$cfg['languageDefault']];
-		$lang=array();
+		$lang=[];
 		foreach($dbStructure as $table=>$fieldList) {
 			if(substr($table,-3,1)==='_') {
 				if(in_array(substr($table,-2),$languageList)===true) {
@@ -123,7 +123,7 @@ class Cache {
 					continue;
 				}
 			}
-			$field=array();
+			$field=[];
 			foreach($fieldList as $item) {
 				if(substr($item,-3,1)==='_') {
 					if(in_array(substr($item,-2),$languageList)===true) {
@@ -152,7 +152,7 @@ class Cache {
 			while($item=$db->fetch()) $data[]=$item[0];
 			return $data;
 		}
-		while($item=$db->fetch()) $data[$item[0]]=array();
+		while($item=$db->fetch()) $data[$item[0]]=[];
 		foreach($data as $table=>$value) {
 			$db->query('SHOW FIELDS FROM `'.$table.'`');
 			while($item=$db->fetch()) $data[$table][]=$item[0];
@@ -168,12 +168,12 @@ class Cache {
 	private static function _structureSQLite(bool $field=true): array {
 		$data=[];
 		$db=core::sqlite();
-		$db->query(/** @lang SQLite */"SELECT name FROM sqlite_master WHERE type='table'");
+		$db->query(/** @lang SQLite */ "SELECT name FROM sqlite_master WHERE type='table'");
 		if($field===false) {
 			while($item=$db->fetch()) $data[]=$item[0];
 			return $data;
 		}
-		while($item=$db->fetch()) $data[$item[0]]=array();
+		while($item=$db->fetch()) $data[$item[0]]=[];
 		foreach($data as $table=>$value) {
 			$db->query('PRAGMA table_info('.$table.')');
 			while($item=$db->fetch()) $data[$table][]=$item[1];

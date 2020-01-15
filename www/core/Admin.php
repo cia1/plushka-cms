@@ -12,10 +12,10 @@ class Admin {
 
 	/**
 	 * Добавляет кнопку в группу
-	 * @param string $link Ссылка на страницу админки
-	 * @param string $image Иконка кнопки (/admin/pulbic/icon/{$image}.png)
-	 * @param string $title Текст всплывающей подсказки
-	 * @param string|null $alt Значение атрибута ALT для HTML-тега <img>
+	 * @param string      $link       Ссылка на страницу админки
+	 * @param string      $image      Иконка кнопки (/admin/pulbic/icon/{$image}.png)
+	 * @param string      $title      Текст всплывающей подсказки
+	 * @param string|null $alt        Значение атрибута ALT для HTML-тега <img>
 	 * @param string|null $javaScript JavaScript-код, который должен будет вызван при нажатии кнопки
 	 */
 	public function add(string $link,string $image='setting',string $title='Администрировать элемент',string $alt=null,string $javaScript=null): void {

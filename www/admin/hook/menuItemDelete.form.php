@@ -1,10 +1,14 @@
 <?php
-/* Событие: удаление пункта меню
-Модуль: контактные формы
-Параметры: string $data[0] - удаляемая ссылка, int $data[1] - идентификатор пункта меню */
+/**
+ * РЎРѕР±С‹С‚РёРµ: СѓРґР°Р»РµРЅРёРµ РїСѓРЅРєС‚Р° РјРµРЅСЋ
+ * @var array $data :
+ *  string [0] СЃСЃС‹Р»РєР° РЅР° СѓРґР°Р»СЏРµРјС‹Р№ РїСѓРЅРєС‚ РјРµРЅСЋ
+ */
+use plushka\admin\core\plushka;
+
 $link=$data[0];
 
-if(substr($link,0,5)!='form/') return true;
+if(substr($link,0,5)!=='form/') return true;
 $id=substr($link,5);
 $db=plushka::db();
 $db->query('DELETE FROM frm_field WHERE formId='.$id);

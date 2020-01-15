@@ -5,6 +5,7 @@ use plushka\core\Validator;
 use plushka\core\Email;
 use plushka\core\Form as FormCore;
 use plushka\core\HTTPException;
+
 plushka::language('form');
 
 /**
@@ -40,9 +41,9 @@ class Form extends FormCore {
 			$type=$this->field[$i]['htmlType'];
 			if($type==='radio' || $type==='select' || $type==='listBox') {
 				$data=explode('|',$this->field[$i]['data']);
-				for($y=0,$cntY=count($data);$y<$cntY;$y++) $data[$y]=array($data[$y],$data[$y]);
+				for($y=0,$cntY=count($data);$y<$cntY;$y++) $data[$y]=[$data[$y],$data[$y]];
 				if($type==='select' && !$this->field[$i]['required']) {
-					array_unshift($data,array('','('.LNGselect.')'));
+					array_unshift($data,['','('.LNGselect.')']);
 				}
 				$this->field[$i]['data']=$data;
 			}
@@ -58,7 +59,7 @@ class Form extends FormCore {
 		if($this->formView!==null && $this->formView!=='') {
 			$view=$this->formView;
 			$this->formView=null; //render() может быть вызван дважды: один раз из контроллера и один раз из представления, поэтому убрать, чтобы небыло зацикливания
-            /** @noinspection PhpIncludeInspection */
+			/** @noinspection PhpIncludeInspection */
 			include(plushka::path().'view/form'.ucfirst($view).'.php');
 		} else { //представление не задано, использовать стандартный рендер базового класса
 			//Добавить поля в базовый класс формы
@@ -77,7 +78,7 @@ class Form extends FormCore {
 
 	/**
 	 * Выполняет настроенное действие по обработке формы
-	 * @param int $id Идентификатор формы
+	 * @param int      $id   Идентификатор формы
 	 * @param string[] $data Данные (из $_POST)
 	 * @return bool Данные формы валидны и обработка прошла успешно
 	 */
@@ -93,9 +94,9 @@ class Form extends FormCore {
 		if($this->form['script']) {
 			$f=plushka::path().'data/'.$this->form['script'].'Before.php';
 			if(file_exists($f)===true) {
-			    /** @noinspection PhpIncludeInspection */
-			    if(!include($f)) return false; //false расценивается как неудача.
-            }
+				/** @noinspection PhpIncludeInspection */
+				if(!include($f)) return false; //false расценивается как неудача.
+			}
 		}
 
 		//Подготовка данных для валидации
@@ -149,9 +150,9 @@ class Form extends FormCore {
 		if($this->form['script']) {
 			$f=plushka::path().'data/'.$this->form['script'].'After.php';
 			if(file_exists($f)===true) {
-			    /** @noinspection PhpIncludeInspection */
-			    if(!include($f)) return false; //false расценивается как неудача - нужно прервать дальнейшую работу
-            }
+				/** @noinspection PhpIncludeInspection */
+				if(!include($f)) return false; //false расценивается как неудача - нужно прервать дальнейшую работу
+			}
 		}
 		//Отправить письмо, если задан e-mail адрес.
 		if($this->form['email']) {
@@ -165,8 +166,7 @@ class Form extends FormCore {
 				elseif($this->field[$i]['htmlType']==='file') {
 					$s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.($data[$this->field[$i]['id']]['size'] ? $data[$this->field[$i]['id']]['name'] : '('.LNGnotLoaded.')').'</i></td></tr>';
 					$e->attach($data[$this->field[$i]['id']]['tmpName'],plushka::translit($data[$this->field[$i]['id']]['name']));
-				}
-				else $s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';
+				} else $s.='<tr><td><b>'.$this->field[$i]['title'].'</b></td><td><i>'.$data[$this->field[$i]['id']].'</i></td></tr>';
 			}
 			$s.='</table>';
 			$e->message('<p>'.sprintf(LNGNewMessageOnSite,'<a href="http://'.$_SERVER['HTTP_HOST'].plushka::url().'">'.$_SERVER['HTTP_HOST'].plushka::url().'</a>').'</p><hr />'.$s);

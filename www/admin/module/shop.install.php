@@ -1,26 +1,26 @@
 <?php
+use plushka\admin\core\Config;
+use plushka\admin\core\plushka;
 use plushka\admin\model\Form;
 
-function installAfter($version) {
+function installAfter($version): bool {
 	if($version) return true;
-	plushka::import('admin/model/form');
-	plushka::import('admin/core/config');
 	$f=new Form();
 	$id=$f->create('Оформление заказа','Заказ с сайта','shop');
-	if(!$id) return false;
-	$cfg=new config('shop');
+	if($id===null) return false;
+	$cfg=new Config('shop');
+	/** @noinspection PhpUndefinedFieldInspection */
 	$cfg->formId=$id;
 	$cfg->save('shop');
 
-	$f->text('Ваше имя',true);
-	$f->text('Телефон');
-	$f->email('E-mail');
-	$f->textarea('Комментарий к заказу');
+	$f->addFieldText('Ваше имя',true);
+	$f->addFieldText('Телефон');
+	$f->addFieldEmail('E-mail');
+	$f->addFieldTextarea('Комментарий к заказу');
 	return true;
 }
 
 function uninstallBefore() {
 	$cfg=plushka::config('shop');
-	plushka::import('admin/model/form');
 	return Form::drop($cfg['formId']);
 }

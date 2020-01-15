@@ -1,4 +1,6 @@
 <?php
+use plushka\core\plushka;
+
 session_start();
 if(!isset($_FILES['upload']) || !$_FILES['upload']['size'] || !$_SESSION['_uploadFolder']) _die('Uploading files is forbitten');
 if(isset($_SESSION['_uploadTimeLimit'])) {

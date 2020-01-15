@@ -1,10 +1,13 @@
 <?php
-/* Событие: удаление пункта меню
-Модуль: core
-Параметры: string $data[0] - удаляемая ссылка, int $data[1] - идентификатор удаляемого пункта меню */
+/**
+ * РЎРѕР±С‹С‚РёРµ: СѓРґР°Р»РµРЅРёРµ РїСѓРЅРєС‚Р° РјРµРЅСЋ
+ * @var array $data :
+ *  string [0] СЃСЃС‹Р»РєР° РЅР° СѓРґР°Р»СЏРµРјС‹Р№ РїСѓРЅРєС‚ РјРµРЅСЋ
+ */
+use plushka\admin\core\plushka;
+
 $link=$data[0];
 
 $db=plushka::db();
 $db->query('DELETE FROM section WHERE url IN('.$db->escape($link.'.').','.$db->escape($link.'*').','.$db->escape($link.'/').')');
 return true;
-?>

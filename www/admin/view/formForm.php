@@ -1,7 +1,7 @@
 <?php
 use plushka\admin\core\plushka;
 
-$this->f->render();
+$this->form->render();
 ?>
 <script>
 $('.emailSource input').click(function() {

@@ -3,13 +3,15 @@ namespace plushka\admin\controller;
 use plushka\admin\core\Config;
 use plushka\admin\core\Controller;
 use plushka\admin\core\plushka;
+use plushka\core\HTTPException;
 use plushka\core\Model;
 
 /* Управление форумом */
+
 class ForumController extends Controller {
 
 	public function right() {
-		return array(
+		return [
 			'setting'=>'forum.category',
 			'category'=>'forum.category',
 			'categoryUp'=>'forum.category',
@@ -23,7 +25,7 @@ class ForumController extends Controller {
 			'userStatus'=>'forum.moderate',
 			'menuProfile'=>'*',
 			'menuCategory'=>'*'
-		);
+		];
 	}
 
 	/* Настройки форума */
@@ -54,7 +56,7 @@ class ForumController extends Controller {
 		if(isset($_GET['id'])) {
 			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title,newTopic,newPost,metaTitle,metaKeyword,metaDescription FROM forum_category WHERE id='.(int)$_GET['id']);
-		} else $data=array('id'=>null,'title'=>'','newTopic'=>true,'newPost'=>true,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
+		} else $data=['id'=>null,'title'=>'','newTopic'=>true,'newPost'=>true,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>''];
 		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->text('title','Заголовок',$data['title']);
@@ -72,16 +74,16 @@ class ForumController extends Controller {
 		$data['sort']=$db->fetchValue('SELECT MAX(sort) FROM forum_category')+1;
 		$model=new Model('forum_category'); //таблица forum_category
 		$model->set($data);
-		if(!$model->save(array(
-			'id'=>array('primary'),
-			'title'=>array('string','заголовок',true),
-			'sort'=>array('integer'),
-			'newTopic'=>array('boolean'),
-			'newPost'=>array('boolean'),
-			'metaTitle'=>array('string'),
-			'metaKeyword'=>array('string'),
-			'metaDescription'=>array('string')
-		))) return false;
+		if(!$model->save([
+			'id'=>['primary'],
+			'title'=>['string','заголовок',true],
+			'sort'=>['integer'],
+			'newTopic'=>['boolean'],
+			'newPost'=>['boolean'],
+			'metaTitle'=>['string'],
+			'metaKeyword'=>['string'],
+			'metaDescription'=>['string']
+		])) return false;
 		plushka::success('Изменения сохранены');
 		plushka::redirect('forum/category?id='.$model->id);
 	}
@@ -132,12 +134,12 @@ class ForumController extends Controller {
 	public function actionTopicSubmit($data) {
 		$model=new Model('forum_topic');
 		$model->set($data);
-		if(!$model->save(array(
-			'id'=>array('primary'),
-			'categoryId'=>array('integer'),
-			'title'=>array('string','заголовок',true),
-			'message'=>array('string','сообщение',true)
-		))) return false;
+		if(!$model->save([
+			'id'=>['primary'],
+			'categoryId'=>['integer'],
+			'title'=>['string','заголовок',true],
+			'message'=>['string','сообщение',true]
+		])) return false;
 		plushka::success('Выполнено');
 		plushka::redirect('forum/topic?id='.$model->id);
 	}
@@ -148,7 +150,7 @@ class ForumController extends Controller {
 		$id=(int)$_GET['id'];
 		//Если администратор удаляет тему, то на это есть причина и нужно также откатить счётчик сообщений
 		$topicUserId=$db->fetchValue('SELECT userId FROM forum_topic WHERE id='.$id);
-		if(!$topicUserId) plushka::error404();
+		if($topicUserId===null) throw new HTTPException(404);
 		$data=$db->fetchArray('SELECT userId,COUNT(userId) FROM forum_post WHERE topicId='.$id.' GROUP BY userId');
 		foreach($data as $item) {
 			if($item[0]==$topicUserId) $item[1]++;
@@ -161,21 +163,28 @@ class ForumController extends Controller {
 		plushka::redirect('forum/topic?id='.$id);
 	}
 
-	/* Закрыть/открыть тему */
+	/**
+	 * Закрыть/открыть тему
+	 * @throws HTTPException
+	 */
 	public function actionTopicStatus() {
 		$db=plushka::db();
-		$status=$db->fetchValue('SELECT status FROM forum_topic WHERE id='.(int)$_GET['id']);
-		if($status===false) plushka::error404();
-		$db->query('UPDATE forum_topic SET status='.($status ? '0' : '1').' WHERE id='.(int)$_GET['id']);
+		$id=(int)$_GET['id'];
+		$status=$db->fetchValue('SELECT status FROM forum_topic WHERE id='.$id);
+		if($status===null) throw new HTTPException(404);
+		$db->query('UPDATE forum_topic SET status='.($status ? '0' : '1').' WHERE id='.$id);
 		plushka::success(($status ? 'Тема закрыта' : 'Тема вновь открыта'));
 		plushka::redirect('forum/topic?id='.$id);
 	}
 
-	/* Редактирование сообщения */
+	/**
+	 * Редактирование сообщения
+	 * @throws HTTPException
+	 */
 	public function actionPostEdit() {
 		$db=plushka::db();
 		$data=$db->fetchArrayOnce('SELECT id,message FROM forum_post WHERE id='.(int)$_GET['id']);
-		if(!$data) plushka::error404();
+		if($data===null) throw new HTTPException(404);
 		$f=plushka::form();
 		$f->hidden('id',$data[0]);
 		$f->textarea('message','Сообщение',$data[1]);
@@ -186,20 +195,23 @@ class ForumController extends Controller {
 	public function actionPostEditSubmit($data) {
 		$model=new Model('forum_post');
 		$model->set($data);
-		if(!$model->save(array(
-			'id'=>array('primary'),
-			'message'=>array('html','Сообщение',true)
-		))) return false;
+		if(!$model->save([
+			'id'=>['primary'],
+			'message'=>['html','Сообщение',true]
+		])) return false;
 		plushka::success('Изменения сохранены');
 		plushka::redirect('forum/post?id='.$model->id);
 	}
 
-	/* Удаление сообщения */
+	/**
+	 * Удаление сообщения
+	 * @throws HTTPException
+	 */
 	public function actionPostDelete() {
 		$db=plushka::db();
 		$id=(int)$_GET['id'];
 		$data=$db->fetchArrayOnce('SELECT p1.topicId,MAX(p2.date) FROM forum_post p1 LEFT JOIN forum_post p2 ON p2.topicId=p1.topicId AND p2.id!='.$id.' WHERE p1.id='.$id);
-		if(!$data) plushka::error404();
+		if($data===null) throw new HTTPException(404);
 		$data[1]=(int)$data[1];
 		$db->query('DELETE FROM forum_post WHERE id='.$id);
 		$db->query('UPDATE forum_topic SET lastDate='.$data[1].',postCount=postCount-1 WHERE id='.$data[0]);
@@ -207,22 +219,24 @@ class ForumController extends Controller {
 		plushka::redirect('forum/topic');
 	}
 
-	/* Блокировка и разблокировка пользователя */
+	/**
+	 * Блокировка и разблокировка пользователя
+	 * @throws HTTPException
+	 */
 	public function actionUserStatus() {
 		$db=plushka::db();
 		$id=(int)$_GET['id'];
 		$status=$db->fetchValue('SELECT status FROM forum_user WHERE id='.$id);
-		if($status===false) plushka::error404();
-		if(!$status) $status=1; else $status=0;
+		if($status===null) throw new HTTPException(404);
+		if($status==='0') $status=1; else $status=0;
 		$db->query('UPDATE forum_user SET status='.$status.' WHERE id='.$id);
-		plushka::success(($status ? 'Пользователь разблокирован' :'Пользователь заблокирован'));
+		plushka::success(($status ? 'Пользователь разблокирован' : 'Пользователь заблокирован'));
 		plushka::redirect('forum/userStatus');
 	}
-/* ----------------------------------------------------------------------------------- */
+	/* ----------------------------------------------------------------------------------- */
 
 
-
-/* ---------- MENU ------------------------------------------------------------------- */
+	/* ---------- MENU ------------------------------------------------------------------- */
 	/* Профиль пользователя. Ссылка forum/profile */
 	public function actionMenuProfile() {
 		$f=plushka::form();
@@ -244,7 +258,8 @@ class ForumController extends Controller {
 	public function actionMenuCategorySubmit($data) {
 		return 'forum';
 	}
-/* ----------------------------------------------------------------------------------- */
+	/* ----------------------------------------------------------------------------------- */
 
 }
+
 ?>

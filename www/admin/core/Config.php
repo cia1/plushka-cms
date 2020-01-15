@@ -9,6 +9,7 @@ use IteratorAggregate;
  * @property string $fileName Может быть не определён
  */
 class Config implements IteratorAggregate {
+
 	private $_data=[]; //тут содержатся все данные
 
 	/**
@@ -31,8 +32,8 @@ class Config implements IteratorAggregate {
 	 */
 	public function load(string $fileName=null): void {
 		if($fileName===null && property_exists($this,'fileName')===true) $fileName=$this->fileName;
-        $this->_data=plushka::config($fileName);
-        if(is_array($this->_data)===false) $this->_data=[];
+		$this->_data=plushka::config($fileName);
+		if(is_array($this->_data)===false) $this->_data=[];
 	}
 
 	/**
@@ -47,7 +48,7 @@ class Config implements IteratorAggregate {
 	/**
 	 * Устанавливает значение параметра
 	 * @param string $attribute Имя параметра
-	 * @param mixed $value Значение параметра
+	 * @param mixed  $value     Значение параметра
 	 * @return mixed Возвращает имя параметра
 	 */
 	public function set(string $attribute,$value) {
@@ -72,7 +73,7 @@ class Config implements IteratorAggregate {
 
 	/**
 	 * Сохраняет конфигурацию в файл
-	 * @param string $fileName|null
+	 * @param string $fileName |null
 	 */
 	public function save(string $fileName=null): void {
 		if($fileName===null && property_exists($this,'fileName')===true) $fileName=$this->fileName;
@@ -84,7 +85,7 @@ class Config implements IteratorAggregate {
 
 	/**
 	 * Устанавливает сразу все данные
-     * Данные передаются по ссылке, чтобы можно было увязать с массивом, возвращаемым plushka::config()
+	 * Данные передаются по ссылке, чтобы можно было увязать с массивом, возвращаемым plushka::config()
 	 * @param array @data
 	 */
 	public function setData(array &$data): void {
@@ -101,20 +102,21 @@ class Config implements IteratorAggregate {
 			else $s.='\''.$name.'\'=>';
 			$type=gettype($value);
 			switch($type) {
-			case 'boolean':
-				if($value) $s.='true'; else $s.='false';
-				break;
-			case 'integer': case 'double':
-				$s.=$value;
-				break;
-			case 'string':
-				$s.="'".str_replace("'","\'",$value)."'";
-				break;
-			case 'array':
-				$s.=config::_implode($value);
-				break;
-			default:
-				$s.='null';
+				case 'boolean':
+					if($value) $s.='true'; else $s.='false';
+					break;
+				case 'integer':
+				case 'double':
+					$s.=$value;
+					break;
+				case 'string':
+					$s.="'".str_replace("'","\'",$value)."'";
+					break;
+				case 'array':
+					$s.=config::_implode($value);
+					break;
+				default:
+					$s.='null';
 			}
 		}
 		$s="array(\n".$s."\n)";

@@ -1,5 +1,5 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 //Модель произвольный HTML-код
 class Html {
@@ -42,7 +42,6 @@ class Html {
 			$f=plushka::path().'data/widgetHtml/'.$fileName.'_'.$cfg['languageDefault'].'.html';
 		}
 		if(file_exists($f)) $this->html=file_get_contents($f); else $this->html='';
-		return true;
 	}
 
 	//Возвращает экземпляр класса form для редактирования текста

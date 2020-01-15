@@ -50,11 +50,11 @@ class Sqlite {
 	 * Выполняет SQL-запрос INSERT
 	 * Атрибут $data должен быть в формате ключ-значение, где ключ - имя поля базы данных
 	 * или массив массивов ключ-значение для массовой вставки нескольких строк
-	 * @param string $table Имя таблицы
-	 * @param array|array[] $data Данные для вставки
+	 * @param string        $table Имя таблицы
+	 * @param array|array[] $data  Данные для вставки
 	 */
 	public function insert(string $table,$data): void {
-		$field=array();
+		$field=[];
 		if(isset($data[0])===false) $field=array_keys($data);
 		else {
 			foreach($data as $null=>$item) {
@@ -85,9 +85,9 @@ class Sqlite {
 	 * Выполняет произвольный SQL-запрос
 	 * Если параметр $limit указан, то к SQL-запросу SELECT будет добавлена инструкция LIMIT
 	 * Если параметр $limit указан, а $page - нет, то номер страницы будет определяться из $_GET['page']
-	 * @param string $query SQL-запрос
+	 * @param string   $query SQL-запрос
 	 * @param int|null $limit Количество строк для операции SELECT
-	 * @param int|null $page Номер страницы пагирации
+	 * @param int|null $page  Номер страницы пагирации
 	 */
 	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
@@ -112,8 +112,8 @@ class Sqlite {
 
 	/**
 	 * Возвращает очередную запись из выборки индексированную целыми числами
-	 * @see self::query()
 	 * @return string[]|null
+	 * @see self::query()
 	 */
 	public function fetch(): ?array {
 		return $this->_queryId->fetchArray(SQLITE3_NUM);
@@ -121,8 +121,8 @@ class Sqlite {
 
 	/**
 	 * Возвращает очередную запись из выборки индексированную именами столбцов
-	 * @see self::query()
 	 * @return string[]|null
+	 * @see self::query()
 	 */
 	public function fetchAssoc(): ?array {
 		return $this->_queryId->fetchArray(SQLITE3_ASSOC);
@@ -157,21 +157,21 @@ class Sqlite {
 	 */
 	public function fetchArray(string $query): ?array {
 		$this->query($query);
-		$data=array();
+		$data=[];
 		while($item=$this->_queryId->fetchArray(SQLITE3_NUM)) $data[]=$item;
 		return $data;
 	}
 
 	/**
 	 * Выполняет SQL-запрос и возвращает все найденные записи в виде массива массивов, индексированных именами столбцов
-	 * @param string $query SQL-запрос
-     * @param int|null $limit Ограничение количества извлекаемых записей
-     * @param int|null $page Номер страницы пагинации
+	 * @param string   $query SQL-запрос
+	 * @param int|null $limit Ограничение количества извлекаемых записей
+	 * @param int|null $page  Номер страницы пагинации
 	 * @return array[]|null
 	 */
 	public function fetchArrayAssoc(string $query,int $limit=null,int $page=null): ?array {
 		$this->query($query,$limit,$page);
-		$data=array();
+		$data=[];
 		while($item=$this->_queryId->fetchArray(SQLITE3_ASSOC)) $data[]=$item;
 		return $data;
 	}
@@ -200,8 +200,6 @@ class Sqlite {
 	public function affected(): ?int {
 		return self::$_connectId->changes();
 	}
-
-
 
 	//Возвращет часть SQL-запроса для оператора INSERT
 	private static function _sqlInsert(array $fieldList,array $data): ?string {

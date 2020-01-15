@@ -6,20 +6,21 @@ use plushka\core\Form;
 /**
  * Расширенная форма.
  * Упрощает добавление часто используемых полей (title, alias, metaTitle, metaDescription, metaKeyword)
+ * @property string $cite Возможность прикрепить подсказку прямо к форме
  */
 class FormEx extends Form {
 
-    /**
-     * @param string|null $namespace Пространство имён полей формы (имя контроллера)
-     */
+	/**
+	 * @param string|null $namespace Пространство имён полей формы (имя контроллера)
+	 */
 	public function __construct(string $namespace=null) {
-	    parent::__construct($namespace);
+		parent::__construct($namespace);
 		if($namespace===null) $this->_namespace=$_GET['controller'];
 	}
 
 	/**
 	 * Добавляет к форме часто используемые поля
-	 * @param array|object $data массив или объект, содержащий данные для формы
+	 * @param array|object      $data      массив или объект, содержащий данные для формы
 	 * @param array|string|null $attribute Список атрибутов
 	 */
 	public function commonAppend($data,array $attribute=null): void {

@@ -2,29 +2,42 @@
 namespace plushka\admin\controller;
 use plushka\admin\core\Config;
 use plushka\admin\core\Controller;
+use plushka\admin\core\FormEx;
 use plushka\admin\core\plushka;
+use plushka\admin\core\Table;
 use plushka\admin\model\Language;
 
-//Управление языками сайта. Модуль multilanguage
+/**
+ * Управление языками сайта
+ * @package multilanguage
+ *
+ * `/admin/language` - список языков
+ * `/admin/language/add` - добавление языка
+ * `/admin/language/delete` - удаление языка
+ * `/admin/language/setting` - настройка правил переключения между языками
+ */
 class LanguageController extends Controller {
 
-	public function right() {
-		return array(
+	public function right(): array {
+		return [
 			'index'=>'language.*',
 			'add'=>'language.*',
 			'delete'=>'language.*',
 			'setting'=>'language.rule'
-		);
+		];
 	}
 
-	//Список языков
-	public function actionIndex() {
+	/**
+	 * Список языков
+	 * @return Table
+	 */
+	public function actionIndex(): Table {
 		$this->button('language/add','new','Добавить язык');
 		$cfg=plushka::config();
 		$table=plushka::table();
 		$table->rowTh('Язык|');
 		foreach($cfg['languageList'] as $item) {
-			if($item==$cfg['languageDefault']) {
+			if($item===$cfg['languageDefault']) {
 				$table->text('<b>'.$item.' (основной)</b>');
 				$table->text('');
 			} else {
@@ -36,12 +49,15 @@ class LanguageController extends Controller {
 		return $table;
 	}
 
-	protected function helpIndex() {
+	protected function helpIndex(): string {
 		return 'core/language';
 	}
 
-	//Добавление языка
-	public function actionAdd() {
+	/**
+	 * Добавление языка
+	 * @return FormEx
+	 */
+	public function actionAdd(): FormEx {
 		$form=plushka::form();
 		$form->text('alias','Псевдоним языка');
 		$form->submit();
@@ -49,51 +65,64 @@ class LanguageController extends Controller {
 		return $form;
 	}
 
-	public function actionAddSubmit($data) {
+	public function actionAddSubmit(array $data) {
 		//Валидация
 		$validator=plushka::validator($data);
-		if(!$validator->validate(array(
-			'alias'=>array('latin','псевдоним',true,'max'=>2)
-		))) return false;
+		if($validator->validate([
+				'alias'=>['latin','псевдоним',true,'max'=>2]
+			])===false) return;
 		//Модифицировать СУБД
-		if(!Language::create($data['alias'])) return false;
+		if(Language::create($data['alias'])===false) return;
 		//Обновить конфигурационный файл
 		$cfg=new Config('_core');
+		/** @noinspection PhpUndefinedFieldInspection */
 		$lst=$cfg->languageList;
+		/** @noinspection PhpUndefinedFieldInspection */
 		if(in_array($validator->alias,$lst)) {
 			plushka::error('Этот язык уже используется');
-			return false;
+			return;
 		}
+		/** @noinspection PhpUndefinedFieldInspection */
 		$lst[]=$validator->alias;
+		/** @noinspection PhpUndefinedFieldInspection */
 		$cfg->languageList=$lst;
 		$cfg->save('_core');
 		plushka::redirect('language');
 	}
 
-	//Удаление языка
-	public function actionDelete() {
-		$cfg=plushka::config();
-		if($cfg['languageDefault']==$_GET['id']) {
+	/**
+	 * Удаление языка
+	 * @return string
+	 */
+	public function actionDelete(): string {
+		$languageDefault=plushka::config('_core','languageDefault');
+		if($languageDefault===$_GET['id']) {
 			plushka::error('Это основной язык сайта, его удалить нельзя');
 			return '_empty';
 		}
 		//Модифицировать СУБД
-		if(!Language::delete($_GET['id'])) return false;
+		if(Language::delete($_GET['id'])===false) return '_empty';
 		//Обновить конфигурационный файл
 		$cfg=new Config('_core');
+		/** @noinspection PhpUndefinedFieldInspection */
 		$lst=$cfg->languageList;
 		unset($lst[array_search($_GET['id'],$lst)]);
 		$lst=array_values($lst);
+		/** @noinspection PhpUndefinedFieldInspection */
 		$cfg->languageList=$lst;
 		$cfg->save('_core');
 		plushka::redirect('language');
+		return null;
 	}
 
-	//Правила переключения между языками
-	public function actionSetting() {
+	/**
+	 * Настройка правил переключения между языками
+	 * @return FormEx
+	 */
+	public function actionSetting(): FormEx {
 		$form=plushka::form();
 		$cfg=plushka::config();
-		$cfgLanguage=plushka::config('language');
+		$cfgLanguage=$cfg['language'] ?? null;
 		foreach($cfg['languageList'] as $item) {
 			$form->text($item,'Название языка <b>'.$item.'</b>',$cfgLanguage['lang'][$item]);
 		}
@@ -104,14 +133,16 @@ class LanguageController extends Controller {
 		return $form;
 	}
 
-	protected function helpSetting() {
+	protected function helpSetting(): string {
 		return 'core/language#widget';
 	}
 
-	public function actionSettingSubmit($data) {
+	public function actionSettingSubmit(array $data) {
 		$cfg=plushka::config();
 		$cfgLanguage=new Config();
 		foreach($cfg['languageList'] as $item) $lang[$item]=$data[$item];
+		/** @noinspection PhpUndefinedFieldInspection */
+		/** @noinspection PhpUndefinedVariableInspection */
 		$cfgLanguage->lang=$lang;
 
 		$data=explode("\n",$data['rule']);
@@ -123,9 +154,10 @@ class LanguageController extends Controller {
 			$data[$i]=$item;
 		}
 		$data=array_values($data);
+		/** @noinspection PhpUndefinedFieldInspection */
 		$cfgLanguage->rule=$data;
-		if(!$cfgLanguage->save('language')) return false;
+		if($cfgLanguage->save('language')===false) return;
 		plushka::redirect('language/setting','Сохранено');
-		}
+	}
 
 }

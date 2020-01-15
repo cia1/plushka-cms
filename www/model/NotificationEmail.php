@@ -6,8 +6,8 @@ use plushka\core\Email;
 /**
  * Транспорт (способ отправки) через электронную почту
  * @property-read string $fromEmail От кого (e-mail)
- * @property-read string $fromName От кого (имя)
- * @property-read string $subject Тема письма
+ * @property-read string $fromName  От кого (имя)
+ * @property-read string $subject   Тема письма
  */
 class NotificationEmail extends Notification {
 
@@ -23,9 +23,9 @@ class NotificationEmail extends Notification {
 		$email=new Email();
 		if($this->userId==plushka::userId()) $recepient=plushka::user()->email;
 		else {
-            /** @noinspection SqlResolve */
-            $recepient=plushka::db()->fetchValue('SELECT email FROM user WHERE id='.(int)$this->userId);
-        }
+			/** @noinspection SqlResolve */
+			$recepient=plushka::db()->fetchValue('SELECT email FROM user WHERE id='.(int)$this->userId);
+		}
 		if(!$recepient) return false;
 		if($this->fromEmail==='cfg') $fromEmail=plushka::config('_core','adminEmailEmail'); else $fromEmail=$this->fromEmail;
 		if($this->fromName==='cfg') $fromName=plushka::config('_core','adminEmailName'); else $fromName=$this->fromName;

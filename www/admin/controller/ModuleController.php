@@ -1,19 +1,32 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
+use plushka\admin\core\FormEx;
 use plushka\admin\core\plushka;
+use plushka\admin\core\Table;
 use plushka\admin\model\Module;
+use ZipArchive;
 
-/* Установка и удаление модулей. Выполняется по шагам, чтобы при возникновении ошибок в любой момент можно было сделать откат */
+/**
+ * Установка и удаление модулей. Выполняется по шагам, чтобы при возникновении ошибок в любой момент можно было
+ * сделать отмену
+ *
+ * `/admin/module` - список установленных модулей
+ * `/admin/module/installZip` - установка модуля из архива
+ * `/admin/module/installTmp` - установка модуля из временной директории
+ *
+ * @property-read Table $table (actionIndex)
+ */
 class ModuleController extends Controller {
 
-/* ---------- PUBLIC ----------------------------------------------------------------- */
-	/* Список установленных модулей */
-	public function actionIndex() {
+	/**
+	 * Список установленных модулей
+	 */
+	public function actionIndex(): string {
 		$this->button('module/installTmp','install','Установить модуль из директория');
 		$this->button('module/installZip','install','Установить модуль из архива');
 		$items=Module::getList();
-		$status=array(0=>'не установлен',1=>'установка, шаг 2',2=>'установка, шаг 3',3=>'установка, шаг 4',4=>'установка, шаг 5',5=>'установка, шаг 6',6=>'установка, шаг 7',7=>'установка, шаг 8',8=>'установка, шаг 9',100=>'работает');
+		$status=[0=>'не установлен',1=>'установка, шаг 2',2=>'установка, шаг 3',3=>'установка, шаг 4',4=>'установка, шаг 5',5=>'установка, шаг 6',6=>'установка, шаг 7',7=>'установка, шаг 8',8=>'установка, шаг 9',100=>'работает'];
 		//Сформировать таблицу (список модулей)
 		$table=plushka::table();
 		$table->rowTh('ID|Модуль|Версия|Состояние|URL|<input type="submit" class="buttom" value="Удалить">|');
@@ -38,30 +51,33 @@ class ModuleController extends Controller {
 		return 'Index';
 	}
 
-	protected function helpIndex() {
+	protected function helpIndex(): string {
 		return 'core/module';
 	}
 
-	//Начало установки модуля: загрузка архива модуля
-	public function actionInstallZip() {
-		$f=plushka::form();
-		$f->file('archive','.zip-архив');
-		$f->submit('Продолжить','submit');
-		return $f;
+	/**
+	 * Начало установки модуля: загрузка архива модуля
+	 * @return FormEx
+	 */
+	public function actionInstallZip(): FormEx {
+		$form=plushka::form();
+		$form->file('archive','.zip-архив');
+		$form->submit('Продолжить','submit');
+		return $form;
 	}
 
-	protected function helpInstallZip() {
+	protected function helpInstallZip(): string {
 		return 'core/module#zip';
 	}
 
-	public function actionInstallZipSubmit($data) {
-		if(!class_exists('ZipArchive')) {
+	public function actionInstallZipSubmit(array $data): void {
+		if(class_exists('ZipArchive')===false) {
 			plushka::error('Расширение ZipArchive не установлено на вашем сервере. Самостоятельно распакуйте архив в директорий '.$_SERVER['DOCUMENT_ROOT'].'/tmp и установите модуль.');
-			return false;
+			return;
 		}
 		if(!$data['archive']['size']) {
 			plushka::error('Архив не загружен.');
-			return false;
+			return;
 		}
 		//Очистить директорий /tmp
 		Module::clearDirectory(plushka::path().'tmp',false);
@@ -69,30 +85,32 @@ class ModuleController extends Controller {
 		$zip=new ZipArchive();
 		if($zip->open($data['archive']['tmpName'])!==true) {
 			plushka::error('Ошибка при попытке открыть архив');
-			return false;
+			return;
 		}
 		if(!$zip->extractTo(plushka::path().'tmp')) {
 			plushka::error('Ошибка при попытке распаковать архив');
-			return false;
+			return;
 		}
 		$this->url[1]='installTmp';
 		return $this->actionInstallTmp();
 	}
 
-	/* Начало установки модуля: выводит информацию о модуле. Он должен быть помещён в директорий /tmp */
-	public function actionInstallTmp() {
+	/**
+	 * Начало установки модуля: выводит информацию о модуле. Он должен быть помещён в директорий /tmp
+	 */
+	public function actionInstallTmp(): string {
 		$module=Module::info(); //Информация о найденном в директории /tmp модуле
-		if(!$module) {
+		if($module===null) {
 			plushka::error('В директории /tmp нет файла module.ini. Возможно устанавливаемый модуль не загружен?');
 			return '_empty';
-		} elseif($module['status']==100) $this->moduleExists=true; //такой модуль уже установлен
+		} elseif($module['status']===100) $this->moduleExists=true; //такой модуль уже установлен
 		else $this->moduleExists=false;
 		$this->pageTitle='Установка модуля';
 		$this->module=$module;
 		return 'Info';
 	}
 
-	protected function helpInstallTmp() {
+	protected function helpInstallTmp(): string {
 		return 'core/module#tmp';
 	}
 
@@ -102,7 +120,7 @@ class ModuleController extends Controller {
 		//Обновить права текущего пользователя, чтобы не нужно было делать "выйти-войти"
 		$u=plushka::user();
 		foreach($module['right'] as $item) {
-			if(isset($item[2])) $group=explode(',',$item[2]); else $group=array();
+			if(isset($item[2])) $group=explode(',',$item[2]); else $group=[];
 			if(in_array($u->group,$group)) $u->right[$item[0]]=($item[3] ? true : false);
 		}
 		if($module['status']==100) $module['status']=0; else $module['status']++; //сброс статуса в случае обновления
@@ -119,7 +137,7 @@ class ModuleController extends Controller {
 
 	/* Начинает процесс удаления модуля */
 	public function actionUninstall() {
-		if(!is_array($_GET['id'])) $_GET['id']=array($_GET['id']);
+		if(!is_array($_GET['id'])) $_GET['id']=[$_GET['id']];
 		foreach($_GET['id'] as $id) {
 			$module=plushka::config('admin/../module/'.$id); //Информация об установленном модуле
 			Module::explodeData($module); //В конфигурации информация хранится в сжатом виде - разобрать её на массивы
@@ -129,10 +147,10 @@ class ModuleController extends Controller {
 		}
 		plushka::redirect('module','Модуль удалён');
 	}
-/* ----------------------------------------------------------------------------------- */
+	/* ----------------------------------------------------------------------------------- */
 
 
-/* ----------- PRIVATE --------------------------------------------------------------- */
+	/* ----------- PRIVATE --------------------------------------------------------------- */
 	private static function _uninstall($module) {
 		//Сразу же убрать права текущего пользователя, чтоб не пришлось делать "выйти-войти"
 		if(!$module['currentVersion']) {
@@ -318,6 +336,6 @@ class ModuleController extends Controller {
 		return Module::delete($module['id']); //Удалить конфигурацию модуля
 	}
 
-/* ----------------------------------------------------------------------------------- */
+	/* ----------------------------------------------------------------------------------- */
 
 }

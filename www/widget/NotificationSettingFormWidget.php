@@ -1,29 +1,36 @@
 <?php
 namespace plushka\widget;
+use plushka\core\Form;
 use plushka\core\plushka;
 use plushka\core\Widget;
 use plushka\model\Notification;
 
+/**
+ * Форма настроек уведомлений.
+ * Выводит список каналов уведомлений и возможность выбрать способ доставки.
+ */
 class NotificationSettingFormWidget extends Widget {
 
+	/**
+	 * @return bool|Form|string|null
+	 */
 	public function __invoke() {
-		if(isset($_POST['notification'])) self::_submit($_POST['notification']);
+		if(isset($_POST['notification'])===true) self::_submit($_POST['notification']);
 		$userId=plushka::userId();
 		$group=Notification::groupList($userId); //группы сообщений
 		if(!$group) return false;
 		$transport=Notification::transportList($userId); //список транспортов
 		if(!$transport) return false;
-		$available=array();
-		$widget=array();
+		$available=[];
 		foreach($transport as $i=>$item) {
-			if($item->available($userId)===true) { //транспорт готов к использованию
-				$available[]=array(
+			if($item->available()===true) { //транспорт готов к использованию
+				$available[]=[
 					$item->id(),
 					$item->title()
-				);
+				];
 			} else { //транспорт ещё не настроен для этого пользователя (требуется указать дополнительные данные)
 				$item='Notification'.ucfirst($item->id()).'Setting';
-				if(file_exists(plushka::path().'widget/'.$item.'Widget.php')) {
+				if(file_exists(plushka::path().'widget/'.$item.'Widget.php')===true) {
 					plushka::widget($item);
 				}
 			}
@@ -32,7 +39,7 @@ class NotificationSettingFormWidget extends Widget {
 		if(!$available) return false;
 		$form=plushka::form('notification');
 		plushka::language('notification');
-		array_unshift($available,array(false,LNGDisabled));
+		array_unshift($available,[false,LNGDisabled]);
 		foreach($group as $g=>$item) {
 			$form->radio($g,$item['title'],$available,$item['transport']);
 		}
@@ -40,7 +47,7 @@ class NotificationSettingFormWidget extends Widget {
 		return $form;
 	}
 
-	private static function _submit($data) {
+	private static function _submit($data): void {
 		$groupList=array_keys(Notification::groupList());
 		$transportList=Notification::transportListFloat();
 		foreach($data as $id=>$item) {

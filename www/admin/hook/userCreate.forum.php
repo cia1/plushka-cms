@@ -1,12 +1,18 @@
 <?php
-/* Событие: создание нового пользователя (после подтверждения e-mail)
-Модуль: forum (форум)
-Параметры: int $data[0] - ИД пользователя, string $data[1] - логин, string $data[2] - e-mail.
-*/
+/**
+ * @package forum
+ * Событие: удаление пользователя
+ * @var array $data :
+ *  int    [0] ИД пользователя
+ *  string [1] Логин
+ *  string [2] Адрес электронной почты
+ */
+use plushka\admin\core\plushka;
+
 $db=plushka::db();
-$db->insert('forum_user',array(
+$db->insert('forum_user',[
 	'id'=>$data[0],
 	'login'=>$data[1],
 	'date'=>time()
-));
+]);
 return true;

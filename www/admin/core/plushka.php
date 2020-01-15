@@ -5,16 +5,17 @@ require_once __DIR__.'/core.php';
 use plushka\core\core;
 use plushka\core\Form;
 use plushka\core\Model;
+use plushka\core\Mysqli;
+use plushka\core\Sqlite;
 use plushka\core\Validator;
 use plushka\core\Widget;
-
 /**
  * Предоставляет базовый API, доступный статически
  */
 abstract class plushka extends core {
 
-    /** @var Controller Ссылка на контроллер для доступа из вне */
-    public static $controller;
+	/** @var Controller Ссылка на контроллер для доступа из вне */
+	public static $controller;
 
 	/**
 	 * Очищает пользовательский кеш
@@ -36,9 +37,9 @@ abstract class plushka extends core {
 			elseif(substr($name,0,6)==='admin/') $f=plushka::path().'admin/config/'.substr($name,6).'.php';
 			else return parent::config($name,$attribute);
 			if(file_exists($f)===true) {
-			    /** @noinspection PhpIncludeInspection */
-			    $_cfg[$name]=include($f);
-            } else $_cfg[$name]=null;
+				/** @noinspection PhpIncludeInspection */
+				$_cfg[$name]=include($f);
+			} else $_cfg[$name]=null;
 		}
 		if($attribute===null) return $_cfg[$name];
 		if(!isset($_cfg[$name][$attribute])) $value=null;
@@ -47,20 +48,25 @@ abstract class plushka extends core {
 	}
 
 	/**
-	 * Прерывает выполнение скрипта и генерирует 404-ю HTTP-ошибку
+	 * @inheritDoc
+	 * @return MysqliEx|SqliteEx
 	 */
-	public static function error404(): void {
-		if(isset($_GET['_front'])===true) echo '<div class="messageError">Запрошенная страница не существует :(</div>';
-		else {
-			header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
-			plushka::$controller->url[0]='error';
-			plushka::$controller->render('404',true);
+	public static function db(bool $newQuery=false) {
+		static $_db;
+		if($newQuery===true) {
+			$driver=plushka::config('_core','dbDriver');
+			return self::$driver($newQuery);
 		}
-		exit;
+		if($_db===null) {
+			$driver=plushka::config('_core','dbDriver');
+			$_db=self::$driver($newQuery);
+		}
+		return $_db;
 	}
 
 	/**
 	 * @inheritDoc
+	 * @return FormEx
 	 */
 	public static function form(string $namespace=null): Form {
 		return new FormEx($namespace);
@@ -69,13 +75,13 @@ abstract class plushka extends core {
 	/**
 	 * Генерирует событие
 	 * Обработчики события - это файлы /hook/$name.{module}.php
-	 * @param string $name Имя события (файлы )
-	 * @param mixed ...$data Произвольные данные, которые будут доступны в обработчике события
+	 * @param string $name    Имя события (файлы )
+	 * @param mixed  ...$data Произвольные данные, которые будут доступны в обработчике события
 	 * @return mixed|bool False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
 	 */
 	public static function hook(string $name,...$data) {
 		$d=opendir(plushka::path().'admin/hook');
-		$result=array();
+		$result=[];
 		$len=strlen($name);
 		while($f=readdir($d)) {
 			if($f==='.' || $f==='..') continue;
@@ -108,9 +114,9 @@ abstract class plushka extends core {
 	/**
 	 * Генерирует URL-адерс на страницу админки или публичную часть
 	 * @inheritDoc
-	 * @param string $link ссылка в исходном формате
-	 * @param bool $lang с учётом мультиязычности
-	 * @param bool $domain абсолютный адрес вместо относительного
+	 * @param string $link   ссылка в исходном формате
+	 * @param bool   $lang   с учётом мультиязычности
+	 * @param bool   $domain абсолютный адрес вместо относительного
 	 * @return string
 	 */
 	public static function link(string $link,bool $lang=true,bool $domain=false): string {
@@ -121,9 +127,9 @@ abstract class plushka extends core {
 
 	/**
 	 * Генерирует URL-адерс на страницу админки
-	 * @param string $link ссылка в исходном формате
-	 * @param bool $lang с учётом мультиязычности
-	 * @param bool $domain абсолютный адрес вместо относительного
+	 * @param string $link   ссылка в исходном формате
+	 * @param bool   $lang   с учётом мультиязычности
+	 * @param bool   $domain абсолютный адрес вместо относительного
 	 * @return string
 	 */
 	public static function linkAdmin(string $link,bool $lang=true,bool $domain=false): string {
@@ -145,14 +151,25 @@ abstract class plushka extends core {
 		if(substr($classTable,0,6)!=='admin/') return parent::model($classTable,$db);
 		$class='\plushka\admin\model\\'.ucfirst(substr($classTable,6));
 		if(class_exists($class)===true) return new $class();
-		return new ModelEx($classTable,$db);
+		return new Model($classTable,$db);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @return MysqliEx
+	 */
+	public static function mysql(bool $newQuery=false): Mysqli {
+		static $_mysqli;
+		if($newQuery===true) return new MysqliEx();
+		if($_mysqli===null) $_mysqli=new MysqliEx();
+		return $_mysqli;
 	}
 
 	/**
 	 * Прерывает выполнение скрипта и выполняет перенаправление на указанный адрес
-	 * @param string $url URL в исходном формате
+	 * @param string      $url     URL в исходном формате
 	 * @param string|null $message Если задан, то установит текст сообщения об успешно выполненной операции
-	 * @param int $code HTTP-код ответа
+	 * @param int         $code    HTTP-код ответа
 	 * @see plushka::success()
 	 */
 	public static function redirect(string $url,string $message=null,int $code=302): void {
@@ -189,6 +206,17 @@ abstract class plushka extends core {
 		}
 		header('Location: '.$url);
 		exit;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @return SqliteEx
+	 */
+	public static function sqlite(bool $newQuery=false): Sqlite {
+		static $_sqlite;
+		if($newQuery===true) return new SqliteEx();
+		if($_sqlite===null) $_sqlite=new SqliteEx();
+		return $_sqlite;
 	}
 
 	/**
@@ -230,11 +258,11 @@ abstract class plushka extends core {
 
 	/**
 	 * Создаёт и рендерит виджет. Этот метод обрабатывает теги {{widget}}
-	 * @param string $name Имя виджета, соответствует файлу /widget/$name.php
-	 * @param mixed $options Произвольные параметры, которые будут переданы виджету
-	 * @param int|null $cacheTime Время актуальности кэша. Если null, то виджет кэшироваться не будет
-	 * @param string|null $title Заголовок виджета
-	 * @param string|null $link Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
+	 * @param string      $name      Имя виджета, соответствует файлу /widget/$name.php
+	 * @param mixed       $options   Произвольные параметры, которые будут переданы виджету
+	 * @param int|null    $cacheTime Время актуальности кэша. Если null, то виджет кэшироваться не будет
+	 * @param string|null $title     Заголовок виджета
+	 * @param string|null $link      Шаблон адреса страницы, на которой публикуется виджет, если виджет вызывается из секции (может быть нужен для некоторых виджетов). Этот адрес соответствует одной из строк в базе данных (section.url)
 	 * @see \plushka\core\Widget
 	 * @see plushka::section
 	 */
@@ -252,7 +280,7 @@ abstract class plushka extends core {
 			if(file_exists($cacheFile)) {
 				$f=filemtime($cacheFile)+$cacheTime*60;
 				if($f>time()) {
-				    /** @noinspection PhpIncludeInspection */
+					/** @noinspection PhpIncludeInspection */
 					include($cacheFile);
 					return;
 				}
@@ -280,20 +308,17 @@ abstract class plushka extends core {
 		}
 	}
 
-	private static function _hook(string $name,/** @noinspection PhpUnusedParameterInspection */$data) {
-	    /** @noinspection PhpIncludeInspection */
+	private static function _hook(string $name,/** @noinspection PhpUnusedParameterInspection */ $data) {
+		/** @noinspection PhpIncludeInspection */
 		return include(plushka::path().'admin/hook/'.$name);
 	}
 
 }
 
-
-
-
 /* --- INITIALIZE --- */
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('error_reporting',E_ALL);
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
 
 
 if(isset($_GET['controller'])===false) {

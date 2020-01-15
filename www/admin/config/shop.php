@@ -8,4 +8,4 @@
 'feature10'=>'C',
 'unique'=>'alias',
 'notDelete'=>false
-); ?>
+);

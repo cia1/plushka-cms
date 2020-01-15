@@ -3,10 +3,11 @@ namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
 use plushka\admin\core\plushka;
 use plushka\admin\model\Shop;
+use plushka\core\HTTPException;
 use plushka\core\Picture;
 
 /* Управление интернет-магазином (контент) */
-class ShopController extends Controller {
+class ShopContentController extends Controller {
 
 	public function right() {
 		return array(
@@ -30,12 +31,15 @@ class ShopController extends Controller {
 
 /* ---------- PUBLIC ----------------------------------------------------------------- */
 
-	/* Создание или изменение категории товаров */
+	/**
+	 * Создание или изменение категории товаров
+	 * @throws HTTPException
+	 */
 	public function actionCategory() {
 		if(isset($_GET['id'])) { //Изменение
 			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shp_category WHERE id='.$_GET['id']);
-			if(!$data) plushka::error404();
+			if($data===null) throw new HTTPException(404);
 		} else $data=array('id'=>null,'parentId'=>(isset($_GET['parent']) ? $_GET['parent'] : 0),'alias'=>'','title'=>'','text1'=>'','metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
 		$f=plushka::form();
 		$f->hidden('id',$data['id']);
@@ -114,12 +118,16 @@ class ShopController extends Controller {
 		$this->table=$table;
 		return 'ProductList';
 	}
-	/* Создание или изменение товара */
+
+	/**
+	 * Создание или изменение товара
+	 * @throws HTTPException
+	 */
 	public function actionProduct() {
 		$db=plushka::db();
 		if(isset($_GET['id'])) { //Изменение - загрузить данные этого товара
 			$data=$db->fetchArrayOnceAssoc('SELECT * FROM shp_product WHERE id='.$_GET['id']);
-			if(!$data) plushka::error404();
+			if($data===null) throw new HTTPException(404);
 			$group=$db->fetchArray('SELECT id,title,productId AS checked FROM shp_product_group g LEFT JOIN shp_product_group_item i ON i.groupId=g.id AND i.productId='.$data['id']);
 		} else {
 			$data=array('id'=>null,'categoryId'=>$_GET['category'],'brandId'=>null,'title'=>'','alias'=>'','text1'=>'','text2'=>'','price'=>0,'metaTitle'=>'','metaKeyword'=>'','metaDescription'=>'');
@@ -222,7 +230,7 @@ class ShopController extends Controller {
 			unset($query);
 		}
 		$alias=$db->fetchValue('SELECT alias FROM shp_category WHERE id='.$model->categoryId);
-		plushka::hook('modify','shop/'.$alias.'/'.$model->alias);
+		plushka::hook('modify','shop/'.$alias.'/'.$model->alias,true);
 		plushka::redirect('shopContent/product?id='.$model->id,'Изменения сохранены');
 	}
 

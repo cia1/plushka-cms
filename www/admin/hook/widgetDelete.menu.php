@@ -1,10 +1,15 @@
 <?php
+/**
+ * Событие: удаление виджета
+ * @var array $data :
+ *  string [0] Имя виджета
+ *  int    [1] Идентификатор виджета
+ *  mixed  [2] Данные виджета (десериализованные)
+ */
+use plushka\admin\core\plushka;
 use plushka\admin\model\objectLink;
 
-/* Событие: удаление виджета
-Модуль: меню
-Параметры: string $data[0] - имя виджета, int $data[1] - идентификатор виджета, mixed $data[2] - параметры виджеты */
-if($data[0]!='menu') return true;
+if($data[0]!=='menu') return true;
 
 //Если есть копии виджета, то ничего не делать
 $cnt=ObjectLink::fromSectionWidget('menu',$data[2])+ObjectLink::fromTemplateWidget('menu',$data[2]);

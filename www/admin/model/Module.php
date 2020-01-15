@@ -35,9 +35,9 @@ class Module {
 	}
 
 	/* Возвращает массив с информацией о модуле, находящемся в директории /tmp */
-	public static function info() {
+	public static function info():?array {
 		$f=plushka::path().'tmp/module.ini';
-		if(!file_exists($f)) return false;
+		if(!file_exists($f)) return null;
 		$f=file($f);
 		$cnt=count($f);
 		$data=array('right'=>array(),'widget'=>array(),'menu'=>array());

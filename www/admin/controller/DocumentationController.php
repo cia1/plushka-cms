@@ -3,6 +3,7 @@ namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
 use plushka\admin\core\plushka;
 use plushka\admin\model\Documentation;
+use plushka\core\HTTPException;
 
 class DocumentationController extends Controller {
 
@@ -24,14 +25,16 @@ class DocumentationController extends Controller {
 		return '_empty';
 	}
 
-	/* Создание или редактирование статьи */
+	/**
+	 * Создание или редактирование статьи
+	 * @throws HTTPException
+	 */
 	public function actionArticle() {
 		$article=new Documentation();
 		if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
 		elseif(isset($_GET['id'])) {
-			if(!$article->loadById($_GET['id'])) plushka::error404();
-		}
-		elseif(isset($_GET['parentId'])) $article->parentId=$_GET['parentIdId'];
+			if($article->loadById($_GET['id'])===false) throw new HTTPException(404);
+		} elseif(isset($_GET['parentId'])===true) $article->parentId=$_GET['parentIdId'];
 		$form=plushka::form();
 		$form->hidden('id',$article->id);
 		$form->hidden('parentId',$article->parentId);

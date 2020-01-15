@@ -1,12 +1,13 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
+use plushka\admin\core\FormEx;
 
 abstract class NotificationTransport {
 
 	public static function getList() {
 		$path=plushka::path().'admin/model/';
 		$d=opendir($path);
-		$transport=array();
+		$transport=[];
 		while($f=readdir($d)) {
 			if($f==='.' || $f==='..' || $f==='notificationTransport.php' || substr($f,-4)!=='.php' || substr($f,0,21)!=='notificationTransport') continue;
 			$transport[]=substr($f,0,-4);
@@ -30,8 +31,10 @@ abstract class NotificationTransport {
 		return $public->title();
 	}
 
-	abstract public function formAppend($form); //Добавляет поля к HTML-форме
-	abstract public function form2Setting($data); //Обрабатывает форму и возвращает конфигурацию
+	abstract public function formAppend(FormEx $form); //Добавляет поля к HTML-форме
+
+	abstract public function form2Setting(array $data); //Обрабатывает форму и возвращает конфигурацию
+
 //	abstract public function getTitle(); //Возвращает название транспорта (строка или массив)
 
 	private $_setting;

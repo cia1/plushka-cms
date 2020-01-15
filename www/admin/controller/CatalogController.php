@@ -5,7 +5,7 @@ use plushka\admin\core\plushka;
 use plushka\admin\core\Config;
 
 /* Универсальный каталог */
-class CatalgController extends Controller {
+class CatalogController extends Controller {
 
 	public function right() {
 		return array(
@@ -488,7 +488,7 @@ class CatalgController extends Controller {
 			$q='UPDATE catalog_'.$data['lid'].' SET '.$q.' WHERE id='.$m->id;
 			$db->query($q);
 		}
-		plushka::hook('modify','catalog/'.$data['lid'].'/'.$m->alias); //Обновить дату изменения страницы
+		plushka::hook('modify','catalog/'.$data['lid'].'/'.$m->alias,true); //Обновить дату изменения страницы
 		plushka::success('Изменения сохранены');
 		plushka::redirect('catalog/item?lid='.$data['lid']);
 	}

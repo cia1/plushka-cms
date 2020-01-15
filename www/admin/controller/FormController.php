@@ -1,13 +1,35 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
+use plushka\admin\core\FormEx;
+use plushka\admin\core\FormField;
 use plushka\admin\core\plushka;
+use plushka\admin\core\Table;
+use plushka\core\HTTPException;
+use plushka\model\Notification;
 
-/* Контактные формы */
+/**
+ * Управление универсальными контактыми формами
+ * `/admin/form/form?id={formId}` - основные параметры формы
+ * `/admin/form/field?id={formId}` - список полей формы
+ * `/admin/form/fieldItem?[formId={formId}][&id={fieldId}] - создание/редактирование поля
+ * `/admin/form/up?formId={formId}&id={fieldId} - изменить порядок полей: поднять выше
+ * `/admin/form/fieldDelete?id={fieldId} - удалить поле
+ * `/admin/form/menuForm` - меню "Общие настройки формы"
+ * `/admin/form/widgetForm` - виджет "Контактная Форма"
+ *
+ * @property-read bool   $showSubject  (actionForm, actionMenuForm, actionWidgetForm)
+ * @property-read bool   $showEmail    (actionForm, actionMenuForm, actionWidgetForm)
+ * @property-read bool   $value        (actionFieldItem)
+ * @property-read FormEx $form         (actionFieldItem, actionForm, actionMenuForm, actionWidgetForm)
+ * @property-read bool   $fileType     (actionFieldItem)
+ * @property-read bool   $required     (actionFieldItem)
+ * @property-read        $defaultValue (actionFieldItem)
+ */
 class FormController extends Controller {
 
-	public function right() {
-		return array(
+	public function right(): array {
+		return [
 			'form'=>'form.*',
 			'field'=>'form.*',
 			'fieldItem'=>'form.*',
@@ -16,66 +38,83 @@ class FormController extends Controller {
 			'fieldDelete'=>'form.*',
 			'menuForm'=>'form.*',
 			'widgetForm'=>'form.*'
-		);
+		];
 	}
 
-/* ---------- PUBLIC ----------------------------------------------------------------- */
-	/* Настройка основных параметров формы */
-	public function actionForm() {
-		return $this->_form(isset($_GET['id']) ? $_GET['id'] : null);
+	/**
+	 * Основные параметры формы
+	 * @return string
+	 */
+	public function actionForm(): string {
+		return $this->_form($_GET['id'] ?? null);
 	}
 
-	public function actionFormSubmit($data) {
-		if(!$this->_formSubmit($data)) return false;
+	public function actionFormSubmit(array $data): void {
+		if($this->_formSubmit($data)===null) return;
 		plushka::success('Изменения сохранены');
 		plushka::redirect('form/form?id='.$data['id']);
 	}
 
-	/* Список полей формы */
-	public function actionField() {
-		$this->button('form/fieldItem?formId='.$_GET['id'],'new','Добавить поле');
+	/**
+	 * Список полей формы
+	 * @return Table
+	 */
+	public function actionField(): Table {
+		$formId=(int)$_GET['id'];
+		$this->button('form/fieldItem?formId='.$formId,'new','Добавить поле');
 		//Заполнить строки в модели table
-		$t=plushka::table();
-		$t->rowTh('Заголовок|Тип поля|Обязательное||');
+		$table=plushka::table();
+		$table->rowTh('Заголовок|Тип поля|Обязательное||');
 		$db=plushka::db();
-		$items=$db->fetchArray('SELECT id,title_'._LANG.',htmlType,required,sort FROM frm_field WHERE formId='.$_GET['id'].' ORDER BY sort');
-		$type=array('text'=>'текстовое поле','radio'=>'переключатель','select'=>'выпадающий список','checkbox'=>'да/нет','textarea'=>'многострочный текст','email'=>'E-mail','file'=>'файл','captcha'=>'каптча');
+		$items=$db->fetchArray('SELECT id,title_'._LANG.',htmlType,required,sort FROM frm_field WHERE formId='.$formId.' ORDER BY sort');
+		$type=['text'=>'текстовое поле','radio'=>'переключатель','select'=>'выпадающий список','checkbox'=>'да/нет','textarea'=>'многострочный текст','email'=>'E-mail','file'=>'файл','captcha'=>'каптча'];
 		for($i=0,$cnt=count($items);$i<$cnt;$i++) {
 			$item=$items[$i];
-			$t->link('form/fieldItem?formId='.$_GET['id'].'&id='.$item[0],$item[1]);
-			$t->text($type[$item[2]]);
-			$t->text(($item[3] ? 'да' : 'нет'));
-			$t->upDown('formId='.$_GET['id'].'&id='.$item[0],$item[4],$cnt);
-			$t->itemDelete('formId='.$_GET['id'].'&id='.$item[0],'field');
+			$table->link('form/fieldItem?formId='.$formId.'&id='.$item[0],$item[1]);
+			$table->text($type[$item[2]]);
+			$table->text(($item[3] ? 'да' : 'нет'));
+			$table->upDown('formId='.$formId.'&id='.$item[0],$item[4],$cnt);
+			$table->itemDelete('formId='.$formId.'&id='.$item[0],'field');
 		}
 		unset($items);
-		return $t;
+		return $table;
 	}
 
-	/* Создание или редактирование одного поля формы */
-	public function actionFieldItem() {
-		if(isset($_GET['id'])) { //редактирование поля - загрузить данные по умолчанию
+	/**
+	 * Создание/редактирование поля формы
+	 * @return string
+	 */
+	public function actionFieldItem(): string {
+		$fieldId=isset($_GET['id'])===true ? (int)$_GET['id'] : null;
+		if($fieldId!==null) { //редактирование поля - загрузить данные по умолчанию
 			$db=plushka::db();
-			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frm_field WHERE id='.$_GET['id']);
+			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,htmlType,data_'._LANG.' data,defaultValue,required FROM frm_field WHERE id='.$fieldId);
 			$data['value']=str_replace('|',"\n",$data['data']);
-		} else $data=array('id'=>null,'title'=>'','htmlType'=>'text','required'=>0,'value'=>'','defaultValue'=>'');
-		if(isset($_POST['form'])) $formId=$_POST['form']['formId']; else $formId=$_GET['formId'];
+		} else $data=[
+			'id'=>null,
+			'title'=>'',
+			'htmlType'=>'text',
+			'required'=>0,
+			'value'=>'',
+			'defaultValue'=>''
+		];
+		if(isset($_POST['form'])===true) $formId=$_POST['form']['formId']; else $formId=(int)$_GET['formId'];
 		//Сформировать HTML-форму
-		$f=plushka::form();
-		$f->hidden('id',$data['id']);
-		$f->hidden('formId',$formId);
-		$f->text('title','Название',$data['title']);
-		$f->select('htmlType','Тип',array(array('text','текстовое поле'),array('radio','переключатель'),array('select','выпадающий список'),array('checkbox','да,нет'),array('textarea','многострочный текст'),array('email','e-mail'),array('file','файл'),array('captcha','каптча')),$data['htmlType']);
-		$f->textarea('value','Список значений',$data['value']);
-		$f->text('defaultValue','Значение по умолчанию',$data['defaultValue']);
-		$f->text('fileType','Тип файла (раширения через запятую)',($data['htmlType']=='file' ? $data['data'] : ''));
-		$f->checkbox('required','Обязательное',$data['required']);
-		$f->submit('Продолжить');
-		$this->f=$f;
+		$form=plushka::form();
+		$form->hidden('id',$data['id']);
+		$form->hidden('formId',$formId);
+		$form->text('title','Название',$data['title']);
+		$form->select('htmlType','Тип',[['text','текстовое поле'],['radio','переключатель'],['select','выпадающий список'],['checkbox','да,нет'],['textarea','многострочный текст'],['email','e-mail'],['file','файл'],['captcha','каптча']],$data['htmlType']);
+		$form->textarea('value','Список значений',$data['value']);
+		$form->text('defaultValue','Значение по умолчанию',$data['defaultValue']);
+		$form->text('fileType','Тип файла (раширения через запятую)',($data['htmlType']=='file' ? $data['data'] : ''));
+		$form->checkbox('required','Обязательное',$data['required']);
+		$form->submit('Продолжить');
+		$this->form=$form;
 		//Отобразить или скрыть соответствующие поля по умолчанию (при помощи JavaScript)
-		if($data['htmlType']=='select' || $data['htmlType']=='radio') $this->value=true; else $this->value=false;
-		if($data['htmlType']=='file') $this->fileType=true; else $this->fileType=false;
-		if($data['htmlType']=='captcha') {
+		if($data['htmlType']==='select' || $data['htmlType']==='radio') $this->value=true; else $this->value=false;
+		if($data['htmlType']==='file') $this->fileType=true; else $this->fileType=false;
+		if($data['htmlType']==='captcha') {
 			$this->required=false;
 			$this->defaultValue=false;
 		} else {
@@ -85,106 +124,128 @@ class FormController extends Controller {
 		return 'Field';
 	}
 
-	public function actionFieldItemSubmit($data) {
-		$formField=new \plushka\admin\model\FormField();
+	public function actionFieldItemSubmit(array $data): void {
+		$formField=new FormField();
 		$formField->set($data);
-		if(!$formField->save()) return false;
-		plushka::redirect('form/field?id='.$data['formId']);
+		if($formField->save()===false) return;
+		plushka::redirect('form/field?id='.$formField->formId);
 	}
 
-	/* Изменить порядок полей: поднять выше */
-	public function actionUp() {
+	/**
+	 * Изменить порядок полей: поднять выше
+	 */
+	public function actionUp(): void {
+		$formId=(int)$_GET['formId'];
+		$fieldId=(int)$_GET['id'];
 		$db=plushka::db();
-		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$_GET['id']);
+		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$fieldId);
 		if($current) {
-			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(--$current));
-			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$_GET['id']);
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$formId.' AND sort='.(--$current));
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$fieldId);
 		}
 		plushka::redirect('form/field?id='.$_GET['formId']);
 	}
 
-	/* Изменить порядок полей: спустить ниже */
-	public function actionDown() {
+	/**
+	 * Изменить порядок полей: спустить ниже
+	 */
+	public function actionDown(): void {
+		$formId=(int)$_GET['formId'];
+		$fieldId=(int)$_GET['id'];
 		$db=plushka::db();
-		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$_GET['id']);
-		$max=(int)$db->fetchValue('SELECT MAX(sort) FROM frm_field WHERE formId='.$_GET['formId']);
+		$current=(int)$db->fetchValue('SELECT sort FROM frm_field WHERE id='.$fieldId);
+		$max=(int)$db->fetchValue('SELECT MAX(sort) FROM frm_field WHERE formId='.$formId);
 		if($current!=$max) {
-			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$_GET['formId'].' AND sort='.(++$current));
-			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$_GET['id']);
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE formId='.$formId.' AND sort='.(++$current));
+			$db->query('UPDATE frm_field SET sort='.$current.' WHERE id='.$fieldId);
 		}
 		plushka::redirect('form/field?id='.$_GET['formId']);
 	}
 
-	/* Удалить поле формы */
+	/**
+	 * Удалить поле формы
+	 */
 	public function actionFieldDelete() {
+		$fieldId=(int)$_GET['id'];
 		$db=plushka::db();
-		$data=$db->fetchArrayOnce('SELECT sort,formId FROM frm_field WHERE id='.$_GET['id']);
-		if(!$data) plushka::error404();
+		$data=$db->fetchArrayOnce('SELECT sort,formId FROM frm_field WHERE id='.$fieldId);
+		if($data===null) throw new HTTPException(404);
 		$db->query('UPDATE frm_field SET sort=sort-1 WHERE formId='.$data[1].' AND sort>'.$data[0]);
-		$db->query('DELETE FROM frm_field WHERE id='.$_GET['id']);
+		$db->query('DELETE FROM frm_field WHERE id='.$fieldId);
 		plushka::redirect('form/field?id='.$data[1]);
 	}
-/* ----------------------------------------------------------------------------------- */
 
-
-/* ---------- MENU ------------------------------------------------------------------- */
-	/* Общие настройки формы. Ссылка: form/ИД */
-	public function actionMenuForm() {
-		if(isset($_GET['link']) && $_GET['link']) $id=(int)substr($_GET['link'],strrpos($_GET['link'],'/')+1); else $id=null;
+	/**
+	 * Меню "Общие настройки формы"
+	 * @return string
+	 */
+	public function actionMenuForm(): string {
+		if(isset($_GET['link'])===true && $_GET['link']) $id=(int)substr($_GET['link'],strrpos($_GET['link'],'/')+1);
+		else $id=null;
 		return $this->_form($id);
 	}
 
-	public function actionMenuFormSubmit($data) {
+	public function actionMenuFormSubmit(array $data) {
 		$id=$this->_formSubmit($data);
-		if(!$id) return false;
+		if($id===null) return false;
 		return 'form/'.$id;
 	}
 
-/* ----------------------------------------------------------------------------------- */
-
-
-
-/* ---------- WIDGET ----------------------------------------------------------------- */
-	/* Общие настройки формы
-	int $data - ИД формы */
-	public function actionWidgetForm($data=null) {
-		return $this->_form($data);
+	/**
+	 * Виджет "Форма"
+	 * Выводит общие настройки формы
+	 * @param int $formId ИД формы
+	 * @return string
+	 */
+	public function actionWidgetForm(int $formId=null): string {
+		return $this->_form($formId);
 	}
 
-	public function actionWidgetFormSubmit($data) {
+	public function actionWidgetFormSubmit(array $data) {
 		$id=$this->_formSubmit($data);
-		if(!$id) return false;
+		if($id===null) return false;
 		return $id;
 	}
-/* ----------------------------------------------------------------------------------- */
 
-
-/* ---------- PRIVATE ---------------------------------------------------------------- */
-	/* Выводит HTML-форму с общими настройками формы. Вынесена в отдельную функцию т.к. используется в нескольких местах */
-	private function _form($data=null) {
+	/**
+	 * Выводит HTML-форму с общими настройками формы. Вынесена в отдельную функцию т.к. используется в нескольких местах
+	 * @param array|int|null $data
+	 * @return string
+	 */
+	private function _form($data=null): string {
 		//Загрузить данные формы в зависимости от того, что содержится в $data:
 		//это может быть ассоциативный массив, содержащий все настройки, число - идентификатор формы или NULL
-		if($data && !is_array($data)) {
+		if($data!==null && is_array($data)===false) {
 			$db=plushka::db();
 			$data=$db->fetchArrayOnceAssoc('SELECT id,title_'._LANG.' title,email,subject_'._LANG.' subject,successMessage_'._LANG.' successMessage,redirect,formView,script,notification FROM frm_form WHERE id='.$data);
 			if(!$data['email']) $data['emailSource']='no';
 			elseif($data['email']=='cfg') $data['emailSource']='cfg';
 			else $data['emailSource']='other';
-		} elseif(!$data) $data=array('id'=>null,'title'=>'','emailSource'=>'cfg','email'=>'','successMessage'=>'','redirect'=>'','formView'=>'','script'=>'','subject'=>'');
+		} elseif($data===null) $data=[
+			'id'=>null,
+			'title'=>'',
+			'emailSource'=>'cfg',
+			'email'=>'',
+			'successMessage'=>'',
+			'redirect'=>'',
+			'formView'=>'',
+			'script'=>'',
+			'subject'=>''
+		];
 		if($data['id']) $this->button('form/field?id='.$data['id'],'field','Поля формы');
 		//Отобразить/скрыть поле e-mail при помощи JavaScript. Если $data['email']='cfg' - означает что адрес нужно взять из общих настроек сайта
-		if($data['emailSource']=='no') $this->showSubject=false; else $this->showSubject=true;
-		if($data['emailSource']=='other') $this->showEmail=true; else {
+		if($data['emailSource']==='no') $this->showSubject=false; else $this->showSubject=true;
+		if($data['emailSource']==='other') $this->showEmail=true; else {
 			$this->showEmail=false;
-			if($data['emailSource']=='cfg') $data['email']='';
+			if($data['emailSource']==='cfg') $data['email']='';
 		}
-		if($data['notification']==='') $data['notification']=array('transport'=>null,'userId'=>null);
+		if($data['notification']==='') $data['notification']=['transport'=>null,'userId'=>null];
 		else $data['notification']=json_decode($data['notification'],true);
 		$f=plushka::form();
 		$f->hidden('id',$data['id']);
 		$f->hidden('cacheTime',30);
 		$f->text('title','Заголовок страницы',$data['title']);
-		$f->radio('emailSource','Адрес отправки',array(array('no','не отправлять e-mail'),array('cfg','e-mail в общих настройках'),array('other','другой адрес:')),$data['emailSource']);
+		$f->radio('emailSource','Адрес отправки',[['no','не отправлять e-mail'],['cfg','e-mail в общих настройках'],['other','другой адрес:']],$data['emailSource']);
 		$f->text('email','E-mail',$data['email']);
 		$f->text('subject','Тема письма',$data['subject']);
 		$f->editor('successMessage','Сообщение после отправки',$data['successMessage']);
@@ -201,7 +262,7 @@ class FormController extends Controller {
 		}
 
 		if(plushka::moduleExists('notification')) {
-			$transport=\plushka\model\Notification::transportList(plushka::userId(),true);
+			$transport=Notification::transportList(plushka::userId(),true);
 			//исключить уведомления e-mail
 			foreach($transport as $i=>$item) if($item->id()==='email') {
 				unset($transport[$i]);
@@ -210,44 +271,47 @@ class FormController extends Controller {
 			if(count($transport)>0) {
 				$f->html('<h3>Уведомления</h3>');
 				$f->select('notification][userId','Получатель','SELECT id,login FROM user WHERE groupId>=200 ORDER BY login',$data['notification']['userId'],'(не требуется)');
-				foreach($transport as $i=>$item) $transport[$i]=array($item->id(),$item->title());
+				foreach($transport as $i=>$item) $transport[$i]=[$item->id(),$item->title()];
 				$f->select('notification][transport','Метод отправки',$transport,$data['notification']['transport'],'(не требуется)');
 			}
 		}
 		$f->submit('Продолжить');
-		$this->f=$f;
+		$this->form=$f;
 
 		$this->cite='<span id="scriptComment"></span>'.$s;
 		return 'Form';
 	}
 
-	/* Выполняет валидацию и сохранение данных формы в БД */
-	private function _formSubmit($data) {
+	/**
+	 * Выполняет валидацию и сохранение данных формы в БД
+	 * @param array $data
+	 * @return int|null
+	 */
+	private function _formSubmit(array $data): ?int {
 		$m=plushka::model('frm_form');
-		$validate=array(
-			'id'=>array('primary'),
-			'title'=>array('string','заголовок страницы',true),
-			'email'=>array('email','E-mail'),
-			'subject'=>array('string','Тема письма'),
-			'successMessage'=>array('html','Сообщение при успешной отправке'),
-			'redirect'=>array('string'),
-			'formView'=>array('string'),
-			'script'=>array('string'),
-			'notification'=>array('string')
-		);
-		if($data['emailSource']=='no') $data['email']=''; elseif($data['emailSource']=='cfg') {
+		$validate=[
+			'id'=>['primary'],
+			'title'=>['string','заголовок страницы',true],
+			'email'=>['email','E-mail'],
+			'subject'=>['string','Тема письма'],
+			'successMessage'=>['html','Сообщение при успешной отправке'],
+			'redirect'=>['string'],
+			'formView'=>['string'],
+			'script'=>['string'],
+			'notification'=>['string']
+		];
+		if($data['emailSource']==='no') $data['email']=''; elseif($data['emailSource']==='cfg') {
 			$data['email']='cfg'; //Это означает, что e-mail нужно взять из общих настроек сайта
 			$validate['email'][0]='string';
 		}
-		if(isset($data['notification']) && $data['notification']['userId'] && $data['notification']['transport']) {
+		if(isset($data['notification'])===true && $data['notification']['userId'] && $data['notification']['transport']) {
 			$data['notification']['userId']=(int)$data['notification']['userId'];
 			$data['notification']=json_encode($data['notification']);
 		} else $data['notification']=null;
 		$m->set($data);
 		$m->multiLanguage();
-		if(!$m->save($validate)) return false;
+		if(!$m->save($validate)) return null;
 		return $m->id;
 	}
-/* ----------------------------------------------------------------------------------- */
 
 }

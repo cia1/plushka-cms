@@ -1,10 +1,16 @@
 <?php
-/* Ñîáûòèå: óäàëåíèå âèäæåòà
-Ìîäóëü: vote (îïðîñ)
-Ïàðàìåòðû: string $data[0] - èìÿ âèäæåòà, int $data[1] - èäåíòèôèêàòîð âèäæåòà, mixed $data[2] - èäåíòèôèêàòîð îïðîñà */
-if($data[0]!='vote') return true;
+/**
+ * @package vote
+ * Ð¡Ð¾Ð±Ñ‹Ñ‚Ð¸Ðµ: ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°
+ * @var array $data :
+ *  string [0] Ð˜Ð¼Ñ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°
+ *  int    [1] Ð˜Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð°
+ *  mixed  [2] Ð”Ð°Ð½Ð½Ñ‹Ðµ Ð²Ð¸Ð´Ð¶ÐµÑ‚Ð° (Ð´ÐµÑÐµÑ€Ð¸Ð°Ð»Ð¸Ð·Ð¾Ð²Ð°Ð½Ð½Ñ‹Ðµ)
+ */
+use plushka\admin\core\plushka;
+
+if($data[0]!=='vote') return true;
 
 $db=plushka::db();
 $db->query('DELETE FROM vote WHERE id='.$data[2]);
 return true;
-?>

@@ -2,21 +2,23 @@
 namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
 use plushka\admin\core\plushka;
+use plushka\core\HTTPException;
 
 /* Управление часто задаваемыми вопросами. На сайте может быть только один раздел ЧаВо. */
+
 class FaqController extends Controller {
 
 	public function right() {
-		return array(
+		return [
 			'setting'=>'faq.setting',
 			'list'=>'faq.content',
 			'edit'=>'faq.content',
 			'delete'=>'faq.content',
 			'menuList'=>'faq.setting'
-		);
+		];
 	}
 
-/* ---------- PUBLIC ----------------------------------------------------------------- */
+	/* ---------- PUBLIC ----------------------------------------------------------------- */
 	/* Общие настройки модуля */
 	public function actionSetting() {
 		$cfg=plushka::config('faq'); //конфигурация модуля
@@ -68,7 +70,7 @@ class FaqController extends Controller {
 	public function actionEdit() {
 		$db=plushka::db();
 		$data=$db->fetchArrayOnceAssoc('SELECT name,email,question,answer,date FROM faq WHERE id='.(int)$_GET['id']);
-		if(!$data) plushka::error404();
+		if($data===null) throw new HTTPException(404);
 		$f=plushka::form();
 		$f->hidden('id',$_GET['id']);
 		$f->date('date','Дата',date('d.m.Y',$data['date']));
@@ -84,14 +86,14 @@ class FaqController extends Controller {
 	public function actionEditSubmit($data) {
 		$m=plushka::model('faq');
 		$m->set($data);
-		if(!$m->save(array(
-			'id'=>array('primary'),
-			'date'=>array('date'),
-			'name'=>array('string'),
-			'email'=>array('email','E-mail'),
-			'question'=>array('string','Вопрос',true),
-			'answer'=>array('string'),
-		))) return false;
+		if(!$m->save([
+			'id'=>['primary'],
+			'date'=>['date'],
+			'name'=>['string'],
+			'email'=>['email','E-mail'],
+			'question'=>['string','Вопрос',true],
+			'answer'=>['string'],
+		])) return false;
 		//Если администратор отметил, что нужно отправить ответ пользователю
 		if(isset($data['send'])) {
 			$e=new \plushka\core\Email();
@@ -100,7 +102,7 @@ class FaqController extends Controller {
 			$e->subject('Ответ на вопрос на сайте '.$_SERVER['HTTP_HOST']);
 			$e->messageTemplate(
 				'faqAnswer',
-				array('date'=>date('d.m.Y',$m->date),'name'=>$m->name,'email'=>$m->email,'question'=>$m->question,'answer'=>nl2br($m->answer)),
+				['date'=>date('d.m.Y',$m->date),'name'=>$m->name,'email'=>$m->email,'question'=>$m->question,'answer'=>nl2br($m->answer)],
 				true
 			);
 			$e->send($m->email);
@@ -116,10 +118,10 @@ class FaqController extends Controller {
 		$db->query('DELETE FROM faq WHERE id='.$_GET['id']);
 		plushka::redirect('faq/list');
 	}
-/* ----------------------------------------------------------------------------------- */
+	/* ----------------------------------------------------------------------------------- */
 
 
-/* ---------- MENU ------------------------------------------------------------------- */
+	/* ---------- MENU ------------------------------------------------------------------- */
 	/* Ссылка на список вопросов-ответов */
 	public function actionMenuList() {
 		$f=plushka::form();
@@ -130,7 +132,8 @@ class FaqController extends Controller {
 	public function actionMenuListSubmit($data) {
 		return 'faq';
 	}
-/* ----------------------------------------------------------------------------------- */
+	/* ----------------------------------------------------------------------------------- */
 
 }
+
 ?>

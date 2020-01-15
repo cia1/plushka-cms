@@ -1,17 +1,31 @@
 <?php
 namespace plushka\admin\controller;
 use plushka\admin\core\Controller;
+use plushka\admin\core\FormEx;
 use plushka\admin\core\plushka;
+use plushka\admin\core\Table;
 use plushka\admin\model\Article;
 use plushka\admin\model\ArticleCategory;
+use plushka\core\HTTPException;
 
-/* Управление статьями, блогами, списками статей.
-Это один из случаев, когда категории статей не создаются/удаляются при создании/удалении виджета/пункта меню.
-Несомненно это неправильно и нужно использовать внешнюю ссылку в меню. Но что делать с виджетом, если нужен блог уже существующей категории? */
+/**
+ * Управление статьями, блогами и списками статей
+ * Категории статей не создаются/удаляются при созданиее/удалении виджета или пункта меню, как это сделано во многих
+ * других случаях. Такое поведение нужно для создания ссылок на уже суещствующие разделы сайта.
+ *
+ * `/admin/article/category` - создание/редактирование категории статей
+ * `/admin/article/feature` - список не опубликованных в категории статей
+ * `/admin/article/article` - создание/редактирование отдельной статьи
+ * `/admin/article/articleDelete` - удаление статьи
+ * `/admin/article/menuArticle` - меню "Статья"
+ * `/admin/article/menuBlog` - меню "Блог"
+ * `/admin/article/menuList` - меню "Плоский список статей"
+ * `/admin/article/wigetBlog` - виджет "Блок и список статей"
+ */
 class ArticleController extends Controller {
 
-	public function right() {
-		return array(
+	public function right(): array {
+		return [
 			'category'=>'article.category',
 			'feature'=>'*',
 			'article'=>'article.article',
@@ -20,19 +34,23 @@ class ArticleController extends Controller {
 			'menuBlog'=>'article.category',
 			'widgetBlog'=>'article.category',
 			'menuList'=>'*'
-		);
+		];
 	}
 
-/* ---------- PUBLIC ----------------------------------------------------------------- */
-
-	/* Создание или редактирование категории статей */
-	public function actionCategory($category=null) {
+	/**
+	 * Категория статей
+	 * @param ArticleCategory $category
+	 * @return FormEx
+	 * @throws HTTPException
+	 */
+	public function actionCategory(ArticleCategory $category=null) {
 		if($category===null) {
+			/** @var ArticleCategory $category */
 			$category=plushka::model('admin/articleCategory');
 			if(isset($_GET['id'])) { //Выбрать категорию по ИД
-				if($category->loadById($_GET['id'])===false) plushka::error404();
+				if($category->loadById($_GET['id'])===false) throw new HTTPException(404);
 			} elseif(isset($_GET['link']) && $_GET['link']) { //Выбрать категорию по псевдониму
-				if($category->loadByAlias(substr($_GET['link'],strrpos($_GET['link'],'/')+1))===false) plushka::error404();
+				if($category->loadByAlias(substr($_GET['link'],strrpos($_GET['link'],'/')+1))===false) throw new HTTPException(404);
 			} else $category->init();
 			if(isset($_GET['parent'])) $category->parentId=intVal($_GET['parent']);
 		}
@@ -47,17 +65,22 @@ class ArticleController extends Controller {
 		return $form;
 	}
 
-	public function actionCategorySubmit($data) {
+	public function actionCategorySubmit(array $data): ?ArticleCategory {
+		/** @var ArticleCategory $category */
 		$category=plushka::model('admin/articleCategory');
 		$category->set($data);
 		if($category->save()===false) return $category;
 		plushka::redirect('article/category?id='.$category->id,'Изменения сохранены');
+		return null;
 	}
 
-	//Список не опубликованных статей
-	public function actionFeature() {
+	/**
+	 * Список не опубликованных статей в категории
+	 * @return Table
+	 */
+	public function actionFeature(): Table {
 		$table=plushka::table();
-		$table->rowTh(array('Дата','Заголовок',''));
+		$table->rowTh(['Дата','Заголовок','']);
 		foreach(ArticleCategory::featureList($_GET['categoryId']) as $item) {
 			$table->text($item['date']);
 			$table->link('article/article?id='.$item['id'],$item['title']);
@@ -66,21 +89,25 @@ class ArticleController extends Controller {
 		return $table;
 	}
 
-	protected function helpFeature() {
+	protected function helpFeature(): string {
 		return 'core/article#feature';
 	}
 
-	/* Создание или редактирование статьи (отдельной или в составе блога) */
-	public function actionArticle($article=null) {
+	/**
+	 * Создание или редактирование статьи (отдельной или в составе блога)
+	 * @param Article $article
+	 * @return FormEx
+	 * @throws HTTPException
+	 */
+	public function actionArticle(Article $article=null): FormEx {
 		if($article===null) {
 			$article=new Article();
-			if($_POST) $article->set($_POST['article']); //просто чтобы избежать повторного обращения к базе данных
-			elseif(isset($_GET['id'])) {
-				if(!$article->loadById($_GET['id'])) plushka::error404();
-			} elseif(isset($_GET['alias'])) {
-				if(!$article->loadByAlias($_GET['alias'])) plushka::error404();
-			}
-			elseif(isset($_GET['categoryId'])) $article->categoryId=$_GET['categoryId'];
+			if($_POST) $article->set($_POST['article']); //чтобы избежать повторного обращения к базе данных
+			elseif(isset($_GET['id'])===true) {
+				if($article->loadById($_GET['id'])===false) throw new HTTPException(404);
+			} elseif(isset($_GET['alias'])===true) {
+				if($article->loadByAlias($_GET['alias'])===false) throw new HTTPException(404);
+			} elseif(isset($_GET['categoryId'])===true) $article->categoryId=$_GET['categoryId'];
 		}
 		$form=plushka::form();
 		$form->hidden('id',$article->id);
@@ -95,75 +122,91 @@ class ArticleController extends Controller {
 		return $form;
 	}
 
-	public function actionArticleSubmit($data) {
+	public function actionArticleSubmit(array $data) {
 		$article=plushka::model('admin/article');
 		$article->set($data);
 		if($article->save()===false) return $article;
 		plushka::success(($data['id'] ? 'Изменения сохранены' : 'Статья создана'));
 		plushka::redirect('article/article?id='.$article->id);
+		return null;
 	}
 
-	/* Удаление статьи (форма подтверждения) */
-	public function actionArticleDelete() {
+	/**
+	 * Удаление статьи
+	 */
+	public function actionArticleDelete(): void {
 		$article=new Article();
 		$article->delete($_GET['id']);
 		plushka::redirect('article/article');
 	}
-/* --------------------------------------------------------------------------------------------- */
 
-
-
-/* --- MENU ------------------------------------------------------------------------------------ */
-	/* Простая статья. Ссылка: article/view/ПСЕВДОНИМ */
-	public function actionMenuArticle() {
+	/**
+	 * Меню "Статья"
+	 * Выводит форму создания/редактирования статьи
+	 * @return FormEx
+	 */
+	public function actionMenuArticle(): FormEx {
 		if(isset($_GET['link']) && $_GET['link']) $_GET['alias']=substr($_GET['link'],13);
 		return $this->actionArticle();
 	}
 
-	public function actionMenuArticleSubmit($data) {
+	public function actionMenuArticleSubmit(array $data) {
+		/** @var Article $article */
 		$article=plushka::model('admin/article');
 		$article->set($data);
 		if($article->save()===false) return false;
 		return 'article/view/'.$article->alias;
 	}
 
-	/* Блог */
-	public function actionMenuBlog($category=null) {
+	/**
+	 * Меню "Блог"
+	 * @param ArticleCategory $category
+	 * @return FormEx
+	 */
+	public function actionMenuBlog(ArticleCategory $category=null): FormEx {
 		return $this->actionCategory($category);
 	}
 
-	public function actionMenuBlogSubmit($data) {
+	public function actionMenuBlogSubmit(array $data) {
+		/** @var ArticleCategory $category */
 		$category=plushka::model('admin/articleCategory');
 		$category->set($data);
 		if($category->save()===false) return $category;
 		return 'article/blog/'.$category->alias;
 	}
 
-	/* Список статей */
-	public function actionMenuList($category=null) {
+	/**
+	 * Меню "Плоский список статей"
+	 * @param ArticleCategory $category
+	 * @return FormEx
+	 */
+	public function actionMenuList(ArticleCategory $category=null): FormEx {
 		return $this->actionCategory($category);
 	}
 
-	public function actionMenuListSubmit($data) {
+	public function actionMenuListSubmit(array $data) {
+		/** @var ArticleCategory $category */
 		$category=plushka::model('admin/articleCategory');
 		$category->set($data);
 		if($category->save()===false) return $category;
 		return 'article/list/'.$category->alias;
 	}
-/* ----------------------------------------------------------------------------------- */
 
-
-
-/* ---------- WIDGET ----------------------------------------------------------------- */
-	/* Блог и список статей
-	array $data: categoryId - ИД категории; int linkType - тип ссылок (blog или list);
-	int countPreview - количество записей в виде блога; int countLink - количество записей в виде ссылок; */
-	public function actionWidgetBlog($data=null) {
-		if(!$data) $data=array('categoryId'=>null,'countPreview'=>0,'countLink'=>0,'linkType'=>'blog');
+	/**
+	 * Виджет "блог и список статей"
+	 * @param array $data :
+	 *                    int $categoryId ИД категории
+	 *                    string $linkType Тип ссылок ("blog" или "list")
+	 *                    int $countPreview - количество записей в виде блога
+	 *                    int $countLink - количество записей в виде ссылок
+	 * @return FormEx
+	 */
+	public function actionWidgetBlog(array $data=null): FormEx {
+		if($data===null) $data=['categoryId'=>null,'countPreview'=>0,'countLink'=>0,'linkType'=>'blog'];
 		$form=plushka::form();
 		$newCategoryLink=plushka::link('admin/article&action=category').'&backlink='.urlencode('admin/section/widget?section='.$_GET['section'].'&type=blog&lang='._LANG);
 		$form->listBox('categoryId','Категория','SELECT id,title FROM article_category_'._LANG,$data['categoryId'],'< создать новую категорию >','onclick="if(this.value==\'\') document.location=\''.$newCategoryLink.'\';"');
-		$form->select('linkType','Вид ссылок на статьи',array(array('blog','article/blog/...'),array('list','article/list/...')),$data['linkType']);
+		$form->select('linkType','Вид ссылок на статьи',[['blog','article/blog/...'],['list','article/list/...']],$data['linkType']);
 		$form->text('countPreview','Количество анонсов статей',$data['countPreview']);
 		$form->text('countLink','Количество ссылок на статьи',$data['countLink']);
 		$form->submit();
@@ -171,11 +214,10 @@ class ArticleController extends Controller {
 		return $form;
 	}
 
-	public function actionWidgetBlogSubmit($data) {
+	public function actionWidgetBlogSubmit(array $data) {
 		$data['countPreview']=(int)$data['countPreview'];
 		$data['countLink']=(int)$data['countLink'];
 		return $data;
 	}
-/* ----------------------------------------------------------------------------------- */
 
 }

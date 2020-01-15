@@ -1,7 +1,10 @@
 <?php
-//Дополнить информацию о файле, если он был загружен через скрипт upload.php
+/**
+ * @package formDragDrop
+ * Дополнить информацию о файле, если он был загружен через скрипт upload.php
+ */
 $alias=$data[0];
-if(isset($_SESSION['_uploadList'])) $uploadList=$_SESSION['_uploadList']; else $uploadList=array();
+if(isset($_SESSION['_uploadList'])) $uploadList=$_SESSION['_uploadList']; else $uploadList=[];
 foreach($_POST[$alias] as $fld=>$item) {
 	if(is_array($item) && isset($item[0])) {
 		foreach($item as $i=>$_item) {
@@ -16,7 +19,7 @@ foreach($_POST[$alias] as $fld=>$item) {
 		}
 	} elseif(is_string($item) && substr($item,0,7)=='upload:') {
 		$item=substr($item,7);
-		if(!isset($uploadList[$item])) $_POST[$alias][$fld]=array('name'=>null,'tmpName'=>null,'type'=>null,'size'>0);
+		if(!isset($uploadList[$item])) $_POST[$alias][$fld]=['name'=>null,'tmpName'=>null,'type'=>null,'size'>0];
 		else {
 			$_POST[$alias][$fld]=$uploadList[$item];
 			$_POST[$alias][$fld]['name']=$item;

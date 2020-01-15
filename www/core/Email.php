@@ -9,8 +9,8 @@ class Email {
 
 	/** @var array Массив MIME-частей письма */
 	private $_parts=[];
-	/** @var string Заголовок "From" */ 
-	private	$_from;
+	/** @var string Заголовок "From" */
+	private $_from;
 	/** @var string Тема письма */
 	private $_subject='';
 	/** @var string|null Заголовок "Reply-To" */
@@ -40,8 +40,8 @@ class Email {
 
 	/**
 	 * Настраивает поле "от кого"
-	 * @param string $email Адрес электронной почты отправителя
-	 * @param string|null $name Имя отправителя
+	 * @param string      $email Адрес электронной почты отправителя
+	 * @param string|null $name  Имя отправителя
 	 */
 	public function from(string $email,string $name=null): void {
 		if($name===null) $name=$email;
@@ -66,15 +66,15 @@ class Email {
 
 	/**
 	 * Устанавливает текст письма используя HTML-шаблон письма.
-	 * @param string $fileName - относительное имя файла письма ([/admin]/data/email/{$fileName}.html)
-	 * @param string[] $data Данные в формате "ключ-значение" для подстановки в шаблон письма
+	 * @param string   $fileName - относительное имя файла письма ([/admin]/data/email/{$fileName}.html)
+	 * @param string[] $data     Данные в формате "ключ-значение" для подстановки в шаблон письма
 	 */
 	public function messageTemplate(string $fileName,array $data): void {
 		if(substr($fileName,0,6)==='admin/') $fileName=core::path().'admin/data/email/'.substr($fileName,6).'.html';
 		else $fileName=core::path().'data/email/'.$fileName.'.'._LANG.'.html';
 		$this->_message=file_get_contents($fileName);
-		$this->_message=str_replace(array('{{siteLink}}','{{siteName}}'),
-			array('http://'.$_SERVER['HTTP_HOST'].core::url(),$_SERVER['HTTP_HOST']),
+		$this->_message=str_replace(['{{siteLink}}','{{siteName}}'],
+			['http://'.$_SERVER['HTTP_HOST'].core::url(),$_SERVER['HTTP_HOST']],
 			$this->_message
 		);
 		foreach($data as $tag=>$value) $this->_message=str_replace('{{'.$tag.'}}',$value,$this->_message);
@@ -91,8 +91,8 @@ class Email {
 
 	/**
 	 * Устанавливает получателя ответа на письмо
-	 * @param string $email E-mail
-	 * @param string|null $name Имя получателя
+	 * @param string      $email E-mail
+	 * @param string|null $name  Имя получателя
 	 */
 	public function replyTo(string $email,string $name=null): void {
 		if($name===null) $name=$email;
@@ -102,8 +102,8 @@ class Email {
 	/**
 	 * Добавляет вложение к письму
 	 * @param string $filename Абсолютное имя файла вложения
-	 * @param string $id Псевдоним имени файла
-	 * @param string $type MIME-тип файла
+	 * @param string $id       Псевдоним имени файла
+	 * @param string $type     MIME-тип файла
 	 */
 	public function attach(string $filename,string $id,string $type='application/octet-stream'): void {
 		$this->_parts[]=[
@@ -118,8 +118,8 @@ class Email {
 
 	/**
 	 * Добавляет к письму вложенное изображение и возвращает идентификатор, по которому можно вставить это изображение в текст письма
-	 * @param string $filename Абослютное имя файла изображения
-	 * @param string|null $type MIME-тип изображения, если не задан будет определён из имени файла
+	 * @param string      $filename Абослютное имя файла изображения
+	 * @param string|null $type     MIME-тип изображения, если не задан будет определён из имени файла
 	 * @return string Псевдоним имени файла
 	 * @see email::getImg()
 	 */
@@ -128,18 +128,23 @@ class Email {
 		if($type===null) $type=substr($filename,strrpos($filename,'.')+1);
 		$type=strtolower($type);
 		switch($type) {
-		case 'jpg': case 'jpeg': case 'image/jpeg': default:
-			$type='image/jpeg';
-			$ext='jpg';
-			break;
-		case 'gif': case 'image/gif':
-			$type='image/gif';
-			$ext='gif';
-			break;
-		case 'png': case 'image/png':
-			$type='image/png';
-			$ext='png';
-			break;
+			case 'jpg':
+			case 'jpeg':
+			case 'image/jpeg':
+			default:
+				$type='image/jpeg';
+				$ext='jpg';
+				break;
+			case 'gif':
+			case 'image/gif':
+				$type='image/gif';
+				$ext='gif';
+				break;
+			case 'png':
+			case 'image/png':
+				$type='image/png';
+				$ext='png';
+				break;
 		}
 		if($_id===null) $_id=0;
 		$id='image'.++$_id.'.'.$ext;
@@ -186,15 +191,15 @@ class Email {
 
 	/**
 	 * Выполняет отправку письма посредством SMTP
-	 * @param string $email E-mail получателя
+	 * @param string $email   E-mail получателя
 	 * @param string $message Сформированное письмо
-	 * @param string $header Дополнительные заголовки
+	 * @param string $header  Дополнительные заголовки
 	 * @return bool TRUE при успехе и FALSE при неудаче
 	 */
 	private function sendSmtp(string $email,string $message,string $header): bool {
 		$s='Date: '.date('D, d M Y H:i:s')." UT\r\n"
-		.'Subject: =?UTF-8?B?'.base64_encode($this->_subject)."?=\r\n"
-		.'To: '.$email."\r\n";
+			.'Subject: =?UTF-8?B?'.base64_encode($this->_subject)."?=\r\n"
+			.'To: '.$email."\r\n";
 		$s.=$header.PHP_EOL.PHP_EOL.$message;
 		if(!$socket=fsockopen($this->_smtpHost,$this->_smtpPort,$errno,$errstr,30)) {
 			core::error($errno."&lt;br&gt;".$errstr);
@@ -256,11 +261,11 @@ class Email {
 
 	private function _buildMultipart(string $boundary): string {
 		$multipart='This is a MIME encoded message.'.PHP_EOL.PHP_EOL.'--'.$boundary;
-		$part=array('ctype'=>'text/html; charset="UTF-8"','message'=>$this->_message,'name'=>'');
+		$part=['ctype'=>'text/html; charset="UTF-8"','message'=>$this->_message,'name'=>''];
 		$multipart.=PHP_EOL.$this->_buildMessage($part).'--'.$boundary;
 		for($i=count($this->_parts)-1;$i>=0;$i--) $multipart.="\n".$this->_buildMessage($this->_parts[$i]).'--'.$boundary;
 		$multipart.='--'.PHP_EOL;
-        return $multipart;
+		return $multipart;
 	}
 
 	private function _buildMessage(array $part): string {
@@ -284,7 +289,7 @@ class Email {
 		$serverResponse='';
 		while(substr($serverResponse,3,1)!=' ') if(!($serverResponse=fgets($socket,256))) return false;
 		if(!(substr($serverResponse,0,3)==$response)) return false;
-    return true;
+		return true;
 	}
 
 }
