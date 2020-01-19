@@ -1,23 +1,29 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
+use plushka\core\Model;
 
 /**
+ * AR-модель универсальной контактной формы
  * @property int $formId ИД формы
  */
-class FormField extends \plushka\core\Model {
+class FormField extends Model {
 
-	function __construct($table=null,$db='db') {
-		parent::__construct('frm_field');
+	function __construct(/** @noinspection PhpUnusedParameterInspection */ string $table=null,string $db='db') {
+		parent::__construct('frm_field',$db);
 		$this->multiLanguage();
 	}
 
-	protected function fieldList($isSave) {
-		$fieldList='id,formId,title,htmlType,data,defaultValue,required';
-		if(!$this->id) $fieldList.=',sort';
-		return $fieldList;
+	/** @inheritDoc */
+	protected function fieldListLoad(): string {
+		return 'id,formId,title,htmlType,data,defaultValue,required';
 	}
 
-	protected function rule() {
+	/** @inheritDoc */
+	protected function fieldListSave(): string {
+		return 'id,formId,title,htmlType,data,defaultValue,required,sort';
+	}
+
+	protected function rule(): array {
 		return [
 			'id'=>['primary'],
 			'formId'=>['integer'],
@@ -30,7 +36,7 @@ class FormField extends \plushka\core\Model {
 		];
 	}
 
-	protected function beforeInsertUpdate($id=null) {
+	protected function beforeInsertUpdate(/** @noinspection PhpUnusedParameterInspection */ $id=null) {
 		if(!$this->_data['id']) { //если это новое поле, то вычислить индекс сортировки (целое число)
 			$sort=$this->db->fetchValue('SELECT max(sort) FROM frm_field WHERE formId='.$this->_data['formId']);
 			$this->_data['sort']=++$sort;

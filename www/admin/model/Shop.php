@@ -1,5 +1,5 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 /* Библиотека, содержащая наиболее часто используемые инструменты для административной части интернет-магазина */
 class Shop {

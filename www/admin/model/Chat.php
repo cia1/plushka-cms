@@ -1,5 +1,5 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 class Chat {
 

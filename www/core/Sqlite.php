@@ -88,6 +88,7 @@ class Sqlite {
 	 * @param string   $query SQL-запрос
 	 * @param int|null $limit Количество строк для операции SELECT
 	 * @param int|null $page  Номер страницы пагирации
+	 * @throws DBException
 	 */
 	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
@@ -199,6 +200,27 @@ class Sqlite {
 	 */
 	public function affected(): ?int {
 		return self::$_connectId->changes();
+	}
+
+	/**
+	 * Запускает транзакцию
+	 */
+	public function transaction(): void {
+		$this->query('BEGIN TRANSACTION');
+	}
+
+	/**
+	 * Завершает транзакцию
+	 */
+	public function commit(): void {
+		$this->query('COMMIT');
+	}
+
+	/**
+	 * Откатывает транзакцию
+	 */
+	public function rollback(): void {
+		$this->query('ROLLBACK');
 	}
 
 	//Возвращет часть SQL-запроса для оператора INSERT

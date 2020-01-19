@@ -28,7 +28,7 @@ class HtmlController extends Controller {
 		$html=new Html();
 		if(isset($_GET['id'])===true && $_GET['id']) { //Текст уже существует - загрузить его
 			$html->load($_GET['id']);
-		} else $html->init(); //Текста нет - пустой массив, чтобы небыло warning
+		} else $html->init($_GET['section'] ?? null); //Текста нет - пустой массив, чтобы небыло warning
 		return $html->form();
 	}
 
@@ -53,11 +53,9 @@ class HtmlController extends Controller {
 	}
 
 	public function actionWidgetHtmlSubmit(array $data) {
-		//Если это новый блок текста, то "придумать" имя файла исходя из названия секции, в которой находится виджет
-		if(!$data['fileName']) $data['fileName']=Html::fileNameBySection($data['section']);
 		$html=new Html();
 		$html->html=$data['html'];
-		if($html->save($data['fileName'])===false) return false;
+		if($html->save($data['fileName'] ?? null)===false) return false;
 		return $data['fileName'];
 	}
 

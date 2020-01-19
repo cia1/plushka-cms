@@ -36,7 +36,7 @@ abstract class plushka extends core {
 	 * Обработчики события - это файлы /hook/$name.{module}.php
 	 * @param string $name    Имя события
 	 * @param mixed  ...$data Произвольные данные, которые будут доступны в обработчике события
-	 * @return array|false False, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
+	 * @return array|false FALSE, если хотя бы один обработчик вернул false, иначе массив значений, возвращённых обработчиками событий
 	 */
 	public static function hook(string $name,...$data) {
 		$d=opendir(self::path().'hook');
@@ -220,15 +220,19 @@ elseif(isset($_SERVER['REQUEST_URI'])===true) {
 	$_GET['corePath']=substr($_SERVER['REQUEST_URI'],1,$i);
 	unset($i);
 } else $_GET['corePath']=false;
-//Поиск языка в URL-адресе
-if($_GET['corePath']===false) {
-	$lang=substr($_GET['corePath'],0,2);
-	if(in_array($lang,$cfg['languageList'])) {
-		define('_LANG',$lang);
-		$_GET['corePath']=substr($_GET['corePath'],3);
+
+//Поиск языка в URL-адресе (может быть уже определён в админке)
+if(defined('_LANG')===false) {
+	if($_GET['corePath']===false) {
+		$lang=substr($_GET['corePath'],0,2);
+		if(in_array($lang,$cfg['languageList'])) {
+			define('_LANG',$lang);
+			$_GET['corePath']=substr($_GET['corePath'],3);
+		} else define('_LANG',$cfg['languageDefault']);
+		unset($lang);
 	} else define('_LANG',$cfg['languageDefault']);
-	unset($lang);
-} else define('_LANG',$cfg['languageDefault']);
+}
+
 //Преобразования подмены ссылок
 if($_GET['corePath']===false || !$_GET['corePath']) $_GET['corePath']=$cfg['mainPath'];
 else {

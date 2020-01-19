@@ -336,9 +336,7 @@ class User extends Model {
 		return $email->send($recipient);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	/** @inheritDoc */
 	public function save($validate=null,string $primaryAttribute=null): bool {
 		if($this->_data['id']) $isNew=false; else $isNew=true;
 		//Сохранить в БД зашифрованный пароль, однако, в классе хранить НЕ зашифрованный
@@ -412,15 +410,26 @@ class User extends Model {
 	 * @param int|null $id
 	 */
 	public function delete($id=null,bool $validateAffected=false): bool {
-		if(parent::delete($id,$validateAffected)===false) return false;
-		plushka::hook('userDelete',$id);
+		$db=plushka::db();
+		$db->transaction();
+		if(parent::delete($id,$validateAffected)===false) {
+			$db->rollback();
+			return false;
+		}
+		if(plushka::hook('userDelete',$id)===false) {
+			$db->rollback();
+			return false;
+		}
+		$db->commit();
 		return true;
 	}
 
+	/** @inheritDoc */
 	protected function fieldListLoad(): string {
 		return 'id,groupId,login,email';
 	}
 
+	/** @inheritDoc */
 	protected function fieldListSave(): string {
 		//Если пароль строго false, то не требовать ввода пароля (регистрация oauth). Не достаточно очевидный вариант реализации, но это работает.
 		if($this->password===false) return 'id,groupId,login,status,email,code';
@@ -435,8 +444,8 @@ class User extends Model {
 			'email'=>['callback','e-mail',plushka::config('_core','emailRequired'),[$this,'validateEmailAddress']],
 			'code'=>['string']
 		];
-		if(isset($this->_data['status'])) $data['status']=['boolean'];
-		if(isset($this->_data['groupId'])) $data['groupId']=['integer'];
+		if(isset($this->_data['status'])===true) $data['status']=['boolean'];
+		if(isset($this->_data['groupId'])===true) $data['groupId']=['integer'];
 		return $data;
 	}
 
@@ -452,7 +461,7 @@ class User extends Model {
 		$this->db->query('SELECT module,groupId,picture FROM user_right');
 		while($item=$this->db->fetch()) {
 			$group=explode(',',$item[1]);
-			if(in_array($this->groupId,$group) || $this->groupId==255) {
+			if(in_array($this->groupId,$group)===true || $this->groupId===255) {
 				if($item[2]) $right[$item[0]]=true; else $right[$item[0]]=false;
 			}
 		}

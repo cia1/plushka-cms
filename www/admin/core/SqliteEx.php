@@ -11,10 +11,10 @@ class SqliteEx extends Sqlite {
 
 	/**
 	 * Создаёт таблицу
-	 * @param string $table Имя таблицы
+	 * @param string   $table     Имя таблицы
 	 * @param string[] $structure Описание структуры, где ключ - имя поля, значение - строка валидного определения MySQL
 	 */
-	 public function create(string $table,array $structure): void {
+	public function create(string $table,array $structure): void {
 		$q='';
 		foreach($structure as $name=>$item) {
 			if($q!=='') $q.=',';
@@ -26,12 +26,12 @@ class SqliteEx extends Sqlite {
 
 	/**
 	 * Добавляет к таблице новое поле
-	 * @param string $table Имя таблицы
-	 * @param string $field Имя поля
+	 * @param string       $table      Имя таблицы
+	 * @param string       $field      Имя поля
 	 * @param string|array $expression Валидное определение поля MySQL
 	 */
 	public function alterAdd(string $table,string $field,$expression): void {
-        /** @noinspection SqlResolve */
+		/** @noinspection SqlResolve */
 		$q='ALTER TABLE "'.$table.'" ADD "'.$field.'" '.self::_type($expression);
 		$this->query($q);
 	}
@@ -48,7 +48,7 @@ class SqliteEx extends Sqlite {
 		$q=substr($q,0,$i).'TEMP_'.substr($q,$i);
 		$length=strlen($q)-1;
 		if($q[$length]===',') $q[$length]=')';
-		$this->query('BEGIN TRANSACTION');
+		$this->transaction();
 		try {
 			$this->query($q);
 			$i=strpos($q,'(')+1;
@@ -64,24 +64,24 @@ class SqliteEx extends Sqlite {
 				}
 				$q.=substr($item,0,strpos($item,' '));
 			}
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$this->query('INSERT INTO "TEMP_'.$table.'" SELECT '.$q.' FROM "'.$table.'"');
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$this->query('DROP TABLE "'.$table.'"');
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$this->query('ALTER TABLE "TEMP_'.$table.'" RENAME TO "'.$table.'"');
 		} catch(DBException $e) {
 			$this->_rollback();
 		}
-		$this->query('COMMIT');
+		$this->commit();
 	}
 
 	/**
 	 * Изменяет поле таблицы
-	 * @param string $table Имя таблицы
-	 * @param string $fieldName Имя модифицируемого поля
-	 * @param string $newFieldName Новое имя поля
-     * @param string|array $expression Определение поля в формате массива или в формате MySQL
+	 * @param string       $table        Имя таблицы
+	 * @param string       $fieldName    Имя модифицируемого поля
+	 * @param string       $newFieldName Новое имя поля
+	 * @param string|array $expression   Определение поля в формате массива или в формате MySQL
 	 */
 	public function alterChange(string $table,string $fieldName,string $newFieldName,$expression=null): void {
 		$q=$this->fetchValue("SELECT sql FROM sqlite_master WHERE type='table' AND tbl_name='".$table."'");
@@ -89,19 +89,19 @@ class SqliteEx extends Sqlite {
 		else $q=preg_replace('/(["\'` ]*?'.$fieldName.'["\'`]?.*?)([,)])/','"'.$newFieldName.'" '.self::_type($expression).'$2',$q);
 		$i=strpos($q,$table);
 		$q=substr($q,0,$i).'TEMP_'.substr($q,$i);
-		$this->query('BEGIN TRANSACTION');
+		$this->transaction();
 		try {
 			$this->query($q);
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$this->query('INSERT INTO "TEMP_'.$table.'" SELECT * FROM "'.$table.'"');
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$this->query('DROP TABLE "'.$table.'"');
-            /** @noinspection SqlResolve */
+			/** @noinspection SqlResolve */
 			$this->query('ALTER TABLE "TEMP_'.$table.'" RENAME TO "'.$table.'"');
 		} catch(DBException $e) {
 			$this->_rollback();
 		}
-		$this->query('COMMIT');
+		$this->commit();
 	}
 
 	/**
@@ -115,7 +115,7 @@ class SqliteEx extends Sqlite {
 
 	/**
 	 * Разбирает SQL-запрос "CREATE TABLE" и возвращает структуру таблицы
-	 * @param string $sql SQL-заос
+	 * @param string $sql   SQL-заос
 	 * @param string $table Перемення-ссылка, куда будет помещено мя таблицы
 	 * @return array|null
 	 */
@@ -127,7 +127,7 @@ class SqliteEx extends Sqlite {
 		$i1=strpos($sql,'(');
 		$i2=strrpos($sql,')');
 		$sql=trim(substr($sql,$i1+1,$i2-$i1-1));
-		$structure=array();
+		$structure=[];
 		$i1=0;
 		$quote1=$quote2=false;
 		for($i2=0,$cnt=strlen($sql);$i2<$cnt;$i2++) {
@@ -169,21 +169,28 @@ class SqliteEx extends Sqlite {
 		} else $text='';
 		if($default!=='' && $type!=='CHAT' && $type!=='VARCHAR') $text.=" DEFAULT '".$default."'";
 		switch($type) {
-		case 'INTEGER': case 'INT': case 'TINYINT': case 'MEDIUMINT': case 'BIGINT':
-			return 'INTEGER'.$text;
-		case 'FLOAT': case 'REAL':
-			return 'REAL'.$text;
-		case 'CHAR': case 'VARCHAR': case 'MEDIUMTEXT':
-			return 'TEXT'.$text;
-		case 'BLOB':
-			return 'BLOB'.$text;
-		default:
-			return $type.$text;
+			case 'INTEGER':
+			case 'INT':
+			case 'TINYINT':
+			case 'MEDIUMINT':
+			case 'BIGINT':
+				return 'INTEGER'.$text;
+			case 'FLOAT':
+			case 'REAL':
+				return 'REAL'.$text;
+			case 'CHAR':
+			case 'VARCHAR':
+			case 'MEDIUMTEXT':
+				return 'TEXT'.$text;
+			case 'BLOB':
+				return 'BLOB'.$text;
+			default:
+				return $type.$text;
 		}
 	}
 
 	private function _rollback(): void {
-		$this->query('ROLLBACK');
+		$this->rollback();
 		throw new DBException('SQLite: не удалось изменить структуру таблицы');
 	}
 

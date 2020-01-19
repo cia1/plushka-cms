@@ -9,6 +9,7 @@ use plushka\core\Mysqli;
 use plushka\core\Sqlite;
 use plushka\core\Validator;
 use plushka\core\Widget;
+
 /**
  * Предоставляет базовый API, доступный статически
  */

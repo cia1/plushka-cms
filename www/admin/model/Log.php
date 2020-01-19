@@ -1,5 +1,5 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 define('LOG_LIMIT_ON_PAGE',300); //Количество строк на одной странице
 class Log implements \Iterator {

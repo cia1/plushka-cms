@@ -236,17 +236,17 @@ abstract class core {
 
 	/**
 	 * Устанавливает или возвращает текст сообщения об успешно выполненной операции
-	 * @param string|null $message Устанавливаемый текст сообщения
+	 * @param string|bool|null $message Устанавливаемый текст сообщения
 	 * @return string|null Текст сообщения
 	 */
-	public static function success(string $message=null): ?string {
+	public static function success($message=null): ?string {
 		if($message===false) {
 			$message=$_SESSION['messageSuccess'];
 			unset($_SESSION['messageSuccess']);
 			return $message;
 		}
 		if($message!==null) $_SESSION['messageSuccess']=$message;
-		return (isset($_SESSION['messageSuccess']) ? $_SESSION['messageSuccess'] : null);
+		return (isset($_SESSION['messageSuccess'])===true ? $_SESSION['messageSuccess'] : null);
 	}
 
 	/**
@@ -356,9 +356,9 @@ abstract class core {
 
 	/**
 	 * Возвращает идентификатор текущего пользователя (db user.id), для не авторизованных - 0
-	 * @return integer
+	 * @return int|null
 	 */
-	public static function userId(): int {
+	public static function userId(): ?int {
 		if(isset($_SESSION['user'])===false) $_SESSION['user']=new User();
 		return $_SESSION['user']->id;
 	}

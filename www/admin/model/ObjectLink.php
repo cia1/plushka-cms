@@ -1,10 +1,20 @@
 <?php
 namespace plushka\admin\model;
+use plushka\admin\core\plushka;
 
+/**
+ * Служебный помощник, высчитывающий количество ссылок на объекты
+ * Используется для определения можно ли удалять связанные с виджетом или меню ресурсов
+ */
 class ObjectLink {
 
-	/* Âîçâðàùàåò êîëè÷åñòâî âèäæåòîâ ñ èìåíåì $name âî âñåõ ñåêöèÿõ è èìåþùèõ çàäàííûå íàñòðîéêè $data */
-	public static function fromSectionWidget($name,$data=null) {
+	/**
+	 * Возвращает количество ссылок на виджет из секций
+	 * @param string     $name Имя виджета
+	 * @param mixed|null $data Данные виджета
+	 * @return int
+	 */
+	public static function fromSectionWidget(string $name,$data=null): int {
 		$db=plushka::db();
 		$db->query('SELECT data FROM widget WHERE name='.$db->escape($name));
 		$cnt=0;
@@ -12,35 +22,40 @@ class ObjectLink {
 		return $cnt;
 	}
 
-	/* Âîçâðàùàåò êîëè÷åñòâî âèäæåòîâ ñ èìåíåì $name, îïðåäåë¸ííûõ â øàáëîíå ñ èìåíåì $template è çàäàííûõ íàñòðîéêàõ âèäæåòà $data */
-	public static function fromTemplateWidget($name,$data=null,$template=null) {
-		//.ini-ôàéëû ñîçäàþòñÿ âî âðåìÿ êåøèðâàíèÿ øàáëîíà
+	/**
+	 * Возвращает количество ссылок на виджет из шаблонов
+	 * @param string      $name     Имя виджета
+	 * @param mixed|null  $data     Данные виджета
+	 * @param string|null $template Шаблон
+	 * @return int
+	 */
+	public static function fromTemplateWidget(string $name,$data=null,string $template=null): int {
 		$basedir=plushka::path().'cache/template/';
-		if($template) $template=array($template.'.ini'); else {
+		if($template!==null) $template=[$template.'.ini']; else {
 			$d=opendir($basedir);
-			$template=array();
+			$template=[];
 			while($item=readdir($d)) {
-				if($item=='.' || $item=='..') continue;
-				if(substr($item,strlen($item)-4)!='.ini') continue;
+				if($item==='.' || $item==='..') continue;
+				if(substr($item,strlen($item)-4)!=='.ini') continue;
 				$template[]=$item;
 			}
 			closedir($d);
 		}
 		$cnt=0;
 		foreach($template as $item) {
+			/** @noinspection PhpIncludeInspection */
 			$cfg=include($basedir.$item);
 			foreach($cfg['widget'] as $widget) {
-				if($item[0]!=$name) continue;
+				if($item[0]!==$name) continue;
 				$cnt+=self::_compareData($data,$widget[1]);
 			}
 		}
 		return $cnt;
 	}
 
-	/* Ñðàâíèâàåò äàííûå âèäæåòîâ, âîçâðàùàåò 1 åñëè äàííûå â $dataBase ñîâïàäàþò ñ äàííûìè â $dataItem. */
-	private static function _compareData($dataBase,$dataItem) {
+	private static function _compareData($dataBase,$dataItem): int {
 		if(!$dataBase) return 1;
-		if(is_string($dataBase) || is_integer($dataBase)) {
+		if(is_array($dataBase)===false && is_object($dataBase)===false) {
 			if($dataBase==$dataItem) return 1; else return 0;
 		} else {
 			$dataItem=unserialize($dataItem);

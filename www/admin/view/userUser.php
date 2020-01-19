@@ -1,14 +1,19 @@
 <?php
+use plushka\admin\controller\UserController;
 use plushka\admin\core\plushka;
+
+/**
+ * @var UserController $this
+ */
 ?>
 <form action="<?=plushka::linkAdmin('user/user')?>" method="get" class="filter">
-<input type="hidden" name="controller" value="user" />
-<input type="hidden" name="action" value="user" />
-<?php if(isset($_GET['_front'])) { ?><input type="hidden" name="_front" value="" /><?php } ?>
-Группа: <input type="text" name="group" value="<?=$this->group?>" />&nbsp;&nbsp;&nbsp;&nbsp;
-Логин: <input type="text" name="login" value="<?=$this->login?>" />&nbsp;&nbsp;&nbsp;&nbsp;
-E-mail: <input type="text" name="email" value="<?=$this->email?>" />&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="submit" value="Фильтр" />
+    <input type="hidden" name="controller" value="user"/>
+    <input type="hidden" name="action" value="user"/>
+	<?php if(isset($_GET['_front'])) { ?><input type="hidden" name="_front" value=""/><?php } ?>
+    Группа: <input type="text" name="group" value="<?=$this->group?>"/>&nbsp;&nbsp;&nbsp;&nbsp;
+    Логин: <input type="text" name="login" value="<?=$this->login?>"/>&nbsp;&nbsp;&nbsp;&nbsp;
+    E-mail: <input type="text" name="email" value="<?=$this->email?>"/>&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="submit" value="Фильтр"/>
 </form>
 <?php
 $t=plushka::table();
@@ -22,4 +27,5 @@ foreach($this->data as $item) {
 }
 $t->render();
 ?>
-<cite>Список зарегистрированных пользователей (группы 1-199) и администраторов (группы 200-254). Если статус "не активен", то пользователь не сможет авторизоваться (войти на сайт).</cite>
+<cite>Список зарегистрированных пользователей (группы 1-199) и администраторов (группы 200-254). Если статус "не активен", то пользователь не сможет
+    авторизоваться (войти на сайт).</cite>

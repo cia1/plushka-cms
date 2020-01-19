@@ -37,21 +37,22 @@ class Form {
 	 * Текстовая надпись, не является полем формы
 	 * @param string $label Название поля
 	 * @param string $value Значение поля
+	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <dd>
 	 */
-	public function label(string $label,string $value): void {
-		$this->_data.='<dt class="label">'.$label.':</dt><dd class="label">'.$value.'</dd>';
+	public function label(string $label,string $value,string $html=null): void {
+		$this->_data.='<dt class="label">'.$label.':</dt><dd class="label" '.($html===null ? '' : ' '.$html).'>'.$value.'</dd>';
 	}
 
 	/* Текстовое поле
 	$name - имя поля, $label - заголовок рядом с полем, $value - значение по умолчанию, $html - произвольный текст, который нужно добавить к тегу <input> */
 	/**
 	 * Добавляет поле <input type="text">
-	 * @param string $name  Имя поля
-	 * @param string $label Заголовок поля
-	 * @param string $value Значение по умолчанию
-	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string      $name  Имя поля
+	 * @param string      $label Заголовок поля
+	 * @param string|null $value Значение по умолчанию
+	 * @param string|null $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 */
-	public function text(string $name,string $label,string $value='',string $html=''): void {
+	public function text(string $name,string $label,?string $value='',?string $html=null): void {
 		$class=str_replace('][','-',$name);
 		$this->_data.='<dt class="text '.$class.'">'.$label.':</dt><dd class="text '.$class.'">'.$this->getText($name,$value,$html).'</dd>';
 	}
@@ -275,17 +276,17 @@ class Form {
 
 	/**
 	 * Возвращает HTML-код поля <input type="text">
-	 * @param string $name  Имя поля
-	 * @param string $value Значение по умолчанию
-	 * @param string $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
+	 * @param string      $name  Имя поля
+	 * @param string|null $value Значение по умолчанию
+	 * @param string|null $html  Произвольный HTML, который будет дописан к HTML-тегу <input>
 	 * @return string
 	 */
-	public function getText(string $name,string $value='',string $html=''): string {
+	public function getText(string $name,?string $value=null,?string $html=null): string {
 		if(isset($_POST[$this->_namespace])===true && isset($_POST[$this->_namespace][$name])===true) {
 			$value=$_POST[$this->_namespace][$name];
 		}
 		$value=str_replace('"','&quot;',$value);
-		return '<input type="text" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').' '.$html.' />';
+		return '<input type="text" name="'.$this->_namespace.'['.$name.']"'.($value ? ' value="'.$value.'"' : '').($html===null ? '' : ' '.$html).' />';
 	}
 
 	/**

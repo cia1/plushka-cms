@@ -1,10 +1,20 @@
 <?php
 namespace plushka\admin\model;
 use plushka\admin\core\FormEx;
+use plushka\admin\core\plushka;
+use plushka\model\Notification;
 
+/**
+ * Транспорт (канал) передачи уведомлений
+ * На основе этого класса реализуются конкретные транспорты
+ */
 abstract class NotificationTransport {
 
-	public static function getList() {
+	/**
+	 * Возвращает список зарегистрированных транспортов
+	 * @return string[]
+	 */
+	public static function getList(): array {
 		$path=plushka::path().'admin/model/';
 		$d=opendir($path);
 		$transport=[];
@@ -16,38 +26,71 @@ abstract class NotificationTransport {
 		return $transport;
 	}
 
-	public static function instance($className) {
+	/**
+	 * Созадёт экземпляр класса транспорта
+	 * @param string $className Имя транспорта (короткое имя класса)
+	 * @return self
+	 */
+	public static function instance(string $className): self {
 		$cfg=strtolower($className[21]).substr($className,22);
 		$cfg=plushka::config('notification',$cfg);
 		plushka::import('admin/model/'.$className);
 		return new $className($cfg);
 	}
 
-	public static function title($className) {
+	/**
+	 * Возвращает название (заголовок) транспорта
+	 * @param string $className Имя транспорта (краткое имя класса)
+	 * @return string
+	 */
+	public static function title(string $className): string {
 		$className=str_replace('Transport','',$className);
 		plushka::import('model/notification');
 		plushka::import('model/'.$className);
+		/** @var Notification $public */
 		$public=new $className();
 		return $public->title();
 	}
 
-	abstract public function formAppend(FormEx $form); //Добавляет поля к HTML-форме
+	/**
+	 * Метод должен добавить необходимые поля к форме настройки транспорта
+	 * @param FormEx $form
+	 */
+	abstract public function formAppend(FormEx $form): void;
 
-	abstract public function form2Setting(array $data); //Обрабатывает форму и возвращает конфигурацию
+	/**
+	 * Обрабатывает данные формы, преобразуя их в конфигурацию
+	 * В случае неуспешной валидации следует вызвать plushka::error().
+	 * @param array $data Данные формы
+	 * @return mixed Конфигурация транспорта
+	 * @see self::formAppend()
+	 */
+	abstract public function form2Setting(array $data);
 
-//	abstract public function getTitle(); //Возвращает название транспорта (строка или массив)
-
+	/** @var array Конифигурация транспорта */
 	private $_setting;
 
-	public function __construct($setting) {
+	/**
+	 * NotificationTransport constructor.
+	 * @param array $setting
+	 */
+	public function __construct(array $setting) {
 		$this->_setting=$setting;
 	}
 
-	public function __get($attribute) {
-		return (isset($this->_setting[$attribute]) ? $this->_setting[$attribute] : null);
+	/**
+	 * @param string $attribute Имя атрибута конфигурации
+	 * @return mixed|null
+	 */
+	public function __get(string $attribute) {
+		return $this->_setting[$attribute] ?? null;
 	}
 
-	public function getId() {
+	/**
+	 * Возвращает название (идентификатор) транспорта, определяя его по имени класса
+	 * @return string
+	 */
+	public function getId(): string {
 		$id=get_class($this);
 		return strtolower($id[21]).substr($id,22);
 	}

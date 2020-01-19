@@ -71,7 +71,7 @@ class Model extends Validator {
 	/**
 	 * Загружает данные из базы данных в модель
 	 * Если в параметре $fieldList указана строка, то она воспринимается как список полей (допустимо указать "*").
-	 * Если $fieldList не указан, то список полей будет взят из static::fieldList(false)
+	 * Если $fieldList не указан, то список полей будет взят из static::fieldListLoad(false)
 	 * @param string            $where     часть SQL-запроса "WHERE"
 	 * @param array|string|null $fieldList Список полей, которые нужно загрузить
 	 * @return bool Были или нет загружены данные модели

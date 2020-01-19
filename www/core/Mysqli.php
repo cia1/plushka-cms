@@ -84,6 +84,7 @@ class Mysqli {
 	 * @param string   $query SQL-запрос
 	 * @param int|null $limit Количество строк для операции SELECT
 	 * @param int|null $page  Номер страницы пагирации
+	 * @throws DBException
 	 */
 	public function query(string $query,int $limit=null,int $page=null): void {
 		if($limit!==null) {
@@ -197,6 +198,28 @@ class Mysqli {
 	 */
 	public function affected(): int {
 		return self::$_connectId->affected_rows;
+	}
+
+	/**
+	 * Запускает транзакцию
+	 * TODO: изоляции не поддерживаются, будут реализованы в следующих версиях
+	 */
+	public function transaction(): void {
+		self::$_connectId->begin_transaction();
+	}
+
+	/**
+	 * Завершает транзакцию
+	 */
+	public function commit(): void {
+		self::$_connectId->commit();
+	}
+
+	/**
+	 * Откатывает транзакцию
+	 */
+	public function rollback(): void {
+		self::$_connectId->rollback();
 	}
 
 	//Возвращет часть SQL-запроса для оператора INSERT

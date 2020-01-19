@@ -1,5 +1,5 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 /**
  * A class for reading Microsoft Excel (97/2003) Spreadsheets.

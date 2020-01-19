@@ -1,5 +1,5 @@
 <?php
-namespace plushka\admin\core;
+namespace plushka\admin\model;
 
 /* Осуществляет импорт данных в интернет-магазин */
 class ShopImport {
