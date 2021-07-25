@@ -1,6 +1,7 @@
 <?php
-require_once('./core/core.php');
+use plushka\admin\core\plushka;
+
+require __DIR__.'/core/plushka.php';
 session_start();
-if(core::userGroup()!=255) exit;
-core::import('admin/data/phpliteadmin');
-?>
+if(plushka::userGroup()!==255) exit;
+plushka::import('admin/data/phpliteadmin');
