@@ -1,17 +1,16 @@
 <?php
+use plushka\admin\core\Config;
+
 function installAfter($version) {
-	core::import('admin/core/config');
-	$cfg=new config('_core');
+	$cfg=new Config('_core');
 	$cfg->template=array();
 	$cfg->save('_core');
 	return true;
 }
 
 function uninstallBefore() {
-	core::import('admin/core/config');
-	$cfg=new config('_core');
+	$cfg=new Config('_core');
 	unset($cfg->template);
 	$cfg->save('_core');
 	return true;
 }
-?>
